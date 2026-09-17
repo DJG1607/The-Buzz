@@ -2077,7 +2077,7 @@ const ITEMS = {
   compass:    {name:"Brújula",         icon:"compass",    equip:true, blurb:"La aguja apunta siempre a la salida más cercana.", name_en:"Compass", blurb_en:"The needle always points to the nearest exit."},
   flashlight: {name:"Linterna",        icon:"flashlight", equip:true, key:"F", blurb:"Haz de luz largo. Gasta pilas mientras está encendida.", name_en:"Flashlight", blurb_en:"A long beam. Eats batteries while it is on."},
   backpack:   {name:"Mochila",         icon:"backpack",   equip:true, blurb:"Sube la carga de 4 a 10 huecos.", name_en:"Backpack", blurb_en:"Raises your load from 4 to 10 slots."},
-  almond:     {name:"Almond Water",    icon:"almond",     stack:true, key:"Q", blurb:"Recupera 34 de cordura.", name_en:"Almond Water", blurb_en:"Restores 34 sanity."},
+  almond:     {name:"Almond Water",    icon:"almond",     stack:true, key:"Q", blurb:"Recupera 39 de cordura.", name_en:"Almond Water", blurb_en:"Restores 39 sanity."},
   bandage:    {name:"Vendaje",         icon:"bandage",    stack:true, key:"R", blurb:"Cura la zona más dañada y corta la hemorragia.", name_en:"Bandage", blurb_en:"Heals the worst hit limb and stops the bleeding."},
   battery:    {name:"Pilas",           icon:"battery",    stack:true, blurb:"Recarga la linterna al 100%.", name_en:"Batteries", blurb_en:"Recharges the flashlight to 100%."},
   flare:      {name:"Bengala",         icon:"flare",      stack:true, key:"G", blurb:"Se enciende y se deja en el suelo: luz amplia un buen rato.", name_en:"Flare", blurb_en:"Light it and drop it: wide light for a good while."},
@@ -2086,8 +2086,8 @@ const ITEMS = {
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
-  comun: ["almond","almond","bandage","bandage","battery"],
-  bueno: ["flashlight","map","flare","flare","battery","almond"],
+  comun: ["almond","almond","almond","bandage","bandage","battery"],
+  bueno: ["flashlight","map","flare","flare","battery","almond","bandage"],
   raro:  ["compass","backpack","map","flashlight"]
 };
 
@@ -2902,10 +2902,10 @@ function lootForRoll(roll, rand){
   for(let i=0;i<d.tiers.length;i++){
     const pool = TIERS[d.tiers[i]];
     let id = pool[(rand()*pool.length)|0];
-    if(id === "map" && (G.navPrize !== "map" || hasItem("map"))) id = "battery";
+    if(id === "map" && (G.navPrize !== "map" || hasItem("map"))) id = "almond";
     // el equipo repetido no entra en la mochila: se cambia por algo que sí sirva
     if(ITEMS[id].equip && hasItem(id)){
-      const sob = ["almond","bandage","battery","flare"];
+      const sob = ["almond","almond","bandage","battery","flare"];
       id = sob[(rand()*sob.length)|0];
     }
     out.push(id);
@@ -4602,7 +4602,7 @@ function useItem(id){
   if(id === "almond"){
     if(!hasItem("almond")){ toast(tx("No te queda Almond Water.","No Almond Water left.")); return; }
     removeItem("almond");
-    G.sanity = Math.min(100, G.sanity + 34);
+    G.sanity = Math.min(100, G.sanity + 39);
     Audio_.sip();
     logLine(tx("Almond Water. <b>+34</b> cordura.","Almond Water. <b>+34</b> sanity."));
   }
@@ -6370,8 +6370,15 @@ function descendTo(levelId, seed){
   const hadMap = !!G.equip.map;
   delete G.equip.map;                      // un plano sirve para un solo nivel
   if(G.held === "map") G.held = null;
+  // la cinta señala una salida DE ESTE nivel: abajo no vale nada
+  const hadTape = hasItem("recorder");
+  if(hadTape){
+    for(let i=G.inv.length-1;i>=0;i--) if(G.inv[i].id === "recorder") G.inv.splice(i,1);
+    if(G.held === "recorder") G.held = null;
+  }
   buildLevel(levelId, seed);
   if(hadMap) logLine(tx("El plano del nivel anterior ya no sirve aquí.","The map from the last level is no use here."));
+  if(hadTape) logLine(tx("La cinta hablaba de una salida que ya has cruzado. La dejas atrás.","The tape spoke of an exit you have already crossed. You leave it behind."));
   refreshSlots();
   computeReveal(true);
   G.best = Math.max(G.best, G.depth);
