@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>El Zumbido</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -1491,9 +1492,9 @@ const CAT = [
     floor:["concrete",{base:"#5e5c56",dark:"rgba(30,29,26,.4)",light:"rgba(120,118,110,.25)"}],
     wall:["concrete",{base:"#7b7970",dark:"rgba(42,41,38,.4)",light:"rgba(150,148,140,.25)"}],
     ceil:["concrete",{base:"#4a4944",dark:"rgba(24,24,22,.5)",light:"rgba(96,95,90,.2)"}],
-    drain:1.2, boxes:12, outpost:0.6, deco:"warehouse",
+    drain:1.2, boxes:11, outpost:0.6, deco:"warehouse",
     special:["pillar","blackout","manila"],
-    ents:{hound:3, smiler:2, faceling:2, duller:2, clump:1, crawler:2, stealer:1, wretch:1},
+    ents:{hound:2, smiler:2, faceling:2, duller:1, clump:1, crawler:1, stealer:1, wretch:1},
     exitsTo:[
       {to:"2",  kind:"vent",     note:"conducto"},
       {to:"4",  kind:"door",     note:"puerta del almacén"},
@@ -1517,7 +1518,7 @@ const CAT = [
     ceil:["concrete",{base:"#26231e",dark:"rgba(10,9,8,.6)",light:"rgba(56,50,42,.18)"}],
     drain:1.7, boxes:8, outpost:0.25, deco:"pipes",
     special:["blackout","hole"],
-    ents:{smiler:6, deathmoth:2, clump:2, wretch:2, crawler:2},
+    ents:{smiler:5, deathmoth:2, clump:1, wretch:2, crawler:2},
     exitsTo:[
       {to:"3", kind:"hatch", note:"trampilla"},
       {to:"1", kind:"vent",  note:"volver al almacén"},
@@ -1538,7 +1539,7 @@ const CAT = [
     ceil:["concrete",{base:"#33312c",dark:"rgba(14,14,12,.55)",light:"rgba(70,68,62,.2)"}],
     drain:1.5, boxes:11, outpost:0.4, deco:"electrical",
     special:["blackout","pillar"],
-    ents:{hound:3, faceling:2, wretch:2, deathmoth:2, stealer:1, smiler:2, clump:1, crawler:1},
+    ents:{hound:2, faceling:2, wretch:1, deathmoth:2, stealer:1, smiler:1, clump:1, crawler:1},
     exitsTo:[
       {to:"4", kind:"door",   note:"puerta de mantenimiento"},
       {to:"2", kind:"hatch",  note:"volver a las tuberías"},
@@ -1557,7 +1558,7 @@ const CAT = [
     floor:["carpet",{base:"#54544e",dark:"rgba(34,34,30,.5)",light:"rgba(104,104,96,.35)"}],
     wall:["wallpaper",{base:"#9a968a",stripe:16,dark:"rgba(126,122,112,.5)",light:"rgba(170,166,154,.35)",skirt:"rgba(70,68,62,.6)"}],
     ceil:["ceilTile",{base:"#c6c4b6"}],
-    drain:0.95, boxes:14, outpost:0.75, deco:"office",
+    drain:0.95, boxes:12, outpost:0.75, deco:"office",
     special:["manila","blackout","arch"],
     ents:{hound:2, duller:3, smiler:1, faceling:1},
     exitsTo:[
@@ -1581,7 +1582,7 @@ const CAT = [
     floor:["carpet",{base:"#6e2420",dark:"rgba(52,14,12,.55)",light:"rgba(150,104,48,.35)",stain:"rgba(30,8,6,.35)"}],
     wall:["wallpaper",{base:"#5e2420",stripe:10,dark:"rgba(62,22,18,.7)",light:"rgba(166,132,58,.45)",skirt:"rgba(52,32,16,.75)"}],
     ceil:["wood",{base:"#3e2a18",dark:"rgba(24,16,8,.55)",light:"rgba(96,70,42,.3)"}],
-    drain:1.45, boxes:12, outpost:0.4, deco:"hotel",
+    drain:1.45, boxes:11, outpost:0.4, deco:"hotel",
     special:["red","manila"],
     ents:{deathmoth:4, hound:2, stealer:3, smiler:1, wretch:1},
     exitsTo:[
@@ -1604,7 +1605,7 @@ const CAT = [
     ceil:["concrete",{base:"#2a2926",dark:"rgba(8,8,8,.6)",light:"rgba(50,48,44,.15)"}],
     drain:2.6, boxes:9, outpost:0.15, deco:"dark",
     special:["hole","red"],
-    ents:{smiler:8, hound:3, crawler:4, wretch:3, clump:2},
+    ents:{smiler:5, hound:2, crawler:3, wretch:2, clump:2},
     exitsTo:[
       {to:"7", kind:"hatch", note:"trampilla inundada"},
       {to:"8", kind:"crack", note:"grieta"},
@@ -1625,7 +1626,7 @@ const CAT = [
     ceil:["metal",{base:"#1c2428",dark:"rgba(8,12,14,.6)",light:"rgba(44,54,58,.25)"}],
     drain:1.6, boxes:10, outpost:0.3, deco:"sea",
     special:["pillar"],
-    ents:{smiler:3, deathmoth:3, faceling:1, wretch:1},
+    ents:{smiler:3, deathmoth:3, faceling:3, wretch:2, crawler:2},
     exitsTo:[
       {to:"8",  kind:"hatch",  note:"escotilla"},
       {to:"37", kind:"drain",  note:"desagüe"},
@@ -1646,7 +1647,7 @@ const CAT = [
     ceil:["stone",{base:"#2e2922",dark:"#1e1a15",light:"#443d33"}],
     drain:1.8, boxes:8, outpost:0.2, deco:"caves",
     special:["hole","blackout"],
-    ents:{hound:4, crawler:4, clump:2, wretch:2, smiler:3},
+    ents:{hound:2, crawler:3, clump:2, wretch:1, smiler:3},
     exitsTo:[
       {to:"9",  kind:"well",  note:"pozo"},
       {to:"10", kind:"crack", note:"grieta hacia arriba"},
@@ -1708,9 +1709,9 @@ const CAT = [
     floor:["concrete",{base:"#3a3a38",dark:"rgba(16,16,16,.5)",light:"rgba(78,78,74,.2)"}],
     wall:["brick",{base:"#5c554c",dark:"#443e37",mortar:"#6e675e"}],
     ceil:null,
-    drain:1.35, boxes:13, outpost:0.7, deco:"city",
+    drain:1.35, boxes:14, outpost:0.7, deco:"city",
     special:["pillar","arch"],
-    ents:{faceling:6, stealer:3, hound:2, smiler:2, duller:2},
+    ents:{faceling:7, stealer:3, hound:2, smiler:2, duller:3},
     exitsTo:[
       {to:"beta", kind:"door",   note:"puerta de Base Beta"},
       {to:"33",   kind:"elevator",note:"ascensor del centro comercial"},
@@ -1755,7 +1756,7 @@ const CAT = [
     ceil:["concrete",{base:"#2e0d0a",dark:"rgba(14,4,4,.6)",light:"rgba(70,24,18,.2)"}],
     drain:3.0, boxes:6, outpost:0.0, deco:"red",
     special:["red"],
-    ents:{hound:6, smiler:4, wretch:3, crawler:3},
+    ents:{hound:4, smiler:4, wretch:2, crawler:3},
     exitsTo:[
       {to:"1", kind:"firedoor", note:"la única puerta"},
       {to:"6", kind:"hole",     note:"agujero al final"}
@@ -1773,9 +1774,9 @@ const CAT = [
     floor:["carpet",{base:"#9a4a72",dark:"rgba(70,26,50,.5)",light:"rgba(190,120,160,.4)"}],
     wall:["wallpaper",{base:"#d97ab0",stripe:10,dark:"rgba(160,80,120,.5)",light:"rgba(240,170,208,.4)",skirt:"rgba(110,44,80,.6)"}],
     ceil:["ceilTile",{base:"#e8b6d2"}],
-    drain:2.4, boxes:12, outpost:0.1, deco:"party",
+    drain:2.4, boxes:11, outpost:0.1, deco:"party",
     special:["red"],
-    ents:{partygoer:6, smiler:4, stealer:2, faceling:2},
+    ents:{partygoer:5, smiler:3, stealer:2, faceling:2},
     exitsTo:[
       {to:"11",   kind:"stage", note:"puerta de atrás"},
       {to:"!",    kind:"door",  note:"pasillo rojo"},
@@ -1815,7 +1816,7 @@ const CAT = [
     floor:["wood",{base:"#5e4a30",dark:"rgba(36,26,14,.55)",light:"rgba(124,100,66,.35)"}],
     wall:["wood",{base:"#6a543a",dark:"rgba(42,32,18,.5)",light:"rgba(140,114,78,.3)"}],
     ceil:["wood",{base:"#42331f",dark:"rgba(24,18,10,.55)",light:"rgba(92,74,48,.25)"}],
-    drain:1.15, boxes:15, outpost:0.45, deco:"attic",
+    drain:1.15, boxes:8, outpost:0.45, deco:"attic",
     special:["hole","blackout"],
     ents:{deathmoth:3, faceling:1, crawler:2, duller:1},
     exitsTo:[
@@ -1836,7 +1837,7 @@ const CAT = [
     floor:["tile",{base:"#8e8a82",alt:"#827e76",grout:"#6a665e",tiles:5,stain:"rgba(50,46,40,.3)"}],
     wall:["wallpaper",{base:"#8a8378",stripe:20,dark:"rgba(104,98,88,.5)",light:"rgba(160,152,140,.3)",skirt:"rgba(58,54,48,.65)"}],
     ceil:["ceilTile",{base:"#b8b4a8"}],
-    drain:1.3, boxes:16, outpost:0.55, deco:"mall",
+    drain:1.3, boxes:13, outpost:0.55, deco:"mall",
     special:["pillar","blackout"],
     ents:{hound:3, duller:3, stealer:2, smiler:3, crawler:2},
     exitsTo:[
@@ -2085,9 +2086,9 @@ const ITEMS = {
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
-  comun: ["almond","almond","bandage","bandage","battery","flare"],
-  bueno: ["flashlight","map","battery","flare","almond","bandage"],
-  raro:  ["compass","backpack","map","flashlight","backpack"]
+  comun: ["almond","almond","bandage","bandage","battery"],
+  bueno: ["flashlight","map","flare","flare","battery","almond"],
+  raro:  ["compass","backpack","map","flashlight"]
 };
 
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
@@ -2095,9 +2096,9 @@ const DICE = [
   null,
   {roll:1, label:"Vacío",         tiers:[],                        note:"Alguien llegó antes.", label_en:"Empty", note_en:"Someone got here first."},
   {roll:2, label:"Poca cosa",     tiers:["comun"],                 note:"", label_en:"Slim pickings", note_en:""},
-  {roll:3, label:"Algo útil",     tiers:["comun","comun"],         note:"", label_en:"Something useful", note_en:""},
+  {roll:3, label:"Algo útil",     tiers:["comun"],                 note:"", label_en:"Something useful", note_en:""},
   {roll:4, label:"Buen hallazgo", tiers:["comun","bueno"],         note:"", label_en:"Good find", note_en:""},
-  {roll:5, label:"Alijo",         tiers:["comun","bueno","comun"], note:"", label_en:"Stash", note_en:""},
+  {roll:5, label:"Alijo",         tiers:["comun","bueno"],         note:"", label_en:"Stash", note_en:""},
   {roll:6, label:"Petate intacto",tiers:["bueno","raro","comun"],  note:"Esto no lo encuentras dos veces.", label_en:"Untouched duffel", note_en:"You will not find this twice."}
 ];
 
@@ -2242,7 +2243,7 @@ function applySave(d){
   G.stamina = staminaMax();
 }
 
-function staminaMax(){ return (40 + G.body.torso*0.6) * (G.char ? G.char.stamina : 1); }
+function staminaMax(){ return (58 + G.body.torso*0.42) * (G.char ? G.char.stamina : 1); }
 function bodyAvg(){
   let s=0; for(let i=0;i<PARTS.length;i++) s += G.body[PARTS[i].id];
   return s/PARTS.length;
@@ -2902,6 +2903,11 @@ function lootForRoll(roll, rand){
     const pool = TIERS[d.tiers[i]];
     let id = pool[(rand()*pool.length)|0];
     if(id === "map" && (G.navPrize !== "map" || hasItem("map"))) id = "battery";
+    // el equipo repetido no entra en la mochila: se cambia por algo que sí sirva
+    if(ITEMS[id].equip && hasItem(id)){
+      const sob = ["almond","bandage","battery","flare"];
+      id = sob[(rand()*sob.length)|0];
+    }
     out.push(id);
   }
   return out;
@@ -4241,23 +4247,23 @@ function makeTape(wx, wz){
    los pasillos en vez de empotrarse contra las paredes. */
 
 const ENT_DEF = {
-  faceling:{ atlas:"faceling", w:1.0, h:1.9, r:0.34, speed:1.5, chase:3.6, sight:17, dmg:15, kind:"walker", memory:5,
+  faceling:{ atlas:"faceling", w:1.0, h:1.9, r:0.34, speed:1.5, chase:3.5, sight:17, dmg:14, kind:"walker", memory:5,
              death:"Un Faceling te alcanzó. No tenía cara, pero sabía perfectamente dónde estabas." },
-  stealer: { atlas:"stealer",  w:1.0, h:1.55,r:0.32, speed:1.9, chase:4.2, sight:20, dmg:19, kind:"walker", memory:7,
+  stealer: { atlas:"stealer",  w:1.0, h:1.55,r:0.32, speed:1.9, chase:4.1, sight:20, dmg:18, kind:"walker", memory:6, tires:true,
              death:"Un Skin-Stealer te alcanzó. Llevaba puesta la cara de alguien que también bajó hasta aquí." },
-  hound:   { atlas:"hound",    w:1.3, h:1.0, r:0.36, speed:2.0, chase:4.7, sight:12, dmg:21, kind:"walker", memory:9, ears:17, tires:true,
+  hound:   { atlas:"hound",    w:1.3, h:1.0, r:0.36, speed:2.0, chase:4.6, sight:12, dmg:20, kind:"walker", memory:8, ears:17, tires:true,
              death:"Un Hound te derribó. Te oyó mucho antes de que tú lo vieras." },
   duller:  { atlas:"duller",   w:1.0, h:1.7, r:0.34, speed:1.2, chase:2.9, sight:15, dmg:17, kind:"walker", memory:22,
              death:"Un Duller te alcanzó. Llevaba siguiéndote desde mucho antes de que lo vieras." },
-  wretch:  { atlas:"wretch",   w:1.0, h:1.6, r:0.32, speed:1.9, chase:4.5, sight:16, dmg:20, kind:"walker", memory:6, tires:true,
+  wretch:  { atlas:"wretch",   w:1.0, h:1.6, r:0.32, speed:1.9, chase:4.4, sight:16, dmg:19, kind:"walker", memory:6, tires:true,
              death:"Un Wretch te alcanzó. No hubo forcejeo: fue cuestión de segundos." },
-  crawler: { atlas:"crawler",  w:1.1, h:0.8, r:0.28, speed:2.4, chase:4.6, sight:10, dmg:9,  kind:"walker", memory:5, tires:true,
+  crawler: { atlas:"crawler",  w:1.1, h:0.8, r:0.28, speed:2.4, chase:4.3, sight:10, dmg:8,  kind:"walker", memory:5, tires:true,
              death:"Los Crawlers te rodearon. Nunca van de uno en uno." },
-  partygoer:{atlas:"partygoer",w:1.0, h:1.6, r:0.33, speed:1.7, chase:4.0, sight:18, dmg:18, kind:"walker", memory:8,
+  partygoer:{atlas:"partygoer",w:1.0, h:1.6, r:0.33, speed:1.7, chase:3.9, sight:18, dmg:17, kind:"walker", memory:7, tires:true,
              death:"Los Partygoers insistieron en que te quedaras a la fiesta." },
-  clump:   { atlas:"clump",    w:1.3, h:0.9, r:0.42, speed:0.7, chase:1.5, sight:9,  dmg:26, kind:"walker", memory:14,
+  clump:   { atlas:"clump",    w:1.3, h:0.9, r:0.42, speed:0.7, chase:1.5, sight:9,  dmg:23, kind:"walker", memory:16,
              death:"Un Clump te cubrió. Lo peor no fue el contacto: fue lo despacio que pasó." },
-  smiler:  { atlas:"smiler",   w:1.2, h:1.2, r:0.4,  speed:0,   chase:0,   sight:0,  dmg:24, kind:"lurker",
+  smiler:  { atlas:"smiler",   w:1.2, h:1.2, r:0.4,  speed:0,   chase:0,   sight:0,  dmg:18, kind:"lurker",
              death:"Un Smiler esperaba en la oscuridad exactamente donde ibas a pasar." },
   deathmoth:{atlas:"deathmoth",w:1.1, h:1.1, r:0.3,  speed:1.2, chase:2.2, sight:8,  dmg:5,  kind:"drifter", memory:3,
              death:"Una Deathmoth te cubrió. Dicen que no atacan; este informe dice lo contrario." }
@@ -4418,8 +4424,8 @@ function updatePlayer(dt){
   const running = moving && wantsRun;
 
   const stamMax = staminaMax();
-  if(running) G.stamina = Math.max(0, G.stamina - dt*17);
-  else        G.stamina = Math.min(stamMax, G.stamina + dt*(moving?6:13));
+  if(running) G.stamina = Math.max(0, G.stamina - dt*15);
+  else        G.stamina = Math.min(stamMax, G.stamina + dt*(moving?7.5:15));
 
   const fwdX=Math.sin(player.yaw), fwdZ=Math.cos(player.yaw);
   const rgtX=-Math.cos(player.yaw), rgtZ=Math.sin(player.yaw);
@@ -5022,7 +5028,7 @@ function updateGrab(dt){
   g.shove = Math.max(0, g.shove - dt*4);
 
   // daño lento mientras te sujeta
-  hurtPlayer(e.def.dmg*dt*0.42, e.def.death);
+  hurtPlayer(e.def.dmg*dt*0.32, e.def.death);
   G.sanity -= dt*3.4;
 
   g.t -= dt;
@@ -5031,7 +5037,7 @@ function updateGrab(dt){
   $("qte").classList.toggle("panic", frac < 0.33);
 
   if(g.t <= 0){
-    hurtPlayer(e.def.dmg*1.5, e.def.death);
+    hurtPlayer(e.def.dmg*1.2, e.def.death);
     Audio_.scream();
     endGrab(false);
   }
@@ -5115,7 +5121,7 @@ function updateEntities(dt){
         }
         if(dist < 1.5 && e.lunge<=0){
           hurtPlayer(def.dmg, def.death);
-          G.sanity -= 9; Audio_.scream(); e.lunge = 2.4;
+          G.sanity -= 7; Audio_.scream(); e.lunge = 3.2;
         }
       }
       e.lunge -= dt;
@@ -5340,7 +5346,7 @@ function updateSanity(dt){
 let lightTimer = 0;
 function updateLights(dt){
   if(G.torchOn){
-    G.torchFuel -= dt*1.5;
+    G.torchFuel -= dt*1.05;
     if(G.torchFuel <= 0){
       G.torchFuel = 0; G.torchOn = false;
       beam.visible = false; beam.intensity = 0;
