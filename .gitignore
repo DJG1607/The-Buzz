@@ -1,0 +1,14 @@
+# temporales de trabajo
+_*.txt
+_*.js
+_*.html
+*.bak
+
+# sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# configuración local del editor
+.claude/
+.vscode/

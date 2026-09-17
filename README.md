@@ -1,0 +1,71 @@
+# El Zumbido
+
+Un juego de **Backrooms en tercera persona**, hecho con Three.js y basado en el lore público de la
+[Backrooms Wiki](https://backrooms-wiki.wikidot.com/). Todo cabe en un archivo HTML: no hay assets
+externos ni compilación. Las texturas, los sprites y el audio se generan por código al arrancar.
+
+**[▶ Jugar](el-zumbido.html)** · abre el archivo en un navegador, o sírvelo con `python -m http.server`.
+
+---
+
+## De qué va
+
+Has hecho *noclip* fuera de la realidad y caes en el **Level 0** sin nada en los bolsillos. No hay
+final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un sitio distinto, y el
+único sitio donde se guarda la partida son los puestos abandonados del M.E.G.
+
+## Lo que hay dentro
+
+- **21 niveles del catálogo de la wiki** — The Lobby, Habitable Zone, Pipe Dreams, Electrical
+  Station, Abandoned Office, Terror Hotel, Lights Out, Thalassophobia, The Caves, The Suburbs,
+  Field of Wheat, The Endless City, Matrix, Attic Floorboards, The Infinite Mall, The Poolrooms,
+  Level ! y Level Fun — más los asentamientos **Base Beta** y **Camp Amber**, y niveles sin
+  catalogar generados por semilla cuando te sales del mapa conocido.
+- **Diez entidades** con su número oficial: Facelings (9), Smilers (3), Hounds (8), Skin-Stealers
+  (10), Deathmoths (4), Dullers (6), Clumps (5), Crawlers (17), Wretches (15) y Partygoers.
+  Persiguen por los pasillos con un campo de distancias, no en línea recta.
+- **Forcejeo**: cuando una entidad te alcanza, te agarra. Hay que soltarse pulsando una secuencia
+  de teclas antes de que se acabe el tiempo. Cuanto más limpio lo hagas, más tarda en levantarse.
+- **Casilleros con tirada de d6**: un 1 no da nada, un 6 es un petate intacto.
+- **Daño por zonas del cuerpo**, con hemorragias y vendajes.
+- **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
+  rojas y la Manila Room.
+- **Tres personajes**, uno de ellos desbloqueable, y **35 logros**.
+
+## Controles
+
+| Tecla | Acción |
+|---|---|
+| `W A S D` | Moverte |
+| Ratón | Mirar |
+| `SHIFT` | Correr (gasta aliento y hace ruido) |
+| `E` | Abrir contenedor · usar salida · guardar en un puesto |
+| `1`–`4` | Sacar objeto (otra vez para usarlo) |
+| `Q` / `R` | Beber Almond Water · vendarte |
+| `F` / `G` | Linterna · bengala |
+| `T Z Q X` | Soltarse de un agarre |
+| `ESC` | Pausa y ajustes |
+
+## Archivos
+
+- `el-zumbido.html` — el juego entero.
+- `mapa-descenso.html` — anexo con el grafo completo de saltos entre niveles, la fauna de cada uno
+  y los tipos de salida.
+
+## Cómo está hecho
+
+Un solo archivo, sin dependencias más allá de Three.js 0.150.1 desde CDN:
+
+- El laberinto sale de un *recursive backtracker* con *braiding* para abrir salas.
+- Las texturas del entorno se pintan en canvas de 384 px (moqueta con fibras, papel pintado con
+  costuras y humedades, hormigón con grietas ramificadas, madera con nudos…).
+- Los personajes son sprites de 24×36 dibujados píxel a píxel y sombreados dentro de su silueta.
+- El audio es WebAudio puro: el zumbido de los fluorescentes son tres osciladores filtrados.
+- Las entidades comparten un *flow field* recalculado desde el jugador cada 0,35 s.
+
+## Créditos
+
+Niveles, entidades y salidas basados en el lore público de la
+[Backrooms Wiki](https://backrooms-wiki.wikidot.com/), publicada bajo
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Los textos de este juego son
+propios; ninguno reproduce los artículos originales.

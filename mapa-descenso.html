@@ -1,0 +1,374 @@
+<title>Mapa del Descenso</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ink:#ddd6bd; --ink-dim:#8b8570; --ink-faint:#5c5849;
+    --void:#0b0b0e; --panel:#141417; --panel-2:#101013;
+    --fluor:#f6eec9; --amber:#c8863a; --sane:#b9c463; --blood:#9c3527;
+    --line:rgba(221,214,189,.18); --line2:rgba(221,214,189,.09);
+    color-scheme: dark;
+  }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0; background:var(--void); color:var(--ink);
+    font-family:"IBM Plex Mono", ui-monospace, "Courier New", monospace;
+    line-height:1.6;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 20px; padding-block:clamp(28px,6vw,64px); }
+
+  header{ border-bottom:1px solid var(--line2); padding-bottom:26px; }
+  .eyebrow{ font-size:9.5px; letter-spacing:.34em; color:var(--ink-faint); text-transform:uppercase; }
+  h1{
+    font-family:"Special Elite", Georgia, serif; font-weight:400;
+    font-size:clamp(34px,7vw,58px); line-height:1; margin:12px 0 0; color:var(--fluor);
+    text-wrap:balance;
+  }
+  .sub{ margin-top:14px; font-size:13px; color:var(--ink-dim); max-width:66ch; text-wrap:pretty; }
+  .sub b{ color:var(--sane); font-weight:500; }
+
+  h2{
+    font-family:"Special Elite",serif; font-weight:400; font-size:clamp(20px,4vw,27px);
+    color:var(--fluor); margin:0 0 4px;
+  }
+  .sec{ margin-top:clamp(36px,7vw,64px); }
+  .sec-note{ font-size:12px; color:var(--ink-dim); max-width:64ch; margin:0 0 20px; text-wrap:pretty; }
+
+  figure{ margin:0; }
+  .scroller{ overflow-x:auto; border:1px solid var(--line2); background:var(--panel-2); padding:10px; }
+  svg#graph{ display:block; min-width:900px; width:100%; height:auto; color:var(--ink); }
+  figcaption{ margin-top:12px; font-size:11.5px; color:var(--ink-faint); line-height:1.65; }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:16px 26px; margin-top:16px; font-size:11px; color:var(--ink-dim); }
+  .legend div{ display:flex; align-items:center; gap:9px; }
+  .swatch{ width:26px; height:0; border-top:2px solid var(--amber); }
+  .swatch.back{ border-top:2px dashed rgba(221,214,189,.35); }
+  .swatch.deep{ border-top:2px solid var(--blood); }
+  .dot{ width:11px; height:11px; border:1px solid var(--line); background:var(--panel); }
+  .dot.r0{ border-color:#7f8a45; } .dot.r1{ border-color:#c9b24e; }
+  .dot.r2{ border-color:var(--amber); } .dot.r3{ border-color:var(--blood); }
+  .dot.meg{ border-color:#7ce07a; background:rgba(124,224,122,.12); }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:1px; background:var(--line2); border:1px solid var(--line2); }
+  .lvl{ background:var(--panel); padding:16px 17px; display:grid; gap:11px; align-content:start; }
+  .lvl-top{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .lvl-num{ font-family:"Special Elite",serif; font-size:26px; color:var(--fluor); line-height:1; }
+  .lvl-name{ font-size:13px; color:var(--ink); }
+  .chip{
+    font-size:8.5px; letter-spacing:.18em; padding:3px 7px; border:1px solid currentColor; text-transform:uppercase;
+  }
+  .chip.r0{ color:#8f9a55; } .chip.r1{ color:#c9b24e; }
+  .chip.r2{ color:var(--amber); } .chip.r3{ color:var(--blood); }
+  .chip.meg{ color:#7ce07a; }
+  .rowk{ font-size:8.5px; letter-spacing:.2em; color:var(--ink-faint); text-transform:uppercase; }
+  .ents{ font-size:11.5px; color:var(--ink-dim); line-height:1.55; }
+  .exits{ display:grid; gap:5px; }
+  .exit{ display:grid; grid-template-columns:auto 1fr; gap:9px; align-items:baseline; font-size:11.5px; }
+  .exit .kind{ color:var(--amber); white-space:nowrap; }
+  .exit .to{ color:var(--ink-dim); }
+  .exit .to b{ color:var(--ink); font-weight:500; }
+
+  table{ width:100%; border-collapse:collapse; font-size:12px; }
+  th,td{ text-align:left; padding:9px 12px; border-bottom:1px solid var(--line2); vertical-align:top; }
+  th{ font-size:8.5px; letter-spacing:.2em; color:var(--ink-faint); text-transform:uppercase; font-weight:400; }
+  td b{ color:var(--fluor); font-weight:500; }
+  .tscroll{ overflow-x:auto; }
+
+  footer{ margin-top:clamp(40px,8vw,70px); padding-top:22px; border-top:1px solid var(--line2); font-size:11px; color:var(--ink-faint); line-height:1.8; }
+  footer a{ color:var(--ink-dim); }
+  @media (max-width:520px){ .legend{ gap:10px 18px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">M.E.G. · Departamento de cartografía · Anexo al manual de supervivencia</div>
+    <h1>Mapa del Descenso</h1>
+    <p class="sub">Todas las conexiones entre niveles de <b>El Zumbido</b>. Se entra siempre por el <b>Level 0</b> y cada salida abre los niveles siguientes, siguiendo el orden que documenta la Backrooms Wiki. Un nivel no tiene una salida: tiene varias, y cada una lleva a un sitio distinto.</p>
+  </header>
+
+  <section class="sec">
+    <h2>El grafo completo</h2>
+    <p class="sec-note">Las columnas son la distancia mínima desde el Level 0: cuántas salidas hay que cruzar, como mínimo, para llegar a cada nivel. Las flechas de vuelta existen — casi todos los niveles tienen camino de retorno — pero no acercan a ninguna parte nueva.</p>
+    <figure>
+      <div class="scroller">
+        <svg id="graph" role="img" aria-label="Grafo de niveles: desde Level 0 se llega sólo a Level 1; desde Level 1 se abren Pipe Dreams, Abandoned Office, Terror Hotel, The Endless City y Run For Your Life; desde ahí el descenso continúa hacia Electrical Station, Lights Out, The Suburbs, Poolrooms, Level Fun, Field of Wheat, Thalassophobia, The Caves y los niveles sin catalogar."></svg>
+      </div>
+      <figcaption id="cap">Cada flecha es una salida jugable, etiquetada con el tipo de salida que hay que cruzar.</figcaption>
+    </figure>
+    <div class="legend">
+      <div><span class="swatch"></span> salida que avanza</div>
+      <div><span class="swatch back"></span> salida de retorno</div>
+      <div><span class="swatch deep"></span> salto a niveles sin catalogar</div>
+      <div><span class="dot r0"></span> seguro</div>
+      <div><span class="dot r1"></span> con reservas</div>
+      <div><span class="dot r2"></span> inseguro</div>
+      <div><span class="dot r3"></span> letal</div>
+      <div><span class="dot meg"></span> asentamiento del M.E.G.</div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Nivel por nivel</h2>
+    <p class="sec-note">Entidades según la lista oficial de la wiki, con su número de entidad. Los niveles se dividen en dos clases: los <b>niveles de los Backrooms</b>, donde hay fauna y donde sólo se guarda si aparece un puesto abandonado, y los <b>asentamientos del M.E.G.</b> — Base Beta y Camp Amber —, sin entidades, con guardado garantizado y donde se recupera cordura. Superar un nivel por primera vez desbloquea su logro.</p>
+    <div class="grid" id="cards"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Tipos de salida</h2>
+    <p class="sec-note">Cada nivel sólo genera los tipos de salida que le corresponden. El aspecto en el juego cambia con el tipo, y eso es lo que te permite reconocerla de lejos cuando aún no tienes mapa.</p>
+    <div class="tscroll"><table id="kinds"></table></div>
+  </section>
+
+  <footer>
+    Anexo generado desde los datos del propio juego · Niveles, entidades, materiales e iluminación contrastados con los artículos de la
+    <a href="https://backrooms-wiki.wikidot.com/">Backrooms Wiki</a> ·
+    Los niveles sin catalogar se generan por semilla y no aparecen en este mapa.
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const EXIT_KINDS = {
+  noclip:  {name:"Zona de clipping",          verb:"Dejarte caer",            look:"Una mancha de moqueta que respira, con un halo violeta."},
+  door:    {name:"Puerta marcada",            verb:"Cruzar la puerta",        look:"Puerta con un cartel encendido sobre el marco."},
+  firedoor:{name:"Salida de incendios",       verb:"Empujar la barra",        look:"Puerta roja con barra antipánico y señal verde."},
+  stairs:  {name:"Escalera de mantenimiento", verb:"Bajar la escalera",       look:"Tramo de escalones hacia un hueco negro, señal naranja."},
+  elevator:{name:"Ascensor de servicio",      verb:"Llamar al ascensor",      look:"Dos hojas metálicas, botón ámbar y display encendido."},
+  vent:    {name:"Conducto de ventilación",   verb:"Meterte por el conducto", look:"Rejilla a media altura con las lamas dobladas."},
+  hatch:   {name:"Trampilla",                 verb:"Abrir la trampilla",      look:"Placa metálica en el suelo con asa circular."},
+  hole:    {name:"Agujero en la pared",       verb:"Colarte por el agujero",  look:"Boquete irregular con cascotes alrededor."},
+  drain:   {name:"Desagüe",                   verb:"Bajar por el desagüe",    look:"Tapa redonda en el suelo, luz verdosa por las juntas."},
+  well:    {name:"Pozo",                      verb:"Descender al pozo",       look:"Brocal de piedra con travesaño de madera."},
+  crack:   {name:"Grieta en el suelo",        verb:"Bajar por la grieta",     look:"Fisura angulosa con borde turquesa."},
+  stage:   {name:"Puerta de servicio",        verb:"Salir por detrás",        look:"Puerta verde detrás del escenario."}
+};
+
+const LEVELS = [
+  {id:"0",  num:"0",  title:"The Lobby",          risk:0, meg:true,
+   ents:["Facelings (Entity 9)","Smilers (Entity 3)","Deathmoths (Entity 4)"],
+   exits:[["1","noclip"],["1","crack"]]},
+  {id:"1",  num:"1",  title:"Habitable Zone",     risk:1, meg:true,
+   ents:["Hounds (Entity 8)","Smilers (Entity 3)","Facelings (Entity 9)","Dullers (Entity 6)","Clumps (Entity 5)","Crawlers (Entity 17)","Skin-Stealers (Entity 10)","Wretches (Entity 15)"],
+   exits:[["2","vent"],["4","door"],["5","stairs"],["11","hole"],["!","firedoor"],["amber","stage"]]},
+  {id:"2",  num:"2",  title:"Pipe Dreams",        risk:2, meg:true,
+   ents:["Smilers (Entity 3)","Deathmoths (Entity 4)","Clumps (Entity 5)","Wretches (Entity 15)","Crawlers (Entity 17)"],
+   exits:[["3","hatch"],["1","vent"],["6","drain"]]},
+  {id:"3",  num:"3",  title:"Electrical Station", risk:2, meg:true,
+   ents:["Hounds (Entity 8)","Facelings (Entity 9)","Wretches (Entity 15)","Deathmoths (Entity 4)","Skin-Stealers (Entity 10)","Smilers (Entity 3)","Clumps (Entity 5)"],
+   exits:[["4","door"],["2","hatch"],["6","vent"]]},
+  {id:"4",  num:"4",  title:"Abandoned Office",   risk:1, meg:true,
+   ents:["Hounds (Entity 8)","Dullers (Entity 6)","Smilers (Entity 3) — avistamiento sin confirmar"],
+   exits:[["5","elevator"],["33","door"],["9","firedoor"],["11","stairs"],["37","drain"],["3","door"]]},
+  {id:"5",  num:"5",  title:"Terror Hotel",       risk:2, meg:true,
+   ents:["Deathmoths (Entity 4) — población principal","Hounds (Entity 8)","Skin-Stealers (Entity 10)","Smilers (Entity 3)","Wretches (Entity 15)"],
+   exits:[["6","stairs"],["4","elevator"],["9","door"]]},
+  {id:"6",  num:"6",  title:"Lights Out",         risk:3, meg:true,
+   ents:["Smilers (Entity 3)","Hounds (Entity 8)","Crawlers (Entity 17)","Wretches (Entity 15)","Clumps (Entity 5)"],
+   exits:[["7","hatch"],["8","crack"],["5","door"]]},
+  {id:"7",  num:"7",  title:"Thalassophobia",     risk:2, meg:true,
+   ents:["Smilers (Entity 3)","Deathmoths (Entity 4)","Facelings (Entity 9)","Wretches (Entity 15)"],
+   exits:[["8","hatch"],["37","drain"],["6","stairs"]]},
+  {id:"8",  num:"8",  title:"The Caves",          risk:2, meg:true,
+   ents:["Hounds (Entity 8)","Crawlers (Entity 17)","Clumps (Entity 5)","Wretches (Entity 15)","Smilers (Entity 3)"],
+   exits:[["9","well"],["10","crack"],["7","hole"]]},
+  {id:"9",  num:"9",  title:"The Suburbs",        risk:1, meg:true,
+   ents:["Deathmoths (Entity 4)","Smilers (Entity 3)","Skin-Stealers (Entity 10)","Hounds (Entity 8)","Wretches (Entity 15)","Facelings (Entity 9)"],
+   exits:[["19","hatch"],["11","door"],["10","crack"],["8","well"],["4","firedoor"]]},
+  {id:"10", num:"10", title:"Field of Wheat",     risk:1, meg:true,
+   ents:["Deathmoths (Entity 4)","Facelings (Entity 9)","Hounds (Entity 8)","Crawlers (Entity 17)"],
+   exits:[["11","door"],["9","hatch"]]},
+  {id:"11", num:"11", title:"The Endless City",   risk:2, meg:true,
+   ents:["Facelings (Entity 9)","Skin-Stealers (Entity 10)","Hounds (Entity 8)","Smilers (Entity 3)","Dullers (Entity 6)"],
+   exits:[["beta","door"],["33","elevator"],["12","vent"],["37","drain"],["Fun","stage"],["10","door"],["deep","hole"]]},
+  {id:"37", num:"37", title:"The Poolrooms",      risk:0, meg:true,
+   ents:["Smilers (Entity 3)","Facelings (Entity 9)","Deathmoths (Entity 4)"],
+   exits:[["11","door"],["9","hatch"],["deep","drain"]]},
+  {id:"!",  num:"!",  title:"Run For Your Life",  risk:3, meg:false,
+   ents:["Hounds (Entity 8)","Smilers (Entity 3)","Wretches (Entity 15)","Crawlers (Entity 17)"],
+   exits:[["1","firedoor"],["6","hole"]]},
+  {id:"Fun",num:"Fun",title:"=)",                 risk:3, meg:false,
+   ents:["Partygoers","Smilers (Entity 3)","Skin-Stealers (Entity 10)","Facelings (Entity 9)"],
+   exits:[["11","stage"],["!","door"],["deep","vent"]]},
+  {id:"12", num:"12", title:"Matrix",              risk:0, meg:true,
+   ents:["Ninguna documentada en la base del M.E.G."],
+   exits:[["11","door"],["1","hatch"],["19","stairs"]]},
+  {id:"19", num:"19", title:"Attic Floorboards",   risk:1, meg:true,
+   ents:["Deathmoths (Entity 4)","Facelings (Entity 9)","Crawlers (Entity 17)","Dullers (Entity 6)"],
+   exits:[["9","hatch"],["12","crack"],["33","stairs"]]},
+  {id:"33", num:"33", title:"The Infinite Mall",   risk:2, meg:true,
+   ents:["Hounds (Entity 8)","Dullers (Entity 6)","Skin-Stealers (Entity 10)","Smilers (Entity 3)","Crawlers (Entity 17)"],
+   exits:[["11","firedoor"],["4","elevator"],["9","door"],["beta","stage"]]},
+  {id:"beta",num:"β", title:"M.E.G. Base Beta", risk:0, meg:true, settlement:true,
+   ents:["Ninguna: territorio asegurado por el M.E.G."],
+   exits:[["11","door"],["33","stage"],["amber","stairs"],["deep","hatch"]]},
+  {id:"amber",num:"A", title:"M.E.G. Camp Amber",  risk:0, meg:true, settlement:true,
+   ents:["Ninguna: territorio asegurado por el M.E.G."],
+   exits:[["11","door"],["1","vent"],["beta","stairs"]]},
+  {id:"deep",num:"?", title:"Sin catalogar",      risk:3, meg:true, proc:true,
+   ents:["Cualquiera de las anteriores, y más de una a la vez"],
+   exits:[["deep","varios"],["11","stairs"],["37","stairs"]]}
+];
+
+const BY_ID = {};
+LEVELS.forEach(l=> BY_ID[l.id] = l);
+const RISK = ["Seguro","Con reservas","Inseguro","Letal"];
+
+/* ── capas: distancia mínima desde el Level 0 ── */
+const layer = {};
+(function(){
+  layer["0"] = 0;
+  let frontier = ["0"];
+  while(frontier.length){
+    const next = [];
+    frontier.forEach(id=>{
+      (BY_ID[id].exits||[]).forEach(([to])=>{
+        if(layer[to] === undefined && BY_ID[to]){
+          layer[to] = layer[id] + 1;
+          next.push(to);
+        }
+      });
+    });
+    frontier = next;
+  }
+})();
+
+/* ── diagrama ── */
+const COLW = 236, NODEW = 152, NODEH = 52, ROWH = 90, PADX = 26, PADY = 34;
+const cols = {};
+LEVELS.forEach(l=>{
+  const c = layer[l.id] === undefined ? 4 : layer[l.id];
+  (cols[c] = cols[c] || []).push(l);
+});
+const colKeys = Object.keys(cols).map(Number).sort((a,b)=>a-b);
+const maxRows = Math.max.apply(null, colKeys.map(c=> cols[c].length));
+const W = PADX*2 + (colKeys.length-1)*COLW + NODEW;
+const H = PADY*2 + (maxRows-1)*ROWH + NODEH;
+
+const pos = {};
+colKeys.forEach((c,ci)=>{
+  const list = cols[c];
+  const offset = (maxRows - list.length)/2;
+  list.forEach((l,ri)=>{
+    pos[l.id] = {
+      x: PADX + ci*COLW,
+      y: PADY + (offset+ri)*ROWH
+    };
+  });
+});
+
+const svg = document.getElementById("graph");
+svg.setAttribute("viewBox", "0 0 "+W+" "+H);
+let out = '';
+
+out += '<defs>'+
+  '<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'+
+    '<path d="M0,1 L9,5 L0,9 z" fill="#c8863a"></path></marker>'+
+  '<marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'+
+    '<path d="M0,1 L9,5 L0,9 z" fill="rgba(221,214,189,.32)"></path></marker>'+
+  '<marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'+
+    '<path d="M0,1 L9,5 L0,9 z" fill="#9c3527"></path></marker>'+
+  '</defs>';
+
+// aristas primero, para que los nodos queden por encima
+const edges = [];
+LEVELS.forEach(l=>{
+  (l.exits||[]).forEach(([to,kind])=>{
+    if(!pos[l.id] || !pos[to] || to === l.id) return;
+    edges.push({from:l.id, to, kind});
+  });
+});
+
+edges.forEach(e=>{
+  const a = pos[e.from], b = pos[e.to];
+  const forward = (layer[e.to] === undefined ? 4 : layer[e.to]) > (layer[e.from] === undefined ? 4 : layer[e.from]);
+  const deep = e.to === "deep";
+  const ax = a.x + NODEW, ay = a.y + NODEH/2;
+  const bx = b.x, by = b.y + NODEH/2;
+  let d, cls, marker;
+  if(forward || deep){
+    const mid = (ax + bx)/2;
+    d = "M"+ax+","+ay+" C"+mid+","+ay+" "+mid+","+by+" "+(bx-6)+","+by;
+    cls = deep ? 'stroke="#9c3527" stroke-width="1.6"' : 'stroke="#c8863a" stroke-width="1.6"';
+    marker = deep ? "ahd" : "ah";
+  } else {
+    // retorno: por debajo, discreto
+    const sx = a.x, sy = a.y + NODEH/2;
+    const ex = b.x + NODEW, ey = b.y + NODEH/2;
+    const dip = Math.max(sy, ey) + 34;
+    d = "M"+sx+","+sy+" C"+(sx-60)+","+dip+" "+(ex+60)+","+dip+" "+(ex+6)+","+ey;
+    cls = 'stroke="rgba(221,214,189,.26)" stroke-width="1.2" stroke-dasharray="5 4"';
+    marker = "ahb";
+  }
+  out += '<path d="'+d+'" fill="none" '+cls+' marker-end="url(#'+marker+')"></path>';
+  if(forward || deep){
+    const lx = (ax + bx)/2, ly = (ay + by)/2 - 7;
+    const label = EXIT_KINDS[e.kind] ? EXIT_KINDS[e.kind].name.toLowerCase() : e.kind;
+    const w = label.length*5.4 + 10;
+    out += '<rect x="'+(lx-w/2)+'" y="'+(ly-9)+'" width="'+w+'" height="14" fill="#0b0b0e" opacity=".92"></rect>';
+    out += '<text x="'+lx+'" y="'+(ly+1.5)+'" text-anchor="middle" font-size="9" fill="#c8863a" font-family="IBM Plex Mono, monospace">'+label+'</text>';
+  }
+});
+
+const RISKC = ["#7f8a45","#c9b24e","#c8863a","#9c3527"];
+LEVELS.forEach(l=>{
+  const p = pos[l.id];
+  if(!p) return;
+  const rc = l.settlement ? "#7ce07a" : RISKC[l.risk];
+  out += '<g>';
+  out += '<rect x="'+p.x+'" y="'+p.y+'" width="'+NODEW+'" height="'+NODEH+'" fill="#141417" stroke="'+rc+'" stroke-width="1"'+(l.proc?' stroke-dasharray="4 3"':'')+'></rect>';
+  out += '<rect x="'+p.x+'" y="'+p.y+'" width="3" height="'+NODEH+'" fill="'+rc+'"></rect>';
+  const head = l.settlement ? "M.E.G." : ("Level "+l.num);
+  out += '<text x="'+(p.x+14)+'" y="'+(p.y+22)+'" font-size="13" fill="'+(l.settlement?"#8ee07a":"#f6eec9")+'" font-family="Special Elite, Georgia, serif">'+head+'</text>';
+  const sub = l.settlement ? l.title.replace("M.E.G. ","") : l.title;
+  out += '<text x="'+(p.x+14)+'" y="'+(p.y+39)+'" font-size="10" fill="#8b8570" font-family="IBM Plex Mono, monospace">'+sub+'</text>';
+  if(l.meg) out += '<circle cx="'+(p.x+NODEW-13)+'" cy="'+(p.y+14)+'" r="3.5" fill="#7ce07a"></circle>';
+  out += '</g>';
+});
+
+svg.innerHTML = out;
+const settlements = LEVELS.filter(l=> l.settlement).length;
+document.getElementById("cap").textContent =
+  "Grafo completo del juego: " + LEVELS.length + " niveles y " + edges.length + " salidas, de los cuales " +
+  settlements + " son asentamientos del M.E.G. (en verde, sin entidades y con guardado). El punto verde en la esquina " +
+  "de un nivel marca que puede aparecer un puesto abandonado donde también se guarda.";
+
+/* ── tarjetas ── */
+const cards = document.getElementById("cards");
+LEVELS.forEach(l=>{
+  const d = document.createElement("div");
+  d.className = "lvl";
+  const exits = l.exits.map(([to,kind])=>{
+    const dest = BY_ID[to];
+    const kn = EXIT_KINDS[kind] ? EXIT_KINDS[kind].name : "varias salidas";
+    const dn = dest ? (dest.proc ? "nivel sin catalogar" : (dest.settlement ? dest.title : "Level "+dest.num+" — «"+dest.title+"»")) : to;
+    return '<div class="exit"><span class="kind">'+kn+'</span><span class="to">→ <b>'+dn+'</b></span></div>';
+  }).join("");
+  d.innerHTML =
+    '<div class="lvl-top">'+
+      '<span class="lvl-num">'+(l.settlement ? "M.E.G." : "Level "+l.num)+'</span>'+
+      '<span class="lvl-name">'+(l.settlement ? l.title.replace("M.E.G. ","") : "«"+l.title+"»")+'</span>'+
+    '</div>'+
+    '<div class="lvl-top">'+
+      '<span class="chip r'+l.risk+'">'+(l.settlement ? "Asentamiento" : RISK[l.risk])+'</span>'+
+      (l.settlement ? '<span class="chip meg">guardado seguro</span>' : (l.meg ? '<span class="chip meg">puesto M.E.G.</span>' : ''))+
+    '</div>'+
+    '<div><div class="rowk">Entidades</div><div class="ents">'+l.ents.join(" · ")+'</div></div>'+
+    '<div><div class="rowk">Salidas</div><div class="exits">'+exits+'</div></div>';
+  cards.appendChild(d);
+});
+
+/* ── tabla de tipos de salida ── */
+const used = {};
+LEVELS.forEach(l=> l.exits.forEach(([,k])=> { if(EXIT_KINDS[k]) used[k] = (used[k]||0)+1; }));
+const t = document.getElementById("kinds");
+let rows = '<tr><th>Salida</th><th>Acción</th><th>Cómo se reconoce</th><th>Veces</th></tr>';
+Object.keys(EXIT_KINDS).forEach(k=>{
+  const e = EXIT_KINDS[k];
+  rows += '<tr><td><b>'+e.name+'</b></td><td>'+e.verb+'</td><td>'+e.look+'</td><td>'+(used[k]||0)+'</td></tr>';
+});
+t.innerHTML = rows;
+
+})();
+</script>
