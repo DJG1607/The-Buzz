@@ -1522,7 +1522,8 @@ const CAT = [
     exitsTo:[
       {to:"3", kind:"hatch", note:"trampilla"},
       {to:"1", kind:"vent",  note:"volver al almacén"},
-      {to:"6", kind:"drain", note:"desagüe"}
+      {to:"6", kind:"drain", note:"desagüe"},
+      {to:"34", kind:"hatch", note:"registro del colector"}
     ],
     lore:"Pasillos estrechos forrados de tuberías, vapor caliente y una oscuridad casi total. Aquí se acaba la idea de que los Backrooms son sólo habitaciones vacías.",
     lore_en:"Narrow corridors lined with pipes, hot steam and near total darkness. This is where the idea that the Backrooms are just empty rooms falls apart.",
@@ -1543,7 +1544,8 @@ const CAT = [
     exitsTo:[
       {to:"4", kind:"door",   note:"puerta de mantenimiento"},
       {to:"2", kind:"hatch",  note:"volver a las tuberías"},
-      {to:"6", kind:"vent",   note:"conducto a oscuras"}
+      {to:"6", kind:"vent",   note:"conducto a oscuras"},
+      {to:"92", kind:"hatch",  note:"escotilla blindada"}
     ],
     lore:"Una subestación eléctrica interminable que zumba a 50 Hz. Los cuadros siguen dando corriente a algo, aunque nadie ha encontrado a qué.",
     lore_en:"An endless electrical substation humming at 50 Hz. The panels still feed power to something, though nobody has found what.",
@@ -1588,7 +1590,8 @@ const CAT = [
     exitsTo:[
       {to:"6", kind:"stairs",   note:"escalera al sótano"},
       {to:"4", kind:"elevator", note:"ascensor de servicio"},
-      {to:"9", kind:"door",     note:"puerta de servicio"}
+      {to:"9", kind:"door",     note:"puerta de servicio"},
+      {to:"21", kind:"door",     note:"pasillo de puertas numeradas"}
     ],
     lore:"Un hotel de lujo apagado: alfombra roja, apliques de latón y cientos de puertas cerradas. Lo que hay dentro de las habitaciones a veces sale a los pasillos.",
     lore_en:"A luxury hotel with the lights off: red carpet, brass sconces and hundreds of closed doors. What is inside the rooms sometimes comes out into the corridors.",
@@ -1609,7 +1612,8 @@ const CAT = [
     exitsTo:[
       {to:"7", kind:"hatch", note:"trampilla inundada"},
       {to:"8", kind:"crack", note:"grieta"},
-      {to:"5", kind:"door",  note:"volver al hotel"}
+      {to:"5", kind:"door",  note:"volver al hotel"},
+      {to:"92", kind:"stairs",note:"escalera al búnker"}
     ],
     lore:"Oscuridad total y kilómetros de pasillo. Todo lo que vive aquí lleva generaciones sin necesitar ojos, y te oye antes de que enciendas nada.",
     lore_en:"Total darkness and miles of corridor. Everything living down here stopped needing eyes generations ago, and it hears you before you switch anything on.",
@@ -1630,7 +1634,8 @@ const CAT = [
     exitsTo:[
       {to:"8",  kind:"hatch",  note:"escotilla"},
       {to:"37", kind:"drain",  note:"desagüe"},
-      {to:"6",  kind:"stairs", note:"volver a la oscuridad"}
+      {to:"6",  kind:"stairs", note:"volver a la oscuridad"},
+      {to:"34", kind:"drain",  note:"colector inundado"}
     ],
     lore:"Pasarelas metálicas sobre un océano negro sin fondo. El agua está templada y quieta, y de vez en cuando algo grande la mueve muy despacio.",
     lore_en:"Metal walkways over a black ocean with no bottom. The water is warm and still, and every so often something large moves it very slowly.",
@@ -1651,7 +1656,8 @@ const CAT = [
     exitsTo:[
       {to:"9",  kind:"well",  note:"pozo"},
       {to:"10", kind:"crack", note:"grieta hacia arriba"},
-      {to:"7",  kind:"hole",  note:"volver al agua"}
+      {to:"7",  kind:"hole",  note:"volver al agua"},
+      {to:"52", kind:"hole",  note:"galería con vetas"}
     ],
     lore:"Un sistema de cuevas húmedas que no aparece en ningún mapa de roca conocido. Se oye agua correr en todas direcciones y nunca la encuentras.",
     lore_en:"A system of damp caves that appears on no known rock map. You can hear water running in every direction and you never find it.",
@@ -1674,7 +1680,8 @@ const CAT = [
       {to:"11", kind:"door",     note:"puerta al final de la calle"},
       {to:"10", kind:"crack",    note:"grieta del jardín"},
       {to:"8",  kind:"well",     note:"pozo del jardín"},
-      {to:"4",  kind:"firedoor", note:"volver a las oficinas"}
+      {to:"4",  kind:"firedoor", note:"volver a las oficinas"},
+      {to:"35", kind:"stairs",   note:"rampa del aparcamiento"}
     ],
     lore:"Un barrio residencial en una noche que no avanza. Las casas están abiertas, las luces encendidas y las mesas puestas para gente que no llega.",
     lore_en:"A residential neighbourhood on a night that never moves on. The houses are open, the lights are on and the tables are set for people who never arrive.",
@@ -1801,7 +1808,8 @@ const CAT = [
     exitsTo:[
       {to:"11", kind:"door",  note:"puerta blanca"},
       {to:"1",  kind:"hatch", note:"trampilla"},
-      {to:"19", kind:"stairs",note:"escalera estrecha"}
+      {to:"19", kind:"stairs",note:"escalera estrecha"},
+      {to:"21", kind:"noclip",note:"una puerta sin número"}
     ],
     lore:"Habitaciones pequeñas de un blanco sin sombras, iluminadas por todas partes a la vez. Lo raro no es lo que hay: es que ninguna cámara ni grabadora consigue registrar este sitio tal y como es.",
     lore_en:"Small rooms of a white with no shadows, lit from everywhere at once. The strange part is not what is there: it is that no camera or recorder ever captures this place as it really is.",
@@ -1844,12 +1852,143 @@ const CAT = [
       {to:"11",   kind:"firedoor", note:"salida de incendios"},
       {to:"4",    kind:"elevator", note:"ascensor del centro"},
       {to:"9",    kind:"door",     note:"puerta de aparcamiento"},
-      {to:"beta", kind:"stage",    note:"puerta de personal"}
+      {to:"beta", kind:"stage",    note:"puerta de personal"},
+      {to:"36",   kind:"elevator", note:"pasarela de embarque"}
     ],
     lore:"Un centro comercial vacío con locales de marcas que existen de verdad, casi todos sin género. Cuanto más te internas, peor está todo: las luces, los suelos y lo que se mueve entre los escaparates.",
     lore_en:"An empty shopping centre with units branded for chains that really exist, nearly all of them bare. The deeper you go, the worse everything gets: the lights, the floors and whatever moves between the shop fronts.",
     tip:"Cuanto más al fondo, más agresivo es lo que vive aquí.",
     tip_en:"The further in, the more aggressive what lives here becomes."
+  },
+  {
+    id:"21", num:"21", title:"Numbered Doors", risk:2,
+    grid:31, cell:4.6, wallH:3.4, braid:0.14,
+    fog:0.040, fogColor:0x2e2a1e, amb:0x3a3428, ambI:0.36,
+    lampColor:0xffe6b0, lampI:1.3, lampDist:14, lampEvery:2, lampStyle:"fluor",
+    floor:["carpet",{base:"#6b3a34",dark:"rgba(52,26,22,.55)",light:"rgba(140,84,72,.35)"}],
+    wall:["wallpaper",{base:"#b8a984",stripe:12,dark:"rgba(140,124,92,.5)",light:"rgba(206,192,158,.35)",skirt:"rgba(96,80,56,.6)"}],
+    ceil:["ceilTile",{base:"#c4bda6"}],
+    drain:1.4, boxes:10, outpost:0.35, deco:"hotel",
+    special:["arch","manila","blackout"],
+    ents:{faceling:3, duller:2, smiler:2, crawler:2, clump:1},
+    exitsTo:[
+      {to:"0",  kind:"door",   note:"la puerta marcada 105"},
+      {to:"8",  kind:"door",   note:"puerta marcada 8"},
+      {to:"11", kind:"door",   note:"puerta marcada 11"},
+      {to:"19", kind:"hatch",  note:"puerta sin número"}
+    ],
+    lore:"Cuatro pasillos larguísimos que se cruzan en una plaza con muebles fuera de sitio. A los lados, puertas con un número pintado: la que lleva el 105 devuelve al Level 0, y las demás van adonde dicen. Los pasillos se recolocan cuando no miras, así que la puerta que buscabas puede no estar donde la dejaste.",
+    lore_en:"Four enormous hallways meeting at a square full of misplaced furniture. Along the sides, doors with a number painted on them: the one marked 105 takes you back to Level 0, and the rest go where they say. The hallways rearrange themselves when you are not looking, so the door you wanted may not be where you left it.",
+    tip:"Lee el número antes de cruzar. Las puertas sin número no están documentadas.",
+    tip_en:"Read the number before you cross. The unnumbered doors are not documented."
+  },
+  {
+    id:"34", num:"34", title:"Sewer System", risk:3,
+    grid:27, cell:3.8, wallH:2.5, braid:0.20,
+    fog:0.075, fogColor:0x0d1416, amb:0x141a1c, ambI:0.10,
+    lampColor:0x86c0b4, lampI:0.55, lampDist:8, lampEvery:6, lampStyle:"bulb",
+    floor:["water",{base:"#16302e",dark:"rgba(5,16,16,.7)",light:"rgba(58,120,112,.3)"}],
+    wall:["brick",{base:"#3c3830",dark:"#272420",mortar:"#4c4840"}],
+    ceil:["stone",{base:"#232624",dark:"#151716",light:"#343836"}],
+    drain:2.3, boxes:8, outpost:0.15, deco:"pipes",
+    special:["hole","blackout"],
+    ents:{smiler:4, crawler:3, hound:2, stealer:1, deathmoth:1},
+    exitsTo:[
+      {to:"7",  kind:"drain", note:"nadar hacia abajo"},
+      {to:"9",  kind:"hatch", note:"reja a la calle"},
+      {to:"11", kind:"hatch", note:"reja del centro"},
+      {to:"4",  kind:"crack", note:"grieta rara"}
+    ],
+    lore:"Túneles de ladrillo por arriba y piedra por abajo, tan bajos que hay que ir encogido, con agua que te llega a media pierna. No hay ni una luz propia en todo el nivel: lo que no alumbres tú, no existe. En las salas de unión el agua se vuelve profunda de golpe.",
+    lore_en:"Tunnels with brick above and stone below, so low you have to stoop, with water up to mid-leg. There is not a single light of its own in the whole level: whatever you do not light does not exist. In the junction rooms the water turns deep without warning.",
+    tip:"No entres sin linterna cargada. Aquí la oscuridad no es un adorno.",
+    tip_en:"Do not go in without a charged flashlight. Here the dark is not decoration."
+  },
+  {
+    id:"35", num:"35", title:"An Empty Car Park", risk:1,
+    grid:29, cell:5.6, wallH:3.0, braid:0.50,
+    fog:0.034, fogColor:0x22262a, amb:0x2e3238, ambI:0.30,
+    lampColor:0xffd9a0, lampI:1.2, lampDist:15, lampEvery:3, lampStyle:"fluor",
+    floor:["concrete",{base:"#4e5052",dark:"rgba(24,26,28,.45)",light:"rgba(108,112,116,.25)"}],
+    wall:["concrete",{base:"#5e6164",dark:"rgba(30,32,34,.45)",light:"rgba(124,128,132,.22)"}],
+    ceil:["concrete",{base:"#3a3d40",dark:"rgba(18,20,22,.5)",light:"rgba(78,82,86,.2)"}],
+    drain:1.05, boxes:11, outpost:0.5, deco:"warehouse",
+    special:["pillar","blackout"],
+    ents:{smiler:3, faceling:2, duller:1, hound:1},
+    exitsTo:[
+      {to:"9",  kind:"stairs",   note:"escalera a la calle"},
+      {to:"11", kind:"firedoor", note:"salida de incendios"},
+      {to:"36", kind:"elevator", note:"ascensor a la terminal"}
+    ],
+    lore:"Seis plantas de aparcamiento de hormigón, en penumbra pero no del todo apagadas: hay focos cálidos y, cada pocas plazas, tubos verdes y azules. Fuera del borde no hay ciudad, sólo un vacío negro. Cuando te acercas a una salida empiezan a aparecer coches, y no están aparcando.",
+    lore_en:"Six floors of concrete parking, dim but not quite dark: there are warm floodlights and, every few bays, green and blue tubes. Past the edge there is no city, only black emptiness. As you get close to an exit cars start showing up, and they are not parking.",
+    tip:"No te asomes al borde y no te metas en ningún coche.",
+    tip_en:"Stay away from the edge and do not get into any car."
+  },
+  {
+    id:"36", num:"36", title:"Timeless Airport", risk:0,
+    grid:31, cell:6.4, wallH:5.2, braid:0.55,
+    fog:0.022, fogColor:0x2a2e34, amb:0x424854, ambI:0.48,
+    lampColor:0xe8f0ff, lampI:1.5, lampDist:20, lampEvery:3, lampStyle:"fluor",
+    floor:["carpet",{base:"#3d4756",dark:"rgba(24,30,38,.5)",light:"rgba(96,110,132,.3)"}],
+    wall:["metal",{base:"#8c9196",dark:"rgba(46,50,54,.4)",light:"rgba(178,184,190,.3)",rust:"rgba(80,70,50,.1)"}],
+    ceil:["tile",{base:"#b6bcc2",alt:"#aab0b6",grout:"#848a90",tiles:6,stain:"rgba(60,70,80,.12)"}],
+    drain:0.55, boxes:16, outpost:0.85, deco:"mall",
+    special:["arch","pillar"],
+    ents:{},
+    exitsTo:[
+      {to:"11", kind:"door",     note:"puerta de embarque"},
+      {to:"9",  kind:"stairs",   note:"escalera de llegadas"},
+      {to:"35", kind:"elevator", note:"ascensor al aparcamiento"},
+      {to:"deep", kind:"noclip", note:"una puerta sin destino en el panel"}
+    ],
+    lore:"Una terminal que no termina: filas de cintas de equipaje vacías, mostradores de facturación hasta donde llega la vista y paneles de vuelos que anuncian destinos que nadie ha catalogado. No hay ninguna entidad hostil documentada. Lo que se pierde aquí es el tiempo: gente que juraba llevar una hora salió con barba de tres días.",
+    lore_en:"A terminal that never ends: rows of empty baggage carousels, check-in desks as far as you can see and flight boards announcing destinations nobody has catalogued. There is no documented hostile entity. What you lose here is time: people who swore they had been an hour walked out with three days of beard.",
+    tip:"Sitio seguro para respirar y guardar. Mira el reloj al entrar y al salir.",
+    tip_en:"A safe place to breathe and save. Check the clock going in and coming out."
+  },
+  {
+    id:"52", num:"52", title:"Eyes On You", risk:2,
+    grid:31, cell:6.0, wallH:5.5, braid:0.55,
+    fog:0.030, fogColor:0x1e1c18, amb:0x322e28, ambI:0.26,
+    lampColor:0xff9a4a, lampI:1.3, lampDist:12, lampEvery:3, lampStyle:"bulb",
+    floor:["stone",{base:"#463f36",dark:"#2f2a24",light:"#5c5348"}],
+    wall:["stone",{base:"#514a3f",dark:"#38322b",light:"#6a6052"}],
+    ceil:["stone",{base:"#2a2620",dark:"#1a1714",light:"#403a31"}],
+    drain:2.0, boxes:12, outpost:0.3, deco:"caves",
+    special:["pillar","blackout","red"],
+    ents:{faceling:4, wretch:3, smiler:3, hound:2},
+    exitsTo:[
+      {to:"11", kind:"hole", note:"túnel marcado «11»"},
+      {to:"8",  kind:"hole", note:"túnel marcado «8»"},
+      {to:"10", kind:"well", note:"pozo de la veta"},
+      {to:"deep", kind:"hole", note:"un túnel mal marcado"}
+    ],
+    lore:"Una caverna enorme de caliza y mármol con antorchas clavadas de trecho en trecho: alumbran lo justo para que el fondo siga negro. Hay vetas de oro, cuarzo y platino, y por eso baja gente a comerciar. Los Facelings y los Wretches de aquí no atacan, sólo te miran pasar, y eso es exactamente lo que acaba contigo.",
+    lore_en:"An enormous limestone and marble cavern with torches driven in here and there: they light just enough to keep the far side black. There are seams of gold, quartz and platinum, which is why people come down to trade. The Facelings and Wretches here do not attack, they only watch you go by, and that is exactly what wears you down.",
+    tip:"La sensación de que te vigilan es real y te come la cordura. No te entretengas.",
+    tip_en:"The feeling of being watched is real and it eats your sanity. Do not linger."
+  },
+  {
+    id:"92", num:"92", title:"Fallout Shelter", risk:3,
+    grid:29, cell:4.2, wallH:2.8, braid:0.22,
+    fog:0.055, fogColor:0x171a1d, amb:0x22262a, ambI:0.18,
+    lampColor:0xbfd0d8, lampI:0.9, lampDist:11, lampEvery:4, lampStyle:"bulb",
+    floor:["concrete",{base:"#3e4144",dark:"rgba(18,20,22,.5)",light:"rgba(86,90,94,.22)"}],
+    wall:["metal",{base:"#4d5356",dark:"rgba(22,26,28,.55)",light:"rgba(106,114,118,.28)",rust:"rgba(96,54,22,.3)"}],
+    ceil:["concrete",{base:"#2a2d30",dark:"rgba(12,14,16,.55)",light:"rgba(60,64,68,.2)"}],
+    drain:2.5, boxes:10, outpost:0.2, deco:"electrical",
+    special:["blackout","hole"],
+    ents:{hound:4, smiler:3, clump:3, crawler:2},
+    exitsTo:[
+      {to:"2",  kind:"firedoor", note:"pasillo largo"},
+      {to:"3",  kind:"stairs",   note:"pasillo largo hacia arriba"},
+      {to:"34", kind:"hatch",    note:"registro de saneamiento"}
+    ],
+    lore:"Búnkeres de hormigón y acero encadenados sin fin, de los de la Guerra Fría, con tuberías finas de agua turbia recorriendo paredes y techos. Los tramos cambian de tamaño sin avisar: de un túnel por el que cabría un camión a un gateadero. Hay muchísimas entidades, y las de las zonas irradiadas salieron mal: los Hounds de aquí son más torpes, los Clumps tienen dedos de más.",
+    lore_en:"Concrete and steel bunkers chained together without end, Cold War issue, with thin pipes of murky water running along walls and ceilings. The sections change size without warning: from a tunnel a lorry would fit through to a crawlway. There are a great many entities, and the ones from the irradiated sections came out wrong: the Hounds here are clumsier, the Clumps have extra fingers.",
+    tip:"Es el nivel más poblado del catálogo. Cruza, no explores.",
+    tip_en:"It is the most crowded level in the catalogue. Cross it, do not explore it."
   },
   {
     id:"beta", num:"β", title:"M.E.G. Base Beta", risk:0, settlement:true,
@@ -3606,6 +3745,38 @@ const SPECIALS = {
   }
 };
 
+/* El anillo de la sala roja se estampa encima del laberinto sin mirar qué
+   pasillos corta: en niveles poco trenzados llegaba a dejar el 80% del mapa
+   incomunicado. Aquí se comprueba y, si hace falta, se le abren más puertas. */
+function reopenSpecials(spawnCell){
+  const n = G.n;
+  const incomunicadas = ()=>{
+    const d = bfs(G.grid, n, spawnCell[0], spawnCell[1]).dist;
+    let mal = 0;
+    for(let i=0;i<n*n;i++) if(G.grid[i] !== 1 && d[i] < 0) mal++;
+    return mal;
+  };
+  if(incomunicadas() === 0) return;
+  for(let i=0;i<G.specials.length;i++){
+    const sp = G.specials[i];
+    if(sp.kind !== "red") continue;
+    const r = sp.r, cx = sp.cx, cy = sp.cy;
+    const puertas = [[cx+r+1,cy],[cx,cy-r-1],[cx,cy+r+1]];
+    for(let p=0;p<puertas.length;p++){
+      const px = puertas[p][0], py = puertas[p][1];
+      if(px<=0||py<=0||px>=n-1||py>=n-1) continue;
+      G.grid[py*n+px] = 0;
+      if(incomunicadas() === 0) return;
+    }
+    // sigue partido: se retira el anillo entero y queda una sala abierta
+    for(let y=cy-r-1;y<=cy+r+1;y++) for(let x=cx-r-1;x<=cx+r+1;x++){
+      const edge = (x===cx-r-1||x===cx+r+1||y===cy-r-1||y===cy+r+1);
+      if(edge && x>0&&y>0&&x<n-1&&y<n-1) G.grid[y*n+x] = 0;
+    }
+    if(incomunicadas() === 0) return;
+  }
+}
+
 function carveSpecials(cfg, rand, spawnCell){
   G.specials = [];
   const pool = cfg.special;
@@ -3889,7 +4060,9 @@ function buildLevel(levelId, seed){
     const first = [];
     for(let y=1;y<G.n-1 && !first.length;y++) for(let x=1;x<G.n-1;x++)
       if(G.grid[y*G.n+x]===0){ first.push(x,y); break; }
-    carveSpecials(cfg, rand, first.length?first:[1,1]);
+    const ref = first.length?first:[1,1];
+    carveSpecials(cfg, rand, ref);
+    reopenSpecials(ref);
   }
   G.explored = new Uint8Array(G.n*G.n);
   G.revealPath = null; G.mapExit = null;

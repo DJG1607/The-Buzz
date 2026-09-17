@@ -16,9 +16,10 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 
 ## Lo que hay dentro
 
-- **21 niveles del catálogo de la wiki** — The Lobby, Habitable Zone, Pipe Dreams, Electrical
+- **24 niveles del catálogo de la wiki** — The Lobby, Habitable Zone, Pipe Dreams, Electrical
   Station, Abandoned Office, Terror Hotel, Lights Out, Thalassophobia, The Caves, The Suburbs,
-  Field of Wheat, The Endless City, Matrix, Attic Floorboards, The Infinite Mall, The Poolrooms,
+  Field of Wheat, The Endless City, Matrix, Attic Floorboards, Numbered Doors, The Infinite Mall,
+  Sewer System, An Empty Car Park, Timeless Airport, The Poolrooms, Eyes On You, Fallout Shelter,
   Level ! y Level Fun — más los asentamientos **Base Beta** y **Camp Amber**, y niveles sin
   catalogar generados por semilla cuando te sales del mapa conocido.
 - **Diez entidades** con su número oficial: Facelings (9), Smilers (3), Hounds (8), Skin-Stealers
@@ -30,7 +31,7 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 - **Daño por zonas del cuerpo**, con hemorragias y vendajes.
 - **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
   rojas y la Manila Room.
-- **Tres personajes**, uno de ellos desbloqueable, y **35 logros**.
+- **Tres personajes**, uno de ellos desbloqueable, y **40 logros**.
 
 ## Idiomas
 
