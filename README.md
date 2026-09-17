@@ -32,6 +32,11 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   rojas y la Manila Room.
 - **Tres personajes**, uno de ellos desbloqueable, y **35 logros**.
 
+## Idiomas
+
+El juego está en **español e inglés**. Se cambia en Ajustes → Idioma, sobre la marcha y sin perder
+la partida. En inglés el juego se llama *The Buzz*.
+
 ## Controles
 
 | Tecla | Acción |

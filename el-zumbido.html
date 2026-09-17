@@ -413,9 +413,9 @@
   <div id="vitals">
     <canvas class="panel" id="bodyc" width="31" height="48" style="padding:0"></canvas>
     <div class="panel" id="meters">
-      <div class="meter"><span class="k">CORDURA</span><span class="bar" id="b-san"><i></i></span><span class="v" id="v-san">100</span></div>
-      <div class="meter"><span class="k">CUERPO</span><span class="bar" id="b-hp"><i></i></span><span class="v" id="v-hp">100</span></div>
-      <div class="meter"><span class="k">ALIENTO</span><span class="bar" id="b-st"><i></i></span><span class="v" id="v-st">100</span></div>
+      <div class="meter"><span class="k" data-en="SANITY">CORDURA</span><span class="bar" id="b-san"><i></i></span><span class="v" id="v-san">100</span></div>
+      <div class="meter"><span class="k" data-en="BODY">CUERPO</span><span class="bar" id="b-hp"><i></i></span><span class="v" id="v-hp">100</span></div>
+      <div class="meter"><span class="k" data-en="BREATH">ALIENTO</span><span class="bar" id="b-st"><i></i></span><span class="v" id="v-st">100</span></div>
     </div>
   </div>
 
@@ -427,7 +427,7 @@
 
   <div class="panel" id="map" hidden>
     <canvas id="mapc" width="150" height="150" hidden></canvas>
-    <div id="compass" hidden><span>BRÚJULA</span><canvas id="needle" width="14" height="14"></canvas><b id="dist">—</b></div>
+    <div id="compass" hidden><span data-en="COMPASS">BRÚJULA</span><canvas id="needle" width="14" height="14"></canvas><b id="dist">—</b></div>
   </div>
 
   <div id="dice" hidden>
@@ -436,10 +436,10 @@
   </div>
 
   <div id="qte" hidden>
-    <div class="qte-top"><b id="qteWho">Algo</b> te ha agarrado</div>
+    <div class="qte-top"><b id="qteWho">Algo</b><span data-en=" has got you"> te ha agarrado</span></div>
     <div id="qteKeys"></div>
     <div class="qte-track"><i id="qteBar"></i></div>
-    <div class="qte-hint">Pulsa las teclas en orden para soltarte</div>
+    <div class="qte-hint" data-en="Hit the keys in order to break free">Pulsa las teclas en orden para soltarte</div>
   </div>
 
   <div id="hand" hidden>
@@ -459,39 +459,39 @@
 
 <div class="screen" id="titleScreen">
   <div class="sheet">
-    <div class="eyebrow">M.E.G. · Manual de supervivencia · Documento sin número</div>
-    <h1>El Zumbido<span class="sub">B A C K R O O M S</span></h1>
+    <div class="eyebrow" data-en="M.E.G. &#183; Survival manual &#183; Unnumbered document">M.E.G. · Manual de supervivencia · Documento sin número</div>
+    <h1><span data-en="The Buzz">El Zumbido</span><span class="sub">B A C K R O O M S</span></h1>
     <div class="rule"></div>
-    <p class="body">Has hecho <em>noclip</em> fuera de la realidad y has caído en el Level 0 sin nada en los bolsillos. Ni mapa, ni brújula, ni luz.</p>
-    <p class="body">Todo lo que necesitas está dentro de casilleros, cajas y carros de servicio. Al abrir uno se <em>tira un d6</em>: un 1 no da nada y un 6 es un petate intacto.</p>
-    <p class="body">Se empieza por el <em>Level 0</em> y cada salida abre los niveles siguientes, siguiendo el orden de la wiki. En algunos hay <em>puestos abandonados del M.E.G.</em>: es el único sitio donde puedes guardar la partida.</p>
-    <p class="body"><span class="warn">Baja todo lo que puedas antes de que te encuentren.</span></p>
+    <p class="body" data-en="You have &lt;em&gt;noclipped&lt;/em&gt; out of reality and landed in Level 0 with empty pockets. No map, no compass, no light.">Has hecho <em>noclip</em> fuera de la realidad y has caído en el Level 0 sin nada en los bolsillos. Ni mapa, ni brújula, ni luz.</p>
+    <p class="body" data-en="Everything you need is inside lockers, boxes and service carts. Opening one &lt;em&gt;rolls a d6&lt;/em&gt;: a 1 gives you nothing, a 6 is an untouched duffel.">Todo lo que necesitas está dentro de casilleros, cajas y carros de servicio. Al abrir uno se <em>tira un d6</em>: un 1 no da nada y un 6 es un petate intacto.</p>
+    <p class="body" data-en="You start at &lt;em&gt;Level 0&lt;/em&gt; and every exit opens the levels that follow, in the order the wiki documents. Some levels hold &lt;em&gt;abandoned M.E.G. outposts&lt;/em&gt;: the only place you can save.">Se empieza por el <em>Level 0</em> y cada salida abre los niveles siguientes, siguiendo el orden de la wiki. En algunos hay <em>puestos abandonados del M.E.G.</em>: es el único sitio donde puedes guardar la partida.</p>
+    <p class="body" data-en="&lt;span class=&quot;warn&quot;&gt;Get as deep as you can before something finds you.&lt;/span&gt;"><span class="warn">Baja todo lo que puedas antes de que te encuentren.</span></p>
     <div class="keys">
-      <div><kbd>W A S D</kbd> moverte</div>
-      <div><kbd>RATÓN</kbd> mirar</div>
-      <div><kbd>SHIFT</kbd> correr</div>
-      <div><kbd>E</kbd> abrir / usar salida</div>
-      <div><kbd>1</kbd>–<kbd>4</kbd> usar objeto</div>
-      <div><kbd>F</kbd> linterna</div>
-      <div><kbd>G</kbd> bengala</div>
-      <div><kbd>Q</kbd> beber agua</div>
-      <div><kbd>R</kbd> vendarte</div>
-      <div><kbd>ESC</kbd> pausa</div>
+      <div><kbd>W A S D</kbd><span data-en=" move"> moverte</span></div>
+      <div><kbd data-en="MOUSE">RATÓN</kbd><span data-en=" look"> mirar</span></div>
+      <div><kbd>SHIFT</kbd><span data-en=" run"> correr</span></div>
+      <div><kbd>E</kbd><span data-en=" open / take exit"> abrir / usar salida</span></div>
+      <div><kbd>1</kbd>–<kbd>4</kbd><span data-en=" use item"> usar objeto</span></div>
+      <div><kbd>F</kbd><span data-en=" flashlight"> linterna</span></div>
+      <div><kbd>G</kbd><span data-en=" flare"> bengala</span></div>
+      <div><kbd>Q</kbd><span data-en=" drink water"> beber agua</span></div>
+      <div><kbd>R</kbd><span data-en=" bandage up"> vendarte</span></div>
+      <div><kbd>ESC</kbd><span data-en=" pause"> pausa</span></div>
     </div>
     <div id="continueBox" hidden>
-      <div class="cont-l"><span class="cont-k">PARTIDA GUARDADA</span><span id="continueInfo"></span></div>
-      <button class="btn small" id="continueBtn">Continuar</button>
+      <div class="cont-l"><span class="cont-k" data-en="SAVED RUN">PARTIDA GUARDADA</span><span id="continueInfo"></span></div>
+      <button class="btn small" id="continueBtn" data-en="Continue">Continuar</button>
     </div>
-    <div class="pickline">Elige con quién bajas</div>
+    <div class="pickline" data-en="Choose who goes down">Elige con quién bajas</div>
     <div id="chars"></div>
     <div id="metaLine" class="meta"></div>
-    <div class="btnrow"><button class="btn ghost" id="optsBtn">Ajustes</button></div>
+    <div class="btnrow"><button class="btn ghost" id="optsBtn" data-en="Settings">Ajustes</button></div>
     <div id="achBox">
-      <div class="ach-head"><span>Logros</span><b id="achCount">0/0</b></div>
+      <div class="ach-head"><span data-en="Achievements">Logros</span><b id="achCount">0/0</b></div>
       <div id="achGrid"></div>
     </div>
-    <div id="smallnote">Este juego necesita <b>teclado y ratón</b>. En móvil o tablet podrás ver el nivel, pero no jugarlo bien.</div>
-    <div class="meta">Niveles, entidades y salidas tomados del lore público de la Backrooms Wiki · Generación infinita · Audio y gráficos generados por código — sube el volumen.</div>
+    <div id="smallnote" data-en="This game needs a &lt;b&gt;keyboard and mouse&lt;/b&gt;. On a phone or tablet you can look at the level, but not really play it.">Este juego necesita <b>teclado y ratón</b>. En móvil o tablet podrás ver el nivel, pero no jugarlo bien.</div>
+    <div class="meta" data-en="Levels, entities and exits taken from the public lore of the Backrooms Wiki &#183; Endless generation &#183; Audio and graphics generated in code — turn the volume up.">Niveles, entidades y salidas tomados del lore público de la Backrooms Wiki · Generación infinita · Audio y gráficos generados por código — sube el volumen.</div>
   </div>
 </div>
 
@@ -516,8 +516,8 @@
     <div class="specs" id="deadSpecs"></div>
     <div class="btnrow">
       <button class="btn" id="loadBtn" hidden>Continuar desde el puesto</button>
-      <button class="btn ghost" id="retryBtn">Otra partida</button>
-      <button class="btn ghost" id="quitBtn">Volver al inicio</button>
+      <button class="btn ghost" id="retryBtn" data-en="New run">Otra partida</button>
+      <button class="btn ghost" id="quitBtn" data-en="Back to title">Volver al inicio</button>
     </div>
   </div>
 </div>
@@ -534,14 +534,14 @@
     <div class="specs" id="clStats"></div>
     <div id="clAch" hidden></div>
     <div class="runline" id="clNext"></div>
-    <div class="btnrow"><button class="btn" id="clBtn">Seguir bajando</button></div>
+    <div class="btnrow"><button class="btn" id="clBtn" data-en="Keep going down">Seguir bajando</button></div>
   </div>
 </div>
 
 <div id="achPop" hidden>
   <div class="ach-ico">★</div>
   <div class="ach-txt">
-    <div class="ach-k">Logro desbloqueado</div>
+    <div class="ach-k" data-en="Achievement unlocked">Logro desbloqueado</div>
     <b id="achName"></b>
     <span id="achDesc"></span>
   </div>
@@ -549,25 +549,25 @@
 
 <div class="screen" id="settingsScreen" hidden>
   <div class="sheet">
-    <div class="eyebrow">M.E.G. · Configuración del equipo</div>
-    <h2>Ajustes</h2>
+    <div class="eyebrow" data-en="M.E.G. &#183; Equipment setup">M.E.G. · Configuración del equipo</div>
+    <h2 data-en="Settings">Ajustes</h2>
     <div class="rule"></div>
     <div id="optRows"></div>
     <div class="btnrow">
-      <button class="btn" id="optsBack">Volver</button>
-      <button class="btn ghost" id="optsReset">Valores por defecto</button>
-      <button class="btn ghost" id="optsWipe">Borrar progreso</button>
+      <button class="btn" id="optsBack" data-en="Back">Volver</button>
+      <button class="btn ghost" id="optsReset" data-en="Defaults">Valores por defecto</button>
+      <button class="btn ghost" id="optsWipe" data-en="Wipe progress">Borrar progreso</button>
     </div>
-    <p class="body" style="margin-top:14px;font-size:10.5px;color:#5c5849">Borrar el progreso elimina los logros, el récord de descenso, los personajes desbloqueados y la partida guardada. Los ajustes no se tocan.</p>
+    <p class="body" style="margin-top:14px;font-size:10.5px;color:#5c5849" data-en="Wiping progress removes achievements, your depth record, unlocked characters and the saved run. Settings are left alone.">Borrar el progreso elimina los logros, el récord de descenso, los personajes desbloqueados y la partida guardada. Los ajustes no se tocan.</p>
   </div>
 </div>
 
 <div class="screen" id="pauseScreen" hidden>
   <div class="sheet">
-    <div class="eyebrow">Registro en pausa</div>
-    <h2>Silencio momentáneo</h2>
+    <div class="eyebrow" data-en="Log paused">Registro en pausa</div>
+    <h2 data-en="A moment of quiet">Silencio momentáneo</h2>
     <div class="rule"></div>
-    <p class="body">El zumbido sigue ahí cuando vuelvas.</p>
+    <p class="body" data-en="The hum is still there when you come back.">El zumbido sigue ahí cuando vuelvas.</p>
     <div class="keys">
       <div><kbd>W A S D</kbd> moverte</div>
       <div><kbd>SHIFT</kbd> correr</div>
@@ -579,9 +579,9 @@
       <div><kbd>R</kbd> vendarte</div>
     </div>
     <div class="btnrow">
-      <button class="btn" id="resumeBtn">Reanudar</button>
-      <button class="btn ghost" id="pauseOptsBtn">Ajustes</button>
-      <button class="btn ghost" id="abandonBtn">Abandonar la partida</button>
+      <button class="btn" id="resumeBtn" data-en="Resume">Reanudar</button>
+      <button class="btn ghost" id="pauseOptsBtn" data-en="Settings">Ajustes</button>
+      <button class="btn ghost" id="abandonBtn" data-en="Abandon run">Abandonar la partida</button>
     </div>
   </div>
 </div>
@@ -610,6 +610,28 @@ function bootFail(err){
    ═══════════════════════════════════════════════════════════════ */
 
 const $ = (id) => document.getElementById(id);
+
+/* ── idioma: cada texto lleva su versión inglesa al lado ── */
+let LANG = "es";
+function tx(es, en){ return (LANG === "en" && en) ? en : es; }
+function txf(o, field){                       // campo traducible de un objeto de datos
+  if(LANG === "en" && o && o[field+"_en"]) return o[field+"_en"];
+  return o ? o[field] : "";
+}
+function txArr(o, field){
+  if(LANG === "en" && o && o[field+"_en"]) return o[field+"_en"];
+  return (o && o[field]) || [];
+}
+// Cambia los textos fijos del HTML. Guarda el español la primera vez.
+function applyLangDom(){
+  const els = document.querySelectorAll("[data-en]");
+  for(let i=0;i<els.length;i++){
+    const el = els[i];
+    if(el.dataset.es === undefined) el.dataset.es = el.innerHTML;
+    el.innerHTML = (LANG === "en") ? el.dataset.en : el.dataset.es;
+  }
+  document.documentElement.lang = LANG;
+}
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
 const lerp  = (a,b,t) => a+(b-a)*t;
 const TAU   = Math.PI*2;
@@ -903,9 +925,11 @@ function buildAtlas(cols, rows, drawCell, shadeSeed){
 
 const CHARACTERS = [
   {
-    id:"scout", name:"Marcos", role:"Explorador del M.E.G.",
+    id:"scout", name:"Marcos", role:"Explorador del M.E.G.", name_en:"Marcos", role_en:"M.E.G. surveyor",
     blurb:"Cartografía niveles para el M.E.G. Sale siempre con la brújula al cuello y aguanta caminando lo que haga falta.",
+    blurb_en:"He maps levels for the M.E.G. He always sets off with his compass round his neck and can walk for as long as it takes.",
     perks:["Empieza con la <b>brújula</b>","<b>+30%</b> de aliento","Los Hounds lo oyen menos"],
+    perks_en:["Starts with the <b>compass</b>","<b>+30%</b> breath","Hounds hear him less"],
     stats:{Aliento:0.9, Suerte:0.4, Sigilo:0.8, Cordura:0.5},
     startEquip:["compass"], stamina:1.3, luck:0, noise:0.82, sanity:1.0, tough:1.0, nightEyes:1.0,
     locked:false,
@@ -915,9 +939,11 @@ const CHARACTERS = [
     opts:{ cap:"#3d4a38" }
   },
   {
-    id:"scav", name:"Vera", role:"Carroñera",
+    id:"scav", name:"Vera", role:"Carroñera", name_en:"Vera", role_en:"Scavenger",
     blurb:"Lleva años vaciando casilleros en niveles que nadie ha catalogado. Sabe dónde mirar, y por eso carga con la mochila grande.",
+    blurb_en:"She has spent years emptying lockers on levels nobody has catalogued. She knows where to look, which is why she carries the big pack.",
     perks:["Empieza con la <b>mochila</b>: 10 huecos","<b>+1</b> a la tirada de cada casillero","Menos aliento: no es de correr"],
+    perks_en:["Starts with the <b>backpack</b>: 10 slots","<b>+1</b> to every locker roll","Less breath: she is no runner"],
     stats:{Aliento:0.35, Suerte:1.0, Sigilo:0.5, Cordura:0.6},
     startEquip:["backpack"], stamina:0.85, luck:1, noise:1.0, sanity:1.05, tough:1.0, nightEyes:1.0,
     locked:false,
@@ -927,13 +953,16 @@ const CHARACTERS = [
     opts:{ ponytail:true }
   },
   {
-    id:"lazarus", name:"Lázaro", role:"Superviviente del Level 6",
+    id:"lazarus", name:"Lázaro", role:"Superviviente del Level 6", name_en:"Lazarus", role_en:"Level 6 survivor",
     blurb:"Salió de Lights Out sin linterna y sin explicación. Ve en la oscuridad mejor que nadie y el zumbido dejó de afectarle hace tiempo, pero su cuerpo pagó el precio.",
+    blurb_en:"He walked out of Lights Out with no flashlight and no explanation. He sees in the dark better than anyone and the hum stopped reaching him long ago, but his body paid for it.",
     perks:["<b>Ve en la oscuridad</b>: no necesita linterna","La cordura le baja un <b>40% más lento</b>","Cuerpo frágil: recibe <b>+35%</b> de daño"],
+    perks_en:["<b>Sees in the dark</b>: needs no flashlight","Sanity drops <b>40% slower</b>","Fragile body: takes <b>+35%</b> damage"],
     stats:{Aliento:0.6, Suerte:0.5, Sigilo:0.95, Cordura:1.0},
     startEquip:[], stamina:1.0, luck:0, noise:0.7, sanity:0.6, tough:1.35, nightEyes:2.4,
     locked:true, unlockAt:2,
     unlockHint:"Se desbloquea cuando cruces tu primera salida y llegues al descenso 2.",
+    unlockHint_en:"Unlocks once you cross your first exit and reach depth 2.",
     pal:{ skin:"#b09a86", skinShade:"#8e7a68", hair:"#2a2622", hairShade:"#1b1815",
           shirt:"#3b4044", shirtShade:"#2b2f33", pants:"#33312c", pantsShade:"#262420",
           shoe:"#1c1a18", shoeShade:"#121110", belt:"#4a443a", collar:null, eye:"#d8d2c0", mouth:"#7a6456" },
@@ -1413,18 +1442,18 @@ const MAT = {
    escaleras, ascensores, conductos, trampillas, desagües, pozos. */
 
 const EXIT_KINDS = {
-  noclip:  {name:"Zona de clipping",         verb:"Dejarte caer"},
-  door:    {name:"Puerta marcada",           verb:"Cruzar la puerta"},
-  firedoor:{name:"Salida de incendios",      verb:"Empujar la barra"},
-  stairs:  {name:"Escalera de mantenimiento",verb:"Bajar la escalera"},
-  elevator:{name:"Ascensor de servicio",     verb:"Llamar al ascensor"},
-  vent:    {name:"Conducto de ventilación",  verb:"Meterte por el conducto"},
-  hatch:   {name:"Trampilla",                verb:"Abrir la trampilla"},
-  hole:    {name:"Agujero en la pared",      verb:"Colarte por el agujero"},
-  drain:   {name:"Desagüe",                  verb:"Bajar por el desagüe"},
-  well:    {name:"Pozo",                     verb:"Descender al pozo"},
-  crack:   {name:"Grieta en el suelo",       verb:"Bajar por la grieta"},
-  stage:   {name:"Puerta de servicio",       verb:"Salir por detrás"}
+  noclip:  {name:"Zona de clipping",         verb:"Dejarte caer", name_en:"Clipping zone", verb_en:"Let yourself fall"},
+  door:    {name:"Puerta marcada",           verb:"Cruzar la puerta", name_en:"Marked door", verb_en:"Go through the door"},
+  firedoor:{name:"Salida de incendios",      verb:"Empujar la barra", name_en:"Fire exit", verb_en:"Push the bar"},
+  stairs:  {name:"Escalera de mantenimiento",verb:"Bajar la escalera", name_en:"Maintenance stairs", verb_en:"Go down the stairs"},
+  elevator:{name:"Ascensor de servicio",     verb:"Llamar al ascensor", name_en:"Service elevator", verb_en:"Call the elevator"},
+  vent:    {name:"Conducto de ventilación",  verb:"Meterte por el conducto", name_en:"Air duct", verb_en:"Crawl into the duct"},
+  hatch:   {name:"Trampilla",                verb:"Abrir la trampilla", name_en:"Hatch", verb_en:"Open the hatch"},
+  hole:    {name:"Agujero en la pared",      verb:"Colarte por el agujero", name_en:"Hole in the wall", verb_en:"Squeeze through the hole"},
+  drain:   {name:"Desagüe",                  verb:"Bajar por el desagüe", name_en:"Drain", verb_en:"Climb down the drain"},
+  well:    {name:"Pozo",                     verb:"Descender al pozo", name_en:"Well", verb_en:"Descend into the well"},
+  crack:   {name:"Grieta en el suelo",       verb:"Bajar por la grieta", name_en:"Crack in the floor", verb_en:"Drop through the crack"},
+  stage:   {name:"Puerta de servicio",       verb:"Salir por detrás", name_en:"Service door", verb_en:"Slip out the back"}
 };
 
 /* ═══════════════ CATÁLOGO DE NIVELES ═══════════════
@@ -1450,7 +1479,9 @@ const CAT = [
       {to:"1", kind:"crack",  note:"suelo que cede"}
     ],
     lore:"Moqueta amarilla mono, papel pintado húmedo y el zumbido de los fluorescentes en cada pasillo. El nivel más recorrido y el más engañoso: es seguro hasta que dejas de contar los días.",
-    tip:"La wiki es clara: de aquí sólo se sale atravesando una pared que parpadea."
+    lore_en:"Mono yellow carpet, damp wallpaper and the hum of the fluorescents down every corridor. The most travelled level and the most deceptive: it is safe right up until you stop counting the days.",
+    tip:"La wiki es clara: de aquí sólo se sale atravesando una pared que parpadea.",
+    tip_en:"The wiki is clear: the only way out is through a wall that flickers."
   },
   {
     id:"1", num:"1", title:"Habitable Zone", risk:1,
@@ -1472,7 +1503,9 @@ const CAT = [
       {to:"amber", kind:"stage", note:"pasillo señalizado por el M.E.G."}
     ],
     lore:"Un almacén de hormigón sin final con luces colgadas de cables. Hay recursos, y por eso los grupos del M.E.G. montan bases aquí. Ninguna dura demasiado.",
-    tip:"Es el cruce de caminos de los Backrooms: de aquí sale casi todo."
+    lore_en:"An endless concrete warehouse with lights strung from cables. There are supplies, which is why M.E.G. teams set up bases here. None of them last.",
+    tip:"Es el cruce de caminos de los Backrooms: de aquí sale casi todo.",
+    tip_en:"It is the crossroads of the Backrooms: almost everything branches from here."
   },
   {
     id:"2", num:"2", title:"Pipe Dreams", risk:2,
@@ -1491,7 +1524,9 @@ const CAT = [
       {to:"6", kind:"drain", note:"desagüe"}
     ],
     lore:"Pasillos estrechos forrados de tuberías, vapor caliente y una oscuridad casi total. Aquí se acaba la idea de que los Backrooms son sólo habitaciones vacías.",
-    tip:"Sin linterna, la cordura cae el doble de rápido."
+    lore_en:"Narrow corridors lined with pipes, hot steam and near total darkness. This is where the idea that the Backrooms are just empty rooms falls apart.",
+    tip:"Sin linterna, la cordura cae el doble de rápido.",
+    tip_en:"Without a flashlight, sanity drops twice as fast."
   },
   {
     id:"3", num:"3", title:"Electrical Station", risk:2,
@@ -1510,7 +1545,9 @@ const CAT = [
       {to:"6", kind:"vent",   note:"conducto a oscuras"}
     ],
     lore:"Una subestación eléctrica interminable que zumba a 50 Hz. Los cuadros siguen dando corriente a algo, aunque nadie ha encontrado a qué.",
-    tip:"Las pilas aparecen aquí más que en ningún otro sitio."
+    lore_en:"An endless electrical substation humming at 50 Hz. The panels still feed power to something, though nobody has found what.",
+    tip:"Las pilas aparecen aquí más que en ningún otro sitio.",
+    tip_en:"Batteries turn up here more than anywhere else."
   },
   {
     id:"4", num:"4", title:"Abandoned Office", risk:1,
@@ -1532,7 +1569,9 @@ const CAT = [
       {to:"3",  kind:"door",     note:"volver a la subestación"}
     ],
     lore:"Oficinas vacías con moqueta gris, mesas sin papeles y ventanas que dan a más oficinas. Uno de los pocos niveles donde se duerme sin turnos de guardia.",
-    tip:"El M.E.G. usa este nivel de nudo: casi siempre hay un puesto montado."
+    lore_en:"Empty offices with grey carpet, bare desks and windows that look onto more offices. One of the few levels where people sleep without setting a watch.",
+    tip:"El M.E.G. usa este nivel de nudo: casi siempre hay un puesto montado.",
+    tip_en:"A quiet, well stocked level: use it to fill the pack."
   },
   {
     id:"5", num:"5", title:"Terror Hotel", risk:2,
@@ -1551,7 +1590,9 @@ const CAT = [
       {to:"9", kind:"door",     note:"puerta de servicio"}
     ],
     lore:"Un hotel de lujo apagado: alfombra roja, apliques de latón y cientos de puertas cerradas. Lo que hay dentro de las habitaciones a veces sale a los pasillos.",
-    tip:"Los Skin-Stealers imitan a la gente. Aquí no hay gente."
+    lore_en:"A luxury hotel with the lights off: red carpet, brass sconces and hundreds of closed doors. What is inside the rooms sometimes comes out into the corridors.",
+    tip:"Los Skin-Stealers imitan a la gente. Aquí no hay gente.",
+    tip_en:"Skin-Stealers imitate people. There are no people here."
   },
   {
     id:"6", num:"6", title:"Lights Out", risk:3,
@@ -1570,7 +1611,9 @@ const CAT = [
       {to:"5", kind:"door",  note:"volver al hotel"}
     ],
     lore:"Oscuridad total y kilómetros de pasillo. Todo lo que vive aquí lleva generaciones sin necesitar ojos, y te oye antes de que enciendas nada.",
-    tip:"Sin linterna esto es una sentencia. Enciéndela y no la sueltes."
+    lore_en:"Total darkness and miles of corridor. Everything living down here stopped needing eyes generations ago, and it hears you before you switch anything on.",
+    tip:"Sin linterna esto es una sentencia. Enciéndela y no la sueltes.",
+    tip_en:"Without a flashlight this is a death sentence. Turn it on and keep it on."
   },
   {
     id:"7", num:"7", title:"Thalassophobia", risk:2,
@@ -1589,7 +1632,9 @@ const CAT = [
       {to:"6",  kind:"stairs", note:"volver a la oscuridad"}
     ],
     lore:"Pasarelas metálicas sobre un océano negro sin fondo. El agua está templada y quieta, y de vez en cuando algo grande la mueve muy despacio.",
-    tip:"El sonido viaja raro aquí: lo que oyes cerca suele estar lejos."
+    lore_en:"Metal walkways over a black ocean with no bottom. The water is warm and still, and every so often something large moves it very slowly.",
+    tip:"El sonido viaja raro aquí: lo que oyes cerca suele estar lejos.",
+    tip_en:"Sound travels strangely here: what you hear close by is usually far away."
   },
   {
     id:"8", num:"8", title:"The Caves", risk:2,
@@ -1608,7 +1653,9 @@ const CAT = [
       {to:"7",  kind:"hole",  note:"volver al agua"}
     ],
     lore:"Un sistema de cuevas húmedas que no aparece en ningún mapa de roca conocido. Se oye agua correr en todas direcciones y nunca la encuentras.",
-    tip:"Los Hounds anidan aquí. Si oyes uno, ya estás en su territorio."
+    lore_en:"A system of damp caves that appears on no known rock map. You can hear water running in every direction and you never find it.",
+    tip:"Los Hounds anidan aquí. Si oyes uno, ya estás en su territorio.",
+    tip_en:"Hounds nest here. If you hear one, you are already in its territory."
   },
   {
     id:"9", num:"9", title:"The Suburbs", risk:1,
@@ -1629,7 +1676,9 @@ const CAT = [
       {to:"4",  kind:"firedoor", note:"volver a las oficinas"}
     ],
     lore:"Un barrio residencial en una noche que no avanza. Las casas están abiertas, las luces encendidas y las mesas puestas para gente que no llega.",
-    tip:"Muchos Facelings: se mueven como vecinos hasta que uno te mira."
+    lore_en:"A residential neighbourhood on a night that never moves on. The houses are open, the lights are on and the tables are set for people who never arrive.",
+    tip:"Muchos Facelings: se mueven como vecinos hasta que uno te mira.",
+    tip_en:"Plenty of Facelings: they move like neighbours until one of them looks at you."
   },
   {
     id:"10", num:"10", title:"Field of Wheat", risk:1,
@@ -1647,7 +1696,9 @@ const CAT = [
       {to:"9",  kind:"hatch", note:"volver al barrio"}
     ],
     lore:"Un campo de trigo bajo un cielo naranja permanente, con un granero al fondo que siempre está a la misma distancia. Es de los pocos sitios donde se puede comer.",
-    tip:"Sin techo, pero tampoco hay dónde esconderse."
+    lore_en:"A wheat field under a permanent orange sky, with a barn in the distance that stays at the same distance. It is one of the few places where you can eat.",
+    tip:"Sin techo, pero tampoco hay dónde esconderse.",
+    tip_en:"No ceiling, but nowhere to hide either."
   },
   {
     id:"11", num:"11", title:"The Endless City", risk:2,
@@ -1669,7 +1720,9 @@ const CAT = [
       {to:"deep", kind:"hole",   note:"noclip a lo desconocido"}
     ],
     lore:"Una ciudad de edificios idénticos que se extiende hasta donde llega la vista, sin coches, sin viento y sin una sola luz encendida en las ventanas.",
-    tip:"Desde aquí se cae a niveles que el M.E.G. no ha catalogado."
+    lore_en:"A city of identical buildings stretching as far as you can see, with no cars, no wind and not one lit window.",
+    tip:"Desde aquí se cae a niveles que el M.E.G. no ha catalogado.",
+    tip_en:"From here you can fall into levels the M.E.G. has never catalogued."
   },
   {
     id:"37", num:"37", title:"The Poolrooms", risk:0,
@@ -1688,7 +1741,9 @@ const CAT = [
       {to:"deep", kind:"drain", note:"desagüe profundo"}
     ],
     lore:"Habitaciones de azulejo blanco con agua tibia hasta la rodilla y una luz que no viene de ninguna lámpara. Casi todos los informes lo describen como el sitio más tranquilo de los Backrooms.",
-    tip:"El mejor sitio para recuperar cordura y guardar la partida."
+    lore_en:"White tiled rooms with warm water up to your knees and a light that comes from no lamp. Almost every report calls it the calmest place in the Backrooms.",
+    tip:"El mejor sitio para recuperar cordura y guardar la partida.",
+    tip_en:"The best place to get sanity back and save your run."
   },
   {
     id:"!", num:"!", title:"Run For Your Life", risk:3,
@@ -1706,7 +1761,9 @@ const CAT = [
       {to:"6", kind:"hole",     note:"agujero al final"}
     ],
     lore:"Un único pasillo rojo de anchura constante y luces de emergencia. El nivel entero está diseñado para una cosa: no puedes pararte. Nada de lo que te persigue se cansa.",
-    tip:"Corre. Aquí pararse cuesta cordura a chorros."
+    lore_en:"A single red corridor of constant width with emergency lighting. The whole level is built for one thing: you cannot stop. Nothing chasing you gets tired.",
+    tip:"Corre. Aquí pararse cuesta cordura a chorros.",
+    tip_en:"Run. Standing still here costs sanity by the bucket."
   },
   {
     id:"Fun", num:"Fun", title:"=)", risk:3,
@@ -1725,7 +1782,9 @@ const CAT = [
       {to:"deep", kind:"vent",  note:"conducto"}
     ],
     lore:"Guirnaldas, confeti y una fiesta de cumpleaños que lleva décadas montada. Todo el mundo aquí sonríe, y todo el mundo aquí quiere que te quedes a celebrarlo.",
-    tip:"Nada de lo que te sonría en este nivel es humano."
+    lore_en:"Streamers, confetti and a birthday party that has been set up for decades. Everyone here is smiling, and everyone here wants you to stay for it.",
+    tip:"Nada de lo que te sonría en este nivel es humano.",
+    tip_en:"Nothing that smiles at you on this level is human."
   },
   {
     id:"12", num:"12", title:"Matrix", risk:0,
@@ -1744,7 +1803,9 @@ const CAT = [
       {to:"19", kind:"stairs",note:"escalera estrecha"}
     ],
     lore:"Habitaciones pequeñas de un blanco sin sombras, iluminadas por todas partes a la vez. Lo raro no es lo que hay: es que ninguna cámara ni grabadora consigue registrar este sitio tal y como es.",
-    tip:"Sin entidades documentadas. Aprovecha para respirar."
+    lore_en:"Small rooms of a white with no shadows, lit from everywhere at once. The strange part is not what is there: it is that no camera or recorder ever captures this place as it really is.",
+    tip:"Sin entidades documentadas. Aprovecha para respirar.",
+    tip_en:"No documented entities. Use it to breathe."
   },
   {
     id:"19", num:"19", title:"Attic Floorboards", risk:1,
@@ -1763,7 +1824,9 @@ const CAT = [
       {to:"33", kind:"stairs",note:"escalera de servicio"}
     ],
     lore:"Un ático interminable de muebles tapados, cajas y polvo en el aire. Entre algunos tablones se cuela un resplandor naranja que no viene de ninguna bombilla y que cuesta dejar de mirar.",
-    tip:"Muchas cajas y pocos vecinos: el mejor nivel para llenar la mochila."
+    lore_en:"An endless attic of sheeted furniture, boxes and dust in the air. An orange glow leaks between some of the floorboards that comes from no bulb and is hard to look away from.",
+    tip:"Muchas cajas y pocos vecinos: el mejor nivel para llenar la mochila.",
+    tip_en:"Plenty of boxes and few neighbours: the best level to fill your pack."
   },
   {
     id:"33", num:"33", title:"The Infinite Mall", risk:2,
@@ -1783,7 +1846,9 @@ const CAT = [
       {to:"beta", kind:"stage",    note:"puerta de personal"}
     ],
     lore:"Un centro comercial vacío con locales de marcas que existen de verdad, casi todos sin género. Cuanto más te internas, peor está todo: las luces, los suelos y lo que se mueve entre los escaparates.",
-    tip:"Cuanto más al fondo, más agresivo es lo que vive aquí."
+    lore_en:"An empty shopping centre with units branded for chains that really exist, nearly all of them bare. The deeper you go, the worse everything gets: the lights, the floors and whatever moves between the shop fronts.",
+    tip:"Cuanto más al fondo, más agresivo es lo que vive aquí.",
+    tip_en:"The further in, the more aggressive what lives here becomes."
   },
   {
     id:"beta", num:"β", title:"M.E.G. Base Beta", risk:0, settlement:true,
@@ -1803,7 +1868,9 @@ const CAT = [
       {to:"deep", kind:"hatch",  note:"expedición sin catalogar"}
     ],
     lore:"La base principal del M.E.G. en la Ciudad Infinita: generadores, literas, un almacén ordenado y gente que lleva aquí más tiempo del que admite. Es territorio seguro mientras la puerta aguante.",
-    tip:"Sin entidades. Se recupera cordura, se guarda la partida y se repone material."
+    lore_en:"The main M.E.G. base in the Endless City: generators, bunks, an orderly store room and people who have been here longer than they admit. It is safe ground as long as the door holds.",
+    tip:"Sin entidades. Se recupera cordura, se guarda la partida y se repone material.",
+    tip_en:"No entities. You recover sanity, save your run and restock."
   },
   {
     id:"amber", num:"A", title:"M.E.G. Camp Amber", risk:0, settlement:true,
@@ -1823,7 +1890,9 @@ const CAT = [
       {to:"beta", kind:"stairs", note:"pasarela a Base Beta"}
     ],
     lore:"El campamento donde el M.E.G. enseña lo básico a quien acaba de hacer noclip: cómo racionar Almond Water, cómo reconocer una salida y qué hacer cuando algo sonríe. Tiendas de campaña, focos y un tablón lleno de avisos.",
-    tip:"Punto de guardado seguro. Aquí nadie te va a perseguir."
+    lore_en:"The camp where the M.E.G. teaches the basics to anyone who has just noclipped in: how to ration Almond Water, how to recognise an exit and what to do when something smiles. Tents, floodlights and a board covered in notices.",
+    tip:"Punto de guardado seguro. Aquí nadie te va a perseguir.",
+    tip_en:"A safe save point. Nothing is going to chase you here."
   },
 ];
 
@@ -1915,12 +1984,28 @@ const PROC_LORE = [
   "Hay marcas de otros exploradores en las paredes. Algunas señalan salidas que ya no existen.",
   "El aire está más frío que en los niveles vecinos y huele a metal mojado. Nadie ha encontrado la fuente."
 ];
+const PROC_LORE_EN = [
+  "The M.E.G. has catalogued this level twice with incompatible descriptions. Both agree on one thing: nobody has drawn a complete map.",
+  "A level explorers describe as \u0022almost familiar\u0022. That feeling lasts until the first fork.",
+  "It appears in three survivor reports and on neither official map. You get in by accident and out by luck.",
+  "The geometry repeats every few hundred metres with tiny variations, just enough to stop you trusting your own memory.",
+  "Logged by an expedition that came back with fewer people than it left with. The report stops mid sentence.",
+  "There are marks from other explorers on the walls. Some of them point to exits that no longer exist.",
+  "The air is colder than on neighbouring levels and smells of wet metal. Nobody has found the source."
+];
 const PROC_TIPS = [
   "Nivel sin catalogar: no te fíes de lo que sepas de otros sitios.",
   "Aquí nadie ha dejado provisiones ordenadas. Abre todo lo que veas.",
   "Las salidas de este nivel no están documentadas: búscalas tú.",
   "Cuanto más te alejas del catálogo, menos casilleros con algo dentro.",
   "El zumbido cambia de tono cuando hay algo cerca."
+];
+const PROC_TIPS_EN = [
+  "An uncatalogued level: do not trust what you know from anywhere else.",
+  "Nobody left supplies neatly stacked here. Open everything you see.",
+  "If you like the level too much, be suspicious.",
+  "The exits on this level are undocumented: find them yourself.",
+  "The hum changes pitch when something is close."
 ];
 
 function makeDeepLevel(seed){
@@ -1965,7 +2050,9 @@ function makeDeepLevel(seed){
       {to:rand()<0.5?"11":"37", kind:"stairs", note:"de vuelta al catálogo"}
     ],
     lore: PROC_LORE[Math.abs(seed*5+h) % PROC_LORE.length],
-    tip: PROC_TIPS[Math.abs(seed*3+h) % PROC_TIPS.length]
+    lore_en: PROC_LORE_EN[Math.abs(seed*5+h) % PROC_LORE_EN.length],
+    tip: PROC_TIPS[Math.abs(seed*3+h) % PROC_TIPS.length],
+    tip_en: PROC_TIPS_EN[Math.abs(seed*3+h) % PROC_TIPS_EN.length]
   };
 }
 
@@ -1985,15 +2072,15 @@ function levelTitle(cfg){ return cfg.settlement ? cfg.title : ("Level "+cfg.num+
    puestos y no gastan hueco. Lo que ocupa sitio es lo consumible. */
 
 const ITEMS = {
-  map:        {name:"Mapa del M.E.G.", icon:"map",        equip:true, blurb:"Dibuja el nivel y el camino hasta la salida más cercana."},
-  compass:    {name:"Brújula",         icon:"compass",    equip:true, blurb:"La aguja apunta siempre a la salida más cercana."},
-  flashlight: {name:"Linterna",        icon:"flashlight", equip:true, key:"F", blurb:"Haz de luz largo. Gasta pilas mientras está encendida."},
-  backpack:   {name:"Mochila",         icon:"backpack",   equip:true, blurb:"Sube la carga de 4 a 10 huecos."},
-  almond:     {name:"Almond Water",    icon:"almond",     stack:true, key:"Q", blurb:"Recupera 34 de cordura."},
-  bandage:    {name:"Vendaje",         icon:"bandage",    stack:true, key:"R", blurb:"Cura la zona más dañada y corta la hemorragia."},
-  battery:    {name:"Pilas",           icon:"battery",    stack:true, blurb:"Recarga la linterna al 100%."},
-  flare:      {name:"Bengala",         icon:"flare",      stack:true, key:"G", blurb:"Se enciende y se deja en el suelo: luz amplia un buen rato."},
-  recorder:   {name:"Grabadora",       icon:"recorder",   stack:true, blurb:"Cinta del M.E.G.: al escucharla te sitúa una salida del nivel."}
+  map:        {name:"Mapa del M.E.G.", icon:"map",        equip:true, blurb:"Dibuja el nivel y el camino hasta la salida más cercana.", name_en:"M.E.G. map", blurb_en:"Draws the level and the path you have already walked."},
+  compass:    {name:"Brújula",         icon:"compass",    equip:true, blurb:"La aguja apunta siempre a la salida más cercana.", name_en:"Compass", blurb_en:"The needle always points to the nearest exit."},
+  flashlight: {name:"Linterna",        icon:"flashlight", equip:true, key:"F", blurb:"Haz de luz largo. Gasta pilas mientras está encendida.", name_en:"Flashlight", blurb_en:"A long beam. Eats batteries while it is on."},
+  backpack:   {name:"Mochila",         icon:"backpack",   equip:true, blurb:"Sube la carga de 4 a 10 huecos.", name_en:"Backpack", blurb_en:"Raises your load from 4 to 10 slots."},
+  almond:     {name:"Almond Water",    icon:"almond",     stack:true, key:"Q", blurb:"Recupera 34 de cordura.", name_en:"Almond Water", blurb_en:"Restores 34 sanity."},
+  bandage:    {name:"Vendaje",         icon:"bandage",    stack:true, key:"R", blurb:"Cura la zona más dañada y corta la hemorragia.", name_en:"Bandage", blurb_en:"Heals the worst hit limb and stops the bleeding."},
+  battery:    {name:"Pilas",           icon:"battery",    stack:true, blurb:"Recarga la linterna al 100%.", name_en:"Batteries", blurb_en:"Recharges the flashlight to 100%."},
+  flare:      {name:"Bengala",         icon:"flare",      stack:true, key:"G", blurb:"Se enciende y se deja en el suelo: luz amplia un buen rato.", name_en:"Flare", blurb_en:"Light it and drop it: wide light for a good while."},
+  recorder:   {name:"Grabadora",       icon:"recorder",   stack:true, blurb:"Cinta del M.E.G.: al escucharla te sitúa una salida del nivel.", name_en:"Tape recorder", blurb_en:"A M.E.G. tape: playing it pinpoints one exit of the level."}
 };
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
@@ -2006,20 +2093,20 @@ const TIERS = {
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
 const DICE = [
   null,
-  {roll:1, label:"Vacío",         tiers:[],                        note:"Alguien llegó antes."},
-  {roll:2, label:"Poca cosa",     tiers:["comun"],                 note:""},
-  {roll:3, label:"Algo útil",     tiers:["comun","comun"],         note:""},
-  {roll:4, label:"Buen hallazgo", tiers:["comun","bueno"],         note:""},
-  {roll:5, label:"Alijo",         tiers:["comun","bueno","comun"], note:""},
-  {roll:6, label:"Petate intacto",tiers:["bueno","raro","comun"],  note:"Esto no lo encuentras dos veces."}
+  {roll:1, label:"Vacío",         tiers:[],                        note:"Alguien llegó antes.", label_en:"Empty", note_en:"Someone got here first."},
+  {roll:2, label:"Poca cosa",     tiers:["comun"],                 note:"", label_en:"Slim pickings", note_en:""},
+  {roll:3, label:"Algo útil",     tiers:["comun","comun"],         note:"", label_en:"Something useful", note_en:""},
+  {roll:4, label:"Buen hallazgo", tiers:["comun","bueno"],         note:"", label_en:"Good find", note_en:""},
+  {roll:5, label:"Alijo",         tiers:["comun","bueno","comun"], note:"", label_en:"Stash", note_en:""},
+  {roll:6, label:"Petate intacto",tiers:["bueno","raro","comun"],  note:"Esto no lo encuentras dos veces.", label_en:"Untouched duffel", note_en:"You will not find this twice."}
 ];
 
 const CONTAINERS = [
-  {id:"locker", name:"Casillero"},
-  {id:"crate",  name:"Caja de cartón"},
-  {id:"cart",   name:"Carro de servicio"},
-  {id:"cabinet",name:"Armario metálico"},
-  {id:"duffel", name:"Petate del M.E.G."}
+  {id:"locker", name:"Casillero", name_en:"Locker"},
+  {id:"crate",  name:"Caja de cartón", name_en:"Cardboard box"},
+  {id:"cart",   name:"Carro de servicio", name_en:"Service cart"},
+  {id:"cabinet",name:"Armario metálico", name_en:"Metal cabinet"},
+  {id:"duffel", name:"Petate del M.E.G.", name_en:"M.E.G. duffel"}
 ];
 
 // Lo que dicen las cintas encontradas en los niveles
@@ -2031,16 +2118,24 @@ const TAPES = [
   "…al que escuche esto: no corras por los pasillos largos. Camina. Ya sabes por qué.",
   "…hemos perdido a Ruiz cerca de la salida norte. Si oyes su voz llamándote, no es él."
 ];
+const TAPES_EN = [
+  "\u2026if you are hearing this, the exit is marked. Three of ours did not come back looking for it. Do not stay to look for us.",
+  "\u2026recording four. We have nailed a sign next to the exit. If the light blinks twice, it is ours.",
+  "\u2026do not use the old map. The exit moved. The new position is on this tape, and it is the last one I record.",
+  "\u2026M.E.G. expedition seven. We left the door open and supplies inside. Good luck, whoever you are.",
+  "\u2026to whoever hears this: do not run down the long corridors. Walk. You already know why.",
+  "\u2026we lost Ruiz near the north exit. If you hear his voice calling you, it is not him."
+];
 
 /* ═══════════════ PARTES DEL CUERPO ═══════════════ */
 
 const PARTS = [
-  {id:"head",  name:"cabeza",          max:100},
-  {id:"torso", name:"torso",           max:100},
-  {id:"armL",  name:"brazo izquierdo", max:100},
-  {id:"armR",  name:"brazo derecho",   max:100},
-  {id:"legL",  name:"pierna izquierda",max:100},
-  {id:"legR",  name:"pierna derecha",  max:100}
+  {id:"head",  name:"cabeza", name_en:"head",          max:100},
+  {id:"torso", name:"torso", name_en:"torso",           max:100},
+  {id:"armL",  name:"brazo izquierdo", name_en:"left arm", max:100},
+  {id:"armR",  name:"brazo derecho", name_en:"right arm",   max:100},
+  {id:"legL",  name:"pierna izquierda", name_en:"left leg",max:100},
+  {id:"legR",  name:"pierna derecha", name_en:"right leg",  max:100}
 ];
 
 /* ═══════════════ ESTADO ═══════════════ */
@@ -2087,7 +2182,7 @@ function checkUnlocks(){
   CHARACTERS.forEach(ch=>{
     if(ch.locked && !G.unlocked[ch.id] && (G.depth+1) >= (ch.unlockAt||99)){
       G.unlocked[ch.id] = true; changed = true;
-      toast("Personaje desbloqueado: "+ch.name+" — "+ch.role);
+      toast(tx("Personaje desbloqueado: ","Character unlocked: ")+txf(ch,"name")+" — "+txf(ch,"role"));
       if(ch.id === "lazarus") unlockAch("lazarus");
     }
   });
@@ -3470,31 +3565,37 @@ const SPECIALS = {
   arch:{
     name:"Variación de arcos",
     note:"Paredes pálidas perforadas por arcos. Suele salir en callejones y salas de paso.",
+    name_en:"Arch variation", note_en:"Pale walls punched through with archways. Shows up in dead ends and transit rooms.",
     radius:2, sanity:0.4
   },
   pillar:{
     name:"Variación de pilares",
     note:"Una sala enrejada de pilares que se pierde de vista.",
+    name_en:"Pillar variation", note_en:"A latticed hall of pillars that runs out of sight.",
     radius:3, sanity:0.3
   },
   hole:{
     name:"Variación de fosos",
     note:"Pozos negros abiertos en el suelo formando cuadrícula. Nadie sabe qué hay abajo.",
+    name_en:"Pit variation", note_en:"Black pits open in the floor in a grid. Nobody knows what is down there.",
     radius:2, sanity:1.6
   },
   blackout:{
     name:"Zona sin luz",
     note:"Un tramo entero sin fluorescentes. La distribución cambia detrás de ti.",
+    name_en:"Blackout zone", note_en:"A whole stretch with no fluorescents. The layout shifts behind you.",
     radius:3, sanity:1.9
   },
   red:{
     name:"Sala roja",
     note:"Un bucle cerrado de paredes rojas. El M.E.G. recomienda no entrar y no mirar.",
+    name_en:"Red room", note_en:"A closed loop of red walls. The M.E.G. advises not to enter and not to look.",
     radius:2, sanity:4.2
   },
   manila:{
     name:"Manila Room",
     note:"Una habitación pequeña donde, por una vez, no estás solo del todo.",
+    name_en:"Manila Room", note_en:"A small room where, for once, you are not entirely alone.",
     radius:1, sanity:-2.6
   }
 };
@@ -3940,7 +4041,7 @@ function buildLevel(levelId, seed){
     const built = buildContainer(def.id, c2w(x)+s.dx*back, c2w(y)+s.dy*back, s.rot);
     addObstacle(c2w(x)+s.dx*back, c2w(y)+s.dy*back, BOX_DEPTH[def.id]*0.55 + 0.1);
     G.containers.push({
-      x:c2w(x)+s.dx*back, z:c2w(y)+s.dy*back, name:def.name, opened:false, roll:0,
+      x:c2w(x)+s.dx*back, z:c2w(y)+s.dy*back, name:def.name, name_en:def.name_en, opened:false, roll:0,
       mesh:built.g, door:built.door
     });
   }
@@ -4035,7 +4136,7 @@ function buildLevel(levelId, seed){
   updateNearestExit();
 
   $("lvlName").textContent = levelTitle(cfg);
-  $("lvlDepth").textContent = "DESCENSO "+(G.depth+1)+" · "+G.char.name.toUpperCase();
+  $("lvlDepth").textContent = tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
 }
 
 /* ── puesto avanzado abandonado del M.E.G. ── */
@@ -4440,7 +4541,7 @@ function rollPart(){
   for(let i=0;i<HIT_TABLE.length;i++){ acc += HIT_TABLE[i][1]; if(r<=acc) return HIT_TABLE[i][0]; }
   return "torso";
 }
-function partName(id){ for(const p of PARTS) if(p.id===id) return p.name; return id; }
+function partName(id){ for(const p of PARTS) if(p.id===id) return txf(p,"name"); return id; }
 
 function hurtPlayer(amount, source){
   if(G.dead) return;
@@ -4454,7 +4555,7 @@ function hurtPlayer(amount, source){
     flashBlood();
     if(G.body[part] < 55 && Math.random() < 0.45 && !G.bleeding[part]){
       G.bleeding[part] = 1;
-      logLine("Hemorragia en "+partName(part)+". <b>[R]</b> para vendarte.");
+      logLine(tx("Hemorragia en ","Bleeding from the ")+partName(part)+tx(". <b>[R]</b> para vendarte.",". <b>[R]</b> to bandage."));
     }
   }
   if((part==="head"||part==="torso") && G.body[part] <= 0){
@@ -4471,7 +4572,7 @@ function updateBleeding(dt){
     any++;
     G.body[p.id] = Math.max(0, G.body[p.id] - dt*1.6);
     if(G.body[p.id] <= 0 && (p.id==="head"||p.id==="torso")){
-      die("Te desangraste por una herida en "+p.name+".");
+      die("Te desangraste por una herida en "+txf(p,"name")+".");
       return;
     }
   }
@@ -4493,42 +4594,42 @@ function flashBlood(){
 
 function useItem(id){
   if(id === "almond"){
-    if(!hasItem("almond")){ toast("No te queda Almond Water."); return; }
+    if(!hasItem("almond")){ toast(tx("No te queda Almond Water.","No Almond Water left.")); return; }
     removeItem("almond");
     G.sanity = Math.min(100, G.sanity + 34);
     Audio_.sip();
-    logLine("Almond Water. <b>+34</b> cordura.");
+    logLine(tx("Almond Water. <b>+34</b> cordura.","Almond Water. <b>+34</b> sanity."));
   }
   else if(id === "bandage"){
-    if(!hasItem("bandage")){ toast("No te quedan vendajes."); return; }
+    if(!hasItem("bandage")){ toast(tx("No te quedan vendajes.","No bandages left.")); return; }
     let worst = null, wv = 101;
     for(const p of PARTS){
       const v = G.body[p.id] - (G.bleeding[p.id] ? 25 : 0);
       if(v < wv){ wv = v; worst = p; }
     }
-    if(!worst || (G.body[worst.id] >= 99 && !G.bleeding[worst.id])){ toast("No tienes nada que vendar."); return; }
+    if(!worst || (G.body[worst.id] >= 99 && !G.bleeding[worst.id])){ toast(tx("No tienes nada que vendar.","Nothing to bandage.")); return; }
     removeItem("bandage");
     G.body[worst.id] = Math.min(100, G.body[worst.id] + 45);
     const wasBleeding = G.bleeding[worst.id];
     G.bleeding[worst.id] = 0;
     Audio_.wrap();
-    logLine("Vendas "+worst.name+(wasBleeding?". Hemorragia cortada.":". <b>+45</b>."));
+    logLine(tx("Vendas ","You bandage the ")+txf(worst,"name")+(wasBleeding?tx(". Hemorragia cortada.",". Bleeding stopped."):". <b>+45</b>."));
   }
   else if(id === "battery"){
-    if(!hasItem("flashlight")){ toast("No tienes linterna donde meterlas."); return; }
-    if(G.torchFuel > 92){ toast("La linterna ya está cargada."); return; }
+    if(!hasItem("flashlight")){ toast(tx("No tienes linterna donde meterlas.","No flashlight to put them in.")); return; }
+    if(G.torchFuel > 92){ toast(tx("La linterna ya está cargada.","The flashlight is already charged.")); return; }
     removeItem("battery");
     G.torchFuel = 100;
     Audio_.click();
-    logLine("Linterna recargada al <b>100%</b>.");
+    logLine(tx("Linterna recargada al <b>100%</b>.","Flashlight recharged to <b>100%</b>."));
   }
   else if(id === "flare"){
-    if(!hasItem("flare")){ toast("No te quedan bengalas."); return; }
+    if(!hasItem("flare")){ toast(tx("No te quedan bengalas.","No flares left.")); return; }
     removeItem("flare");
     lightFlare();
   }
   else if(id === "recorder"){
-    if(!hasItem("recorder")){ toast("No te queda ninguna cinta."); return; }
+    if(!hasItem("recorder")){ toast(tx("No te queda ninguna cinta.","No tapes left.")); return; }
     removeItem("recorder");
     playTape();
   }
@@ -4537,8 +4638,8 @@ function useItem(id){
 }
 
 function toggleTorch(){
-  if(!hasItem("flashlight")){ toast("No tienes linterna. Busca en los casilleros."); return; }
-  if(!G.torchOn && G.torchFuel <= 0){ toast("Pilas agotadas."); return; }
+  if(!hasItem("flashlight")){ toast(tx("No tienes linterna. Busca en los casilleros.","No flashlight. Check the lockers.")); return; }
+  if(!G.torchOn && G.torchFuel <= 0){ toast(tx("Pilas agotadas.","Batteries dead.")); return; }
   G.torchOn = !G.torchOn;
   beam.visible = G.torchOn;
   beam.intensity = G.torchOn ? 2.3 : 0;
@@ -4561,7 +4662,7 @@ function lightFlare(){
   world.add(g);
   G.flares.push({mesh:g, light:L, core, life:70, x:player.pos.x, z:player.pos.z});
   Audio_.noise(0.7, 900, 1.2, 0.14);
-  logLine("Bengala encendida. Dura poco más de un minuto.");
+  logLine(tx("Bengala encendida. Dura poco más de un minuto.","Flare lit. It lasts a little over a minute."));
 }
 function updateFlares(dt){
   for(let i=G.flares.length-1;i>=0;i--){
@@ -4582,13 +4683,14 @@ function updateFlares(dt){
 function playTape(){
   const unknown = G.exits.filter(e=> !e.known);
   const target = unknown.length ? unknown[0] : G.exits[0];
-  if(!target){ toast("La cinta sólo tiene ruido."); return; }
+  if(!target){ toast(tx("La cinta sólo tiene ruido.","The tape is only static.")); return; }
   target.known = true;
-  const line = TAPES[(Math.random()*TAPES.length)|0];
+  const pool = (LANG === "en") ? TAPES_EN : TAPES;
+  const line = pool[(Math.random()*pool.length)|0];
   const k = EXIT_KINDS[target.kind];
   Audio_.tape();
   toast("«"+line+"»", 6.5);
-  logLine("Cinta del M.E.G.: <b>"+k.name+"</b> situada — "+target.destName);
+  logLine(tx("Cinta del M.E.G.: <b>","M.E.G. tape: <b>")+txf(k,"name")+tx("</b> situada — ","</b> pinpointed — ")+target.destName);
   computeReveal(true);
 }
 
@@ -4637,10 +4739,10 @@ function takeTape(t){
     if(G.stats) G.stats.tapes++;
     unlockAch("tape");
     Audio_.found();
-    logLine("Encuentras una <b>grabadora</b> del M.E.G. Úsala para situar una salida.");
+    logLine(tx("Encuentras una <b>grabadora</b> del M.E.G. Úsala para situar una salida.","You find a M.E.G. <b>tape recorder</b>. Use it to pinpoint an exit."));
   } else {
     t.taken = false; t.mesh.visible = true;
-    toast("No te cabe. Necesitas una mochila o hacer sitio.");
+    toast(tx("No te cabe. Necesitas una mochila o hacer sitio.","No room. You need a backpack or free a slot."));
   }
   refreshSlots();
 }
@@ -4652,10 +4754,10 @@ function useOutpost(o){
     o.used = true;
     unlockAch("save");
     G.sanity = Math.min(100, G.sanity + 12);
-    logLine("Progreso anotado en el registro del puesto. <b>Partida guardada.</b>");
-    toast("Guardado en el puesto del M.E.G. · Descenso "+(G.depth+1), 4);
+    logLine(tx("Progreso anotado en el registro del puesto. <b>Partida guardada.</b>","Progress written into the outpost log. <b>Run saved.</b>"));
+    toast(tx("Guardado en el puesto del M.E.G. · Descenso ","Saved at the M.E.G. outpost · Depth ")+(G.depth+1), 4);
   } else {
-    toast("El registro está mojado: no se pudo guardar.");
+    toast(tx("El registro está mojado: no se pudo guardar.","The log is soaked: could not save."));
   }
 }
 
@@ -4733,25 +4835,25 @@ function openContainer(c){
 
   const got = [], dupes = [], full = [];
   for(const id of loot){
-    if(addItem(id,1)) got.push(ITEMS[id].name);
-    else if(ITEMS[id].equip) dupes.push(ITEMS[id].name);
-    else full.push(ITEMS[id].name);
+    if(addItem(id,1)) got.push(txf(ITEMS[id],"name"));
+    else if(ITEMS[id].equip) dupes.push(txf(ITEMS[id],"name"));
+    else full.push(txf(ITEMS[id],"name"));
   }
 
   if(G.stats){ G.stats.boxes++; G.stats.best = Math.max(G.stats.best, roll); }
   if(roll >= 6) unlockAch("six");
   if(invCount() >= G.cap && G.cap >= 10) unlockAch("packed");
-  showDice(roll, face.label, got.length > 0);
+  showDice(roll, txf(face,"label"), got.length > 0);
   if(!got.length && !full.length && !dupes.length){
-    logLine(c.name+": <b>vacío</b>. "+face.note);
+    logLine(txf(c,"name")+": <b>vacío</b>. "+txf(face,"note"));
   } else if(got.length){
-    logLine(c.name+": "+got.map(n=>"<b>"+n+"</b>").join(", "));
+    logLine(txf(c,"name")+": "+got.map(n=>"<b>"+n+"</b>").join(", "));
   }
-  if(dupes.length) logLine("Ya llevabas: "+dupes.join(", ")+".");
-  if(full.length) toast("No te cabe: "+full.join(", ")+". Busca una mochila.");
+  if(dupes.length) logLine(tx("Ya llevabas: ","Already carrying: ")+dupes.join(", ")+".");
+  if(full.length) toast(tx("No te cabe: ","No room for: ")+full.join(", ")+tx(". Busca una mochila.",". Find a backpack."));
 
   refreshSlots();
-  if(got.indexOf(ITEMS.map.name) >= 0) computeReveal(true);
+  if(got.indexOf(txf(ITEMS.map,"name")) >= 0) computeReveal(true);
 }
 
 let transitioning = false;
@@ -4786,11 +4888,11 @@ const QTE_LABEL = {t:"T", z:"Z", q:"Q", x:"X"};
 
 const QTE_DIFF = [
   null,
-  {name:"Muy fácil", per:2.0,  extra:-1},
-  {name:"Fácil",     per:1.55, extra:0},
-  {name:"Normal",    per:1.15, extra:0},
-  {name:"Difícil",   per:0.9,  extra:1},
-  {name:"Brutal",    per:0.68, extra:2}
+  {name:"Muy fácil", per:2.0,  extra:-1, name_en:"Very easy"},
+  {name:"Fácil",     per:1.55, extra:0, name_en:"Easy"},
+  {name:"Normal",    per:1.15, extra:0, name_en:"Normal"},
+  {name:"Difícil",   per:0.9,  extra:1, name_en:"Hard"},
+  {name:"Brutal",    per:0.68, extra:2, name_en:"Brutal"}
 ];
 function qteDiff(){ return QTE_DIFF[clamp(Math.round((G.opts && G.opts.qte) || 3), 1, 5)]; }
 
@@ -4830,7 +4932,7 @@ function startGrab(e){
   buildQte();
   $("qte").hidden = false;
   requestAnimationFrame(()=> $("qte").classList.add("on"));
-  logLine("<b>¡Te tiene!</b> Pulsa la secuencia para soltarte.");
+  logLine(tx("<b>¡Te tiene!</b> Pulsa la secuencia para soltarte.","<b>It has you!</b> Hit the sequence to break free."));
 }
 
 function endGrab(escaped){
@@ -4864,12 +4966,12 @@ function endGrab(escaped){
     G.shake = 0.2 + quality*0.3;
 
     let how;
-    if(g.fails === 0 && frac > 0.65) how = "<b>Impecable.</b>";
-    else if(g.fails === 0) how = "Limpio.";
-    else if(g.fails === 1) how = "Con un resbalón.";
-    else how = "Por los pelos.";
-    logLine(how+" Se queda tirado <b>"+stun.toFixed(1)+" s</b>.");
-    toast(how.replace(/<[^>]+>/g,"")+" Aturdido "+stun.toFixed(1)+" s", 2.6);
+    if(g.fails === 0 && frac > 0.65) how = tx("<b>Impecable.</b>","<b>Flawless.</b>");
+    else if(g.fails === 0) how = tx("Limpio.","Clean.");
+    else if(g.fails === 1) how = tx("Con un resbalón.","With one slip.");
+    else how = tx("Por los pelos.","By a hair.");
+    logLine(how+tx(" Se queda tirado <b>"," It stays down <b>")+stun.toFixed(1)+" s</b>.");
+    toast(how.replace(/<[^>]+>/g,"")+tx(" Aturdido "," Stunned ")+stun.toFixed(1)+" s", 2.6);
   } else {
     e.stun = 1.0;
     e.grabCd = 2.4;
@@ -4953,7 +5055,7 @@ function paintQte(){
   for(let i=0;i<kids.length;i++){
     kids[i].className = "qk" + (i < g.idx ? " done" : (i === g.idx ? " now" : ""));
   }
-  $("qteWho").textContent = ENT_NAMES[g.ent.type] ? ENT_NAMES[g.ent.type].split(" (")[0] : "Algo";
+  $("qteWho").textContent = ENT_NAMES[g.ent.type] ? ENT_NAMES[g.ent.type].split(" (")[0] : tx("Algo","Something");
 }
 
 // una entidad sólo puede agarrarte si te toca, no está aturdida y no acaba de soltarte
@@ -5143,7 +5245,7 @@ const SCARES = [
     if(!G.lamps.length) return false;
     Audio_.tone(120,0.5,0.1,"sine",60);
     G.blackout = 1.1;
-    logLine("<b>Se va la luz.</b>");
+    logLine(tx("<b>Se va la luz.</b>","<b>The lights go out.</b>"));
     return true;
   },
   function steps(){                                   // pasos que no son tuyos
@@ -5208,8 +5310,8 @@ function updateSanity(dt){
     drain += sp.def.sanity;
     if(!sp.seen){
       sp.seen = true;
-      toast(sp.def.name+" — "+sp.def.note, 5.5);
-      logLine("Entras en: <b>"+sp.def.name+"</b>");
+      toast(txf(sp.def,"name")+" — "+txf(sp.def,"note"), 5.5);
+      logLine(tx("Entras en: <b>","Entering: <b>")+txf(sp.def,"name")+"</b>");
       if(sp.kind === "red") Audio_.tone(66,2.4,0.14,"sawtooth",52);
       else Audio_.noise(1.2, 700, 3, 0.05);
     }
@@ -5242,7 +5344,7 @@ function updateLights(dt){
     if(G.torchFuel <= 0){
       G.torchFuel = 0; G.torchOn = false;
       beam.visible = false; beam.intensity = 0;
-      toast("La linterna se apagó. Necesitas pilas.");
+      toast(tx("La linterna se apagó. Necesitas pilas.","The flashlight died. You need batteries."));
       Audio_.tone(300,0.3,0.08,"square",120);
     } else {
       beam.intensity = 2.3 * (G.torchFuel<15 ? 0.45+Math.random()*0.5 : 1);
@@ -5506,7 +5608,7 @@ function refreshSlots(){
       bar.style.transform = "scaleX("+clamp(G.torchFuel/100,0,1)+")";
       d.appendChild(bar);
     }
-    d.title = ITEMS[id].name + " — " + ITEMS[id].blurb;
+    d.title = txf(ITEMS[id],"name") + " — " + ITEMS[id].blurb;
     eq.appendChild(d);
   });
   eq.hidden = !anyEquip;
@@ -5523,7 +5625,7 @@ function refreshSlots(){
       const q = document.createElement("span");
       q.className="qty"; q.textContent = String(slot.qty);
       d.appendChild(q);
-      d.title = def.name + " — " + def.blurb;
+      d.title = txf(def,"name") + " — " + txf(def,"blurb");
     }
     const key = document.createElement("span");
     key.className = "key"; key.textContent = KEYCAP[i] || "";
@@ -5531,7 +5633,7 @@ function refreshSlots(){
     host.appendChild(d);
   }
   $("capv").textContent = invCount()+"/"+G.cap;
-  $("capk").textContent = G.cap > 4 ? "MOCHILA" : "BOLSILLOS";
+  $("capk").textContent = G.cap > 4 ? tx("MOCHILA","BACKPACK") : tx("BOLSILLOS","POCKETS");
   paintHand();
 }
 
@@ -5552,6 +5654,15 @@ function logLine(html){
 }
 
 const WHISPERS = ["no estás solo","sigue caminando","ya estuviste aquí","no mires atrás","huele a humedad","otra vez este pasillo","cuenta las puertas"];
+const WHISPERS_EN = [
+  "you are not alone",
+  "keep walking",
+  "you have been here",
+  "do not look back",
+  "it smells damp",
+  "this corridor again",
+  "count the doors"
+];
 let whisperTimer = 8;
 let slotTick = 0;
 
@@ -5569,11 +5680,11 @@ function updateHud(dt){
   const el = $("exitLine");
   const known = G.exits.filter(e=>e.known).length;
   if(G.mapExit && hasItem("map")){
-    el.innerHTML = "SALIDA MÁS CERCANA<br><b>"+EXIT_KINDS[G.mapExit.kind].name+"</b> → "+G.mapExit.destName;
+    el.innerHTML = tx("SALIDA MÁS CERCANA","NEAREST EXIT")+"<br><b>"+txf(EXIT_KINDS[G.mapExit.kind],"name")+"</b> → "+G.mapExit.destName;
   } else if(G.mapExit && (hasItem("compass") || known)){
-    el.innerHTML = "SALIDA MÁS CERCANA<br><b>"+EXIT_KINDS[G.mapExit.kind].name+"</b> · a "+Math.round(G.nearestDist)+" m";
+    el.innerHTML = tx("SALIDA MÁS CERCANA","NEAREST EXIT")+"<br><b>"+txf(EXIT_KINDS[G.mapExit.kind],"name")+"</b> · "+Math.round(G.nearestDist)+" m";
   } else {
-    el.innerHTML = '<span class="locked">'+G.exits.length+" salidas en este nivel · sin localizar</span>";
+    el.innerHTML = '<span class="locked">'+G.exits.length+tx(" salidas en este nivel · sin localizar"," exits on this level · not located")+"</span>";
   }
   $("dist").textContent = hasItem("compass") && G.nearestExit ? Math.round(G.nearestDist)+" m" : "—";
 
@@ -5582,13 +5693,13 @@ function updateHud(dt){
   if(G.focus){
     pr.classList.add("on");
     const f = G.focus;
-    if(f.kind==="box") pr.innerHTML = "<b>[E]</b> Abrir "+f.ref.name.toLowerCase()+" · se tira un d6";
-    else if(f.kind==="tape") pr.innerHTML = "<b>[E]</b> Recoger grabadora del M.E.G.";
-    else if(f.kind==="save") pr.innerHTML = "<b>[E]</b> Anotar el progreso en el registro <i>(guardar)</i>";
+    if(f.kind==="box") pr.innerHTML = "<b>[E]</b> "+tx("Abrir ","Open ")+txf(f.ref,"name").toLowerCase()+tx(" · se tira un d6"," · rolls a d6");
+    else if(f.kind==="tape") pr.innerHTML = "<b>[E]</b> "+tx("Recoger grabadora del M.E.G.","Pick up M.E.G. tape recorder");
+    else if(f.kind==="save") pr.innerHTML = "<b>[E]</b> "+tx("Anotar el progreso en el registro <i>(guardar)</i>","Write progress into the log <i>(save)</i>");
     else{
       const k = EXIT_KINDS[f.ref.kind];
-      const dest = (hasItem("map")||f.ref.known) ? " → "+f.ref.destName : " → destino desconocido";
-      pr.innerHTML = "<b>[E]</b> "+k.verb+" · "+k.name+dest;
+      const dest = (hasItem("map")||f.ref.known) ? " → "+f.ref.destName : tx(" → destino desconocido"," → unknown destination");
+      pr.innerHTML = "<b>[E]</b> "+txf(k,"verb")+" · "+txf(k,"name")+dest;
     }
   } else pr.classList.remove("on");
 
@@ -5603,7 +5714,8 @@ function updateHud(dt){
     if(whisperTimer<=0){
       whisperTimer = 6+Math.random()*9;
       const w=$("whisper");
-      w.textContent = WHISPERS[(Math.random()*WHISPERS.length)|0];
+      const wp = (LANG === "en") ? WHISPERS_EN : WHISPERS;
+      w.textContent = wp[(Math.random()*wp.length)|0];
       w.animate([{opacity:0,transform:"translateX(-50%) scale(.96)"},
                  {opacity:.85,transform:"translateX(-50%) scale(1)"},
                  {opacity:0,transform:"translateX(-50%) scale(1.04)"}],
@@ -5637,34 +5749,34 @@ function updateGrain(){
    hitos más por cosas que sólo pasan si juegas bien (o muy mal). */
 
 const ACHIEVEMENTS = [
-  {id:"first_exit", name:"Primer noclip",        desc:"Cruza tu primera salida."},
-  {id:"six",        name:"Seis",                 desc:"Saca un 6 al abrir un contenedor."},
-  {id:"tape",       name:"Cinta del M.E.G.",     desc:"Encuentra una grabadora escondida."},
-  {id:"save",       name:"Queda constancia",     desc:"Anota tu progreso en un puesto del M.E.G."},
-  {id:"base",       name:"Territorio seguro",    desc:"Llega a una base del M.E.G."},
-  {id:"dark",       name:"A ciegas",             desc:"Sal con vida del Level 6."},
-  {id:"deep5",      name:"Cinco abajo",          desc:"Alcanza el descenso 5."},
-  {id:"deep10",     name:"Diez abajo",           desc:"Alcanza el descenso 10."},
-  {id:"packed",     name:"Hasta arriba",         desc:"Llena la mochila entera."},
-  {id:"clean",      name:"Sin tocar nada",       desc:"Supera un nivel sin abrir un solo contenedor."},
-  {id:"nomap",      name:"De memoria",           desc:"Supera un nivel sin mapa ni brújula."},
-  {id:"intact",     name:"Ni un rasguño",        desc:"Supera un nivel sin recibir daño."},
-  {id:"catalog",    name:"Cartógrafo",           desc:"Supera 10 niveles distintos del catálogo."},
-  {id:"lazarus",    name:"Salió uno",            desc:"Desbloquea a Lázaro."}
+  {id:"first_exit", name:"Primer noclip",        desc:"Cruza tu primera salida.", name_en:"First noclip", desc_en:"Cross your first exit."},
+  {id:"six",        name:"Seis",                 desc:"Saca un 6 al abrir un contenedor.", name_en:"Six", desc_en:"Roll a 6 opening a container."},
+  {id:"tape",       name:"Cinta del M.E.G.",     desc:"Encuentra una grabadora escondida.", name_en:"M.E.G. tape", desc_en:"Find a hidden tape recorder."},
+  {id:"save",       name:"Queda constancia",     desc:"Anota tu progreso en un puesto del M.E.G.", name_en:"On the record", desc_en:"Log your progress at a M.E.G. outpost."},
+  {id:"base",       name:"Territorio seguro",    desc:"Llega a una base del M.E.G.", name_en:"Safe ground", desc_en:"Reach a M.E.G. base."},
+  {id:"dark",       name:"A ciegas",             desc:"Sal con vida del Level 6.", name_en:"Blind", desc_en:"Get out of Level 6 alive."},
+  {id:"deep5",      name:"Cinco abajo",          desc:"Alcanza el descenso 5.", name_en:"Five down", desc_en:"Reach depth 5."},
+  {id:"deep10",     name:"Diez abajo",           desc:"Alcanza el descenso 10.", name_en:"Ten down", desc_en:"Reach depth 10."},
+  {id:"packed",     name:"Hasta arriba",         desc:"Llena la mochila entera.", name_en:"Loaded up", desc_en:"Fill the whole backpack."},
+  {id:"clean",      name:"Sin tocar nada",       desc:"Supera un nivel sin abrir un solo contenedor.", name_en:"Touched nothing", desc_en:"Clear a level without opening a single container."},
+  {id:"nomap",      name:"De memoria",           desc:"Supera un nivel sin mapa ni brújula.", name_en:"From memory", desc_en:"Clear a level with no map and no compass."},
+  {id:"intact",     name:"Ni un rasguño",        desc:"Supera un nivel sin recibir daño.", name_en:"Not a scratch", desc_en:"Clear a level without taking damage."},
+  {id:"catalog",    name:"Cartógrafo",           desc:"Supera 10 niveles distintos del catálogo.", name_en:"Cartographer", desc_en:"Clear 10 different levels from the catalogue."},
+  {id:"lazarus",    name:"Salió uno",            desc:"Desbloquea a Lázaro.", name_en:"One made it out", desc_en:"Unlock Lazarus."}
 ];
 const ACH_BY_ID = {};
 ACHIEVEMENTS.forEach(a=> ACH_BY_ID[a.id] = a);
 
 function achName(id){
-  if(ACH_BY_ID[id]) return ACH_BY_ID[id].name;
+  if(ACH_BY_ID[id]) return txf(ACH_BY_ID[id],"name");
   const lv = id.indexOf("lvl_")===0 ? id.slice(4) : null;
-  if(lv && CAT_BY_ID[lv]) return "Level "+CAT_BY_ID[lv].num+" superado";
+  if(lv && CAT_BY_ID[lv]) return "Level "+CAT_BY_ID[lv].num+tx(" superado"," cleared");
   return id;
 }
 function achDesc(id){
-  if(ACH_BY_ID[id]) return ACH_BY_ID[id].desc;
+  if(ACH_BY_ID[id]) return txf(ACH_BY_ID[id],"desc");
   const lv = id.indexOf("lvl_")===0 ? id.slice(4) : null;
-  if(lv && CAT_BY_ID[lv]) return "Cruzaste una salida de «"+CAT_BY_ID[lv].title+"».";
+  if(lv && CAT_BY_ID[lv]) return tx("Cruzaste una salida de «","You crossed an exit out of «")+CAT_BY_ID[lv].title+"».";
   return "";
 }
 function achTotal(){ return ACHIEVEMENTS.length + CAT.length; }
@@ -5730,25 +5842,25 @@ function showCleared(cfg, exit){
   const cleared = Object.keys(G.ach).filter(k=> k.indexOf("lvl_")===0).length;
   if(cleared >= 10) unlockAch("catalog");
 
-  $("clEyebrow").textContent = first ? "M.E.G. · Nivel catalogado por primera vez" : "M.E.G. · Nivel superado";
+  $("clEyebrow").textContent = first ? tx("M.E.G. · Nivel catalogado por primera vez","M.E.G. · Level catalogued for the first time") : tx("M.E.G. · Nivel superado","M.E.G. · Level cleared");
   $("clTitle").textContent = levelTitle(cfg);
   $("clBadge").hidden = !first;
   $("clStats").innerHTML =
-    '<div><span class="k">TIEMPO DENTRO</span><span class="v">'+fmtTime(secs)+'</span></div>'+
-    '<div><span class="k">CONTENEDORES</span><span class="v">'+st.boxes+' de '+G.containers.length+' abiertos</span></div>'+
-    '<div><span class="k">MEJOR TIRADA</span><span class="v">'+(st.best ? st.best+" · "+DICE[st.best].label : "ninguna")+'</span></div>'+
-    '<div><span class="k">SALIDA USADA</span><span class="v">'+EXIT_KINDS[exit.kind].name+'</span></div>'+
-    '<div><span class="k">FAUNA DEL NIVEL</span><span class="v">'+entityList(cfg)+'</span></div>'+
-    '<div><span class="k">ESTADO AL SALIR</span><span class="v">'+Math.round(G.sanity)+'% cordura · '+Math.round(bodyAvg())+'% cuerpo</span></div>';
-  $("clLore").innerHTML = '<p class="body">'+cfg.lore+'</p>';
-  $("clNext").innerHTML = "Al otro lado: <b>"+exit.destName+"</b>";
+    '<div><span class="k">'+tx("TIEMPO DENTRO","TIME INSIDE")+'</span><span class="v">'+fmtTime(secs)+'</span></div>'+
+    '<div><span class="k">'+tx("CONTENEDORES","CONTAINERS")+'</span><span class="v">'+st.boxes+tx(' de ',' of ')+G.containers.length+tx(' abiertos',' opened')+'</span></div>'+
+    '<div><span class="k">'+tx("MEJOR TIRADA","BEST ROLL")+'</span><span class="v">'+(st.best ? st.best+" · "+txf(DICE[st.best],"label") : tx("ninguna","none"))+'</span></div>'+
+    '<div><span class="k">'+tx("SALIDA USADA","EXIT TAKEN")+'</span><span class="v">'+txf(EXIT_KINDS[exit.kind],"name")+'</span></div>'+
+    '<div><span class="k">'+tx("FAUNA DEL NIVEL","LEVEL WILDLIFE")+'</span><span class="v">'+entityList(cfg)+'</span></div>'+
+    '<div><span class="k">'+tx("ESTADO AL SALIR","STATE ON LEAVING")+'</span><span class="v">'+Math.round(G.sanity)+tx('% cordura · ','% sanity · ')+Math.round(bodyAvg())+tx('% cuerpo','% body')+'</span></div>';
+  $("clLore").innerHTML = '<p class="body">'+txf(cfg,"lore")+'</p>';
+  $("clNext").innerHTML = tx("Al otro lado: <b>","On the other side: <b>")+exit.destName+"</b>";
 
   // logros conseguidos en este nivel
   const box = $("clAch");
   const got = achQueue.slice();
   if(got.length){
     box.hidden = false;
-    box.innerHTML = '<div class="rowk">Logros desbloqueados</div>' +
+    box.innerHTML = '<div class="rowk">'+tx("Logros desbloqueados","Achievements unlocked")+'</div>' +
       got.map(id=> '<div class="achline"><b>'+achName(id)+'</b><span>'+achDesc(id)+'</span></div>').join("");
   } else box.hidden = true;
 
@@ -5760,13 +5872,13 @@ function showCleared(cfg, exit){
 
 const DIFFS = [
   null,
-  { name:"Turista",     blurb:"Acabas de hacer noclip y no sabes nada.",
+  { name:"Turista",     blurb:"Acabas de hacer noclip y no sabes nada.", name_en:"Tourist", blurb_en:"You just noclipped in and you know nothing.",
     ents:0.55, sanity:0.55, dmg:0.55, dice:1, grace:12 },
-  { name:"Vagabundo",   blurb:"Llevas el tiempo justo aquí para desconfiar.",
+  { name:"Vagabundo",   blurb:"Llevas el tiempo justo aquí para desconfiar.", name_en:"Drifter", blurb_en:"You have been here long enough to be suspicious.",
     ents:1.0,  sanity:1.0,  dmg:1.0,  dice:0,    grace:7 },
-  { name:"Explorador",  blurb:"Bajas por oficio, con el M.E.G. esperando informe.",
+  { name:"Explorador",  blurb:"Bajas por oficio, con el M.E.G. esperando informe.", name_en:"Explorer", blurb_en:"You go down for a living, with the M.E.G. waiting on your report.",
     ents:1.35, sanity:1.3,  dmg:1.3,  dice:0,    grace:4 },
-  { name:"Sin retorno", blurb:"Nadie ha vuelto de un descenso así.",
+  { name:"Sin retorno", blurb:"Nadie ha vuelto de un descenso así.", name_en:"No way back", blurb_en:"Nobody has come back from a descent like this.",
     ents:1.75, sanity:1.65, dmg:1.6,  dice:-1,   grace:0 }
 ];
 function DIFF_LV(){ return DIFFS[clamp(Math.round((G.opts && G.opts.diff) || 2), 1, 4)]; }
@@ -5809,8 +5921,8 @@ function paintHand(){
   const cx = c.getContext("2d");
   cx.clearRect(0,0,16,16);
   cx.drawImage(ICON_TEX[def.icon],0,0);
-  $("handName").textContent = def.name;
-  $("handDesc").textContent = def.blurb;
+  $("handName").textContent = txf(def,"name");
+  $("handDesc").textContent = txf(def,"blurb");
   const slot = invFind(id);
   const key = ITEMS[id].key;
   let hint;
@@ -5857,10 +5969,10 @@ function slotKey(idx){
    y se aplican en vivo mientras mueves el control. */
 
 const OPTS_KEY = "zumbido.opts.v1";
-const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2 };
+const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es" };
 
 function loadOpts(){
-  G.opts = { fov:OPTS_DEF.fov, vol:OPTS_DEF.vol, sens:OPTS_DEF.sens, bright:OPTS_DEF.bright, qte:OPTS_DEF.qte, diff:OPTS_DEF.diff };
+  G.opts = { fov:OPTS_DEF.fov, vol:OPTS_DEF.vol, sens:OPTS_DEF.sens, bright:OPTS_DEF.bright, qte:OPTS_DEF.qte, diff:OPTS_DEF.diff, lang:OPTS_DEF.lang };
   try{
     const raw = localStorage.getItem(OPTS_KEY);
     if(raw){
@@ -5871,11 +5983,24 @@ function loadOpts(){
       if(typeof o.bright === "number") G.opts.bright = clamp(o.bright, 0.55, 1.8);
       if(typeof o.qte === "number") G.opts.qte = clamp(Math.round(o.qte), 1, 5);
       if(typeof o.diff === "number") G.opts.diff = clamp(Math.round(o.diff), 1, 4);
+      if(o.lang === "en" || o.lang === "es") G.opts.lang = o.lang;
     }
   }catch(e){}
 }
 function saveOpts(){
   try{ localStorage.setItem(OPTS_KEY, JSON.stringify(G.opts)); }catch(e){}
+}
+function applyLanguage(){
+  LANG = (G.opts && G.opts.lang) === "en" ? "en" : "es";
+  applyLangDom();
+  if(G.cfg){
+    $("lvlName").textContent = levelTitle(G.cfg);
+    $("lvlDepth").textContent = tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
+    $("lvlObj") && ($("lvlObj").innerHTML = "");
+  }
+  refreshSlots();
+  renderChars();
+  buildOpts();
 }
 function applyBrightness(){
   renderer.toneMappingExposure = 0.96 * ((G.opts && G.opts.bright) || 1);
@@ -5888,11 +6013,19 @@ function applyVolume(){
 
 const OPT_ROWS = [
   {
+    id:"lang", key:"lang", label:tx("Idioma","Language"), min:0, max:1, step:1,
+    note:tx("Cambia todos los textos del juego. Los nombres de los niveles se quedan como están en la wiki.",
+            "Switches every text in the game. Level names stay as they are on the wiki."),
+    get:()=> G.opts.lang === "en" ? 1 : 0,
+    set:(v)=>{ G.opts.lang = v >= 1 ? "en" : "es"; applyLanguage(); },
+    fmt:(v)=> v >= 1 ? "English" : "Español"
+  },
+  {
     id:"diff", key:"diff", label:"Modo de descenso", min:1, max:4, step:1,
     note:"Cambia cuánta fauna hay, lo rápido que cae la cordura, el daño que recibes y lo generosos que son los casilleros. Se nota al entrar al siguiente nivel.",
     get:()=> G.opts.diff,
     set:(v)=>{ G.opts.diff = v; },
-    fmt:(v)=> DIFFS[clamp(Math.round(v),1,4)].name
+    fmt:(v)=> txf(DIFFS[clamp(Math.round(v),1,4)],"name")
   },
   {
     id:"fov", key:"fov", label:"Campo de visión", min:60, max:105, step:1,
@@ -5920,7 +6053,7 @@ const OPT_ROWS = [
     note:"Cuando una entidad te agarra hay que pulsar una secuencia de teclas. Esto cambia cuántas son y cuánto tiempo tienes.",
     get:()=> G.opts.qte,
     set:(v)=>{ G.opts.qte = v; },
-    fmt:(v)=> QTE_DIFF[clamp(Math.round(v),1,5)].name
+    fmt:(v)=> txf(QTE_DIFF[clamp(Math.round(v),1,5)],"name")
   },
   {
     id:"sens", key:"sens", label:"Sensibilidad del ratón", min:30, max:300, step:5,
@@ -5933,10 +6066,38 @@ const OPT_ROWS = [
 
 let optsFrom = "titleScreen";
 
+const OPT_LABELS = {
+  lang:   ["Idioma","Language"],
+  diff:   ["Modo de descenso","Descent mode"],
+  fov:    ["Campo de visión","Field of view"],
+  bright: ["Brillo","Brightness"],
+  vol:    ["Volumen","Volume"],
+  qte:    ["Dificultad del forcejeo","Struggle difficulty"],
+  sens:   ["Sensibilidad del ratón","Mouse sensitivity"]
+};
+const OPT_NOTES = {
+  lang:   ["Cambia todos los textos del juego. Los nombres de los niveles se quedan como están en la wiki.",
+           "Switches every text in the game. Level names stay as they are on the wiki."],
+  diff:   ["Cambia cuánta fauna hay, lo rápido que cae la cordura, el daño que recibes y lo generosos que son los casilleros. Se nota al entrar al siguiente nivel.",
+           "Changes how much wildlife there is, how fast sanity drops, how much damage you take and how generous the lockers are. It kicks in on the next level."],
+  fov:    ["Grados horizontales. Más alto ves más a los lados, pero se deforma en los bordes.",
+           "Horizontal degrees. Higher shows more at the sides, but the edges warp."],
+  bright: ["Sube esto si no distingues nada en los niveles a oscuras. Los Backrooms se ven mejor tirando a bajo.",
+           "Raise this if you cannot make anything out on the dark levels. The Backrooms look better on the low side."],
+  vol:    ["El zumbido, los pasos y los gruñidos. A cero se queda todo en silencio.",
+           "The hum, the footsteps and the growls. At zero everything goes quiet."],
+  qte:    ["Cuando una entidad te agarra hay que pulsar una secuencia de teclas. Esto cambia cuántas son y cuánto tiempo tienes.",
+           "When an entity grabs you, you must hit a sequence of keys. This changes how many there are and how long you get."],
+  sens:   ["Cuánto gira la cámara con el mismo movimiento de ratón.",
+           "How far the camera turns for the same mouse movement."]
+};
+
 function buildOpts(){
   const host = $("optRows");
   host.textContent = "";
   OPT_ROWS.forEach(row=>{
+    if(OPT_LABELS[row.id]) row.label = tx(OPT_LABELS[row.id][0], OPT_LABELS[row.id][1]);
+    if(OPT_NOTES[row.id])  row.note  = tx(OPT_NOTES[row.id][0],  OPT_NOTES[row.id][1]);
     const wrap = document.createElement("div");
     wrap.className = "opt";
     const head = document.createElement("div");
@@ -5992,7 +6153,7 @@ function wipeProgress(){
   const btn = $("optsWipe");
   if(!wipeArmed){
     wipeArmed = 1;
-    btn.textContent = "Pulsa otra vez para confirmar";
+    btn.textContent = tx("Pulsa otra vez para confirmar","Press again to confirm");
     btn.classList.add("danger");
     setTimeout(()=>{
       if(wipeArmed === 1){
@@ -6009,7 +6170,7 @@ function wipeProgress(){
     localStorage.removeItem(META_KEY);
   }catch(e){}
   G.best = 0; G.unlocked = {}; G.ach = {};
-  btn.textContent = "Progreso borrado";
+  btn.textContent = tx("Progreso borrado","Progress wiped");
   btn.classList.remove("danger");
   setTimeout(()=>{ btn.textContent = "Borrar progreso"; }, 2600);
   renderChars();
@@ -6030,7 +6191,9 @@ function resetOpts(){
 
 /* ═══════════════ PANTALLAS Y FLUJO ═══════════════ */
 
-const RISK = ["Seguro","Seguro con reservas","Inseguro","Letal"];
+const RISK_ES = ["Seguro","Seguro con reservas","Inseguro","Letal"];
+const RISK_EN = ["Safe","Safe with caveats","Unsafe","Lethal"];
+function riskName(i){ return (LANG === "en" ? RISK_EN : RISK_ES)[i]; }
 
 function flash(ms){
   $("flash").animate([{opacity:0},{opacity:.9},{opacity:0}], {duration:ms, easing:"ease-out"});
@@ -6049,7 +6212,7 @@ function hideAll(){
 function entityList(cfg){
   const out=[];
   for(const k in cfg.ents) if(cfg.ents[k]>0 && ENT_NAMES[k]) out.push(ENT_NAMES[k]);
-  return out.length ? out.join(" · ") : "sin fauna registrada";
+  return out.length ? out.join(" · ") : tx("sin fauna registrada","no wildlife recorded");
 }
 function routeList(cfg){
   const seen = {};
@@ -6057,28 +6220,30 @@ function routeList(cfg){
   cfg.exitsTo.forEach(r=>{
     if(seen[r.to]) return;
     seen[r.to] = 1;
-    const d = r.to === "deep" ? "nivel sin catalogar" : levelTitle(CAT_BY_ID[r.to]);
+    const d = r.to === "deep" ? tx("nivel sin catalogar","uncatalogued level") : levelTitle(CAT_BY_ID[r.to]);
     out.push(d);
   });
   return out.join(" · ");
 }
 function specsHtml(cfg){
-  return '<div><span class="k">RIESGO</span><span class="v risk-'+cfg.risk+'">'+RISK[cfg.risk]+'</span></div>'+
-         '<div><span class="k">FAUNA</span><span class="v">'+entityList(cfg)+'</span></div>'+
-         '<div><span class="k">LLEVA A</span><span class="v">'+routeList(cfg)+'</span></div>'+
-         '<div><span class="k">EN ESTE NIVEL</span><span class="v">'+G.exits.length+' salidas · '+G.containers.length+' contenedores'+
-           (G.outpost ? ' · <b style="color:#8ee07a">puesto del M.E.G.</b>' : '')+'</span></div>'+
-         (G.specials.length ? '<div><span class="k">VARIACIONES</span><span class="v">'+
-            G.specials.map(sp=> sp.def.name).join(" · ")+'</span></div>' : '');
+  return '<div><span class="k">'+tx("RIESGO","RISK")+'</span><span class="v risk-'+cfg.risk+'">'+riskName(cfg.risk)+'</span></div>'+
+         '<div><span class="k">'+tx("FAUNA","WILDLIFE")+'</span><span class="v">'+entityList(cfg)+'</span></div>'+
+         '<div><span class="k">'+tx("LLEVA A","LEADS TO")+'</span><span class="v">'+routeList(cfg)+'</span></div>'+
+         '<div><span class="k">'+tx("EN ESTE NIVEL","ON THIS LEVEL")+'</span><span class="v">'+G.exits.length+tx(' salidas · ',' exits · ')+G.containers.length+tx(' contenedores',' containers')+
+           (G.outpost ? tx(' · <b style="color:#8ee07a">puesto del M.E.G.</b>',' · <b style="color:#8ee07a">M.E.G. outpost</b>') : '')+'</span></div>'+
+         (G.specials.length ? '<div><span class="k">'+tx("VARIACIONES","VARIATIONS")+'</span><span class="v">'+
+            G.specials.map(sp=> txf(sp.def,"name")).join(" · ")+'</span></div>' : '');
 }
 function invSummary(){
-  const eq = ["map","compass","flashlight","backpack"].filter(id=> G.equip[id]).map(id=> ITEMS[id].name);
-  const bag = G.inv.map(s=> ITEMS[s.id].name + (s.qty>1 ? " ×"+s.qty : ""));
+  const eq = ["map","compass","flashlight","backpack"].filter(id=> G.equip[id]).map(id=> txf(ITEMS[id],"name"));
+  const bag = G.inv.map(s=> txf(ITEMS[s.id],"name") + (s.qty>1 ? " ×"+s.qty : ""));
   const all = eq.concat(bag);
-  return all.length ? all.join(", ") : "sin nada encima";
+  return all.length ? all.join(", ") : tx("sin nada encima","nothing on you");
 }
 
 /* ── selección de personaje ── */
+const STAT_EN = {Aliento:"Breath", Suerte:"Luck", Sigilo:"Stealth", Cordura:"Nerve"};
+function statName(k){ return (LANG === "en" && STAT_EN[k]) ? STAT_EN[k] : k; }
 function statBar(v){
   const n = Math.round(v*5);
   let out = "";
@@ -6096,7 +6261,7 @@ function renderChars(){
     card.disabled = !open;
     const no = document.createElement("span");
     no.className = "char-no";
-    no.textContent = "SUJETO " + String(CHARACTERS.indexOf(ch)+1).padStart(2,"0");
+    no.textContent = tx("SUJETO ","SUBJECT ") + String(CHARACTERS.indexOf(ch)+1).padStart(2,"0");
     card.appendChild(no);
 
     const art = document.createElement("div");
@@ -6118,15 +6283,15 @@ function renderChars(){
     const txt = document.createElement("div");
     txt.className = "char-txt";
     const stats = Object.keys(ch.stats).map(k=>
-      '<div class="stat"><span>'+k+'</span><div class="pips">'+statBar(ch.stats[k])+'</div></div>').join("");
+      '<div class="stat"><span>'+statName(k)+'</span><div class="pips">'+statBar(ch.stats[k])+'</div></div>').join("");
     txt.innerHTML =
-      '<div class="char-head"><span class="char-name">'+ch.name+'</span>'+
-        (open ? '' : '<span class="lockchip">BLOQUEADO</span>')+'</div>'+
-      '<div class="char-role">'+ch.role+'</div>'+
-      '<p class="char-blurb">'+ch.blurb+'</p>'+
+      '<div class="char-head"><span class="char-name">'+txf(ch,"name")+'</span>'+
+        (open ? '' : '<span class="lockchip">'+tx("BLOQUEADO","LOCKED")+'</span>')+'</div>'+
+      '<div class="char-role">'+txf(ch,"role")+'</div>'+
+      '<p class="char-blurb">'+txf(ch,"blurb")+'</p>'+
       '<div class="char-stats">'+stats+'</div>'+
-      '<ul class="char-perks">'+ch.perks.map(p=>"<li>"+p+"</li>").join("")+'</ul>'+
-      (open ? '' : '<div class="char-lock">'+ch.unlockHint+'</div>');
+      '<ul class="char-perks">'+txArr(ch,"perks").map(p=>"<li>"+p+"</li>").join("")+'</ul>'+
+      (open ? '' : '<div class="char-lock">'+txf(ch,"unlockHint")+'</div>');
     card.appendChild(txt);
     if(open) card.addEventListener("click", ()=> startRun(ch.id));
     host.appendChild(card);
@@ -6157,7 +6322,7 @@ function renderChars(){
   $("achCount").textContent = achCount()+"/"+achTotal();
 
   const lv = Object.keys(G.unlocked).filter(k=> k.indexOf("level_")===0).length;
-  $("metaLine").innerHTML = "Mejor descenso: <b>"+(G.best+1)+"</b> "+((G.best+1)===1?"nivel":"niveles")+" · Niveles vistos: <b>"+(lv+1)+"</b> de "+CAT.length;
+  $("metaLine").innerHTML = tx("Mejor descenso: <b>","Best descent: <b>")+(G.best+1)+"</b> "+((G.best+1)===1?tx("nivel","level"):tx("niveles","levels"))+tx(" · Niveles vistos: <b>"," · Levels seen: <b>")+(lv+1)+"</b> "+tx("de","of")+" "+CAT.length;
 }
 
 function startRun(charId){
@@ -6170,7 +6335,7 @@ function startRun(charId){
 }
 function continueRun(){
   const d = readSave();
-  if(!d){ toast("No hay partida guardada."); return; }
+  if(!d){ toast(tx("No hay partida guardada.","No saved run.")); return; }
   Audio_.init(); Audio_.resume();
   applySave(d);
   buildLevel(G.levelId, G.levelSeed);
@@ -6182,16 +6347,16 @@ function continueRun(){
 function renderBrief(){
   const cfg = G.cfg;
   $("brEyebrow").textContent = (cfg.procedural
-    ? "M.E.G. · Nivel sin catalogar · "
-    : "M.E.G. · Informe de nivel · ") + "Descenso "+(G.depth+1)+" · "+G.char.name;
+    ? tx("M.E.G. · Nivel sin catalogar · ","M.E.G. · Uncatalogued level · ")
+    : tx("M.E.G. · Informe de nivel · ","M.E.G. · Level report · ")) + tx("Descenso ","Depth ")+(G.depth+1)+" · "+G.char.name;
   $("brTitle").textContent = levelTitle(cfg);
   $("brBody").innerHTML =
-    '<p class="body">'+cfg.lore+'</p>'+
-    '<p class="body"><em>'+cfg.tip+'</em></p>';
+    '<p class="body">'+txf(cfg,"lore")+'</p>'+
+    '<p class="body"><em>'+txf(cfg,"tip")+'</em></p>';
   $("brSpecs").innerHTML = specsHtml(cfg);
   $("brRun").innerHTML =
-    "Llevas <b>"+Math.round(G.sanity)+"%</b> de cordura y <b>"+Math.round(bodyAvg())+"%</b> de cuerpo. Encima: "+invSummary()+".";
-  $("brBtn").textContent = G.depth===0 ? "Entrar" : "Bajar al nivel";
+    tx("Llevas <b>","You carry <b>")+Math.round(G.sanity)+tx("%</b> de cordura y <b>","%</b> sanity and <b>")+Math.round(bodyAvg())+tx("%</b> de cuerpo. Encima: ","%</b> body. On you: ")+invSummary()+".";
+  $("brBtn").textContent = G.depth===0 ? tx("Entrar","Enter") : tx("Bajar al nivel","Go down");
   show("briefScreen");
 }
 
@@ -6200,7 +6365,7 @@ function descendTo(levelId, seed){
   delete G.equip.map;                      // un plano sirve para un solo nivel
   if(G.held === "map") G.held = null;
   buildLevel(levelId, seed);
-  if(hadMap) logLine("El plano del nivel anterior ya no sirve aquí.");
+  if(hadMap) logLine(tx("El plano del nivel anterior ya no sirve aquí.","The map from the last level is no use here."));
   refreshSlots();
   computeReveal(true);
   G.best = Math.max(G.best, G.depth);
@@ -6255,22 +6420,22 @@ function die(why){
   Audio_.set(Audio_.humGain, 0, 0.6);
   Audio_.set(Audio_.heartGain, 0, 0.6);
   Audio_.scream();
-  const hurtParts = PARTS.filter(p=> G.body[p.id] < 70).map(p=> p.name);
-  $("deadTitle").textContent = G.sanity<=0 ? "Te has quedado" : "Te han encontrado";
-  $("deadStamp").textContent = "SUJETO PERDIDO · "+G.char.name.toUpperCase()+" · LEVEL "+G.cfg.num;
+  const hurtParts = PARTS.filter(p=> G.body[p.id] < 70).map(p=> txf(p,"name"));
+  $("deadTitle").textContent = G.sanity<=0 ? tx("Te has quedado","You stayed") : tx("Te han encontrado","Something found you");
+  $("deadStamp").textContent = tx("SUJETO PERDIDO · ","SUBJECT LOST · ")+G.char.name.toUpperCase()+" · LEVEL "+G.cfg.num;
   $("deadBody").innerHTML =
     '<p style="margin:0 0 11px">'+why+'</p>'+
-    '<p style="margin:0;color:#8b8570">Heridas al caer: '+(hurtParts.length?hurtParts.join(", "):"ninguna")+'.</p>';
+    '<p style="margin:0;color:#8b8570">'+tx("Heridas al caer: ","Wounds when you fell: ")+(hurtParts.length?hurtParts.join(", "):tx("ninguna","none"))+'.</p>';
   $("deadSpecs").innerHTML =
-    '<div><span class="k">DESCENSO</span><span class="v">'+(G.depth+1)+' niveles</span></div>'+
-    '<div><span class="k">NIVEL FINAL</span><span class="v">'+levelTitle(G.cfg)+'</span></div>'+
-    '<div><span class="k">RÉCORD</span><span class="v">'+(G.best+1)+' niveles</span></div>'+
-    '<div><span class="k">EQUIPO</span><span class="v">'+invSummary()+'</span></div>';
+    '<div><span class="k">'+tx("DESCENSO","DEPTH")+'</span><span class="v">'+(G.depth+1)+tx(' niveles',' levels')+'</span></div>'+
+    '<div><span class="k">'+tx("NIVEL FINAL","LAST LEVEL")+'</span><span class="v">'+levelTitle(G.cfg)+'</span></div>'+
+    '<div><span class="k">'+tx("RÉCORD","RECORD")+'</span><span class="v">'+(G.best+1)+tx(' niveles',' levels')+'</span></div>'+
+    '<div><span class="k">'+tx("EQUIPO","GEAR")+'</span><span class="v">'+invSummary()+'</span></div>';
   const save = readSave();
   $("loadBtn").hidden = !save;
   if(save){
     const cfg = instantiate(save.levelId, save.levelSeed);
-    $("loadBtn").textContent = "Continuar desde el puesto · "+levelTitle(cfg);
+    $("loadBtn").textContent = tx("Continuar desde el puesto · ","Continue from the outpost · ")+levelTitle(cfg);
   }
   show("deadScreen");
 }
@@ -6326,6 +6491,8 @@ buildIcons();
 loadMeta();
 loadOpts();
 applyBrightness();
+LANG = (G.opts.lang === "en") ? "en" : "es";
+applyLangDom();
 buildOpts();
 resetRun(CHARACTERS[0].id);
 renderChars();
