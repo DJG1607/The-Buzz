@@ -462,6 +462,7 @@
   <div class="sheet">
     <div class="eyebrow" data-en="M.E.G. &#183; Survival manual &#183; Unnumbered document">M.E.G. · Manual de supervivencia · Documento sin número</div>
     <h1><span data-en="The Buzz">El Zumbido</span><span class="sub">B A C K R O O M S</span></h1>
+    <div class="eyebrow" id="verTag"></div>
     <div class="rule"></div>
     <p class="body" data-en="You have &lt;em&gt;noclipped&lt;/em&gt; out of reality and landed in Level 0 with empty pockets. No map, no compass, no light.">Has hecho <em>noclip</em> fuera de la realidad y has caído en el Level 0 sin nada en los bolsillos. Ni mapa, ni brújula, ni luz.</p>
     <p class="body" data-en="Everything you need is inside lockers, boxes and service carts. Opening one &lt;em&gt;rolls a d6&lt;/em&gt;: a 1 gives you nothing, a 6 is an untouched duffel.">Todo lo que necesitas está dentro de casilleros, cajas y carros de servicio. Al abrir uno se <em>tira un d6</em>: un 1 no da nada y un 6 es un petate intacto.</p>
@@ -552,6 +553,7 @@
   <div class="sheet">
     <div class="eyebrow" data-en="M.E.G. &#183; Equipment setup">M.E.G. · Configuración del equipo</div>
     <h2 data-en="Settings">Ajustes</h2>
+    <div class="eyebrow" id="verTagOpts"></div>
     <div class="rule"></div>
     <div id="optRows"></div>
     <div class="btnrow">
@@ -613,6 +615,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
+const VERSION = "1.3.5";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -632,6 +635,12 @@ function applyLangDom(){
     el.innerHTML = (LANG === "en") ? el.dataset.en : el.dataset.es;
   }
   document.documentElement.lang = LANG;
+}
+function paintVersion(){
+  const t = "v" + VERSION;
+  const a = $("verTag"), b = $("verTagOpts");
+  if(a) a.textContent = t;
+  if(b) b.textContent = t;
 }
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
 const lerp  = (a,b,t) => a+(b-a)*t;
@@ -4419,26 +4428,112 @@ function makeTape(wx, wz){
    mismo campo de distancias hacia el jugador, así que persiguen por
    los pasillos en vez de empotrarse contra las paredes. */
 
+/* El "sp" de cada entidad es su remate: lo que la wiki dice que hace de verdad
+   cuando te pilla. pct es la fracción de vida que se lleva (la vida en pantalla
+   es la media de las seis zonas), parts son las zonas a las que va. */
 const ENT_DEF = {
   faceling:{ atlas:"faceling", w:1.0, h:1.9, r:0.34, speed:1.5, chase:3.5, sight:17, dmg:14, kind:"walker", memory:5,
+             sp:{ name:"Manotazos", name_en:"Flailing",
+                  pct:0.09, parts:["armL","armR"], sanity:4,
+                  tell:"El Faceling levanta los brazos.", tell_en:"The Faceling raises its arms.",
+                  log:"Te golpea y te araña sin fuerza real. La wiki no miente: no están hechos para esto.",
+                  log_en:"It hits and scratches you with no real strength. The wiki does not lie: they are not built for this.",
+                  death:"Un Faceling te remató a manotazos. Tuvieron que insistir mucho.",
+                  death_en:"A Faceling finished you off with its bare hands. It took them a lot of trying." },
              death:"Un Faceling te alcanzó. No tenía cara, pero sabía perfectamente dónde estabas." },
   stealer: { atlas:"stealer",  w:1.0, h:1.55,r:0.32, speed:1.9, chase:4.1, sight:20, dmg:18, kind:"walker", memory:6, tires:true,
+             sp:{ name:"Desgarro a manos", name_en:"Torn apart by hand",
+                  pct:0.21, parts:["armL","armR","torso"], bleed:true, sanity:10,
+                  tell:"El Skin-Stealer deja de imitar a una persona y te agarra con las dos manos.",
+                  tell_en:"The Skin-Stealer stops imitating a person and grabs you with both hands.",
+                  log:"Te abre a pulso. Es literalmente como matan: con las manos, a lo bruto.",
+                  log_en:"It tears you open by main force. That is literally how they kill: with their hands, brutally.",
+                  death:"Un Skin-Stealer te descuartizó con las manos. Mañana llevará tu cara.",
+                  death_en:"A Skin-Stealer tore you apart with its hands. Tomorrow it will be wearing your face." },
              death:"Un Skin-Stealer te alcanzó. Llevaba puesta la cara de alguien que también bajó hasta aquí." },
   hound:   { atlas:"hound",    w:1.3, h:1.0, r:0.36, speed:2.0, chase:4.6, sight:12, dmg:20, kind:"walker", memory:8, ears:17, tires:true,
+             sp:{ name:"Dentellada", name_en:"Mauling",
+                  pct:0.22, parts:["legL","legR","torso"], bleed:true, sanity:7,
+                  tell:"El Hound clava las patas y abre esa boca enorme.",
+                  tell_en:"The Hound digs in its paws and opens that enormous mouth.",
+                  log:"Garras y dientes a la vez, a las piernas. Para eso está hecho.",
+                  log_en:"Claws and teeth at once, straight at the legs. That is what it is built for.",
+                  death:"Un Hound te desgarró. Flaco como estaba, tenía fuerza de sobra.",
+                  death_en:"A Hound tore you apart. Skinny as it was, it had strength to spare." },
              death:"Un Hound te derribó. Te oyó mucho antes de que tú lo vieras." },
   duller:  { atlas:"duller",   w:1.0, h:1.7, r:0.34, speed:1.2, chase:2.9, sight:15, dmg:17, kind:"walker", memory:22,
+             sp:{ name:"Brazo por la pared", name_en:"Arm through the wall",
+                  pct:0.17, parts:["armL","torso"], sanity:14,
+                  reach:3.4, windup:1.3, cd:17, wallHack:true,
+                  tell:"Algo se mueve DENTRO de la pared que tienes al lado.",
+                  tell_en:"Something moves INSIDE the wall right next to you.",
+                  log:"Un brazo atraviesa el muro, te engancha y tira de ti hacia su pasillo.",
+                  log_en:"An arm phases through the wall, hooks you and pulls you towards its hallway.",
+                  death:"Un Duller te arrastró a través de la pared. Nadie ha documentado qué pasa después.",
+                  death_en:"A Duller dragged you through the wall. Nobody has documented what happens next." },
              death:"Un Duller te alcanzó. Llevaba siguiéndote desde mucho antes de que lo vieras." },
   wretch:  { atlas:"wretch",   w:1.0, h:1.6, r:0.32, speed:1.9, chase:4.4, sight:16, dmg:19, kind:"walker", memory:6, tires:true,
+             sp:{ name:"Légamo", name_en:"Sludge",
+                  pct:0.15, parts:["head","torso","armR"], bleed:true, sanity:22,
+                  tell:"El Wretch se hincha y algo pardo le sube por la garganta.",
+                  tell_en:"The Wretch swells and something brown rises up its throat.",
+                  log:"Te rocía la secreción parda. Quema, y sabes perfectamente en qué convierte a la gente.",
+                  log_en:"It sprays you with the brown secretion. It burns, and you know exactly what it turns people into.",
+                  death:"El légamo de un Wretch te cubrió. Lo que se levante de ahí ya no serás tú.",
+                  death_en:"A Wretch\u2019s sludge covered you. Whatever gets up from there will not be you." },
              death:"Un Wretch te alcanzó. No hubo forcejeo: fue cuestión de segundos." },
   crawler: { atlas:"crawler",  w:1.1, h:0.8, r:0.28, speed:2.4, chase:4.3, sight:10, dmg:8,  kind:"walker", memory:5, tires:true,
+             sp:{ name:"Mordisco con esporas", name_en:"Spore bite",
+                  pct:0.07, parts:["legL","armR"], bleed:true, sanity:16,
+                  tell:"El Crawler abre la boca y suelta una nube blanca.",
+                  tell_en:"The Crawler opens its mouth and lets out a white cloud.",
+                  log:"Muerde poco, pero abre la herida justo para meter las esporas. Así es como se contagia.",
+                  log_en:"It barely bites, but it opens the wound just enough to get the spores in. That is how it spreads.",
+                  death:"Las esporas de los Crawlers te ganaron. Doce minutos, dicen que se tarda.",
+                  death_en:"The Crawlers\u2019 spores got you. Twelve minutes, they say it takes." },
              death:"Los Crawlers te rodearon. Nunca van de uno en uno." },
   partygoer:{atlas:"partygoer",w:1.0, h:1.6, r:0.33, speed:1.7, chase:3.9, sight:18, dmg:17, kind:"walker", memory:7, tires:true,
+             sp:{ name:"Te meten en la fiesta", name_en:"Dragged into the party",
+                  pct:0.16, parts:["armL","armR","legL"], sanity:18,
+                  tell:"Los Partygoers te rodean y empiezan a aplaudir.",
+                  tell_en:"The Partygoers close in around you and start clapping.",
+                  log:"Te sujetan entre varios y tiran de ti hacia dentro. No aceptan un no.",
+                  log_en:"Several of them hold you and pull you inwards. They do not take no for an answer.",
+                  death:"Los Partygoers te quedaron para siempre en la fiesta.",
+                  death_en:"The Partygoers kept you at the party for good." },
              death:"Los Partygoers insistieron en que te quedaras a la fiesta." },
   clump:   { atlas:"clump",    w:1.3, h:0.9, r:0.42, speed:0.7, chase:1.5, sight:9,  dmg:23, kind:"walker", memory:16,
+             sp:{ name:"Tirón al centro", name_en:"Pulled to the centre",
+                  pct:0.26, parts:["torso","armL","armR","legL","legR"], bleed:true, sanity:12,
+                  reach:2.6, windup:1.5, cd:15,
+                  tell:"El Clump estira su miembro más largo hacia ti.",
+                  tell_en:"The Clump stretches out its longest limb towards you.",
+                  log:"Te engancha y te arrastra a su centro, donde se abre una boca llena de dientes.",
+                  log_en:"It hooks you and drags you to its centre, where a mouth full of teeth opens up.",
+                  death:"Un Clump te llevó hasta su boca. Después se enterrará a dormir.",
+                  death_en:"A Clump pulled you into its mouth. Afterwards it will bury itself and sleep." },
              death:"Un Clump te cubrió. Lo peor no fue el contacto: fue lo despacio que pasó." },
   smiler:  { atlas:"smiler",   w:1.2, h:1.2, r:0.4,  speed:0,   chase:0,   sight:0,  dmg:18, kind:"lurker",
+             sp:{ name:"Se lanza", name_en:"It lunges",
+                  pct:0.24, parts:["head","torso"], bleed:true, sanity:20,
+                  reach:4.2, windup:1.1, cd:13,
+                  tell:"La sonrisa se ensancha. Le has dado luz o ruido, y eso es justo lo que la enciende.",
+                  tell_en:"The smile widens. You gave it light or noise, and that is exactly what sets it off.",
+                  log:"Sale de la oscuridad a la altura de tu cara.",
+                  log_en:"It comes out of the dark at the height of your face.",
+                  death:"Un Smiler se te echó encima. No había que correr ni hacer ruido.",
+                  death_en:"A Smiler threw itself at you. You were not supposed to run or make noise." },
              death:"Un Smiler esperaba en la oscuridad exactamente donde ibas a pasar." },
   deathmoth:{atlas:"deathmoth",w:1.1, h:1.1, r:0.3,  speed:1.2, chase:2.2, sight:8,  dmg:5,  kind:"drifter", memory:3,
+             sp:{ name:"Enjambre", name_en:"Swarm",
+                  pct:0.13, parts:["armL","armR","head"], bleed:true, sanity:15,
+                  reach:3.0, windup:1.4, cd:19,
+                  tell:"La Deathmoth suelta feromonas: las demás vienen hacia aquí.",
+                  tell_en:"The Deathmoth releases pheromones: the others are coming this way.",
+                  log:"Descarnan lo que llevas al aire. No matan de un golpe: matan por desangrado.",
+                  log_en:"They strip the flesh off whatever you leave exposed. They do not kill in one blow: they kill by blood loss.",
+                  death:"Un enjambre de Deathmoths te desangró.",
+                  death_en:"A swarm of Deathmoths bled you dry." },
              death:"Una Deathmoth te cubrió. Dicen que no atacan; este informe dice lo contrario." }
 };
 
@@ -4767,6 +4862,68 @@ function flashBlood(){
   G.hurtFlash = true;
   $("bloodfx").style.opacity = "0.55";
   setTimeout(()=>{ G.hurtFlash = false; }, 320);
+}
+
+/* ═══════════════ ATAQUE ESPECIAL ═══════════════
+   El daño normal se reparte por zonas al azar, así que en la barra de vida
+   —que es la media de las seis— apenas se nota. El especial es otra cosa: va
+   a zonas concretas y se lleva un pellizco serio. Siempre se avisa antes. */
+
+function entitySpecial(e){
+  const sp = e.def && e.def.sp;
+  if(!sp || G.dead) return;
+  const mult = (G.char ? G.char.tough : 1) * DIFF_LV().dmg;
+  const total = sp.pct * 100 * PARTS.length * mult;
+  const each  = total / sp.parts.length;
+  for(let i=0;i<sp.parts.length;i++){
+    const id = sp.parts[i];
+    G.body[id] = Math.max(0, G.body[id] - each);
+    if(sp.bleed && !G.bleeding[id] && G.body[id] < 78){
+      G.bleeding[id] = 1;
+      logLine(tx("Hemorragia en ","Bleeding from the ")+partName(id)+tx(". <b>[R]</b> para vendarte.",". <b>[R]</b> to bandage."));
+    }
+  }
+  if(G.stats) G.stats.hurt += total;
+  if(sp.sanity) G.sanity = clamp(G.sanity - sp.sanity, 0, 100);
+  G.shake = Math.min(0.95, G.shake + 0.55);
+  Audio_.scream();
+  flashBlood();
+  logLine("<b>"+txf(sp,"name")+"</b> — "+txf(sp,"log"));
+  toast(txf(sp,"name"), 3.2);
+  if(G.body.head <= 0 || G.body.torso <= 0){ die(txf(sp,"death")); return; }
+  if(bodyAvg() <= 6) die(txf(sp,"death"));
+}
+
+// El Smiler sólo salta si le das luz o ruido, como dice su ficha
+function specialArmed(e){
+  if(e.def.kind === "lurker") return G.torchOn || G.noise > 0.45;
+  return true;
+}
+
+// Carga telegrafiada: avisa, y si al acabar sigues en rango, entra
+function updateSpecial(e, dist, dt){
+  const sp = e.def && e.def.sp;
+  if(!sp || !sp.reach || G.dead) return false;
+  if(e.spCd === undefined){ e.spCd = 5 + Math.random()*7; e.spWind = 0; }
+  const alcanza = ()=> sp.wallHack || canSee(player.pos.x, player.pos.z, e.x, e.z);
+
+  if(e.spWind > 0){
+    e.spWind -= dt;
+    G.shake = Math.max(G.shake, 0.07);
+    if(e.spWind <= 0){
+      e.spCd = sp.cd || 16;
+      if(dist < sp.reach*1.2 && alcanza()){ entitySpecial(e); return true; }
+      logLine(tx("Te apartas a tiempo de ","You get clear of ")+"<b>"+txf(sp,"name")+"</b>.");
+    }
+    return false;
+  }
+  e.spCd -= dt;
+  if(e.spCd <= 0 && dist < sp.reach && alcanza() && specialArmed(e)){
+    e.spWind = sp.windup || 1.2;
+    toast("⚠ "+txf(sp,"tell"), 2.4);
+    Audio_.noise(0.5, 420, 2.2, 0.10);
+  }
+  return false;
 }
 
 /* ═══════════════ USO DE OBJETOS ═══════════════ */
@@ -5208,10 +5365,14 @@ function updateGrab(dt){
   const frac = clamp(g.t/g.limit, 0, 1);
   $("qteBar").style.transform = "scaleX("+frac+")";
   $("qte").classList.toggle("panic", frac < 0.33);
+  if(frac < 0.33 && !g.warned && e.def.sp){
+    g.warned = true;
+    toast("\u26a0 "+txf(e.def.sp,"tell"), 2.6);
+  }
 
   if(g.t <= 0){
-    hurtPlayer(e.def.dmg*1.2, e.def.death);
-    Audio_.scream();
+    if(e.def.sp) entitySpecial(e);
+    else { hurtPlayer(e.def.dmg*1.2, e.def.death); Audio_.scream(); }
     endGrab(false);
   }
 }
@@ -5277,6 +5438,8 @@ function updateEntities(dt){
   for(let i=0;i<G.entities.length;i++){
     const e = G.entities[i], def = e.def;
     const dist = Math.hypot(px-e.x, pz-e.z);
+    // el especial se carga igual la persiga, aceche o revolotee
+    if(!G.grab && !e.grabbed && e.stun <= 0 && G.grace <= 0) updateSpecial(e, dist, dt);
 
     if(def.kind === "lurker"){                        // Smiler
       const visible = dist < 12;
@@ -6679,6 +6842,7 @@ loadOpts();
 applyBrightness();
 LANG = (G.opts.lang === "en") ? "en" : "es";
 applyLangDom();
+paintVersion();
 buildOpts();
 resetRun(CHARACTERS[0].id);
 renderChars();
