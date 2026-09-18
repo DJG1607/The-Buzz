@@ -4984,19 +4984,27 @@ function toggleTorch(){
 }
 
 /* ── bengala: se queda en el suelo iluminando ── */
+/* La bengala alumbra de verdad: es lo único que ilumina una sala entera.
+   La intensidad estaba escrita en tres sitios, así que ahora va aquí. */
+const FLARE_I = 4.6, FLARE_DIST = 21, FLARE_LIFE = 70;
+
 function lightFlare(){
   const g = new THREE.Group();
   g.position.set(player.pos.x, 0, player.pos.z);
   const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.3,6),
     new THREE.MeshStandardMaterial({color:0x8e3a2a, roughness:.9}));
   stick.rotation.z = Math.PI/2; stick.position.y = 0.04; g.add(stick);
-  const core = new THREE.Mesh(new THREE.SphereGeometry(0.08,8,6),
-    new THREE.MeshBasicMaterial({color:0xffd08a, fog:false}));
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.11,10,8),
+    new THREE.MeshBasicMaterial({color:0xfff0c0, fog:false}));
   core.position.set(0.14,0.06,0); g.add(core);
-  const L = new THREE.PointLight(0xff8a3a, 2.6, 13, 2);
+  // halo: da el resplandor que se ve desde lejos por el pasillo
+  const halo = new THREE.Mesh(new THREE.SphereGeometry(0.34,10,8),
+    new THREE.MeshBasicMaterial({color:0xff9a44, transparent:true, opacity:0.32, fog:false, depthWrite:false, blending:THREE.AdditiveBlending}));
+  halo.position.copy(core.position); g.add(halo);
+  const L = new THREE.PointLight(0xffa04a, FLARE_I, FLARE_DIST, 1.6);
   L.position.set(0.14,0.4,0); g.add(L);
   world.add(g);
-  G.flares.push({mesh:g, light:L, core, life:70, x:player.pos.x, z:player.pos.z});
+  G.flares.push({mesh:g, light:L, core, halo, life:FLARE_LIFE, x:player.pos.x, z:player.pos.z});
   Audio_.noise(0.7, 900, 1.2, 0.14);
   logLine(tx("Bengala encendida. Dura poco más de un minuto.","Flare lit. It lasts a little over a minute."));
 }
@@ -5004,10 +5012,11 @@ function updateFlares(dt){
   for(let i=G.flares.length-1;i>=0;i--){
     const f = G.flares[i];
     f.life -= dt;
-    const flick = 0.75 + Math.sin(G.t*22+i)*0.12 + Math.random()*0.12;
-    if(f.life < 10) f.light.intensity = 2.6*flick*(f.life/10);
-    else f.light.intensity = 2.6*flick;
-    f.core.material.color.setHex(f.life<10 ? 0xc05a2a : 0xffd08a);
+    const flick = 0.82 + Math.sin(G.t*22+i)*0.10 + Math.random()*0.10;
+    const agotandose = f.life < 10 ? f.life/10 : 1;
+    f.light.intensity = FLARE_I * flick * agotandose;
+    f.core.material.color.setHex(f.life<10 ? 0xc05a2a : 0xfff0c0);
+    if(f.halo) f.halo.material.opacity = 0.32 * flick * agotandose;
     if(f.life <= 0){
       world.remove(f.mesh);
       G.flares.splice(i,1);
