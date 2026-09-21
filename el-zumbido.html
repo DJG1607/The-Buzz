@@ -591,6 +591,85 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script>
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║  EL ZUMBIDO — MAPA DE ESTE ARCHIVO                                       ║
+   ╚══════════════════════════════════════════════════════════════════════════╝
+
+   Todo el juego cabe aquí: no hay assets ni compilación. El archivo tiene
+   cuatro bloques, en este orden:
+
+     1. <style>      los estilos de menús y HUD
+     2. <body>       el lienzo 3D, el HUD y las seis pantallas (título, informe,
+                     muerte, nivel superado, ajustes, pausa)
+     3. <script src> Three.js 0.150.1 desde CDN (la única dependencia)
+     4. <script>     el juego, que es lo que sigue
+
+   El juego entero va envuelto en una IIFE con try/catch. Eso tiene dos
+   consecuencias que conviene saber antes de tocar nada:
+     · Desde la consola del navegador NO se ven G, CAT ni ninguna variable.
+     · Si algo revienta al arrancar no sale por consola: sale un cartel, y el
+       error queda guardado en window.__zerr.
+
+   Las secciones de abajo están en el orden en que aparecen. Para saltar a una,
+   busca su nombre tal cual (Ctrl+F). Hay una guía más larga en GUIA.md.
+
+   ── SE DIBUJA TODO POR CÓDIGO (no hay ni una imagen) ──────────────────────
+     PIXEL ART                    sprites 24×36 pintados píxel a píxel
+     PERSONAJES                   los tres jugables y sus ventajas
+     ICONOS DE INVENTARIO         los iconos 16×16 de los objetos
+     MATERIALES DEL ENTORNO       moqueta, papel pintado, hormigón, azulejo…
+
+   ── DATOS: AQUÍ SE AÑADE CONTENIDO ────────────────────────────────────────
+     SALIDAS                      los 12 tipos de salida (puerta, grieta…)
+     CATÁLOGO DE NIVELES          los 26 niveles y el grafo de saltos
+     NIVELES SIN CATALOGAR        los generados por semilla al salirse del mapa
+     OBJETOS                      los 9 objetos, el botín y el d6
+     PARTES DEL CUERPO            las seis zonas que se pueden herir
+
+   ── ESTADO Y MOTOR ───────────────────────────────────────────────────────
+     ESTADO                       G: todo lo que pasa en la partida actual
+     INVENTARIO                   mochila, huecos y equipo
+     RENDER                       cámara, luces y escena de Three.js
+     REJILLA                      el laberinto, el BFS y las colisiones
+     SPRITES EN EL MUNDO          cómo se plantan los sprites en el 3D
+
+   ── CÓMO SE CONSTRUYE UN NIVEL ───────────────────────────────────────────
+     SALIDAS: geometría por tipo  la puerta o la grieta, en 3D
+     CONTENEDORES                 casilleros, cajas y petates
+     DECORADO POR NIVEL           lo que distingue a cada nivel por dentro
+     VARIACIONES DEL NIVEL        arcos, pilares, fosos, sala roja, Manila Room
+     MONTAJE DEL NIVEL            buildLevel(): junta todo lo anterior
+
+   ── JUGAR ────────────────────────────────────────────────────────────────
+     JUGADOR                      mover, correr, aliento y cámara
+     ENTIDADES                    las diez de la wiki y sus números
+     IA DE ENTIDADES              persecución con campo de distancias
+     AGARRES Y FORCEJEO           el QTE de las teclas T Z Q X
+     ATAQUE ESPECIAL              el remate propio de cada entidad
+     DAÑO POR ZONAS               heridas, hemorragias y vendajes
+     USO DE OBJETOS               qué hace cada objeto al usarlo
+     INTERACCIÓN Y TIRADA         abrir contenedores y tirar el d6
+
+   ── AMBIENTE ─────────────────────────────────────────────────────────────
+     AUDIO                        WebAudio puro: el zumbido son 3 osciladores
+     SUSTOS AMBIENTALES           los ruidos que saltan solos
+     CORDURA                      cuánto desgasta cada nivel
+     ANTORCHA Y LÁMPARAS          linterna, bengalas y luces del nivel
+     GRANO                        el grano de vídeo de encima de todo
+
+   ── INTERFAZ ─────────────────────────────────────────────────────────────
+     HUD                          vitales, registro, avisos
+     MAPA, CAMINO Y BRÚJULA       el plano del M.E.G. y la aguja
+     OBJETO EN LA MANO            sacar algo y ver su ficha
+     LOGROS                       los 14 fijos más uno por nivel
+     MODOS DE JUEGO               Turista, Vagabundo, Explorador, Sin retorno
+     AJUSTES                      FOV, brillo, volumen, sensibilidad, idioma…
+     PANTALLAS Y FLUJO            título → personaje → informe → jugar → bajar
+
+   ── ARRANQUE ─────────────────────────────────────────────────────────────
+     BUCLE                        el frame(): qué se actualiza y en qué orden
+     ARRANQUE                     lo que se monta al abrir la página
+*/
 window.addEventListener("error", function(e){
   window.__zerr = (e.message||"error") + " @linea " + (e.lineno||"?");
 });
@@ -5151,20 +5230,9 @@ function showDice(roll, label, good){
   }, 65);
 }
 
-function rollDice(rand){
-  let r = 1 + ((rand()*6)|0);
-  if(G.char && G.char.luck) r = Math.min(6, r + G.char.luck);
-  return r;
-}
-function lootForRoll(roll, rand){
-  const d = DICE[roll];
-  const out = [];
-  for(let i=0;i<d.tiers.length;i++){
-    const pool = TIERS[d.tiers[i]];
-    out.push(pool[(rand()*pool.length)|0]);
-  }
-  return out;
-}
+// rollDice() y lootForRoll() están arriba, en CONTENEDORES. Aquí había una
+// copia vieja que, por ser la última, las pisaba: se comía el modificador de
+// dado de la dificultad y repartía premios que no cabían en la mochila.
 
 function openContainer(c){
   if(c.opened) return;

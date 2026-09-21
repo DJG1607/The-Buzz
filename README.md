@@ -8,6 +8,18 @@ externos ni compilación. Las texturas, los sprites y el audio se generan por c�
 
 ---
 
+## Los archivos
+
+| | |
+|---|---|
+| **`el-zumbido.html`** | El juego entero. Empieza por el índice de secciones del principio. |
+| **`GUIA.md`** | **Cómo está montado y dónde tocar para cambiar cada cosa.** Empieza aquí si vas a meter mano. |
+| `mapa-descenso.html` | Anexo: el grafo completo de saltos entre niveles, la fauna de cada uno y los tipos de salida. |
+| `pruebas/` | Comprobaciones automáticas: `node pruebas/todo.js` |
+| `herramientas/` | `anexo.js` regenera el anexo desde el catálogo del juego. |
+
+---
+
 ## De qué va
 
 Has hecho *noclip* fuera de la realidad y caes en el **Level 0** sin nada en los bolsillos. No hay
@@ -27,6 +39,9 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   Persiguen por los pasillos con un campo de distancias, no en línea recta.
 - **Forcejeo**: cuando una entidad te alcanza, te agarra. Hay que soltarse pulsando una secuencia
   de teclas antes de que se acabe el tiempo. Cuanto más limpio lo hagas, más tarda en levantarse.
+- **Ataque especial por entidad**, fiel a su ficha de la wiki: el Hound te desgarra las piernas, el
+  Clump te arrastra a su boca, el Duller mete el brazo **a través de la pared** y el Smiler sólo
+  salta si le das luz o haces ruido. Siempre avisan antes y se pueden esquivar.
 - **Casilleros con tirada de d6**: un 1 no da nada, un 6 es un petate intacto.
 - **Daño por zonas del cuerpo**, con hemorragias y vendajes.
 - **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
@@ -52,12 +67,6 @@ la partida. En inglés el juego se llama *The Buzz*.
 | `T Z Q X` | Soltarse de un agarre |
 | `ESC` | Pausa y ajustes |
 
-## Archivos
-
-- `el-zumbido.html` — el juego entero.
-- `mapa-descenso.html` — anexo con el grafo completo de saltos entre niveles, la fauna de cada uno
-  y los tipos de salida.
-
 ## Cómo está hecho
 
 Un solo archivo, sin dependencias más allá de Three.js 0.150.1 desde CDN:
@@ -68,6 +77,8 @@ Un solo archivo, sin dependencias más allá de Three.js 0.150.1 desde CDN:
 - Los personajes son sprites de 24×36 dibujados píxel a píxel y sombreados dentro de su silueta.
 - El audio es WebAudio puro: el zumbido de los fluorescentes son tres osciladores filtrados.
 - Las entidades comparten un *flow field* recalculado desde el jugador cada 0,35 s.
+
+Los detalles y las trampas están en la [guía](GUIA.md).
 
 ## Créditos
 
