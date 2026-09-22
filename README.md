@@ -28,12 +28,14 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 
 ## Lo que hay dentro
 
-- **24 niveles del catálogo de la wiki** — The Lobby, Habitable Zone, Pipe Dreams, Electrical
+- **34 niveles del catálogo de la wiki** — The Lobby, Habitable Zone, Pipe Dreams, Electrical
   Station, Abandoned Office, Terror Hotel, Lights Out, Thalassophobia, The Caves, The Suburbs,
-  Field of Wheat, The Endless City, Matrix, Attic Floorboards, Numbered Doors, The Infinite Mall,
-  Sewer System, An Empty Car Park, Timeless Airport, The Poolrooms, Eyes On You, Fallout Shelter,
-  Level ! y Level Fun — más los asentamientos **Base Beta** y **Camp Amber**, y niveles sin
-  catalogar generados por semilla cuando te sales del mapa conocido.
+  Field of Wheat, The Endless City, The Boiling Frogs, Matrix, Attic Floorboards, Numbered Doors,
+  Ruins Left Behind, The Roller Rink, The Infinite Mall, Sewer System, An Empty Car Park,
+  Timeless Airport, The Poolrooms, The Black Lake, The Moribund Highway, Eyes On You, Frostbite,
+  The Lurking Darkness, Space Station, Fallout Shelter, Downtown Diner, Ghoul Town, Level ! y
+  Level Fun — más los asentamientos **Base Beta** y **Camp Amber**, y niveles sin catalogar
+  generados por semilla cuando te sales del mapa conocido.
 - **Diez entidades** con su número oficial: Facelings (9), Smilers (3), Hounds (8), Skin-Stealers
   (10), Deathmoths (4), Dullers (6), Clumps (5), Crawlers (17), Wretches (15) y Partygoers.
   Persiguen por los pasillos con un campo de distancias, no en línea recta.
@@ -42,11 +44,18 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 - **Ataque especial por entidad**, fiel a su ficha de la wiki: el Hound te desgarra las piernas, el
   Clump te arrastra a su boca, el Duller mete el brazo **a través de la pared** y el Smiler sólo
   salta si le das luz o haces ruido. Siempre avisan antes y se pueden esquivar.
+- **Multijugador con amigos**: sala con nombre, la partida va directa entre vuestros ordenadores
+  por WebRTC. Camináis el mismo laberinto y os veis moveros; cada uno tiene sus enemigos y su
+  botín. No hace falta instalar nada.
+- **La palanca**: el primer objeto con el que se puede responder. Si algo te tiene agarrado,
+  **[V]** te suelta de golpe y lo deja tonto. Se gasta al usarla.
 - **Casilleros con tirada de d6**: un 1 no da nada, un 6 es un petate intacto.
 - **Daño por zonas del cuerpo**, con hemorragias y vendajes.
 - **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
   rojas y la Manila Room.
-- **Tres personajes**, uno de ellos desbloqueable, y **40 logros**.
+- **Cuatro personajes**, dos de ellos desbloqueables —entre ellos **el Entrenador**, el Faceling
+  del Level 31, al que los suyos no atacan—, y **52 logros**. Se eligen en un carrusel al darle a
+  Jugar.
 
 ## Idiomas
 
@@ -64,12 +73,15 @@ la partida. En inglés el juego se llama *The Buzz*.
 | `1`–`4` | Sacar objeto (otra vez para usarlo) |
 | `Q` / `R` | Beber Almond Water · vendarte |
 | `F` / `G` | Linterna · bengala |
-| `T Z Q X` | Soltarse de un agarre |
+| `V` | Palanca: soltarse de un agarre de golpe |
+| `T Z Q X` | Soltarse de un agarre forcejeando |
 | `ESC` | Pausa y ajustes |
 
 ## Cómo está hecho
 
-Un solo archivo, sin dependencias más allá de Three.js 0.150.1 desde CDN:
+Un solo archivo. La única dependencia para jugar en solitario es Three.js 0.150.1 desde CDN; el
+multijugador carga además PeerJS, pero **sólo si le das a «Jugar con amigos»**, así que sin internet
+el juego normal sigue funcionando igual:
 
 - El laberinto sale de un *recursive backtracker* con *braiding* para abrir salas.
 - Las texturas del entorno se pintan en canvas de 384 px (moqueta con fibras, papel pintado con

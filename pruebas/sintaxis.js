@@ -51,7 +51,17 @@ const ver = html.match(/const VERSION = "([^"]+)"/);
 c.ok(!!ver, ver ? "versión " + ver[1] : "no encuentro const VERSION");
 c.ok(/id="verTag"/.test(html) && /id="verTagOpts"/.test(html), "la versión se pinta en portada y en ajustes");
 
-/* ── 5. el índice de secciones sigue ahí ── */
+/* ── 5. el multijugador no puede ser una dependencia del juego normal ──
+   PeerJS se carga sólo al darle a "Jugar con amigos". Si alguien lo pusiera
+   como <script src> arriba, el juego en solitario dejaría de funcionar sin
+   internet, que es justo lo que no queremos. */
+c.ok(/peerjs/i.test(src), "el multijugador usa PeerJS");
+c.ok(!/<script[^>]+peerjs/i.test(html), "PeerJS NO es una etiqueta script fija: se carga sólo si hace falta");
+c.ok(/mpCargarLibreria/.test(src), "se carga a demanda con mpCargarLibreria()");
+for (const f of ["mpEmpezar", "mpEnviar", "mpRecibir", "updateGhosts", "mpSalir"])
+  c.ok(src.indexOf("function " + f + "(") >= 0, "existe " + f + "()");
+
+/* ── 6. el índice de secciones sigue ahí ── */
 const secciones = (src.match(/═{5,}\s*[^═\s][^═]*\s*═{5,}/g) || []).length;
 c.ok(secciones > 30, secciones + " secciones marcadas para poder orientarse");
 

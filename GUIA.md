@@ -7,9 +7,10 @@ Si sólo quieres jugar, con el [README](README.md) basta.
 
 ## 1. Por qué todo está en un archivo
 
-`el-zumbido.html` son ~6.900 líneas y lo contiene todo: estilos, menús, el juego,
+`el-zumbido.html` son ~7.100 líneas y lo contiene todo: estilos, menús, el juego,
 las texturas, los sprites y el sonido. No hay imágenes, ni audio, ni compilación, ni
-`npm install`. La única dependencia es Three.js, que viene de un CDN.
+`npm install`. Para jugar en solitario la única dependencia es Three.js, que viene de un
+CDN; el multijugador carga además PeerJS, pero sólo cuando le das a «Jugar con amigos».
 
 Eso es a propósito. Significa que el juego **funciona con hacer doble clic en el archivo**,
 se puede subir a cualquier sitio tal cual y no se rompe porque falte una carpeta.
@@ -23,16 +24,18 @@ del `<script>`**: ábrelo, mira los nombres y busca el que quieras con `Ctrl+F`.
 |---|---|
 | 1–4 | `<meta charset>` y el título |
 | 5–397 | `<style>`: los estilos de menús y HUD |
-| 398–591 | El lienzo 3D, el HUD y las **seis pantallas**: título, informe, muerte, nivel superado, ajustes y pausa |
-| 592 | Three.js 0.150.1 desde CDN — **la única dependencia** |
-| 593–final | El juego, en 43 secciones |
+| 398–~640 | El lienzo 3D, el HUD y las **ocho pantallas**: título, sala, personajes, informe, muerte, nivel superado, ajustes y pausa |
+| ~641 | Three.js 0.150.1 desde CDN — la única dependencia fija |
+| ~642–final | El juego, en 44 secciones |
 
 ---
 
 ## 2. Cómo transcurre una partida
 
 ```
-Portada  →  eliges personaje  →  informe del nivel  →  JUGAR
+Portada  →  [Jugar]  →  carrusel de personajes  →  informe del nivel  →  JUGAR
+    │
+    └─ [Jugar con amigos] → sala → (lo mismo, pero compartiendo laberinto)
                                                         │
                             ┌───────────────────────────┤
                             │                           │
@@ -98,6 +101,8 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 | Añadir un tipo de salida | `SALIDAS` | `EXIT_KINDS` + su geometría en `SALIDAS: geometría por tipo` |
 | Cambiar un ajuste | `AJUSTES` | `OPT_ROWS` |
 | Añadir un logro | `LOGROS` | `ACHIEVEMENTS` (los de nivel se generan solos) |
+| Añadir un personaje | `PERSONAJES` | `CHARACTERS`; se desbloquea con `unlockAt` (profundidad) o `unlockLevel` (pisar un nivel) |
+| Tocar el multijugador | `MULTIJUGADOR` | `MP`, `mpRecibir()` y `updateGhosts()` |
 
 ### Añadir un nivel, paso a paso
 
@@ -114,7 +119,32 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 
 ---
 
-## 5. Los dos idiomas
+## 5. El multijugador
+
+Está en la sección **MULTIJUGADOR** del archivo. Funciona así:
+
+1. Todos escriben el **mismo nombre de sala**. El que le da a *Crear sala* abre un `Peer` con el id
+   `elzumbido-<sala>`; los demás se conectan a ese id.
+2. Una vez conectados, **la partida va directa de un ordenador a otro** (WebRTC). El único momento
+   en que hace falta un intermediario es el «hola» inicial, y de eso se encarga el broker público
+   de PeerJS.
+3. Se comparten dos cosas: el **nivel** (su id y su semilla, que es lo que lo genera entero) y
+   **dónde está cada uno**. Los enemigos y el botín son de cada jugador, así que una conexión mala
+   no le estropea la partida a nadie.
+4. Los demás se dibujan con `updateGhosts()`, como sprites del personaje que eligieron, con la
+   posición interpolada porque llega ocho veces por segundo.
+
+**PeerJS se carga a demanda** (`mpCargarLibreria()`), no como `<script src>`. Eso es a propósito:
+si fuera fijo, el juego en solitario dejaría de arrancar sin internet. `pruebas/sintaxis.js` lo
+vigila.
+
+Lo que **no** hace: no sincroniza enemigos, ni botín, ni quién ha abierto qué casillero. Si algún
+día quieres eso, el anfitrión tendría que simular y mandar el estado, y hay que pensarse qué pasa
+cuando se va.
+
+---
+
+## 6. Los dos idiomas
 
 El juego está en español e inglés y se cambia en caliente desde Ajustes.
 
@@ -132,7 +162,7 @@ El juego está en español e inglés y se cambia en caliente desde Ajustes.
 
 ---
 
-## 6. Trampas que ya han mordido
+## 7. Trampas que ya han mordido
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.
 
@@ -168,7 +198,7 @@ con una sola etiqueta `<script>` sin módulos.
 
 ---
 
-## 7. Comprobar que no has roto nada
+## 8. Comprobar que no has roto nada
 
 ```bash
 node pruebas/todo.js
@@ -188,7 +218,7 @@ Y abrir `http://localhost:8777/el-zumbido.html`.
 
 ---
 
-## 8. Los otros archivos
+## 9. Los otros archivos
 
 | Archivo | Para qué |
 |---|---|

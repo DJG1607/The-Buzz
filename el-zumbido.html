@@ -344,6 +344,44 @@
 
   .pickline{margin-top:24px; font-size:9.5px; letter-spacing:.3em; color:var(--ink-faint); text-transform:uppercase;}
   #chars{display:grid; grid-template-columns:1fr; gap:12px; margin-top:12px;}
+  .btn.big{font-size:14px; padding:11px 30px; letter-spacing:.16em;}
+  #mpForm{display:grid; gap:6px; margin:14px 0 4px;}
+  .mpl{font-size:10px; letter-spacing:.18em; color:var(--ink-faint); text-transform:uppercase;}
+  .mpi{
+    background:rgba(0,0,0,.28); border:1px solid var(--line2); color:var(--ink);
+    font:13px/1.5 inherit; padding:8px 10px; border-radius:2px; width:100%;
+  }
+  .mpi:focus{outline:none; border-color:var(--ink-faint);}
+  #mpPeople{display:grid; gap:5px; margin-top:10px;}
+  .mpp{
+    display:flex; justify-content:space-between; gap:10px; font-size:11.5px;
+    border:1px solid var(--line2); padding:6px 10px; border-radius:2px;
+    background:rgba(221,214,189,.03);
+  }
+  .mpp b{color:var(--ink);}
+  .mpp span{color:var(--ink-faint);}
+  #mpRoster{
+    position:fixed; right:12px; top:78px; display:grid; gap:3px;
+    font-size:10.5px; letter-spacing:.06em; text-align:right; pointer-events:none;
+  }
+  #mpRoster div{color:var(--ink-faint);}
+  #carousel{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; margin-top:14px;}
+  .carr{
+    background:rgba(221,214,189,.04); border:1px solid var(--line2); color:var(--ink);
+    font-size:26px; line-height:1; padding:16px 12px; cursor:pointer; border-radius:2px;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .carr:hover{border-color:var(--ink-faint); background:rgba(221,214,189,.09);}
+  #charStage .char{width:100%; text-align:left; cursor:default;}
+  #charStage .char:hover{transform:none;}
+  #charDots{display:flex; justify-content:center; gap:7px; margin-top:11px;}
+  .cdot{width:7px; height:7px; border:1px solid var(--line2); border-radius:50%;}
+  .cdot.on{background:var(--ink); border-color:var(--ink);}
+  .cdot.lock{border-style:dashed;}
+  @media (max-width:560px){
+    #carousel{grid-template-columns:1fr;}
+    .carr{padding:8px;}
+  }
   .char{
     position:relative; display:flex; gap:15px; text-align:left; align-items:stretch;
     border:1px solid var(--line2); background:linear-gradient(135deg, rgba(221,214,189,.055), rgba(221,214,189,.015));
@@ -405,6 +443,7 @@
 <div class="fx" id="flash"></div>
 
 <div id="hud">
+  <div id="mpRoster"></div>
   <div class="panel" id="slate">
     <div class="lvl" id="lvlName">Level 0</div>
     <div class="depth" id="lvlDepth">PROFUNDIDAD 1</div>
@@ -478,14 +517,17 @@
       <div><kbd>G</kbd><span data-en=" flare"> bengala</span></div>
       <div><kbd>Q</kbd><span data-en=" drink water"> beber agua</span></div>
       <div><kbd>R</kbd><span data-en=" bandage up"> vendarte</span></div>
+      <div><kbd>V</kbd><span data-en=" crowbar"> palanca</span></div>
       <div><kbd>ESC</kbd><span data-en=" pause"> pausa</span></div>
     </div>
     <div id="continueBox" hidden>
       <div class="cont-l"><span class="cont-k" data-en="SAVED RUN">PARTIDA GUARDADA</span><span id="continueInfo"></span></div>
       <button class="btn small" id="continueBtn" data-en="Continue">Continuar</button>
     </div>
-    <div class="pickline" data-en="Choose who goes down">Elige con quién bajas</div>
-    <div id="chars"></div>
+    <div class="btnrow" id="playRow">
+      <button class="btn big" id="playBtn" data-en="Play">Jugar</button>
+      <button class="btn ghost" id="mpBtn" data-en="Play with friends">Jugar con amigos</button>
+    </div>
     <div id="metaLine" class="meta"></div>
     <div class="btnrow"><button class="btn ghost" id="optsBtn" data-en="Settings">Ajustes</button></div>
     <div id="achBox">
@@ -494,6 +536,49 @@
     </div>
     <div id="smallnote" data-en="This game needs a &lt;b&gt;keyboard and mouse&lt;/b&gt;. On a phone or tablet you can look at the level, but not really play it.">Este juego necesita <b>teclado y ratón</b>. En móvil o tablet podrás ver el nivel, pero no jugarlo bien.</div>
     <div class="meta" data-en="Levels, entities and exits taken from the public lore of the Backrooms Wiki &#183; Endless generation &#183; Audio and graphics generated in code — turn the volume up.">Niveles, entidades y salidas tomados del lore público de la Backrooms Wiki · Generación infinita · Audio y gráficos generados por código — sube el volumen.</div>
+  </div>
+</div>
+
+<div class="screen" id="mpScreen" hidden>
+  <div class="sheet">
+    <div class="eyebrow" data-en="M.E.G. &#183; Joint expedition">M.E.G. · Expedición conjunta</div>
+    <h2 data-en="Play with friends">Jugar con amigos</h2>
+    <div class="rule"></div>
+    <p class="body" data-en="Everyone types the same room name. The game goes straight between your computers: whoever creates the room is the one running it. You all walk the same maze and can see each other, but each of you has your own entities and your own loot.">Escribid todos el mismo nombre de sala. La partida va directa entre vuestros ordenadores: el que crea la sala es el que la lleva. Camináis el mismo laberinto y os veis, pero cada uno tiene sus propios enemigos y su propio botín.</p>
+    <div id="mpForm">
+      <label class="mpl" data-en="Your name">Tu nombre</label>
+      <input id="mpName" class="mpi" maxlength="14" placeholder="David">
+      <label class="mpl" data-en="Room name">Nombre de la sala</label>
+      <input id="mpRoom" class="mpi" maxlength="24" placeholder="la cuadrilla">
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="mpCreate" data-en="Create room">Crear sala</button>
+      <button class="btn" id="mpJoin" data-en="Join">Entrar</button>
+      <button class="btn ghost" id="mpBack" data-en="Back">Volver</button>
+    </div>
+    <div id="mpStatus" class="meta"></div>
+    <div id="mpPeople"></div>
+    <div class="btnrow" id="mpGoRow" hidden>
+      <button class="btn big" id="mpGo" data-en="Choose character">Elegir personaje</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="charScreen" hidden>
+  <div class="sheet">
+    <div class="eyebrow" data-en="M.E.G. &#183; Personnel file">M.E.G. · Ficha de personal</div>
+    <h2 data-en="Who goes down">Quién baja</h2>
+    <div class="rule"></div>
+    <div id="carousel">
+      <button class="carr" id="charPrev" type="button">&#8249;</button>
+      <div id="charStage"></div>
+      <button class="carr" id="charNext" type="button">&#8250;</button>
+    </div>
+    <div id="charDots"></div>
+    <div class="btnrow">
+      <button class="btn" id="charGo" data-en="Go down">Bajar</button>
+      <button class="btn ghost" id="charBack" data-en="Back">Volver</button>
+    </div>
   </div>
 </div>
 
@@ -694,7 +779,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "1.3.5";
+const VERSION = "1.4.0";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1056,6 +1141,23 @@ const CHARACTERS = [
           shirt:"#3b4044", shirtShade:"#2b2f33", pants:"#33312c", pantsShade:"#262420",
           shoe:"#1c1a18", shoeShade:"#121110", belt:"#4a443a", collar:null, eye:"#d8d2c0", mouth:"#7a6456" },
     opts:{ hood:"#33372f", ribs:true }
+  },
+  {
+    id:"coach", name:"El Entrenador", role:"Faceling del Level 31", name_en:"The Coach", role_en:"Level 31 Faceling",
+    blurb:"Alquila patines en la pista del Level 31 y es el \u00fanico Faceling del que hay constancia de que piense. Lleva a\u00f1os diciendo a los que llegan que se marchen antes de acomodarse. Un d\u00eda decidi\u00f3 bajar \u00e9l.",
+    blurb_en:"He rents out skates at the Level 31 rink and is the only Faceling on record that thinks. For years he has been telling new arrivals to leave before they settle in. One day he decided to go down himself.",
+    perks:["Los <b>Facelings no le atacan</b>: es de los suyos","El zumbido casi no le afecta: <b>-65%</b> de cordura","No tiene manos de carro\u00f1ero: <b>-1</b> a cada tirada"],
+    perks_en:["<b>Facelings ignore him</b>: he is one of them","The hum barely reaches him: <b>-65%</b> sanity drain","No scavenger's hands: <b>-1</b> to every roll"],
+    stats:{Aliento:0.5, Suerte:0.15, Sigilo:0.9, Cordura:1.0},
+    startEquip:[], stamina:0.8, luck:-1, noise:0.85, sanity:0.35, tough:1.1, nightEyes:1.8,
+    locked:true, unlockLevel:"31",
+    unlockHint:"Se desbloquea cuando pises el Level 31, la pista de patinaje.",
+    unlockHint_en:"Unlocks when you set foot in Level 31, the roller rink.",
+    pal:{ skin:"#cbc2ae", skinShade:"#aca391", hair:null, hairShade:null,
+          shirt:"#6b4a7a", shirtShade:"#503859", pants:"#3a3a42", pantsShade:"#2b2b31",
+          shoe:"#8a6a3a", shoeShade:"#5e4826", belt:"#2e2a26", collar:"#7f5a90",
+          eye:"#cbc2ae", mouth:"#cbc2ae" },
+    opts:{ cap:"#6b4a7a" }
   }
 ];
 
@@ -1129,6 +1231,12 @@ const ICON_DRAW = {
     P(x,6,5,4,10,"#8e3a2a"); P(x,6,5,4,1,"#b04a34");
     P(x,6,12,4,1,"#5e241a");
     P(x,6,2,4,3,"#f0e0a0"); P(x,5,0,6,3,"#ff7a3a"); P(x,7,0,2,2,"#fff2c0");
+  },
+  crowbar(x){
+    P(x,7,3,2,11,"#6a6f75"); P(x,7,3,1,11,"#8b9299");   // barra
+    P(x,4,2,5,2,"#6a6f75");  P(x,4,1,2,2,"#545a60");    // gancho
+    P(x,6,13,4,2,"#4e5257");                            // pata plana
+    P(x,7,8,2,1,"#7a4a28");                             // óxido
   },
   recorder(x){
     P(x,1,4,14,9,"#3d4248"); P(x,1,4,14,1,"#565d65");
@@ -1565,7 +1673,8 @@ const CAT = [
     ents:{faceling:2, smiler:3, deathmoth:1, hound:0},
     exitsTo:[
       {to:"1", kind:"noclip", note:"pared parpadeante"},
-      {to:"1", kind:"crack",  note:"suelo que cede"}
+      {to:"1", kind:"crack",  note:"suelo que cede"},
+      {to:"13", kind:"door",   note:"portal de un bloque de pisos"}
     ],
     lore:"Moqueta amarilla mono, papel pintado húmedo y el zumbido de los fluorescentes en cada pasillo. El nivel más recorrido y el más engañoso: es seguro hasta que dejas de contar los días.",
     lore_en:"Mono yellow carpet, damp wallpaper and the hum of the fluorescents down every corridor. The most travelled level and the most deceptive: it is safe right up until you stop counting the days.",
@@ -1679,7 +1788,8 @@ const CAT = [
       {to:"6", kind:"stairs",   note:"escalera al sótano"},
       {to:"4", kind:"elevator", note:"ascensor de servicio"},
       {to:"9", kind:"door",     note:"puerta de servicio"},
-      {to:"21", kind:"door",     note:"pasillo de puertas numeradas"}
+      {to:"21", kind:"door",     note:"pasillo de puertas numeradas"},
+      {to:"98", kind:"stage",    note:"salida trasera a una calle"}
     ],
     lore:"Un hotel de lujo apagado: alfombra roja, apliques de latón y cientos de puertas cerradas. Lo que hay dentro de las habitaciones a veces sale a los pasillos.",
     lore_en:"A luxury hotel with the lights off: red carpet, brass sconces and hundreds of closed doors. What is inside the rooms sometimes comes out into the corridors.",
@@ -1701,7 +1811,8 @@ const CAT = [
       {to:"7", kind:"hatch", note:"trampilla inundada"},
       {to:"8", kind:"crack", note:"grieta"},
       {to:"5", kind:"door",  note:"volver al hotel"},
-      {to:"92", kind:"stairs",note:"escalera al búnker"}
+      {to:"92", kind:"stairs",note:"escalera al búnker"},
+      {to:"64", kind:"door",  note:"una puerta de casa"}
     ],
     lore:"Oscuridad total y kilómetros de pasillo. Todo lo que vive aquí lleva generaciones sin necesitar ojos, y te oye antes de que enciendas nada.",
     lore_en:"Total darkness and miles of corridor. Everything living down here stopped needing eyes generations ago, and it hears you before you switch anything on.",
@@ -1723,7 +1834,8 @@ const CAT = [
       {to:"8",  kind:"hatch",  note:"escotilla"},
       {to:"37", kind:"drain",  note:"desagüe"},
       {to:"6",  kind:"stairs", note:"volver a la oscuridad"},
-      {to:"34", kind:"drain",  note:"colector inundado"}
+      {to:"34", kind:"drain",  note:"colector inundado"},
+      {to:"41", kind:"hatch",  note:"escotilla al alquitrán"}
     ],
     lore:"Pasarelas metálicas sobre un océano negro sin fondo. El agua está templada y quieta, y de vez en cuando algo grande la mueve muy despacio.",
     lore_en:"Metal walkways over a black ocean with no bottom. The water is warm and still, and every so often something large moves it very slowly.",
@@ -1745,7 +1857,8 @@ const CAT = [
       {to:"9",  kind:"well",  note:"pozo"},
       {to:"10", kind:"crack", note:"grieta hacia arriba"},
       {to:"7",  kind:"hole",  note:"volver al agua"},
-      {to:"52", kind:"hole",  note:"galería con vetas"}
+      {to:"52", kind:"hole",  note:"galería con vetas"},
+      {to:"56", kind:"crack", note:"grieta que hiela"}
     ],
     lore:"Un sistema de cuevas húmedas que no aparece en ningún mapa de roca conocido. Se oye agua correr en todas direcciones y nunca la encuentras.",
     lore_en:"A system of damp caves that appears on no known rock map. You can hear water running in every direction and you never find it.",
@@ -1769,7 +1882,8 @@ const CAT = [
       {to:"10", kind:"crack",    note:"grieta del jardín"},
       {to:"8",  kind:"well",     note:"pozo del jardín"},
       {to:"4",  kind:"firedoor", note:"volver a las oficinas"},
-      {to:"35", kind:"stairs",   note:"rampa del aparcamiento"}
+      {to:"35", kind:"stairs",   note:"rampa del aparcamiento"},
+      {to:"31", kind:"door",     note:"pista de patinaje"}
     ],
     lore:"Un barrio residencial en una noche que no avanza. Las casas están abiertas, las luces encendidas y las mesas puestas para gente que no llega.",
     lore_en:"A residential neighbourhood on a night that never moves on. The houses are open, the lights are on and the tables are set for people who never arrive.",
@@ -1941,7 +2055,8 @@ const CAT = [
       {to:"4",    kind:"elevator", note:"ascensor del centro"},
       {to:"9",    kind:"door",     note:"puerta de aparcamiento"},
       {to:"beta", kind:"stage",    note:"puerta de personal"},
-      {to:"36",   kind:"elevator", note:"pasarela de embarque"}
+      {to:"36",   kind:"elevator", note:"pasarela de embarque"},
+      {to:"78",   kind:"vent",     note:"conducto sin gravedad"}
     ],
     lore:"Un centro comercial vacío con locales de marcas que existen de verdad, casi todos sin género. Cuanto más te internas, peor está todo: las luces, los suelos y lo que se mueve entre los escaparates.",
     lore_en:"An empty shopping centre with units branded for chains that really exist, nearly all of them bare. The deeper you go, the worse everything gets: the lights, the floors and whatever moves between the shop fronts.",
@@ -1963,7 +2078,8 @@ const CAT = [
       {to:"0",  kind:"door",   note:"la puerta marcada 105"},
       {to:"8",  kind:"door",   note:"puerta marcada 8"},
       {to:"11", kind:"door",   note:"puerta marcada 11"},
-      {to:"19", kind:"hatch",  note:"puerta sin número"}
+      {to:"19", kind:"hatch",  note:"puerta sin número"},
+      {to:"22", kind:"hole",   note:"un boquete nuevo"}
     ],
     lore:"Cuatro pasillos larguísimos que se cruzan en una plaza con muebles fuera de sitio. A los lados, puertas con un número pintado: la que lleva el 105 devuelve al Level 0, y las demás van adonde dicen. Los pasillos se recolocan cuando no miras, así que la puerta que buscabas puede no estar donde la dejaste.",
     lore_en:"Four enormous hallways meeting at a square full of misplaced furniture. Along the sides, doors with a number painted on them: the one marked 105 takes you back to Level 0, and the rest go where they say. The hallways rearrange themselves when you are not looking, so the door you wanted may not be where you left it.",
@@ -1985,7 +2101,8 @@ const CAT = [
       {to:"7",  kind:"drain", note:"nadar hacia abajo"},
       {to:"9",  kind:"hatch", note:"reja a la calle"},
       {to:"11", kind:"hatch", note:"reja del centro"},
-      {to:"4",  kind:"crack", note:"grieta rara"}
+      {to:"4",  kind:"crack", note:"grieta rara"},
+      {to:"99", kind:"well",  note:"pozo de arena roja"}
     ],
     lore:"Túneles de ladrillo por arriba y piedra por abajo, tan bajos que hay que ir encogido, con agua que te llega a media pierna. No hay ni una luz propia en todo el nivel: lo que no alumbres tú, no existe. En las salas de unión el agua se vuelve profunda de golpe.",
     lore_en:"Tunnels with brick above and stone below, so low you have to stoop, with water up to mid-leg. There is not a single light of its own in the whole level: whatever you do not light does not exist. In the junction rooms the water turns deep without warning.",
@@ -2006,7 +2123,8 @@ const CAT = [
     exitsTo:[
       {to:"9",  kind:"stairs",   note:"escalera a la calle"},
       {to:"11", kind:"firedoor", note:"salida de incendios"},
-      {to:"36", kind:"elevator", note:"ascensor a la terminal"}
+      {to:"36", kind:"elevator", note:"ascensor a la terminal"},
+      {to:"50", kind:"door",     note:"una autocaravana"}
     ],
     lore:"Seis plantas de aparcamiento de hormigón, en penumbra pero no del todo apagadas: hay focos cálidos y, cada pocas plazas, tubos verdes y azules. Fuera del borde no hay ciudad, sólo un vacío negro. Cuando te acercas a una salida empiezan a aparecer coches, y no están aparcando.",
     lore_en:"Six floors of concrete parking, dim but not quite dark: there are warm floodlights and, every few bays, green and blue tubes. Past the edge there is no city, only black emptiness. As you get close to an exit cars start showing up, and they are not parking.",
@@ -2077,6 +2195,216 @@ const CAT = [
     lore_en:"Concrete and steel bunkers chained together without end, Cold War issue, with thin pipes of murky water running along walls and ceilings. The sections change size without warning: from a tunnel a lorry would fit through to a crawlway. There are a great many entities, and the ones from the irradiated sections came out wrong: the Hounds here are clumsier, the Clumps have extra fingers.",
     tip:"Es el nivel más poblado del catálogo. Cruza, no explores.",
     tip_en:"It is the most crowded level in the catalogue. Cross it, do not explore it."
+  },
+  {
+    id:"13", num:"13", title:"The Boiling Frogs", risk:0,
+    grid:31, cell:4.2, wallH:2.9, braid:0.18,
+    fog:0.038, fogColor:0x2b2a26, amb:0x3c3a33, ambI:0.38,
+    lampColor:0xf2efe0, lampI:1.1, lampDist:13, lampEvery:3, lampStyle:"fluor",
+    floor:["carpet",{base:"#8d8674",dark:"rgba(70,66,56,.5)",light:"rgba(170,162,142,.35)"}],
+    wall:["wallpaper",{base:"#d8d4c6",stripe:0,dark:"rgba(160,156,142,.45)",light:"rgba(236,232,220,.35)",skirt:"rgba(120,116,104,.5)"}],
+    ceil:["ceilTile",{base:"#d6d2c4"}],
+    drain:0.85, boxes:13, outpost:0.6, deco:"hotel",
+    special:["manila","arch"],
+    ents:{},
+    exitsTo:[
+      {to:"0",  kind:"door",   note:"una puerta cualquiera"},
+      {to:"9",  kind:"stairs", note:"escalera de vecinos"},
+      {to:"1",  kind:"hatch",  note:"trastero del s\u00f3tano"}
+    ],
+    lore:"Doscientas noventa plantas de un bloque de pisos de los a\u00f1os setenta, todas iguales. Pasillos beige, fluorescentes cada mucho, y apartamentos amueblados con lo justo. No hay ni una entidad hostil documentada. El peligro es otro: la gente se queda, se acomoda, deja de salir, y al cabo de unos a\u00f1os no est\u00e1.",
+    lore_en:"Two hundred and ninety floors of a 1970s apartment block, all identical. Beige hallways, fluorescents every so often, and flats furnished with the bare minimum. Not one hostile entity is documented. The danger is a different one: people settle in, get comfortable, stop going out, and a few years later they are not there.",
+    tip:"Nadie te va a perseguir aqu\u00ed. Ese es exactamente el problema.",
+    tip_en:"Nothing is going to chase you here. That is exactly the problem."
+  },
+  {
+    id:"22", num:"22", title:"Ruins Left Behind", risk:2,
+    grid:33, cell:4.8, wallH:3.2, braid:0.26,
+    fog:0.048, fogColor:0x1e1f21, amb:0x2c2e31, ambI:0.22,
+    lampColor:0xc8d2d8, lampI:0.8, lampDist:10, lampEvery:5, lampStyle:"bulb",
+    floor:["concrete",{base:"#4a4a48",dark:"rgba(20,20,19,.55)",light:"rgba(104,104,100,.25)"}],
+    wall:["concrete",{base:"#5a5954",dark:"rgba(26,26,24,.5)",light:"rgba(118,117,110,.22)"}],
+    ceil:["concrete",{base:"#343432",dark:"rgba(14,14,13,.55)",light:"rgba(70,70,66,.2)"}],
+    drain:1.9, boxes:12, outpost:0.25, deco:"warehouse",
+    special:["hole","pillar","blackout"],
+    ents:{crawler:3, wretch:2, faceling:2, smiler:2, clump:1},
+    exitsTo:[
+      {to:"21", kind:"hole",  note:"boquete hacia los pasillos"},
+      {to:"1",  kind:"crack", note:"grieta original"},
+      {to:"35", kind:"stairs",note:"rampa que a\u00fan aguanta"}
+    ],
+    lore:"Lo que queda de un aparcamiento de varias plantas despu\u00e9s de que se viniera abajo: escombro, vigas dobladas, coches aplastados y pozos de mina abiertos por todas partes. Aqu\u00ed vivi\u00f3 Emstable, una micronaci\u00f3n que dur\u00f3 de 1987 hasta que su propia miner\u00eda le hundi\u00f3 el suelo.",
+    lore_en:"What is left of a multi-storey car park after it came down: rubble, bent girders, crushed cars and open mining pits everywhere. Emstable lived here, a micronation that lasted from 1987 until its own mining collapsed the floor under it.",
+    tip:"El suelo no es de fiar. Mira d\u00f3nde pisas y no corras por el escombro.",
+    tip_en:"The floor cannot be trusted. Watch your step and do not run over the rubble."
+  },
+  {
+    id:"31", num:"31", title:"The Roller Rink", risk:0,
+    grid:29, cell:5.4, wallH:4.2, braid:0.48,
+    fog:0.026, fogColor:0x241c2e, amb:0x46325a, ambI:0.44,
+    lampColor:0xff8ad8, lampI:1.5, lampDist:17, lampEvery:2, lampStyle:"bulb",
+    floor:["wood",{base:"#a6773f",dark:"rgba(88,60,28,.45)",light:"rgba(206,166,110,.35)"}],
+    wall:["wallpaper",{base:"#4a2f66",stripe:10,dark:"rgba(38,22,54,.55)",light:"rgba(126,88,168,.4)",skirt:"rgba(30,18,44,.6)"}],
+    ceil:["ceilTile",{base:"#2e2040"}],
+    drain:0.5, boxes:12, outpost:0.75, deco:"party",
+    special:["arch","pillar"],
+    ents:{faceling:3},
+    exitsTo:[
+      {to:"9",  kind:"door",  note:"puerta de la calle"},
+      {to:"33", kind:"stage", note:"pasillo de empleados"},
+      {to:"12", kind:"noclip",note:"una recreativa que no encaja"}
+    ],
+    lore:"Una pista de patinaje que se repite, con suelo de madera pulida, focos de colores en el techo y una estrella de luz en el centro. Hay recreativas, un puesto de comida y un cine. Los Facelings de aqu\u00ed trabajan: uno alquila patines, otro pincha m\u00fasica. Al del alquiler lo llaman el Entrenador, y te dir\u00e1 que te marches antes de que te guste demasiado.",
+    lore_en:"A roller rink that loops, with polished wooden floors, coloured lights on the ceiling and a star of light at the centre. There are arcade machines, a food court and a cinema. The Facelings here have jobs: one rents skates, another plays music. They call the one at the rental desk the Coach, and he will tell you to leave before you like it too much.",
+    tip:"Sitio seguro y buen sitio para guardar. Hazle caso al Entrenador.",
+    tip_en:"A safe place and a good one to save at. Listen to the Coach."
+  },
+  {
+    id:"41", num:"41", title:"The Black Lake", risk:3,
+    grid:31, cell:5.0, wallH:3.6, braid:0.34,
+    fog:0.052, fogColor:0x3a3a3a, amb:0x4a4844, ambI:0.30,
+    lampColor:0xffb070, lampI:0.9, lampDist:12, lampEvery:5, lampStyle:"bulb",
+    floor:["wood",{base:"#5a4a38",dark:"rgba(34,26,18,.6)",light:"rgba(124,104,78,.3)"}],
+    wall:["stone",{base:"#2a2724",dark:"#1a1816",light:"#3c3833"}],
+    ceil:null,
+    drain:2.4, boxes:9, outpost:0.15, deco:"sea",
+    special:["hole","blackout"],
+    ents:{wretch:4, crawler:3, clump:2, smiler:2, deathmoth:1},
+    exitsTo:[
+      {to:"7",  kind:"drain", note:"un barco hundido"},
+      {to:"8",  kind:"hole",  note:"grieta de la orilla"},
+      {to:"deep", kind:"well", note:"una boya de faro que no deber\u00eda estar"}
+    ],
+    lore:"Una balsa de alquitr\u00e1n hirviendo a 95 grados que nunca se enfr\u00eda, rodeada de desierto negro y niebla gris. Se cruza por pasarelas de madera y muelles de hormig\u00f3n que se van hundiendo solos. Del alquitr\u00e1n salen cosas largas y \u00f3seas que te agarran del borde del muelle; de los que se llevan no ha vuelto ninguno.",
+    lore_en:"A pit of tar boiling at 95 degrees that never cools, ringed by black desert and grey fog. You cross it on wooden walkways and concrete piers that are slowly sinking. Long bony things come out of the tar and take you from the edge of the pier; none of the ones they take have come back.",
+    tip:"Los vapores marean. No te pares en el borde de las pasarelas.",
+    tip_en:"The fumes make you dizzy. Do not stop at the edge of the walkways."
+  },
+  {
+    id:"50", num:"50", title:"The Moribund Highway", risk:2,
+    grid:35, cell:5.8, wallH:3.0, braid:0.44,
+    fog:0.030, fogColor:0x49433a, amb:0x6a6050, ambI:0.42,
+    lampColor:0xffd9a8, lampI:1.0, lampDist:16, lampEvery:5, lampStyle:"street",
+    floor:["concrete",{base:"#3e3d3b",dark:"rgba(18,18,17,.5)",light:"rgba(92,91,88,.22)"}],
+    wall:["stone",{base:"#6e6252",dark:"#4c4338",light:"#8c7f6a"}],
+    ceil:null,
+    drain:1.45, boxes:11, outpost:0.4, deco:"field",
+    special:["pillar","blackout"],
+    ents:{faceling:5, stealer:3, duller:2, hound:2, smiler:1},
+    exitsTo:[
+      {to:"35", kind:"door",   note:"una autocaravana abierta"},
+      {to:"11", kind:"stairs", note:"salida elevada"},
+      {to:"99", kind:"crack",  note:"el arc\u00e9n se abre"}
+    ],
+    lore:"Cuatro carriles de autopista en mitad del desierto, sin final. Los coches est\u00e1n parados como si alguien hubiera pulsado la pausa, todos con matr\u00edcula de Nevada y todos con la misma: I80L2WV. No se oye absolutamente nada. Hay gente caminando por el arc\u00e9n; del \u00fanico explorador que se acerc\u00f3 a una no se supo m\u00e1s.",
+    lore_en:"Four lanes of highway in the middle of the desert, with no end. The cars are stopped as if someone hit pause, all with Nevada plates and all with the same one: I80L2WV. There is absolutely no sound. There are people walking along the hard shoulder; nothing more was heard of the one explorer who went up to one.",
+    tip:"Las autocaravanas son el \u00fanico veh\u00edculo seguro. En los dem\u00e1s no te metas.",
+    tip_en:"The RVs are the only safe vehicle. Do not get into any of the others."
+  },
+  {
+    id:"56", num:"56", title:"Frostbite", risk:2,
+    grid:31, cell:4.6, wallH:3.8, braid:0.30,
+    fog:0.044, fogColor:0x20343f, amb:0x4a7690, ambI:0.40,
+    lampColor:0xaee0ff, lampI:1.2, lampDist:14, lampEvery:3, lampStyle:"bulb",
+    floor:["stone",{base:"#4d6d80",dark:"#33505f",light:"#6e94a8"}],
+    wall:["stone",{base:"#587f94",dark:"#3b5c6d",light:"#7ea8bd"}],
+    ceil:["stone",{base:"#2f4b59",dark:"#1e323c",light:"#456b7c"}],
+    drain:2.1, boxes:9, outpost:0.2, deco:"caves",
+    special:["arch","blackout"],
+    ents:{crawler:4, deathmoth:3, wretch:2, smiler:2},
+    exitsTo:[
+      {to:"8",  kind:"hole",   note:"galer\u00eda de roca"},
+      {to:"78", kind:"hatch",  note:"una escotilla en el hielo"},
+      {to:"52", kind:"crack",  note:"veta que baja"}
+    ],
+    lore:"Un sistema de cuevas de hielo azul liso, con una luz que viene de dentro del propio hielo. Cuanto m\u00e1s te acercas al centro m\u00e1s fr\u00edo hace, y no es una forma de hablar: en el fondo se llega al cero absoluto. Nada que pase de 65 grados funciona aqu\u00ed dentro. Si tocas el hielo del centro, se te queda pegado lo que hayas tocado.",
+    lore_en:"A system of caves of smooth blue ice, lit by something inside the ice itself. The closer you get to the centre the colder it is, and that is not a figure of speech: at the bottom it reaches absolute zero. Nothing above 65 degrees works in here. If you touch the ice at the centre, whatever touched it stays there.",
+    tip:"No vayas hacia el centro. Hacia dentro s\u00f3lo hace m\u00e1s fr\u00edo.",
+    tip_en:"Do not head for the centre. Inwards it only gets colder."
+  },
+  {
+    id:"64", num:"64", title:"The Lurking Darkness", risk:3,
+    grid:31, cell:4.0, wallH:3.0, braid:0.16,
+    fog:0.070, fogColor:0x0e0d0c, amb:0x16150f, ambI:0.09,
+    lampColor:0xffcf8a, lampI:0.4, lampDist:7, lampEvery:7, lampStyle:"bulb",
+    floor:["wood",{base:"#463322",dark:"rgba(24,16,10,.6)",light:"rgba(104,80,54,.25)"}],
+    wall:["wallpaper",{base:"#5a5140",stripe:14,dark:"rgba(34,29,22,.6)",light:"rgba(122,110,88,.25)",skirt:"rgba(30,25,18,.65)"}],
+    ceil:["wood",{base:"#3a2b1c",dark:"rgba(20,14,9,.6)",light:"rgba(86,66,44,.2)"}],
+    drain:2.7, boxes:10, outpost:0.15, deco:"attic",
+    special:["blackout","hole","manila"],
+    ents:{duller:5, faceling:3, smiler:3, crawler:2, wretch:1},
+    exitsTo:[
+      {to:"9",  kind:"door",  note:"una puerta de cristal al jard\u00edn"},
+      {to:"0",  kind:"noclip",note:"la \u00fanica habitaci\u00f3n con luz"},
+      {to:"8",  kind:"hole",  note:"boquete en el techo"}
+    ],
+    lore:"Una casa infinita de habitaciones, pasillos y escaleras llenas de muebles con moho, colocados de formas que no se sostienen. Hay cuartos con relojes sincronizados y pasillos puestos del rev\u00e9s. La oscuridad de aqu\u00ed se come la luz: casi nada se enciende. Dentro viven los Lurkers, y atacan en cuanto te ven.",
+    lore_en:"An infinite house of rooms, halls and stairways full of mouldy furniture arranged in ways that should not hold up. There are rooms with synchronised clocks and hallways put upside down. The darkness here eats light: almost nothing will switch on. The Lurkers live inside, and they attack the moment they see you.",
+    tip:"Los Lurkers no oyen. Mu\u00e9vete r\u00e1pido y no te quedes a mirar.",
+    tip_en:"The Lurkers cannot hear. Move fast and do not stay to look."
+  },
+  {
+    id:"78", num:"78", title:"Space Station", risk:1,
+    grid:29, cell:4.4, wallH:3.2, braid:0.28,
+    fog:0.034, fogColor:0x1b1e24, amb:0x3a4048, ambI:0.36,
+    lampColor:0xdff0ff, lampI:1.2, lampDist:13, lampEvery:3, lampStyle:"fluor",
+    floor:["grate",{base:"#3b3f44",dark:"#1e2126"}],
+    wall:["wallpaper",{base:"#c2b478",stripe:9,dark:"rgba(140,128,82,.5)",light:"rgba(214,202,150,.35)",skirt:"rgba(96,88,56,.55)"}],
+    ceil:["metal",{base:"#2a2f34",dark:"rgba(12,14,16,.55)",light:"rgba(62,68,74,.25)"}],
+    drain:1.15, boxes:12, outpost:0.5, deco:"electrical",
+    special:["arch","pillar","manila"],
+    ents:{clump:2, duller:2, wretch:2, deathmoth:1},
+    exitsTo:[
+      {to:"11", kind:"noclip", note:"un ojo de buey con una calle detr\u00e1s"},
+      {to:"56", kind:"hatch",  note:"esclusa helada"},
+      {to:"36", kind:"door",   note:"pasarela de atraque"}
+    ],
+    lore:"Una estaci\u00f3n espacial enorme, sin gravedad y sin final, forrada de mandos, palancas y pantallas que no dan se\u00f1al. Por los pasillos hay huertos hidrop\u00f3nicos, unos secos y otros desbordados. Detr\u00e1s del papel pintado \u2014el mismo del Level 0\u2014 hay maquinaria. Por los ojos de buey se ve un cielo de estrellas que no es el nuestro: ni Tierra, ni Luna, ni Sol.",
+    lore_en:"An enormous space station, weightless and endless, lined with controls, levers and screens that give no signal. Hydroponic gardens run along the corridors, some dried out and some overgrown. Behind the wallpaper \u2014 the same as Level 0 \u2014 there is machinery. Through the portholes there is a starfield that is not ours: no Earth, no Moon, no Sun.",
+    tip:"No te quedes mirando por los ojos de buey. Da ideas malas.",
+    tip_en:"Do not stand looking out of the portholes. It gives you bad ideas."
+  },
+  {
+    id:"98", num:"98", title:"Downtown Diner", risk:1,
+    grid:27, cell:5.0, wallH:4.0, braid:0.40,
+    fog:0.036, fogColor:0x14161c, amb:0x262b36, ambI:0.26,
+    lampColor:0xffd66a, lampI:1.4, lampDist:15, lampEvery:3, lampStyle:"street",
+    floor:["tile",{base:"#d8d4cc",alt:"#2e2c2a",grout:"#8a8680",tiles:8,stain:"rgba(60,54,44,.2)"}],
+    wall:["brick",{base:"#5e4238",dark:"#412d26",mortar:"#726055"}],
+    ceil:null,
+    drain:0.9, boxes:12, outpost:0.7, deco:"city",
+    special:["arch","manila"],
+    ents:{faceling:4, smiler:1, duller:1},
+    exitsTo:[
+      {to:"6",  kind:"hole",   note:"el callej\u00f3n del fondo"},
+      {to:"5",  kind:"door",   note:"la puerta de entrada, que se cierra detr\u00e1s"},
+      {to:"11", kind:"stairs", note:"la calle sigue"}
+    ],
+    lore:"Un trozo corto de calle con casas a los lados y adoquines, que se repite sin parar. En medio hay un restaurante con el r\u00f3tulo amarillo encendido: la luz de dentro y la luna son lo \u00fanico que alumbra. Dentro hay gente que se qued\u00f3 a vivir y te recibe bien. Fuera, a veces, se ve pasar a alguien conocido \u2014 con la cara borrosa, y desaparece si te acercas.",
+    lore_en:"A short stretch of street with houses on either side and cobblestones, repeating over and over. In the middle there is a diner with its yellow sign lit: the light inside and the moon are the only things shining. Inside there are people who stayed to live and they welcome you. Outside, now and then, someone you know walks past \u2014 with a blurred face, and gone if you come closer.",
+    tip:"El restaurante es sitio seguro. Lo de fuera que te suene, ignoralo.",
+    tip_en:"The diner is a safe place. Whatever you recognise outside, ignore it."
+  },
+  {
+    id:"99", num:"99", title:"Ghoul Town", risk:1,
+    grid:31, cell:5.6, wallH:3.4, braid:0.46,
+    fog:0.034, fogColor:0x5a3218, amb:0x8a4e22, ambI:0.46,
+    lampColor:0xffa04a, lampI:1.2, lampDist:15, lampEvery:4, lampStyle:"street",
+    floor:["stone",{base:"#8a5028",dark:"#5e351a",light:"#ae6c3c"}],
+    wall:["stone",{base:"#7a4522",dark:"#552d14",light:"#9c6034"}],
+    ceil:null,
+    drain:1.3, boxes:11, outpost:0.55, deco:"suburb",
+    special:["arch","pillar","manila"],
+    ents:{faceling:4, duller:2, crawler:1},
+    exitsTo:[
+      {to:"7",  kind:"door",  note:"la puerta que pone «Piscina»"},
+      {to:"4",  kind:"door",  note:"la puerta por la que se entra"},
+      {to:"50", kind:"crack", note:"la arena se hunde"}
+    ],
+    lore:"Un desierto naranja de punta a punta, con el cielo naranja fijo y sin noche. La arena es metal oxidado, cobre y hierro, y huele a ello. El aire lleva casi un tercio de \u00f3xido en suspensi\u00f3n: sin taparte la cara aguantas una hora o dos. En el pueblo viven los ghouls, medio centenar, que hablan por se\u00f1as y no molestan a nadie. Los alcaldes, Bob y Fred, s\u00ed hablan.",
+    lore_en:"An orange desert from end to end, with a fixed orange sky and no night. The sand is oxidised metal, copper and iron, and it smells of it. The air carries almost a third of rust in suspension: without covering your face you last an hour or two. The ghouls live in the town, fifty-odd of them, who talk with their hands and bother nobody. The mayors, Bob and Fred, do talk.",
+    tip:"Los ghouls no atacan si no los provocas. El aire s\u00ed.",
+    tip_en:"The ghouls do not attack unless you provoke them. The air does."
   },
   {
     id:"beta", num:"β", title:"M.E.G. Base Beta", risk:0, settlement:true,
@@ -2308,14 +2636,15 @@ const ITEMS = {
   bandage:    {name:"Vendaje",         icon:"bandage",    stack:true, key:"R", blurb:"Cura la zona más dañada y corta la hemorragia.", name_en:"Bandage", blurb_en:"Heals the worst hit limb and stops the bleeding."},
   battery:    {name:"Pilas",           icon:"battery",    stack:true, blurb:"Recarga la linterna al 100%.", name_en:"Batteries", blurb_en:"Recharges the flashlight to 100%."},
   flare:      {name:"Bengala",         icon:"flare",      stack:true, key:"G", blurb:"Se enciende y se deja en el suelo: luz amplia un buen rato.", name_en:"Flare", blurb_en:"Light it and drop it: wide light for a good while."},
+  crowbar:    {name:"Palanca",         icon:"crowbar",    stack:true, key:"V", blurb:"Hierro del M.E.G. Si algo te agarra, <b>[V]</b> te suelta de golpe. Se gasta al usarla.", name_en:"Crowbar", blurb_en:"M.E.G. iron. If something grabs you, <b>[V]</b> gets you loose at once. It is used up."},
   recorder:   {name:"Grabadora",       icon:"recorder",   stack:true, blurb:"Cinta del M.E.G.: al escucharla te sitúa una salida del nivel.", name_en:"Tape recorder", blurb_en:"A M.E.G. tape: playing it pinpoints one exit of the level."}
 };
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
   comun: ["almond","almond","almond","bandage","bandage","battery"],
-  bueno: ["flashlight","map","flare","flare","battery","almond","bandage"],
-  raro:  ["compass","backpack","map","flashlight"]
+  bueno: ["flashlight","map","flare","crowbar","battery","almond","bandage"],
+  raro:  ["compass","backpack","crowbar","map","flashlight"]
 };
 
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
@@ -2408,10 +2737,13 @@ function charUnlocked(ch){
 function checkUnlocks(){
   let changed = false;
   CHARACTERS.forEach(ch=>{
-    if(ch.locked && !G.unlocked[ch.id] && (G.depth+1) >= (ch.unlockAt||99)){
+    const porNivel = ch.unlockLevel && G.unlocked["level_"+ch.unlockLevel];
+    const porFondo  = (G.depth+1) >= (ch.unlockAt||99);
+    if(ch.locked && !G.unlocked[ch.id] && (porNivel || porFondo)){
       G.unlocked[ch.id] = true; changed = true;
       toast(tx("Personaje desbloqueado: ","Character unlocked: ")+txf(ch,"name")+" — "+txf(ch,"role"));
       if(ch.id === "lazarus") unlockAch("lazarus");
+      if(ch.id === "coach") unlockAch("coach");
     }
   });
   if(changed) saveMeta();
@@ -4401,6 +4733,7 @@ function buildLevel(levelId, seed){
   G.stamina = staminaMax(); G.dead = false; G.noise = 0; G.focus = null;
   resetStats();
   updateNearestExit();
+  if(typeof mpAnunciarNivel === "function") mpAnunciarNivel();
 
   $("lvlName").textContent = levelTitle(cfg);
   $("lvlDepth").textContent = tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
@@ -4724,6 +5057,7 @@ window.addEventListener("keydown",(e)=>{
   if(k===" ") e.preventDefault();
   if(k==="escape" && !$("settingsScreen").hidden){ closeOpts(); return; }
   if(!G.running || G.paused) { if(k==="escape" && G.paused) resumeGame(); return; }
+  if(k==="v"){ useItem("crowbar"); return; }        // antes del QTE: si no, se la come
   if(G.grab){ qteKey(k); if(k!=="escape") return; }
   if(k==="e") interact();
   if(k==="f") toggleTorch();
@@ -4812,6 +5146,7 @@ function updatePlayer(dt){
   else flip = player.idleFlip || 1;
   const frame = moving ? (Math.floor(player.bob*2.2)%4) : 0;
   setFrame(player.mesh, frame, row);
+  player.animFrame = frame; player.animRow = row;   // los amigos lo necesitan
   player.mesh.scale.x = flip;
 
   player.mesh.position.set(player.pos.x, 0.71 + (moving?Math.abs(Math.sin(player.bob*2.2))*0.02:0), player.pos.z);
@@ -5042,6 +5377,43 @@ function useItem(id){
     if(!hasItem("flare")){ toast(tx("No te quedan bengalas.","No flares left.")); return; }
     removeItem("flare");
     lightFlare();
+  }
+  else if(id === "crowbar"){
+    if(!hasItem("crowbar")){ toast(tx("No te queda ninguna palanca.","No crowbars left.")); return; }
+    // agarrado: te suelta de golpe y lo deja tonto un buen rato
+    if(G.grab){
+      const e = G.grab.ent;
+      removeItem("crowbar");
+      G.grab.t = G.grab.limit; G.grab.fails = 0;     // como si hubieras hecho un forcejeo perfecto
+      Audio_.hurt();
+      logLine(tx("Le metes la palanca y te sueltas.","You get the crowbar in and break loose."));
+      endGrab(true);
+      e.stun = Math.max(e.stun, 7.5);
+      return;
+    }
+    // de pie: golpe corto a lo que tengas encima
+    let cerca = null, dm = 2.4;
+    for(let i=0;i<G.entities.length;i++){
+      const e = G.entities[i];
+      if(e.def.kind !== "walker" || e.stun > 0) continue;
+      const d = Math.hypot(e.x-player.pos.x, e.z-player.pos.z);
+      if(d < dm){ dm = d; cerca = e; }
+    }
+    if(!cerca){ toast(tx("No hay nada al alcance de la palanca.","Nothing within reach of the crowbar.")); return; }
+    removeItem("crowbar");
+    cerca.stun = Math.max(cerca.stun, 4.2);
+    const dx = cerca.x - player.pos.x, dz = cerca.z - player.pos.z;
+    const len = Math.hypot(dx,dz) || 1;
+    for(let k=0;k<14;k++){
+      const nx = cerca.x + (dx/len)*0.14, nz = cerca.z + (dz/len)*0.14;
+      if(blockedCircle(nx,nz,cerca.r)) break;
+      cerca.x = nx; cerca.z = nz;
+    }
+    G.shake = Math.min(0.5, G.shake + 0.28);
+    Audio_.hurt();
+    logLine(tx("Le sacudes con la palanca. Se queda tonto un momento.","You swing the crowbar at it. It is dazed for a moment."));
+    unlockAch("crowbar");
+    return;
   }
   else if(id === "recorder"){
     if(!hasItem("recorder")){ toast(tx("No te queda ninguna cinta.","No tapes left.")); return; }
@@ -5557,6 +5929,15 @@ function updateEntities(dt){
       continue;
     }
 
+    // el Entrenador es un Faceling: los suyos pasan de \u00e9l
+    if(def.atlas === "faceling" && G.char && G.char.id === "coach"){
+      e.anim += dt*2;
+      setFrame(e.mesh, Math.floor(e.anim)%4, 0);
+      e.mesh.position.set(e.x, def.h/2, e.z);
+      billboard(e.mesh, cam);
+      if(e.shadow) e.shadow.position.set(e.x, 0.02, e.z);
+      continue;
+    }
     if(e.grabbed) continue;                        // la maneja el forcejeo
     if(e.stun > 0){
       e.stun -= dt;
@@ -6169,6 +6550,8 @@ function updateGrain(){
 
 const ACHIEVEMENTS = [
   {id:"first_exit", name:"Primer noclip",        desc:"Cruza tu primera salida.", name_en:"First noclip", desc_en:"Cross your first exit."},
+  {id:"coach",      name:"El Entrenador",        desc:"Desbloquea al Faceling del Level 31.", name_en:"The Coach", desc_en:"Unlock the Level 31 Faceling."},
+  {id:"crowbar",    name:"Se acabó correr",       desc:"Sácate a una entidad de encima con la palanca.", name_en:"No more running", desc_en:"Get an entity off you with the crowbar."},
   {id:"six",        name:"Seis",                 desc:"Saca un 6 al abrir un contenedor.", name_en:"Six", desc_en:"Roll a 6 opening a container."},
   {id:"tape",       name:"Cinta del M.E.G.",     desc:"Encuentra una grabadora escondida.", name_en:"M.E.G. tape", desc_en:"Find a hidden tape recorder."},
   {id:"save",       name:"Queda constancia",     desc:"Anota tu progreso en un puesto del M.E.G.", name_en:"On the record", desc_en:"Log your progress at a M.E.G. outpost."},
@@ -6618,7 +7001,7 @@ function flash(ms){
   $("flash").animate([{opacity:0},{opacity:.9},{opacity:0}], {duration:ms, easing:"ease-out"});
 }
 
-const SCREENS = ["titleScreen","briefScreen","deadScreen","pauseScreen","clearedScreen","settingsScreen"];
+const SCREENS = ["titleScreen","mpScreen","charScreen","briefScreen","deadScreen","pauseScreen","clearedScreen","settingsScreen"];
 function show(id){
   SCREENS.forEach(s=>{ $(s).hidden = (s!==id); });
   $("hud").classList.remove("on");
@@ -6670,52 +7053,6 @@ function statBar(v){
   return out;
 }
 function renderChars(){
-  const host = $("chars");
-  host.textContent = "";
-  CHARACTERS.forEach(ch=>{
-    const open = charUnlocked(ch);
-    const card = document.createElement("button");
-    card.className = "char" + (open ? "" : " locked");
-    card.type = "button";
-    card.disabled = !open;
-    const no = document.createElement("span");
-    no.className = "char-no";
-    no.textContent = tx("SUJETO ","SUBJECT ") + String(CHARACTERS.indexOf(ch)+1).padStart(2,"0");
-    card.appendChild(no);
-
-    const art = document.createElement("div");
-    art.className = "char-art";
-    const port = charPortrait(ch, 4, 0, 0);
-    art.appendChild(port);
-    if(open){
-      // el retrato camina en el sitio
-      let f = 0;
-      setInterval(()=>{
-        if($("titleScreen").hidden) return;
-        f = (f+1)%4;
-        const nc = charPortrait(ch, 4, f, 0);
-        art.replaceChild(nc, art.firstChild);
-      }, 220);
-    }
-    card.appendChild(art);
-
-    const txt = document.createElement("div");
-    txt.className = "char-txt";
-    const stats = Object.keys(ch.stats).map(k=>
-      '<div class="stat"><span>'+statName(k)+'</span><div class="pips">'+statBar(ch.stats[k])+'</div></div>').join("");
-    txt.innerHTML =
-      '<div class="char-head"><span class="char-name">'+txf(ch,"name")+'</span>'+
-        (open ? '' : '<span class="lockchip">'+tx("BLOQUEADO","LOCKED")+'</span>')+'</div>'+
-      '<div class="char-role">'+txf(ch,"role")+'</div>'+
-      '<p class="char-blurb">'+txf(ch,"blurb")+'</p>'+
-      '<div class="char-stats">'+stats+'</div>'+
-      '<ul class="char-perks">'+txArr(ch,"perks").map(p=>"<li>"+p+"</li>").join("")+'</ul>'+
-      (open ? '' : '<div class="char-lock">'+txf(ch,"unlockHint")+'</div>');
-    card.appendChild(txt);
-    if(open) card.addEventListener("click", ()=> startRun(ch.id));
-    host.appendChild(card);
-  });
-
   // continuar partida guardada
   const save = readSave();
   const cont = $("continueBox");
@@ -6742,6 +7079,337 @@ function renderChars(){
 
   const lv = Object.keys(G.unlocked).filter(k=> k.indexOf("level_")===0).length;
   $("metaLine").innerHTML = tx("Mejor descenso: <b>","Best descent: <b>")+(G.best+1)+"</b> "+((G.best+1)===1?tx("nivel","level"):tx("niveles","levels"))+tx(" · Niveles vistos: <b>"," · Levels seen: <b>")+(lv+1)+"</b> "+tx("de","of")+" "+CAT.length;
+}
+
+
+/* ── Carrusel de personajes ──
+   Se enseña después de darle a Jugar, de uno en uno. Las flechas del teclado
+   y los botones laterales pasan de personaje; sólo se puede bajar con los
+   desbloqueados. */
+
+let charIdx = 0;
+let charAnim = null;
+
+function charCard(ch, frame){
+  const open = charUnlocked(ch);
+  const card = document.createElement("div");
+  card.className = "char" + (open ? "" : " locked");
+
+  const no = document.createElement("span");
+  no.className = "char-no";
+  no.textContent = tx("SUJETO ","SUBJECT ") + String(CHARACTERS.indexOf(ch)+1).padStart(2,"0") +
+                   " / " + String(CHARACTERS.length).padStart(2,"0");
+  card.appendChild(no);
+
+  const art = document.createElement("div");
+  art.className = "char-art";
+  art.appendChild(charPortrait(ch, 4, open ? (frame||0) : 0, 0));
+  card.appendChild(art);
+
+  const txt = document.createElement("div");
+  txt.className = "char-txt";
+  const stats = Object.keys(ch.stats).map(k=>
+    '<div class="stat"><span>'+statName(k)+'</span><div class="pips">'+statBar(ch.stats[k])+'</div></div>').join("");
+  txt.innerHTML =
+    '<div class="char-head"><span class="char-name">'+txf(ch,"name")+'</span>'+
+      (open ? '' : '<span class="lockchip">'+tx("BLOQUEADO","LOCKED")+'</span>')+'</div>'+
+    '<div class="char-role">'+txf(ch,"role")+'</div>'+
+    '<p class="char-blurb">'+txf(ch,"blurb")+'</p>'+
+    '<div class="char-stats">'+stats+'</div>'+
+    '<ul class="char-perks">'+txArr(ch,"perks").map(p=>"<li>"+p+"</li>").join("")+'</ul>'+
+    (open ? '' : '<div class="char-lock">'+txf(ch,"unlockHint")+'</div>');
+  card.appendChild(txt);
+  return card;
+}
+
+function renderCarousel(){
+  const ch = CHARACTERS[charIdx];
+  const open = charUnlocked(ch);
+  const stage = $("charStage");
+  stage.textContent = "";
+  stage.appendChild(charCard(ch, 0));
+
+  const dots = $("charDots");
+  dots.textContent = "";
+  CHARACTERS.forEach((c,i)=>{
+    const d = document.createElement("div");
+    d.className = "cdot" + (i===charIdx ? " on" : "") + (charUnlocked(c) ? "" : " lock");
+    d.title = txf(c,"name");
+    d.addEventListener("click", ()=>{ charIdx = i; renderCarousel(); });
+    dots.appendChild(d);
+  });
+
+  const go = $("charGo");
+  go.disabled = !open;
+  go.textContent = open ? tx("Bajar con ","Go down as ")+txf(ch,"name") : tx("Bloqueado","Locked");
+}
+
+// el retrato camina en el sitio mientras miras la ficha
+function startCharAnim(){
+  if(charAnim) return;
+  let f = 0;
+  charAnim = setInterval(()=>{
+    if($("charScreen").hidden) return;
+    const stage = $("charStage");
+    if(!stage.firstChild) return;
+    const ch = CHARACTERS[charIdx];
+    if(!charUnlocked(ch)) return;
+    f = (f+1)%4;
+    const art = stage.firstChild.querySelector(".char-art");
+    if(art && art.firstChild) art.replaceChild(charPortrait(ch, 4, f, 0), art.firstChild);
+  }, 220);
+}
+
+function charStep(d){
+  charIdx = (charIdx + d + CHARACTERS.length) % CHARACTERS.length;
+  renderCarousel();
+}
+
+function openChars(){
+  // se abre en el primero que esté desbloqueado
+  if(!charUnlocked(CHARACTERS[charIdx])){
+    const libre = CHARACTERS.findIndex(charUnlocked);
+    charIdx = libre < 0 ? 0 : libre;
+  }
+  renderCarousel();
+  startCharAnim();
+  show("charScreen");
+}
+
+
+/* ═══════════════ MULTIJUGADOR ═══════════════
+   WebRTC entre navegadores: la partida va directa de un ordenador a otro, sin
+   pasar por ningún servidor. Lo único que necesita un intermediario es el
+   "hola" inicial, para que dos navegadores se encuentren, y de eso se encarga
+   el broker público de PeerJS.
+
+   Qué se comparte: el nivel (su id y su semilla, que es lo que lo genera
+   entero) y dónde está cada uno. Los enemigos y el botín son de cada uno, así
+   que una conexión mala no le estropea la partida a nadie.
+
+   PeerJS se carga sólo si le das a "Jugar con amigos": en solitario el juego
+   sigue dependiendo únicamente de Three.js.                                 */
+
+const MP_LIB = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
+const MP_PREFIJO = "elzumbido-";
+const MP_RITMO = 0.08;                     // cada cuánto se manda la posición
+
+const MP = {
+  activo:false, anfitrion:false, peer:null, conexiones:[],
+  sala:"", nombre:"", otros:{}, reloj:0, libreria:false
+};
+
+function mpSlug(t){
+  return String(t||"").toLowerCase().trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,24);
+}
+
+function mpEstado(txt){ $("mpStatus").textContent = txt; }
+
+function mpCargarLibreria(){
+  if(MP.libreria) return Promise.resolve();
+  return new Promise((ok, mal)=>{
+    const sc = document.createElement("script");
+    sc.src = MP_LIB;
+    sc.onload = ()=>{ MP.libreria = true; ok(); };
+    sc.onerror = ()=> mal(new Error("no he podido cargar PeerJS"));
+    document.head.appendChild(sc);
+  });
+}
+
+function mpAbrir(){
+  $("mpName").value = MP.nombre || localStorage.getItem("zumbido.nombre") || "";
+  $("mpRoom").value = MP.sala || "";
+  $("mpGoRow").hidden = true;
+  mpEstado("");
+  mpPintarGente();
+  show("mpScreen");
+}
+
+function mpPintarGente(){
+  const host = $("mpPeople");
+  host.textContent = "";
+  if(!MP.activo) return;
+  const lista = [[MP.nombre + (MP.anfitrion ? tx(" (anfitrión)"," (host)") : ""), tx("tú","you")]]
+    .concat(Object.keys(MP.otros).map(k=> [MP.otros[k].nombre, tx("conectado","connected")]));
+  lista.forEach(([n, e])=>{
+    const d = document.createElement("div");
+    d.className = "mpp";
+    d.innerHTML = "<b>"+n+"</b><span>"+e+"</span>";
+    host.appendChild(d);
+  });
+}
+
+function mpRoster(){
+  const host = $("mpRoster");
+  if(!host) return;
+  host.textContent = "";
+  if(!MP.activo) return;
+  Object.keys(MP.otros).forEach(k=>{
+    const o = MP.otros[k];
+    const d = document.createElement("div");
+    d.textContent = o.nombre;
+    host.appendChild(d);
+  });
+}
+
+function mpEmpezar(anfitrion){
+  const nombre = ($("mpName").value || "").trim().slice(0,14);
+  const sala = mpSlug($("mpRoom").value);
+  if(!nombre){ mpEstado(tx("Ponte un nombre.","Put a name in.")); return; }
+  if(!sala){ mpEstado(tx("Ponle nombre a la sala.","Give the room a name.")); return; }
+  MP.nombre = nombre; MP.sala = sala; MP.anfitrion = anfitrion;
+  try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
+
+  mpEstado(tx("Conectando…","Connecting…"));
+  mpCargarLibreria().then(()=>{
+    const id = anfitrion ? MP_PREFIJO + sala : undefined;
+    MP.peer = new Peer(id, {debug:0});
+
+    MP.peer.on("open", ()=>{
+      MP.activo = true;
+      if(anfitrion){
+        mpEstado(tx("Sala abierta. Que tus amigos escriban «","Room open. Have your friends type \u201c")+sala+tx("» y le den a Entrar.","\u201d and hit Join."));
+        $("mpGoRow").hidden = false;
+      } else {
+        const c = MP.peer.connect(MP_PREFIJO + sala, {reliable:false});
+        mpAtarConexion(c);
+        mpEstado(tx("Entrando en la sala…","Joining the room…"));
+      }
+      mpPintarGente();
+    });
+
+    MP.peer.on("connection", (c)=> mpAtarConexion(c));
+
+    MP.peer.on("error", (err)=>{
+      const t = String(err && err.type || err);
+      if(t === "unavailable-id")
+        mpEstado(tx("Esa sala ya existe. Dale a Entrar en vez de Crear.","That room already exists. Hit Join instead of Create."));
+      else if(t === "peer-unavailable")
+        mpEstado(tx("No hay ninguna sala con ese nombre. ¿La ha creado alguien?","No room with that name. Has anyone created it?"));
+      else
+        mpEstado(tx("Fallo de conexión: ","Connection problem: ")+t);
+    });
+  }).catch(()=>{
+    mpEstado(tx("No he podido cargar el multijugador. ¿Hay internet?","Could not load multiplayer. Is there internet?"));
+  });
+}
+
+function mpAtarConexion(c){
+  c.on("open", ()=>{
+    MP.conexiones.push(c);
+    c.send({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout"});
+    if(MP.anfitrion && G.cfg) c.send({t:"nivel", id:G.levelId, seed:G.levelSeed});
+    $("mpGoRow").hidden = false;
+    mpEstado(tx("Conectado.","Connected."));
+    mpPintarGente();
+  });
+  c.on("data", (m)=> mpRecibir(c, m));
+  c.on("close", ()=> mpSoltar(c));
+  c.on("error", ()=> mpSoltar(c));
+}
+
+function mpSoltar(c){
+  MP.conexiones = MP.conexiones.filter(x=> x !== c);
+  const o = MP.otros[c.peer];
+  if(o){ if(o.mesh) world.remove(o.mesh); delete MP.otros[c.peer]; }
+  mpPintarGente(); mpRoster();
+}
+
+function mpEnviar(m){
+  for(let i=0;i<MP.conexiones.length;i++){
+    try { MP.conexiones[i].send(m); } catch(e){}
+  }
+}
+
+function mpRecibir(c, m){
+  if(!m || !m.t) return;
+  if(m.t === "hola"){
+    MP.otros[c.peer] = MP.otros[c.peer] || {};
+    const o = MP.otros[c.peer];
+    o.nombre = String(m.nombre||"?").slice(0,14);
+    o.ch = m.ch || "scout";
+    o.visto = 0;
+    mpPintarGente(); mpRoster();
+    // el anfitrión contesta diciendo en qué nivel está la expedición
+    if(MP.anfitrion && G.cfg){
+      try { c.send({t:"nivel", id:G.levelId, seed:G.levelSeed}); } catch(e){}
+    }
+    return;
+  }
+  if(m.t === "nivel" && !MP.anfitrion){
+    if(G.levelId !== m.id || G.levelSeed !== m.seed){
+      G.levelId = m.id; G.levelSeed = m.seed;
+      if(G.cfg) buildLevel(m.id, m.seed);
+    }
+    return;
+  }
+  if(m.t === "pos"){
+    const o = MP.otros[c.peer] = MP.otros[c.peer] || {nombre:"?", ch:"scout"};
+    o.x = m.x; o.z = m.z; o.yaw = m.yaw; o.frame = m.f|0; o.row = m.r|0; o.visto = 0;
+    if(m.n) o.nombre = String(m.n).slice(0,14);
+    if(m.ch) o.ch = m.ch;
+    return;
+  }
+}
+
+// el anfitrión manda el nivel cada vez que se genera uno
+function mpAnunciarNivel(){
+  if(MP.activo && MP.anfitrion) mpEnviar({t:"nivel", id:G.levelId, seed:G.levelSeed});
+}
+
+/* Los demás jugadores se dibujan como sprites del personaje que eligieron.
+   Se interpola su posición, porque llega ocho veces por segundo y si no
+   daban tirones. */
+function updateGhosts(dt){
+  if(!MP.activo) return;
+
+  MP.reloj -= dt;
+  if(MP.reloj <= 0){
+    MP.reloj = MP_RITMO;
+    mpEnviar({
+      t:"pos", x:+player.pos.x.toFixed(2), z:+player.pos.z.toFixed(2),
+      yaw:+player.yaw.toFixed(2), f:(player.animFrame|0), r:(player.animRow|0),
+      n:MP.nombre, ch:(G.char && G.char.id) || "scout"
+    });
+  }
+
+  for(const k in MP.otros){
+    const o = MP.otros[k];
+    o.visto = (o.visto||0) + dt;
+    if(o.visto > 6){                         // se ha ido sin avisar
+      if(o.mesh){ world.remove(o.mesh); o.mesh = null; }
+      continue;
+    }
+    if(o.x === undefined) continue;
+    const atlas = SPRITES["char_"+o.ch] || SPRITES["char_"+CHARACTERS[0].id];
+    if(!o.mesh){
+      o.mesh = makeSprite(atlas, 0.94, 1.42);
+      o.mesh.material.opacity = 0.92;
+      o.mesh.material.transparent = true;
+      o.vx = o.x; o.vz = o.z;
+      world.add(o.mesh);
+    }
+    o.vx = lerp(o.vx, o.x, 1-Math.pow(0.002, dt));
+    o.vz = lerp(o.vz, o.z, 1-Math.pow(0.002, dt));
+    o.mesh.position.set(o.vx, 0.71, o.vz);
+    setFrame(o.mesh, o.frame % 4, (o.row||0) % 4);
+    billboard(o.mesh, camera.position);
+  }
+}
+
+function mpSalir(){
+  Object.keys(MP.otros).forEach(k=>{
+    const o = MP.otros[k];
+    if(o.mesh) world.remove(o.mesh);
+  });
+  MP.otros = {};
+  MP.conexiones.forEach(c=>{ try{ c.close(); }catch(e){} });
+  MP.conexiones = [];
+  if(MP.peer){ try{ MP.peer.destroy(); }catch(e){} MP.peer = null; }
+  MP.activo = false; MP.anfitrion = false;
+  mpRoster();
 }
 
 function startRun(charId){
@@ -6802,6 +7470,10 @@ function descendTo(levelId, seed){
 
 function beginPlay(){
   hideAll();
+  if(MP.activo){
+    if(MP.anfitrion) mpAnunciarNivel();
+    else mpEnviar({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout"});
+  }
   G.running = true; G.paused = false; G.dead = false;
   Audio_.init(); Audio_.resume();
   const humVol = G.cfg.ambI>0.3 ? 0.06 : 0.03;
@@ -6880,6 +7552,7 @@ function frame(){
     updatePlayer(dt);
     updateGrab(dt);
     updateEntities(dt);
+    updateGhosts(dt);
     updateScares(dt);
     updateFlares(dt);
     updateBleeding(dt);
@@ -6936,6 +7609,26 @@ $("retryBtn").addEventListener("click", ()=>{ renderChars(); show("titleScreen")
 $("loadBtn").addEventListener("click", continueRun);
 $("quitBtn").addEventListener("click", toTitle);
 $("resumeBtn").addEventListener("click", resumeGame);
+$("playBtn").addEventListener("click", ()=>{ mpSalir(); openChars(); });
+$("mpBtn").addEventListener("click", mpAbrir);
+$("mpCreate").addEventListener("click", ()=> mpEmpezar(true));
+$("mpJoin").addEventListener("click", ()=> mpEmpezar(false));
+$("mpBack").addEventListener("click", ()=>{ mpSalir(); renderChars(); show("titleScreen"); });
+$("mpGo").addEventListener("click", openChars);
+$("charPrev").addEventListener("click", ()=> charStep(-1));
+$("charNext").addEventListener("click", ()=> charStep(1));
+$("charBack").addEventListener("click", ()=>{ renderChars(); show("titleScreen"); });
+$("charGo").addEventListener("click", ()=>{
+  const ch = CHARACTERS[charIdx];
+  if(charUnlocked(ch)) startRun(ch.id);
+});
+window.addEventListener("keydown",(e)=>{
+  if($("charScreen").hidden) return;
+  if(e.key === "ArrowLeft")  charStep(-1);
+  if(e.key === "ArrowRight") charStep(1);
+  if(e.key === "Enter")      $("charGo").click();
+  if(e.key === "Escape"){ renderChars(); show("titleScreen"); }
+});
 $("optsBtn").addEventListener("click", ()=> openOpts("titleScreen"));
 $("pauseOptsBtn").addEventListener("click", ()=> openOpts("pauseScreen"));
 $("optsBack").addEventListener("click", closeOpts);
