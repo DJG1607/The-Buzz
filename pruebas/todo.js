@@ -13,7 +13,8 @@ const PRUEBAS = [
   ["sintaxis", "que el archivo no tenga errores de JavaScript ni definiciones repetidas"],
   ["niveles", "que los 26 niveles se puedan jugar y el grafo de saltos esté sano"],
   ["combate", "velocidades, aliento y los ataques especiales de las entidades"],
-  ["objetos", "botín, dado, plano y cinta, bengalas y traducciones"]
+  ["objetos", "botín, dado, plano y cinta, bengalas y traducciones"],
+  ["tanda2", "armas de mano, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"]
 ];
 
 const pedida = process.argv[2];

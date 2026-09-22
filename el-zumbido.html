@@ -360,6 +360,45 @@
   }
   .mpp b{color:var(--ink);}
   .mpp span{color:var(--ink-faint);}
+  #backpack{
+    position:fixed; left:50%; bottom:104px; transform:translateX(-50%);
+    width:min(560px, 88vw); background:rgba(10,10,12,.92); border:1px solid var(--line2);
+    border-radius:3px; padding:14px 16px; z-index:40;
+  }
+  .bp-head{display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px;}
+  #bpGrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(96px,1fr)); gap:6px;}
+  .bp-it{
+    display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 4px;
+    border:1px solid var(--line2); border-radius:2px; cursor:pointer; background:rgba(221,214,189,.03);
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .bp-it:hover{border-color:var(--ink-faint); background:rgba(221,214,189,.08);}
+  .bp-it.held{border-color:var(--ink);}
+  .bp-it canvas{image-rendering:pixelated; width:24px; height:24px;}
+  .bp-it .bp-n{font-size:9.5px; text-align:center; line-height:1.25; color:var(--ink);}
+  .bp-it .bp-q{font-size:8.5px; color:var(--ink-faint);}
+  .bp-hint{margin-top:9px; font-size:9.5px; color:var(--ink-faint); text-align:center;}
+  #codexBody{max-height:52vh; overflow-y:auto; margin-top:6px;}
+  .cdx-sec{margin-top:16px; font-size:10.5px; letter-spacing:.18em; color:var(--ink-faint); text-transform:uppercase;}
+  .cdx-row{
+    display:flex; justify-content:space-between; gap:10px; padding:7px 0;
+    border-bottom:1px solid var(--line2); font-size:12px;
+  }
+  .cdx-row .cdx-n{color:var(--ink);}
+  .cdx-row.locked .cdx-n{color:var(--ink-faint);}
+  .cdx-row .cdx-d{color:var(--ink-faint); font-size:11px; text-align:right; max-width:56%;}
+  .handchip{
+    position:fixed; bottom:14px; font-size:10.5px; letter-spacing:.05em;
+    color:var(--ink-faint); pointer-events:none; transition:color .15s ease;
+  }
+  .handchip.left{left:78px;}
+  .handchip.right{right:14px;}
+  .handchip.cd{color:var(--blood2);}
+  #abilityChip{
+    position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+    font-size:10.5px; letter-spacing:.05em; color:var(--ink-faint); pointer-events:none;
+  }
+  #abilityChip.ready{color:var(--sane);}
   #mpRoster{
     position:fixed; right:12px; top:78px; display:grid; gap:3px;
     font-size:10.5px; letter-spacing:.06em; text-align:right; pointer-events:none;
@@ -444,6 +483,9 @@
 
 <div id="hud">
   <div id="mpRoster"></div>
+  <div id="handL" class="handchip left"></div>
+  <div id="handR" class="handchip right"></div>
+  <div id="abilityChip"></div>
   <div class="panel" id="slate">
     <div class="lvl" id="lvlName">Level 0</div>
     <div class="depth" id="lvlDepth">PROFUNDIDAD 1</div>
@@ -482,6 +524,12 @@
     <div class="qte-hint" data-en="Hit the keys in order to break free">Pulsa las teclas en orden para soltarte</div>
   </div>
 
+  <div id="backpack" hidden>
+    <div class="bp-head"><span data-en="Backpack">Mochila</span><b id="bpCap"></b></div>
+    <div id="bpGrid"></div>
+    <div class="bp-hint" data-en="Click an item to hold it, click again to use it &#183; [B] to close">Clic para cogerlo, otro clic para usarlo &#183; [B] para cerrar</div>
+  </div>
+
   <div id="hand" hidden>
     <canvas id="handIcon" width="16" height="16"></canvas>
     <div class="hand-txt">
@@ -518,6 +566,8 @@
       <div><kbd>Q</kbd><span data-en=" drink water"> beber agua</span></div>
       <div><kbd>R</kbd><span data-en=" bandage up"> vendarte</span></div>
       <div><kbd>V</kbd><span data-en=" crowbar"> palanca</span></div>
+      <div><kbd>B</kbd><span data-en=" backpack"> mochila</span></div>
+      <div><kbd>C</kbd><span data-en=" ability"> habilidad</span></div>
       <div><kbd>ESC</kbd><span data-en=" pause"> pausa</span></div>
     </div>
     <div id="continueBox" hidden>
@@ -528,6 +578,7 @@
       <button class="btn big" id="playBtn" data-en="Play">Jugar</button>
       <button class="btn ghost" id="mpBtn" data-en="Play with friends">Jugar con amigos</button>
     </div>
+    <div class="btnrow"><button class="btn ghost small" id="codexBtn" data-en="Codex">Códice</button></div>
     <div id="metaLine" class="meta"></div>
     <div class="btnrow"><button class="btn ghost" id="optsBtn" data-en="Settings">Ajustes</button></div>
     <div id="achBox">
@@ -634,6 +685,17 @@
   </div>
 </div>
 
+<div class="screen" id="codexScreen" hidden>
+  <div class="sheet">
+    <div class="eyebrow" data-en="M.E.G. &#183; Field archive">M.E.G. &#183; Archivo de campo</div>
+    <h2 data-en="Codex">Códice</h2>
+    <div class="rule"></div>
+    <div id="codexCount" class="meta"></div>
+    <div id="codexBody"></div>
+    <div class="btnrow"><button class="btn" id="codexBack" data-en="Back">Volver</button></div>
+  </div>
+</div>
+
 <div class="screen" id="settingsScreen" hidden>
   <div class="sheet">
     <div class="eyebrow" data-en="M.E.G. &#183; Equipment setup">M.E.G. · Configuración del equipo</div>
@@ -670,6 +732,7 @@
       <button class="btn" id="resumeBtn" data-en="Resume">Reanudar</button>
       <button class="btn ghost" id="pauseOptsBtn" data-en="Settings">Ajustes</button>
       <button class="btn ghost" id="abandonBtn" data-en="Abandon run">Abandonar la partida</button>
+      <button class="btn ghost" id="pauseCodexBtn" data-en="Codex">Códice</button>
     </div>
   </div>
 </div>
@@ -779,7 +842,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "1.4.0";
+const VERSION = "1.5.0";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1106,6 +1169,9 @@ const CHARACTERS = [
     perks_en:["Starts with the <b>compass</b>","<b>+30%</b> breath","Hounds hear him less"],
     stats:{Aliento:0.9, Suerte:0.4, Sigilo:0.8, Cordura:0.5},
     startEquip:["compass"], stamina:1.3, luck:0, noise:0.82, sanity:1.0, tough:1.0, nightEyes:1.0,
+    ability:{id:"pulse", name:"Ojo de topógrafo", name_en:"Surveyor's eye", cd:150, dur:7,
+             blurb:"Durante 7 s localizas la salida más cercana como si llevaras la brújula puesta.",
+             blurb_en:"For 7 s you locate the nearest exit as if you had the compass on."},
     locked:false,
     pal:{ skin:"#c49a6e", skinShade:"#a67c55", hair:"#332419", hairShade:"#241a12",
           shirt:"#4e5b46", shirtShade:"#3a4435", pants:"#2e3440", pantsShade:"#232833",
@@ -1120,6 +1186,9 @@ const CHARACTERS = [
     perks_en:["Starts with the <b>backpack</b>: 10 slots","<b>+1</b> to every locker roll","Less breath: she is no runner"],
     stats:{Aliento:0.35, Suerte:1.0, Sigilo:0.5, Cordura:0.6},
     startEquip:["backpack"], stamina:0.85, luck:1, noise:1.0, sanity:1.05, tough:1.0, nightEyes:1.0,
+    ability:{id:"loot", name:"Ojo de carroñera", name_en:"Scavenger's eye", cd:150, dur:0,
+             blurb:"El próximo casillero que abras tira el dado con +2, sin límite de tiempo hasta que lo uses.",
+             blurb_en:"The next locker you open rolls the dice with +2, no time limit until you use it."},
     locked:false,
     pal:{ skin:"#d0a883", skinShade:"#b08965", hair:"#5a2f22", hairShade:"#3f2018",
           shirt:"#6d3a3f", shirtShade:"#532c30", pants:"#3a3a34", pantsShade:"#2b2b26",
@@ -1134,6 +1203,9 @@ const CHARACTERS = [
     perks_en:["<b>Sees in the dark</b>: needs no flashlight","Sanity drops <b>40% slower</b>","Fragile body: takes <b>+35%</b> damage"],
     stats:{Aliento:0.6, Suerte:0.5, Sigilo:0.95, Cordura:1.0},
     startEquip:[], stamina:1.0, luck:0, noise:0.7, sanity:0.6, tough:1.35, nightEyes:2.4,
+    ability:{id:"shield", name:"Aguante", name_en:"Endurance", cd:180, dur:8,
+             blurb:"Durante 8 s el daño que recibes se reduce a la mitad.",
+             blurb_en:"For 8 s the damage you take is halved."},
     locked:true, unlockAt:2,
     unlockHint:"Se desbloquea cuando cruces tu primera salida y llegues al descenso 2.",
     unlockHint_en:"Unlocks once you cross your first exit and reach depth 2.",
@@ -1150,6 +1222,9 @@ const CHARACTERS = [
     perks_en:["<b>Facelings ignore him</b>: he is one of them","The hum barely reaches him: <b>-65%</b> sanity drain","No scavenger's hands: <b>-1</b> to every roll"],
     stats:{Aliento:0.5, Suerte:0.15, Sigilo:0.9, Cordura:1.0},
     startEquip:[], stamina:0.8, luck:-1, noise:0.85, sanity:0.35, tough:1.1, nightEyes:1.8,
+    ability:{id:"calm", name:"Calma al grupo", name_en:"Calm the room", cd:180, dur:0, radius:7,
+             blurb:"Aturde de golpe a todo lo que tengas a 7 m, sea Faceling o no.",
+             blurb_en:"Instantly dazes everything within 7 m, Faceling or not."},
     locked:true, unlockLevel:"31",
     unlockHint:"Se desbloquea cuando pises el Level 31, la pista de patinaje.",
     unlockHint_en:"Unlocks when you set foot in Level 31, the roller rink.",
@@ -1237,6 +1312,21 @@ const ICON_DRAW = {
     P(x,4,2,5,2,"#6a6f75");  P(x,4,1,2,2,"#545a60");    // gancho
     P(x,6,13,4,2,"#4e5257");                            // pata plana
     P(x,7,8,2,1,"#7a4a28");                             // óxido
+  },
+  pipe(x){
+    P(x,3,7,10,2,"#7a828a"); P(x,3,7,10,1,"#9aa2aa");
+    P(x,2,6,2,4,"#5a6169"); P(x,12,6,2,4,"#5a6169");
+    P(x,6,8,3,1,"#4a5058");
+  },
+  rebar(x){
+    P(x,2,13,4,2,"#4a3a28"); P(x,10,1,4,2,"#4a3a28");
+    P(x,3,2,10,11,"#8a6a48"); P(x,4,2,2,11,"#a8825a");
+    P(x,5,4,1,1,"#5c4830"); P(x,9,7,1,1,"#5c4830"); P(x,6,10,1,1,"#5c4830");
+  },
+  bat(x){
+    P(x,10,1,3,4,"#4a3018"); P(x,9,4,4,3,"#5c4020");
+    P(x,7,6,4,8,"#7a5a2e"); P(x,6,13,3,2,"#3a2812");
+    P(x,7,8,1,1,"#5c4020"); P(x,8,10,1,1,"#5c4020");
   },
   recorder(x){
     P(x,1,4,14,9,"#3d4248"); P(x,1,4,14,1,"#565d65");
@@ -1835,7 +1925,8 @@ const CAT = [
       {to:"37", kind:"drain",  note:"desagüe"},
       {to:"6",  kind:"stairs", note:"volver a la oscuridad"},
       {to:"34", kind:"drain",  note:"colector inundado"},
-      {to:"41", kind:"hatch",  note:"escotilla al alquitrán"}
+      {to:"41", kind:"hatch",  note:"escotilla al alquitrán"},
+      {to:"60", kind:"drain",  note:"saltar a la bahía"}
     ],
     lore:"Pasarelas metálicas sobre un océano negro sin fondo. El agua está templada y quieta, y de vez en cuando algo grande la mueve muy despacio.",
     lore_en:"Metal walkways over a black ocean with no bottom. The water is warm and still, and every so often something large moves it very slowly.",
@@ -1858,7 +1949,10 @@ const CAT = [
       {to:"10", kind:"crack", note:"grieta hacia arriba"},
       {to:"7",  kind:"hole",  note:"volver al agua"},
       {to:"52", kind:"hole",  note:"galería con vetas"},
-      {to:"56", kind:"crack", note:"grieta que hiela"}
+      {to:"56", kind:"crack", note:"grieta que hiela"},
+      {to:"23", kind:"hole",  note:"un árbol hueco enorme"},
+      {to:"51", kind:"crack", note:"escalones tallados a mano"},
+      {to:"72", kind:"hole",  note:"un pozo que no tiene fondo"}
     ],
     lore:"Un sistema de cuevas húmedas que no aparece en ningún mapa de roca conocido. Se oye agua correr en todas direcciones y nunca la encuentras.",
     lore_en:"A system of damp caves that appears on no known rock map. You can hear water running in every direction and you never find it.",
@@ -1883,7 +1977,10 @@ const CAT = [
       {to:"8",  kind:"well",     note:"pozo del jardín"},
       {to:"4",  kind:"firedoor", note:"volver a las oficinas"},
       {to:"35", kind:"stairs",   note:"rampa del aparcamiento"},
-      {to:"31", kind:"door",     note:"pista de patinaje"}
+      {to:"31", kind:"door",     note:"pista de patinaje"},
+      {to:"53", kind:"door",     note:"una casa que no tenías fichada"},
+      {to:"90", kind:"door",     note:"una casa recién pintada"},
+      {to:"43", kind:"door",     note:"los arbustos del parque"}
     ],
     lore:"Un barrio residencial en una noche que no avanza. Las casas están abiertas, las luces encendidas y las mesas puestas para gente que no llega.",
     lore_en:"A residential neighbourhood on a night that never moves on. The houses are open, the lights are on and the tables are set for people who never arrive.",
@@ -1903,7 +2000,10 @@ const CAT = [
     ents:{deathmoth:3, faceling:3, hound:2, crawler:1},
     exitsTo:[
       {to:"11", kind:"door",  note:"puerta del granero"},
-      {to:"9",  kind:"hatch", note:"volver al barrio"}
+      {to:"9",  kind:"hatch", note:"volver al barrio"},
+      {to:"14", kind:"hole",   note:"un claro entre la maleza"},
+      {to:"32", kind:"noclip", note:"te pierdes entre las espigas"},
+      {to:"65", kind:"crack",  note:"la tierra huele a óxido"}
     ],
     lore:"Un campo de trigo bajo un cielo naranja permanente, con un granero al fondo que siempre está a la misma distancia. Es de los pocos sitios donde se puede comer.",
     lore_en:"A wheat field under a permanent orange sky, with a barn in the distance that stays at the same distance. It is one of the few places where you can eat.",
@@ -1927,7 +2027,8 @@ const CAT = [
       {to:"12",   kind:"vent",   note:"conducto blanco"},
       {to:"37",   kind:"drain",  note:"alcantarilla"},
       {to:"Fun",  kind:"stage",  note:"puerta de servicio"},
-      {to:"deep", kind:"hole",   note:"noclip a lo desconocido"}
+      {to:"deep", kind:"hole",   note:"noclip a lo desconocido"},
+      {to:"27",   kind:"stairs", note:"una ducha que no deja de correr"}
     ],
     lore:"Una ciudad de edificios idénticos que se extiende hasta donde llega la vista, sin coches, sin viento y sin una sola luz encendida en las ventanas.",
     lore_en:"A city of identical buildings stretching as far as you can see, with no cars, no wind and not one lit window.",
@@ -2032,7 +2133,8 @@ const CAT = [
     exitsTo:[
       {to:"9",  kind:"hatch", note:"trampilla del techo"},
       {to:"12", kind:"crack", note:"resplandor naranja bajo los tablones"},
-      {to:"33", kind:"stairs",note:"escalera de servicio"}
+      {to:"33", kind:"stairs",note:"escalera de servicio"},
+      {to:"24", kind:"noclip", note:"un cuadro de una luna llena"}
     ],
     lore:"Un ático interminable de muebles tapados, cajas y polvo en el aire. Entre algunos tablones se cuela un resplandor naranja que no viene de ninguna bombilla y que cuesta dejar de mirar.",
     lore_en:"An endless attic of sheeted furniture, boxes and dust in the air. An orange glow leaks between some of the floorboards that comes from no bulb and is hard to look away from.",
@@ -2056,7 +2158,8 @@ const CAT = [
       {to:"9",    kind:"door",     note:"puerta de aparcamiento"},
       {to:"beta", kind:"stage",    note:"puerta de personal"},
       {to:"36",   kind:"elevator", note:"pasarela de embarque"},
-      {to:"78",   kind:"vent",     note:"conducto sin gravedad"}
+      {to:"78",   kind:"vent",     note:"conducto sin gravedad"},
+      {to:"44",   kind:"door",     note:"otra planta que no existía antes"}
     ],
     lore:"Un centro comercial vacío con locales de marcas que existen de verdad, casi todos sin género. Cuanto más te internas, peor está todo: las luces, los suelos y lo que se mueve entre los escaparates.",
     lore_en:"An empty shopping centre with units branded for chains that really exist, nearly all of them bare. The deeper you go, the worse everything gets: the lights, the floors and whatever moves between the shop fronts.",
@@ -2079,7 +2182,8 @@ const CAT = [
       {to:"8",  kind:"door",   note:"puerta marcada 8"},
       {to:"11", kind:"door",   note:"puerta marcada 11"},
       {to:"19", kind:"hatch",  note:"puerta sin número"},
-      {to:"22", kind:"hole",   note:"un boquete nuevo"}
+      {to:"22", kind:"hole",   note:"un boquete nuevo"},
+      {to:"87", kind:"door",   note:"puertas idénticas hasta donde alcanza la vista"}
     ],
     lore:"Cuatro pasillos larguísimos que se cruzan en una plaza con muebles fuera de sitio. A los lados, puertas con un número pintado: la que lleva el 105 devuelve al Level 0, y las demás van adonde dicen. Los pasillos se recolocan cuando no miras, así que la puerta que buscabas puede no estar donde la dejaste.",
     lore_en:"Four enormous hallways meeting at a square full of misplaced furniture. Along the sides, doors with a number painted on them: the one marked 105 takes you back to Level 0, and the rest go where they say. The hallways rearrange themselves when you are not looking, so the door you wanted may not be where you left it.",
@@ -2357,7 +2461,8 @@ const CAT = [
     exitsTo:[
       {to:"11", kind:"noclip", note:"un ojo de buey con una calle detr\u00e1s"},
       {to:"56", kind:"hatch",  note:"esclusa helada"},
-      {to:"36", kind:"door",   note:"pasarela de atraque"}
+      {to:"36", kind:"door",   note:"pasarela de atraque"},
+      {to:"45", kind:"noclip", note:"un ojo de buey lleno de luces"}
     ],
     lore:"Una estaci\u00f3n espacial enorme, sin gravedad y sin final, forrada de mandos, palancas y pantallas que no dan se\u00f1al. Por los pasillos hay huertos hidrop\u00f3nicos, unos secos y otros desbordados. Detr\u00e1s del papel pintado \u2014el mismo del Level 0\u2014 hay maquinaria. Por los ojos de buey se ve un cielo de estrellas que no es el nuestro: ni Tierra, ni Luna, ni Sol.",
     lore_en:"An enormous space station, weightless and endless, lined with controls, levers and screens that give no signal. Hydroponic gardens run along the corridors, some dried out and some overgrown. Behind the wallpaper \u2014 the same as Level 0 \u2014 there is machinery. Through the portholes there is a starfield that is not ours: no Earth, no Moon, no Sun.",
@@ -2405,6 +2510,311 @@ const CAT = [
     lore_en:"An orange desert from end to end, with a fixed orange sky and no night. The sand is oxidised metal, copper and iron, and it smells of it. The air carries almost a third of rust in suspension: without covering your face you last an hour or two. The ghouls live in the town, fifty-odd of them, who talk with their hands and bother nobody. The mayors, Bob and Fred, do talk.",
     tip:"Los ghouls no atacan si no los provocas. El aire s\u00ed.",
     tip_en:"The ghouls do not attack unless you provoke them. The air does."
+  },
+  {
+    id:"14", num:"14", title:"Paradise", risk:3,
+    grid:33, cell:5.4, wallH:5.5, braid:0.50,
+    fog:0.020, fogColor:0x2a1018, amb:0x5a1c28, ambI:0.50,
+    lampColor:0xffb0c0, lampI:1.2, lampDist:16, lampEvery:3, lampStyle:"bulb",
+    floor:["wheat",{base:"#6e1c22",dark:"rgba(38,8,12,.55)",light:"rgba(140,50,58,.3)"}],
+    wall:["wood",{base:"#3a1a16",dark:"rgba(18,8,6,.6)",light:"rgba(80,44,36,.25)"}],
+    ceil:null,
+    drain:3.0, boxes:8, outpost:0.0, deco:"field",
+    special:["manila","blackout"],
+    ents:{},
+    exitsTo:[
+      {to:"0",  kind:"noclip", note:"un desgarro que casi nunca se abre"},
+      {to:"deep", kind:"hole", note:"un hueco entre las raíces"}
+    ],
+    lore:"Un bosque imposible de hierba roja, cascadas y un cielo estrellado que nunca cambia. Hay figuras con forma de niño sentadas en filas, y cuerpos en postura de meditación entre ellas. Nadie que se ha quedado aquí ha querido explicar cómo salió, y varios ni siquiera han querido salir.",
+    lore_en:"An impossible forest of red grass, waterfalls and a starlit sky that never changes. Rows of child-shaped figures sit among bodies in meditation poses. Nobody who has stayed here has wanted to explain how they got out, and some did not want to leave at all.",
+    tip:"No hay salidas de verdad. Si entras, que sea porque no te queda otra.",
+    tip_en:"There are no real exits. Only go in if you have no other choice."
+  },
+  {
+    id:"23", num:"23", title:"The Petrified Garden", risk:2,
+    grid:35, cell:5.6, wallH:6.0, braid:0.40,
+    fog:0.024, fogColor:0x1c3018, amb:0x3a5c28, ambI:0.42,
+    lampColor:0xb8f0a0, lampI:1.1, lampDist:15, lampEvery:3, lampStyle:"bulb",
+    floor:["wood",{base:"#3a4a26",dark:"rgba(18,24,12,.55)",light:"rgba(90,112,58,.3)"}],
+    wall:["wood",{base:"#2c3a1e",dark:"rgba(14,18,10,.6)",light:"rgba(66,84,44,.25)"}],
+    ceil:null,
+    drain:1.3, boxes:12, outpost:0.35, deco:"caves",
+    special:["hole","arch"],
+    ents:{hound:2, clump:2, smiler:2, deathmoth:2, crawler:1},
+    exitsTo:[
+      {to:"7",  kind:"drain", note:"el corazón de agua"},
+      {to:"43", kind:"door",  note:"el mismo corazón, otro día"},
+      {to:"8",  kind:"hole",  note:"un árbol hueco"}
+    ],
+    lore:"Un superorganismo del tamaño de un planeta enano, hecho de árboles conectados entre sí: bosque en la superficie, cavernas enteras de bosque por debajo. Hay un sol fijo que nunca se mueve. En el centro hay un «corazón de agua» que reparte a quien lo cruza entre tres niveles distintos, sin avisar a cuál.",
+    lore_en:"A superorganism the size of a dwarf planet, made of interconnected trees: forest on the surface, whole caverns of forest underneath. There is a fixed sun that never moves. At the centre there is a «heart of water» that scatters whoever crosses it between three different levels, without warning which one.",
+    tip:"No digas en voz alta que «es cuestión de tiempo». Hay algo enterrado que lo está esperando.",
+    tip_en:"Do not say out loud that «it is only a matter of time». Something buried is waiting for exactly that."
+  },
+  {
+    id:"24", num:"24", title:"The Moon", risk:0,
+    grid:29, cell:5.0, wallH:4.0, braid:0.50,
+    fog:0.020, fogColor:0x9098a0, amb:0xb8bcc0, ambI:0.55,
+    lampColor:0xfff0d0, lampI:1.3, lampDist:16, lampEvery:3, lampStyle:"bulb",
+    floor:["stone",{base:"#9a9a96",dark:"#6c6c68",light:"#bcbcb6"}],
+    wall:["concrete",{base:"#c4c2ba",dark:"rgba(70,68,62,.4)",light:"rgba(230,228,220,.25)"}],
+    ceil:["stone",{base:"#8a8a84",dark:"#5c5c56",light:"#acaca4"}],
+    drain:0.5, boxes:10, outpost:0.55, deco:"white",
+    special:["arch","pillar"],
+    ents:{},
+    exitsTo:[
+      {to:"11", kind:"door",  note:"la carretera hacia la verja principal"},
+      {to:"33", kind:"door",  note:"la fábrica de plástico"},
+      {to:"19", kind:"noclip",note:"un cuadro de una luna llena"}
+    ],
+    lore:"Una maqueta de plástico del sistema solar a escala descomunal, con una Luna pisable de treinta y ocho millones de kilómetros cuadrados en un estudio de estilo victoriano. Los treinta metros de superficie son pintura de plomo gris. Hay tormentas de piel muerta y plástico, y una niebla con olor a limón que marea.",
+    lore_en:"A plastic model of the solar system at an absurd scale, with a walkable Moon of thirty-eight million square kilometres inside a Victorian study. The top thirty metres of surface are lead-based grey paint. There are storms of dead skin and plastic, and a lemon-scented fog that makes you dizzy.",
+    tip:"Los ácaros lunares son inofensivos. Lo que provoca el clima, no te acerques.",
+    tip_en:"The moon mites are harmless. Whatever causes the weather, keep your distance."
+  },
+  {
+    id:"27", num:"27", title:"The Bunker Springs", risk:0,
+    grid:23, cell:4.6, wallH:3.2, braid:0.65,
+    fog:0.020, fogColor:0x142a30, amb:0x2a4a54, ambI:0.40,
+    lampColor:0x8ad8e8, lampI:1.0, lampDist:13, lampEvery:3, lampStyle:"bulb",
+    floor:["water",{base:"#1e5a5e",dark:"rgba(8,30,32,.6)",light:"rgba(80,180,184,.3)"}],
+    wall:["stone",{base:"#8a8270",dark:"#5c5648",light:"#aca290"}],
+    ceil:null,
+    drain:0.0, boxes:6, outpost:0.8, deco:"pool",
+    special:[],
+    ents:{},
+    exitsTo:[
+      {to:"11", kind:"stairs", note:"una escalera junto a la cascada"},
+      {to:"9",  kind:"door",   note:"vuelta al barrio"}
+    ],
+    lore:"Una cueva pequeña de caliza con una fuente termal de unos veinte metros cuadrados, alimentada por dos cascadas. El agua es potable, rica en minerales y está siempre a unos 32 grados. No hay ni una entidad, ni siquiera bacterias. Todo lo que hay más allá de la fuente es una llanura de piedra que explota al contacto, así que nadie va.",
+    lore_en:"A small limestone cave with a hot spring some twenty square metres wide, fed by two waterfalls. The water is drinkable, mineral-rich and always around 32 degrees. There is not a single entity, not even bacteria. Everything past the spring is a plain of stone that explodes on contact, so nobody goes there.",
+    tip:"El sitio más seguro y tranquilo que vas a encontrar. Disfrútalo y no te alejes de la fuente.",
+    tip_en:"The safest, calmest place you will find. Enjoy it and do not wander from the spring."
+  },
+  {
+    id:"32", num:"32", title:"Forest of the Skeleton Queen", risk:3,
+    grid:33, cell:5.2, wallH:5.0, braid:0.30,
+    fog:0.050, fogColor:0x0a0a10, amb:0x14141e, ambI:0.14,
+    lampColor:0xa8b0ff, lampI:0.6, lampDist:9, lampEvery:6, lampStyle:"bulb",
+    floor:["wheat",{base:"#161418",dark:"rgba(4,4,6,.6)",light:"rgba(40,38,48,.3)"}],
+    wall:["wood",{base:"#100e10",dark:"rgba(2,2,3,.65)",light:"rgba(30,26,32,.2)"}],
+    ceil:null,
+    drain:2.8, boxes:7, outpost:0.1, deco:"field",
+    special:["blackout","manila"],
+    ents:{smiler:3, wretch:2, duller:2, faceling:2},
+    exitsTo:[
+      {to:"65", kind:"door",   note:"una verja de madera"},
+      {to:"deep", kind:"noclip", note:"despertar en otro bosque"}
+    ],
+    lore:"Un bosque que se estira hasta el infinito bajo una luna creciente, sin ni una estrella. Una mujer pálida con la cara pintada de calavera te hace señas para que la sigas; no habla. Al final aparece su otra forma, altísima y de hueso, y ella es quien decide quién sale y quién se queda enterrado bajo las raíces.",
+    lore_en:"A forest that stretches without end under a crescent moon, without a single star. A pale woman with a skull painted on her face beckons you to follow; she does not speak. At the end her other form appears, tall and bony, and she decides who leaves and who stays buried under the roots.",
+    tip:"Si la ves, no corras. Los que han huido no han vuelto a aparecer en ningún sitio.",
+    tip_en:"If you see her, do not run. Those who fled have not turned up anywhere since."
+  },
+  {
+    id:"44", num:"44", title:"Corroding Retail Outlet", risk:2,
+    grid:31, cell:5.4, wallH:4.2, braid:0.42,
+    fog:0.036, fogColor:0x1c1a16, amb:0x322e26, ambI:0.30,
+    lampColor:0xd8c8a0, lampI:0.9, lampDist:12, lampEvery:4, lampStyle:"fluor",
+    floor:["tile",{base:"#8a8478",alt:"#4a3c30",grout:"#5c554a",tiles:7,stain:"rgba(20,14,8,.35)"}],
+    wall:["wallpaper",{base:"#b0a488",stripe:11,dark:"rgba(70,62,48,.5)",light:"rgba(200,188,160,.3)",skirt:"rgba(50,44,34,.6)"}],
+    ceil:["tile",{base:"#78726a",grout:"#4a4640",tiles:5}],
+    drain:1.7, boxes:13, outpost:0.3, deco:"mall",
+    special:["hole","blackout"],
+    ents:{crawler:2, wretch:2, stealer:2, duller:1, smiler:1},
+    exitsTo:[
+      {to:"11", kind:"door", note:"vuelta al inicio, si lo encuentras"},
+      {to:"9",  kind:"door", note:"una puerta lateral"}
+    ],
+    lore:"Un centro comercial abandonado que no se deja recorrer dos veces igual. Un líquido negro y viscoso se extiende por el suelo y corroe todo lo que toca, cada vez más rápido. Los escaparates enseñan, a veces, lo que pasa ahora mismo en el mundo real. El M.E.G. mantiene un puesto aquí sólo para contener la corrosión.",
+    lore_en:"An abandoned shopping centre that never lets you retrace your steps the same way. A viscous black fluid spreads across the floor and corrodes everything it touches, faster all the time. The shop windows sometimes show what is happening in the real world right now. The M.E.G. keeps an outpost here purely to hold back the corrosion.",
+    tip:"No pises el líquido negro. Se extiende más rápido de lo que parece.",
+    tip_en:"Do not step in the black fluid. It spreads faster than it looks."
+  },
+  {
+    id:"45", num:"45", title:"Abyss Inc.", risk:1,
+    grid:29, cell:5.0, wallH:4.4, braid:0.46,
+    fog:0.018, fogColor:0x0a0a14, amb:0x1c1c2c, ambI:0.30,
+    lampColor:0xf0e878, lampI:1.3, lampDist:15, lampEvery:3, lampStyle:"bulb",
+    floor:["tile",{base:"#d8d4c8",alt:"#c8c2b2",grout:"#8a847a",tiles:6,stain:"rgba(180,170,60,.1)"}],
+    wall:["wallpaper",{base:"#c0bcac",stripe:8,dark:"rgba(110,106,94,.4)",light:"rgba(224,220,208,.3)",skirt:"rgba(90,86,74,.5)"}],
+    ceil:["tile",{base:"#b0aca0",grout:"#6c685e",tiles:5}],
+    drain:0.8, boxes:12, outpost:0.6, deco:"office",
+    special:["arch","pillar"],
+    ents:{deathmoth:3},
+    exitsTo:[
+      {to:"11", kind:"door", note:"la réplica del Empire State"},
+      {to:"90", kind:"door", note:"una salida junto a un roble"}
+    ],
+    lore:"Un vacío con treinta y tres rascacielos flotando alrededor de una réplica del Empire State, cada uno con su propia gravedad. Todo el mobiliario de dentro es de poliestireno: no sirve para nada, es un decorado. Los edificios del centro tienen luz constante; los de fuera se apagan sin avisar. Unos pájaros bioluminiscentes hacen de estrellas.",
+    lore_en:"A void with thirty-three skyscrapers floating around a replica Empire State Building, each with its own gravity. All the furniture inside is styrofoam: none of it works, it is pure set-dressing. The central towers have constant power; the outer ones go dark without warning. Bioluminescent birds stand in for stars.",
+    tip:"Quédate cerca del centro. Los edificios de fuera se apagan y ahí sí hay riesgo.",
+    tip_en:"Stay near the centre. The outer buildings go dark and that is where the risk is."
+  },
+  {
+    id:"51", num:"51", title:"The Forgotten City", risk:2,
+    grid:33, cell:5.6, wallH:5.0, braid:0.32,
+    fog:0.030, fogColor:0x2a2418, amb:0x4a3c28, ambI:0.34,
+    lampColor:0xffd890, lampI:1.1, lampDist:14, lampEvery:4, lampStyle:"bulb",
+    floor:["stone",{base:"#c2b088",dark:"#8a7a58",light:"#e0d0a8"}],
+    wall:["stone",{base:"#b8a67e",dark:"#80704e",light:"#d8c8a0"}],
+    ceil:["stone",{base:"#9a8a66",dark:"#665840",light:"#bcac82"}],
+    drain:1.55, boxes:12, outpost:0.35, deco:"caves",
+    special:["arch","pillar","manila"],
+    ents:{deathmoth:3, crawler:2, duller:1},
+    exitsTo:[
+      {to:"10", kind:"hole", note:"un agujero en el techo del laberinto"},
+      {to:"11", kind:"door", note:"una de las diez puertas del templo"}
+    ],
+    lore:"Una ciudad antigua bajo tierra, en tres zonas: un laberinto de mármol con vetas de oro que cambia de forma, unas ruinas residenciales deterioradas, y un templo central casi intacto. Las entidades merodean el laberinto y las ruinas, pero evitan el templo por completo — nadie sabe por qué, pero es el único sitio de todo el nivel donde no entran.",
+    lore_en:"An ancient underground city in three zones: a shifting marble labyrinth with gold veins, deteriorated residential ruins, and an almost intact central temple. Entities roam the labyrinth and the ruins, but avoid the temple entirely — nobody knows why, but it is the only part of the whole level they will not enter.",
+    tip:"Si llegas al templo, quédate. Es el único sitio sin entidades.",
+    tip_en:"If you reach the temple, stay there. It is the only part with no entities."
+  },
+  {
+    id:"53", num:"53", title:"Alone", risk:1,
+    grid:25, cell:5.0, wallH:3.4, braid:0.50,
+    fog:0.024, fogColor:0x3a3428, amb:0x5c5440, ambI:0.40,
+    lampColor:0xffe8c0, lampI:1.2, lampDist:15, lampEvery:3, lampStyle:"bulb",
+    floor:["wood",{base:"#8a6a48",dark:"rgba(50,38,24,.5)",light:"rgba(170,140,100,.3)"}],
+    wall:["wallpaper",{base:"#c8b898",stripe:9,dark:"rgba(140,124,96,.45)",light:"rgba(230,216,188,.3)",skirt:"rgba(96,84,62,.55)"}],
+    ceil:["ceilTile",{base:"#d0c4a8"}],
+    drain:0.7, boxes:11, outpost:0.65, deco:"suburb",
+    special:["manila"],
+    ents:{faceling:2},
+    exitsTo:[
+      {to:"9",  kind:"door",   note:"la ranura del correo"},
+      {to:"deep", kind:"noclip", note:"una ventana que no lleva a ningún sitio"}
+    ],
+    lore:"Una casa unifamiliar completamente sola, separada de todo, aunque las ventanas enseñan un barrio que no existe. Siempre son las siete de la mañana. La comida se repone sola en el sótano sin avisar. Hay figuras altas y sin cara que deambulan por dentro sin hacer nada; a veces se sientan cerca, y ya está.",
+    lore_en:"A single detached house, cut off from everything, though the windows show a neighbourhood that does not exist. It is always seven in the morning. Food restocks itself in the basement without warning. Tall, faceless figures wander through the house doing nothing; sometimes they sit nearby, and that is all.",
+    tip:"Las ventanas mienten. La salida real es la ranura del correo.",
+    tip_en:"The windows lie. The real exit is the mail slot."
+  },
+  {
+    id:"60", num:"60", title:"The Baywalk", risk:3,
+    grid:35, cell:5.2, wallH:3.6, braid:0.28,
+    fog:0.050, fogColor:0x0c0e10, amb:0x181c20, ambI:0.16,
+    lampColor:0xd8e8f0, lampI:0.7, lampDist:10, lampEvery:6, lampStyle:"street",
+    floor:["concrete",{base:"#2c2e30",dark:"rgba(10,11,12,.55)",light:"rgba(60,63,66,.22)"}],
+    wall:["concrete",{base:"#3a3d40",dark:"rgba(16,17,18,.5)",light:"rgba(76,80,84,.2)"}],
+    ceil:null,
+    drain:2.6, boxes:9, outpost:0.2, deco:"sea",
+    special:["blackout"],
+    ents:{smiler:4},
+    exitsTo:[
+      {to:"7",  kind:"drain",  note:"saltar a la bahía"},
+      {to:"deep", kind:"noclip", note:"dormir en el tramo de arriba"}
+    ],
+    lore:"Un paseo marítimo de hormigón que no termina nunca, con una parte de arriba y otra de abajo junto a la bahía. Casi todas las farolas están rotas o apagadas. Si te paras a disfrutar de la brisa del mar demasiado rato, algo llamado «Muerte Indolora» te relaja hasta que dejas de moverte del todo.",
+    lore_en:"A concrete boardwalk that never ends, with an upper and a lower level by the bay. Almost every streetlight is broken or switched off. If you stop to enjoy the sea breeze for too long, something called «Painless Death» relaxes you until you stop moving at all.",
+    tip:"No te pares a mirar el mar. Es literal: te vas a quedar quieto para siempre.",
+    tip_en:"Do not stop to look at the sea. Literally: you will stay still forever."
+  },
+  {
+    id:"65", num:"65", title:"Bloodstained Garden", risk:2,
+    grid:31, cell:5.0, wallH:4.6, braid:0.36,
+    fog:0.046, fogColor:0x241012, amb:0x3c1a1e, ambI:0.28,
+    lampColor:0xd88a70, lampI:0.8, lampDist:11, lampEvery:5, lampStyle:"bulb",
+    floor:["wheat",{base:"#5a1418",dark:"rgba(28,6,8,.55)",light:"rgba(120,40,44,.3)"}],
+    wall:["wood",{base:"#3a1012",dark:"rgba(16,4,5,.6)",light:"rgba(80,30,32,.25)"}],
+    ceil:null,
+    drain:2.0, boxes:10, outpost:0.25, deco:"field",
+    special:["hole","blackout"],
+    ents:{crawler:3, wretch:2, clump:1},
+    exitsTo:[
+      {to:"32", kind:"door", note:"una verja hacia el bosque oscuro"},
+      {to:"14", kind:"door", note:"una verja hacia el jardín rojo"},
+      {to:"23", kind:"door", note:"una verja hacia el bosque vivo"}
+    ],
+    lore:"Un bosque en otoño permanente, con árboles de hoja roja y una niebla espesa que no deja ver el cielo. Hay ciempiés de dos metros con esqueletos humanos dentro, manzanos que producen fruta que transforma a quien la come, y grietas en el suelo forradas de carne con dientes. Un tronco negro y consciente quema a quien se le acerca demasiado.",
+    lore_en:"A forest in permanent autumn, with red-leafed trees and a thick fog that hides the sky. There are two-metre centipedes with human skeletons inside, apple trees that bear fruit which transforms whoever eats it, and ground crevices lined with flesh and teeth. A conscious black stump burns anyone who gets too close.",
+    tip:"No comas la fruta roja. Da igual el hambre que tengas.",
+    tip_en:"Do not eat the red fruit. No matter how hungry you are."
+  },
+  {
+    id:"72", num:"72", title:"The Pit", risk:3,
+    grid:31, cell:3.8, wallH:2.6, braid:0.14,
+    fog:0.060, fogColor:0x0a1210, amb:0x162420, ambI:0.14,
+    lampColor:0x7af0b0, lampI:0.7, lampDist:8, lampEvery:6, lampStyle:"bulb",
+    floor:["water",{base:"#122e28",dark:"rgba(4,14,12,.7)",light:"rgba(50,110,96,.3)"}],
+    wall:["stone",{base:"#243430",dark:"#141e1c",light:"#3a4c46"}],
+    ceil:["stone",{base:"#182420",dark:"#0c1412",light:"#2c3c36"}],
+    drain:2.9, boxes:7, outpost:0.1, deco:"caves",
+    special:["hole","blackout"],
+    ents:{crawler:3, deathmoth:2, hound:1},
+    exitsTo:[
+      {to:"43", kind:"drain", note:"un túnel sumergido"},
+      {to:"8",  kind:"crack", note:"vuelta arriba, si encuentras el hueco"}
+    ],
+    lore:"Un complejo subterráneo al que se cae a través de trampas: pasillos estrechos, una charca de agua salada, una ciénaga y un paso final tan angosto que hay que quitarse la mochila. Setas bioluminiscentes dan algo de luz al principio. Más abajo, casi a oscuras, hay cosas en el agua que rozan a quien nada.",
+    lore_en:"An underground complex you fall into through pitfalls: cramped passages, a saltwater pool, a bog and a final squeeze so narrow you have to take your pack off. Bioluminescent mushrooms give some light at the start. Further down, almost in the dark, there are things in the water that brush against anyone swimming.",
+    tip:"No te quites nunca la mochila salvo en el paso estrecho. Y no nades solo.",
+    tip_en:"Never take your pack off except at the narrow squeeze. And do not swim alone."
+  },
+  {
+    id:"87", num:"87", title:"Hallways of Time", risk:1,
+    grid:31, cell:4.4, wallH:3.4, braid:0.16,
+    fog:0.030, fogColor:0x201e1a, amb:0x342f28, ambI:0.32,
+    lampColor:0xf0e0b0, lampI:1.0, lampDist:13, lampEvery:4, lampStyle:"fluor",
+    floor:["carpet",{base:"#b0a480",dark:"rgba(70,62,44,.5)",light:"rgba(200,188,152,.35)"}],
+    wall:["wallpaper",{base:"#c8bc98",stripe:20,dark:"rgba(140,128,96,.45)",light:"rgba(232,220,190,.3)",skirt:"rgba(96,86,62,.55)"}],
+    ceil:["ceilTile",{base:"#d0c6a4"}],
+    drain:0.9, boxes:14, outpost:0.4, deco:"hotel",
+    special:["manila"],
+    ents:{},
+    exitsTo:[
+      {to:"9",  kind:"door", note:"una casa cualquiera"},
+      {to:"21", kind:"door", note:"puertas idénticas hasta donde alcanza la vista"}
+    ],
+    lore:"Pasillos de kilómetros con puertas cerradas a los dos lados. Cada pocos kilómetros hay una mesa con llaves, comida o agua. El tiempo no es lineal aquí: puedes cruzarte contigo mismo, de hace cinco minutos o de dentro de años. Hablar con tu otro yo es arriesgado; hacerle daño trae a algo llamado el Relojero.",
+    lore_en:"Miles of hallways with locked doors on both sides. Every few miles there is a table with keys, food or water. Time is not linear here: you can run into yourself, five minutes or years apart. Talking to your other self is risky; hurting them brings something called the Gearmaker.",
+    tip:"Si te ves a ti mismo, no le hagas daño bajo ningún concepto.",
+    tip_en:"If you see yourself, do not hurt them under any circumstances."
+  },
+  {
+    id:"90", num:"90", title:"Newly Renovated Home", risk:0,
+    grid:23, cell:5.2, wallH:3.2, braid:0.55,
+    fog:0.018, fogColor:0x2c281e, amb:0x4c4636, ambI:0.46,
+    lampColor:0xfff0c8, lampI:1.3, lampDist:15, lampEvery:3, lampStyle:"bulb",
+    floor:["wood",{base:"#9a7850",dark:"rgba(56,42,26,.45)",light:"rgba(186,152,110,.3)"}],
+    wall:["wallpaper",{base:"#e0d4b8",stripe:6,dark:"rgba(150,138,108,.4)",light:"rgba(246,238,220,.3)",skirt:"rgba(110,98,74,.5)"}],
+    ceil:["ceilTile",{base:"#e8e0c8"}],
+    drain:0.35, boxes:10, outpost:0.85, deco:"suburb",
+    special:["manila"],
+    ents:{},
+    exitsTo:[
+      {to:"9",  kind:"door",   note:"la calle de siempre"},
+      {to:"deep", kind:"noclip", note:"un roble en el patio trasero"}
+    ],
+    lore:"Una casa de dos plantas recién reformada, con ático, dos habitaciones, dos baños y un roble en el patio. Tenía una plaga de ratas de la muerte; alguien la fumigó. El tono de las notas que deja quien sea que mantiene la casa es raro, casi demasiado alegre, pero el sitio en sí está impecable.",
+    lore_en:"A newly renovated two-storey house, with an attic, two bedrooms, two bathrooms and an oak tree in the yard. It had a death rat infestation; someone fumigated it. The tone of the notes left by whoever maintains the house is odd, almost too cheerful, but the place itself is spotless.",
+    tip:"El sitio más tranquilo del catálogo. Aprovéchalo, aunque las notas den mal rollo.",
+    tip_en:"The calmest place in the catalogue. Make use of it, even if the notes are unsettling."
+  },
+  {
+    id:"43", num:"43", title:"Water World", risk:2,
+    grid:33, cell:5.0, wallH:4.0, braid:0.30,
+    fog:0.032, fogColor:0x14282c, amb:0x2c4448, ambI:0.32,
+    lampColor:0xa0d8e0, lampI:1.0, lampDist:13, lampEvery:4, lampStyle:"fluor",
+    floor:["tile",{base:"#4a8894",alt:"#3a6c76",grout:"#264448",tiles:6,stain:"rgba(10,40,44,.3)"}],
+    wall:["tile",{base:"#5a98a4",alt:"#4a7c86",grout:"#284c50",tiles:6,stain:"rgba(10,44,48,.25)"}],
+    ceil:["tile",{base:"#3a6068",grout:"#1c3438",tiles:5}],
+    drain:1.65, boxes:12, outpost:0.35, deco:"pool",
+    special:["arch","hole"],
+    ents:{stealer:2, hound:2, duller:1, wretch:1},
+    exitsTo:[
+      {to:"9",  kind:"door",  note:"los arbustos del parque"},
+      {to:"2",  kind:"hatch", note:"pasillos de personal"},
+      {to:"34", kind:"hatch", note:"una trampilla en la última sala"},
+      {to:"72", kind:"door",  note:"un abismo acático"}
+    ],
+    lore:"Un parque acuático abandonado, en cuatro zonas cada vez más inundadas: acera exterior, edificio principal a oscuras, pasillos de personal con tuberías, y una sala final donde el agua ya no respeta las paredes. Los acuarios tienen agua salada y, en algunos, Almond Water. La fauna va a peor cuanto más adentro te metes.",
+    lore_en:"An abandoned water park, in four increasingly flooded zones: outdoor sidewalk, a dark main building, staff corridors full of pipes, and a final room where the water no longer respects the walls. The tanks hold salt water and, in some, Almond Water. The wildlife gets worse the further in you go.",
+    tip:"Cuanto más te adentres, peor. Coge lo que necesites cerca de la entrada.",
+    tip_en:"The further in, the worse it gets. Grab what you need near the entrance."
   },
   {
     id:"beta", num:"β", title:"M.E.G. Base Beta", risk:0, settlement:true,
@@ -2637,14 +3047,20 @@ const ITEMS = {
   battery:    {name:"Pilas",           icon:"battery",    stack:true, blurb:"Recarga la linterna al 100%.", name_en:"Batteries", blurb_en:"Recharges the flashlight to 100%."},
   flare:      {name:"Bengala",         icon:"flare",      stack:true, key:"G", blurb:"Se enciende y se deja en el suelo: luz amplia un buen rato.", name_en:"Flare", blurb_en:"Light it and drop it: wide light for a good while."},
   crowbar:    {name:"Palanca",         icon:"crowbar",    stack:true, key:"V", blurb:"Hierro del M.E.G. Si algo te agarra, <b>[V]</b> te suelta de golpe. Se gasta al usarla.", name_en:"Crowbar", blurb_en:"M.E.G. iron. If something grabs you, <b>[V]</b> gets you loose at once. It is used up."},
+  pipe:       {name:"Tubería de acero", icon:"pipe",  weapon:true, reach:2.4, stun:3.4, cd:1.1,
+              blurb:"Se equipa en una mano (clic izquierdo o derecho) y golpea a lo que tengas cerca. No se gasta.", name_en:"Steel pipe", blurb_en:"Equips in a hand (left or right click) and hits whatever is close. Does not run out."},
+  rebar:      {name:"Varilla oxidada",   icon:"rebar", weapon:true, reach:2.0, stun:4.4, cd:1.6,
+              blurb:"Pega más fuerte que la tubería, pero tarda más entre golpe y golpe. No se gasta.", name_en:"Rusted rebar", blurb_en:"Hits harder than the pipe, but is slower between swings. Does not run out."},
+  bat:        {name:"Bate de madera",    icon:"bat",   weapon:true, reach:2.6, stun:2.6, cd:0.8,
+              blurb:"Rápido y de más alcance, pero deja menos aturdida a la entidad. No se gasta.", name_en:"Wooden bat", blurb_en:"Fast with good reach, but leaves the entity dazed for less time. Does not run out."},
   recorder:   {name:"Grabadora",       icon:"recorder",   stack:true, blurb:"Cinta del M.E.G.: al escucharla te sitúa una salida del nivel.", name_en:"Tape recorder", blurb_en:"A M.E.G. tape: playing it pinpoints one exit of the level."}
 };
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
-  comun: ["almond","almond","almond","bandage","bandage","battery"],
-  bueno: ["flashlight","map","flare","crowbar","battery","almond","bandage"],
-  raro:  ["compass","backpack","crowbar","map","flashlight"]
+  comun: ["almond","almond","almond","bandage","bandage","battery","bat"],
+  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage"],
+  raro:  ["compass","backpack","crowbar","rebar","map","flashlight"]
 };
 
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
@@ -2703,6 +3119,9 @@ const G = {
   sanity:100, stamina:100,
   body:{}, bleeding:{},
   inv:[], equip:{}, cap:4,
+  weapons:{L:null,R:null}, weaponCd:{L:0,R:0},
+  codex:{ent:{}, item:{}},
+  abilityCd:0, shield:0, pulseExit:0, lootBonus:0,
   torchOn:false, torchFuel:0,
   exits:[], nearestExit:null, revealPath:null, mapExit:null,
   containers:[], entities:[], lamps:[], flickers:[], flares:[], specials:[], obs:{},
@@ -2723,12 +3142,19 @@ function loadMeta(){
     G.best = m.best || 0;
     G.unlocked = m.unlocked || {};
     G.ach = m.ach || {};
-  }catch(e){ G.best = 0; G.unlocked = {}; G.ach = {}; }
+    G.codex = m.codex || {ent:{}, item:{}};
+  }catch(e){ G.best = 0; G.unlocked = {}; G.ach = {}; G.codex = {ent:{}, item:{}}; }
 }
 function saveMeta(){
   try{
-    localStorage.setItem(META_KEY, JSON.stringify({best:G.best, unlocked:G.unlocked, ach:G.ach}));
+    localStorage.setItem(META_KEY, JSON.stringify({best:G.best, unlocked:G.unlocked, ach:G.ach, codex:G.codex}));
   }catch(e){}
+}
+function codexSeeEnt(type){
+  if(!G.codex.ent[type]){ G.codex.ent[type] = true; saveMeta(); }
+}
+function codexSeeItem(id){
+  if(!G.codex.item[id]){ G.codex.item[id] = true; saveMeta(); }
 }
 function charUnlocked(ch){
   if(!ch.locked) return true;
@@ -2753,6 +3179,8 @@ function resetRun(charId){
   G.char = CHARACTERS.filter(c=>c.id===charId)[0] || CHARACTERS[0];
   G.depth = 0; G.sanity = 100;
   G.inv = []; G.equip = {}; G.cap = 4;
+  G.weapons = {L:null, R:null}; G.weaponCd = {L:0, R:0};
+  G.abilityCd = 0; G.shield = 0; G.pulseExit = 0; G.lootBonus = 0;
   G.torchOn = false; G.torchFuel = 0;
   G.body = {}; G.bleeding = {};
   PARTS.forEach(p=>{ G.body[p.id] = 100; G.bleeding[p.id] = 0; });
@@ -2764,6 +3192,7 @@ function resetRun(charId){
 
 /* ── guardar y continuar: sólo se puede en un puesto del M.E.G. ── */
 function saveGame(){
+  if(DIFF_LV().noSave) return false;   // Sin retorno: no hay vuelta atrás, no se guarda
   const data = {
     charId:G.char.id, depth:G.depth, levelId:G.levelId, levelSeed:G.levelSeed,
     sanity:G.sanity, body:G.body, bleeding:G.bleeding,
@@ -2802,7 +3231,7 @@ function applySave(d){
   G.stamina = staminaMax();
 }
 
-function staminaMax(){ return (58 + G.body.torso*0.42) * (G.char ? G.char.stamina : 1); }
+function staminaMax(){ return (72 + G.body.torso*0.48) * (G.char ? G.char.stamina : 1); }
 function bodyAvg(){
   let s=0; for(let i=0;i<PARTS.length;i++) s += G.body[PARTS[i].id];
   return s/PARTS.length;
@@ -2818,6 +3247,7 @@ function invCount(){ let n=0; for(let i=0;i<G.inv.length;i++) n += G.inv[i].qty;
 function invFind(id){ for(let i=0;i<G.inv.length;i++) if(G.inv[i].id===id) return G.inv[i]; return null; }
 function hasItem(id){
   const def = ITEMS[id];
+  if(def && def.weapon) return G.weapons.L === id || G.weapons.R === id;
   return def && def.equip ? !!G.equip[id] : !!invFind(id);
 }
 
@@ -2825,6 +3255,14 @@ function addItem(id, qty){
   qty = qty || 1;
   const def = ITEMS[id];
   if(!def) return false;
+  if(def.weapon){
+    codexSeeItem(id);
+    if(G.weapons.L === id || G.weapons.R === id) return false;   // ya la llevas
+    if(!G.weapons.L){ G.weapons.L = id; toast(tx("Equipada en la mano izquierda: ","Equipped in your left hand: ")+txf(def,"name"),3); return true; }
+    if(!G.weapons.R){ G.weapons.R = id; toast(tx("Equipada en la mano derecha: ","Equipped in your right hand: ")+txf(def,"name"),3); return true; }
+    return false;   // las dos manos ocupadas
+  }
+  codexSeeItem(id);
   if(def.equip){
     if(G.equip[id]) return false;
     G.equip[id] = true;
@@ -3453,6 +3891,7 @@ function rollDice(rand){
   let r = 1 + ((rand()*6)|0);
   if(G.char && G.char.luck) r += G.char.luck;
   r += DIFF_LV().dice;
+  if(G.lootBonus){ r += G.lootBonus; G.lootBonus = 0; }   // Ojo de carroñera, se gasta al usarse
   return clamp(r, 1, 6);
 }
 function lootForRoll(roll, rand){
@@ -4464,6 +4903,7 @@ function buildLevel(levelId, seed){
   world = new THREE.Group(); scene.add(world);
   resetFurniture();
   G.containers.length = 0; G.entities.length = 0;
+  (G.noclips || (G.noclips = [])).length = 0;
   G.lamps.length = 0; G.flickers.length = 0; G.exits.length = 0;
   G.tapes.length = 0; G.flares.length = 0;
   G.obs = {};
@@ -4643,6 +5083,43 @@ function buildLevel(levelId, seed){
       x:c2w(x)+s.dx*back, z:c2w(y)+s.dy*back, name:def.name, name_en:def.name_en, opened:false, roll:0,
       mesh:built.g, door:built.door
     });
+  }
+
+  // ── paredes que no son paredes de verdad: entras por una, sales por otra ──
+  {
+    const wallPool = shuffle(open.filter(([x,y])=>{
+      if(dist[y*G.n+x] < 4) return false;
+      if(G.exits.some(e=> e.cell[0]===x && e.cell[1]===y)) return false;
+      return wallSpot(x,y).length > 0;
+    }), rand);
+    const rollPairs = rand();
+    const nPares = rollPairs < 0.45 ? 1 : (rollPairs < 0.62 ? 2 : 0);
+    let usados = [];
+    for(let p=0; p<nPares; p++){
+      const a = wallPool.find(([x,y])=> !usados.some(u=> Math.hypot(u[0]-x,u[1]-y)<3));
+      if(!a) break;
+      const b = wallPool.find(([x,y])=>
+        !usados.some(u=> Math.hypot(u[0]-x,u[1]-y)<3) &&
+        (x!==a[0]||y!==a[1]) && Math.hypot(x-a[0], y-a[1]) > far*0.28
+      );
+      if(!b) break;
+      usados.push(a,b);
+      const mk = (cell)=>{
+        const [x,y] = cell;
+        const spots = wallSpot(x,y);
+        const sp = spots[(rand()*spots.length)|0];
+        const wx = c2w(x) + sp.dx*(G.cell*0.5-0.05), wz = c2w(y) + sp.dy*(G.cell*0.5-0.05);
+        const geo = new THREE.PlaneGeometry(0.7, cfg.wallH*0.82);
+        const mat = new THREE.MeshBasicMaterial({color:0xb090ff, transparent:true, opacity:.55, side:THREE.DoubleSide, fog:false});
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(wx, cfg.wallH*0.41, wz);
+        mesh.rotation.y = sp.rot;
+        world.add(mesh);
+        return {x:wx, z:wz, nx:sp.dx, nz:sp.dy, mesh, mat, cd:0};
+      };
+      const A = mk(a), B = mk(b);
+      G.noclips.push({A, B});
+    }
   }
 
   // ── grabadoras: escondidas en callejones lejanos, sin brillo ──
@@ -4951,6 +5428,7 @@ const ENT_DEF = {
 
 function makeEntity(type, cell, rand){
   const def = ENT_DEF[type];
+  codexSeeEnt(type);
   const m = makeSprite(SPRITES[def.atlas], def.w, def.h);
   m.position.set(c2w(cell[0]), def.h/2 + (type==="smiler"?0.5:0), c2w(cell[1]));
   world.add(m);
@@ -5058,6 +5536,8 @@ window.addEventListener("keydown",(e)=>{
   if(k==="escape" && !$("settingsScreen").hidden){ closeOpts(); return; }
   if(!G.running || G.paused) { if(k==="escape" && G.paused) resumeGame(); return; }
   if(k==="v"){ useItem("crowbar"); return; }        // antes del QTE: si no, se la come
+  if(k==="b"){ toggleBackpack(); return; }
+  if(k==="c"){ useAbility(); return; }
   if(G.grab){ qteKey(k); if(k!=="escape") return; }
   if(k==="e") interact();
   if(k==="f") toggleTorch();
@@ -5072,6 +5552,12 @@ window.addEventListener("keydown",(e)=>{
 window.addEventListener("keyup",(e)=>{ keys[e.key.toLowerCase()] = false; });
 window.addEventListener("blur",()=>{ for(const k in keys) keys[k]=false; });
 canvas.addEventListener("click",()=>{ if(!pointerLocked) grabPointer(); });
+canvas.addEventListener("mousedown",(e)=>{
+  if(!pointerLocked || !G.running || G.paused) return;
+  if(e.button === 0) swingHand("L");
+  else if(e.button === 2) swingHand("R");
+});
+canvas.addEventListener("contextmenu",(e)=>{ if(pointerLocked) e.preventDefault(); });
 document.addEventListener("pointerlockchange",()=>{
   pointerLocked = document.pointerLockElement === canvas;
   if(!pointerLocked && G.running && !G.paused) pauseGame();
@@ -5234,6 +5720,7 @@ function partName(id){ for(const p of PARTS) if(p.id===id) return txf(p,"name");
 function hurtPlayer(amount, source){
   if(G.dead) return;
   amount *= (G.char ? G.char.tough : 1) * DIFF_LV().dmg;
+  if(G.shield > 0) amount *= 0.5;   // Aguante, la habilidad de Lázaro
   if(G.stats) G.stats.hurt += amount;
   const part = rollPart();
   G.body[part] = Math.max(0, G.body[part] - amount);
@@ -5286,7 +5773,7 @@ function flashBlood(){
 function entitySpecial(e){
   const sp = e.def && e.def.sp;
   if(!sp || G.dead) return;
-  const mult = (G.char ? G.char.tough : 1) * DIFF_LV().dmg;
+  const mult = (G.char ? G.char.tough : 1) * DIFF_LV().dmg * (G.shield > 0 ? 0.5 : 1);
   const total = sp.pct * 100 * PARTS.length * mult;
   const each  = total / sp.parts.length;
   for(let i=0;i<sp.parts.length;i++){
@@ -5544,6 +6031,14 @@ function takeTape(t){
 }
 
 function useOutpost(o){
+  if(DIFF_LV().noSave){
+    // el puesto sigue sirviendo para curarte y recuperar cordura, sólo no anota nada
+    G.sanity = Math.min(100, G.sanity + 12);
+    Audio_.save();
+    logLine(tx("Intentas anotar el progreso, pero en <b>Sin retorno</b> el registro no se queda con nada.","You try to log your progress, but in <b>No way back</b> the log keeps nothing."));
+    toast(tx("Sin retorno: aquí no se guarda.","No way back: nothing gets saved here."), 4);
+    return;
+  }
   const ok = saveGame();
   Audio_.save();
   if(ok){
@@ -5555,6 +6050,97 @@ function useOutpost(o){
   } else {
     toast(tx("El registro está mojado: no se pudo guardar.","The log is soaked: could not save."));
   }
+}
+
+/* ── habilidad especial de cada personaje: tecla C, con su propio recargo ── */
+function useAbility(){
+  if(!G.char || !G.char.ability || G.dead || !G.running || G.paused || G.grab) return;
+  if(G.abilityCd > 0) return;
+  const ab = G.char.ability;
+  G.abilityCd = ab.cd;
+
+  if(ab.id === "pulse"){
+    G.pulseExit = ab.dur;
+  } else if(ab.id === "loot"){
+    G.lootBonus = 2;
+  } else if(ab.id === "shield"){
+    G.shield = ab.dur;
+  } else if(ab.id === "calm"){
+    for(let i=0;i<G.entities.length;i++){
+      const e = G.entities[i];
+      if(e.def.kind !== "walker") continue;
+      const d = Math.hypot(e.x-player.pos.x, e.z-player.pos.z);
+      if(d < ab.radius) e.stun = Math.max(e.stun, 5);
+    }
+  }
+  Audio_.tone(520, 0.16, 0.1, "sine");
+  G.shake = Math.min(0.3, G.shake + 0.1);
+  logLine("<b>"+txf(ab,"name")+"</b> — "+txf(ab,"blurb"));
+  toast(txf(ab,"name"), 2.6);
+  unlockAch("ability");
+}
+function updateAbility(dt){
+  if(G.abilityCd > 0) G.abilityCd -= dt;
+  if(G.pulseExit > 0) G.pulseExit -= dt;
+  if(G.shield > 0) G.shield -= dt;
+}
+
+/* ── armas de mano: clic izquierdo mano L, clic derecho mano R ── */
+function swingHand(hand){
+  if(G.grab || G.dead || !G.running || G.paused) return;
+  const id = G.weapons[hand];
+  if(!id){ return; }
+  if(G.weaponCd[hand] > 0) return;
+  const def = ITEMS[id];
+  G.weaponCd[hand] = def.cd;
+
+  let cerca = null, dm = def.reach;
+  for(let i=0;i<G.entities.length;i++){
+    const e = G.entities[i];
+    if(e.def.kind !== "walker" || e.stun > 0 || e.grabbed) continue;
+    const d = Math.hypot(e.x-player.pos.x, e.z-player.pos.z);
+    if(d < dm){ dm = d; cerca = e; }
+  }
+  Audio_.hurt();
+  G.shake = Math.min(0.4, G.shake + 0.16);
+  if(!cerca) return;
+  cerca.stun = Math.max(cerca.stun, def.stun);
+  const dx = cerca.x - player.pos.x, dz = cerca.z - player.pos.z;
+  const len = Math.hypot(dx,dz) || 1;
+  for(let k=0;k<14;k++){
+    const nx = cerca.x + (dx/len)*0.1, nz = cerca.z + (dz/len)*0.1;
+    if(blockedCircle(nx,nz,cerca.r)) break;
+    cerca.x = nx; cerca.z = nz;
+  }
+  logLine(tx("Golpeas con ","You hit with the ")+txf(def,"name").toLowerCase()+".");
+  unlockAch("weapon");
+}
+/* ── paredes que no son paredes: caminas hacia una y sales por su pareja ── */
+function updateNoclips(dt){
+  if(!G.noclips || !G.noclips.length) return;
+  for(let i=0;i<G.noclips.length;i++){
+    const par = G.noclips[i];
+    for(const [aquí, allí] of [[par.A, par.B],[par.B, par.A]]){
+      if(aquí.cd > 0){ aquí.cd -= dt; continue; }
+      const d = Math.hypot(player.pos.x-aquí.x, player.pos.z-aquí.z);
+      aquí.mat.opacity = 0.4 + Math.sin(G.t*3 + i)*0.15;
+      if(d < 0.6){
+        player.pos.x = allí.x - allí.nx*0.9;
+        player.pos.z = allí.z - allí.nz*0.9;
+        allí.cd = 1.6; aquí.cd = 1.6;
+        flash(260);
+        Audio_.click();
+        G.sanity = Math.max(0, G.sanity - 4);
+        logLine(tx("Atraviesas la pared. Sales por otra, en otro sitio.","You go through the wall. You come out through another, somewhere else."));
+        unlockAch("noclipwall");
+      }
+    }
+  }
+}
+
+function updateWeapons(dt){
+  if(G.weaponCd.L > 0) G.weaponCd.L -= dt;
+  if(G.weaponCd.R > 0) G.weaponCd.R -= dt;
 }
 
 /* ── el dado ── */
@@ -5702,6 +6288,7 @@ function makeSeq(n){
 
 function startGrab(e){
   if(G.grab || G.dead) return;
+  closeBackpack();
   const n = grabLength(e.def);
   const lim = qteDiff().per*n + 0.6;
   G.grab = {
@@ -6393,6 +6980,7 @@ function iconNode(icon){
 }
 
 function refreshSlots(){
+  if(typeof bpOpen !== "undefined" && bpOpen) renderBackpack();
   const eq = $("equip");
   eq.textContent = "";
   const equipIds = ["map","compass","flashlight","backpack"];
@@ -6477,16 +7065,32 @@ function updateHud(dt){
   slotTick -= dt;
   if(slotTick <= 0){ slotTick = 0.4; if(G.equip.flashlight) refreshSlots(); }
 
+  const abc = $("abilityChip");
+  if(abc && G.char && G.char.ability){
+    const ab = G.char.ability;
+    abc.classList.toggle("ready", G.abilityCd <= 0);
+    abc.textContent = "[C] "+txf(ab,"name")+(G.abilityCd > 0 ? " · "+Math.ceil(G.abilityCd)+"s" : "");
+  }
+  const hl = $("handL"), hr = $("handR");
+  if(hl){
+    hl.textContent = G.weapons.L ? "◧ "+txf(ITEMS[G.weapons.L],"name") : "";
+    hl.classList.toggle("cd", G.weaponCd.L > 0);
+  }
+  if(hr){
+    hr.textContent = G.weapons.R ? txf(ITEMS[G.weapons.R],"name")+" ◨" : "";
+    hr.classList.toggle("cd", G.weaponCd.R > 0);
+  }
+
   const el = $("exitLine");
   const known = G.exits.filter(e=>e.known).length;
-  if(G.mapExit && hasItem("map")){
+  if(G.mapExit && (hasItem("map") || G.pulseExit > 0)){
     el.innerHTML = tx("SALIDA MÁS CERCANA","NEAREST EXIT")+"<br><b>"+txf(EXIT_KINDS[G.mapExit.kind],"name")+"</b> → "+G.mapExit.destName;
   } else if(G.mapExit && (hasItem("compass") || known)){
     el.innerHTML = tx("SALIDA MÁS CERCANA","NEAREST EXIT")+"<br><b>"+txf(EXIT_KINDS[G.mapExit.kind],"name")+"</b> · "+Math.round(G.nearestDist)+" m";
   } else {
     el.innerHTML = '<span class="locked">'+G.exits.length+tx(" salidas en este nivel · sin localizar"," exits on this level · not located")+"</span>";
   }
-  $("dist").textContent = hasItem("compass") && G.nearestExit ? Math.round(G.nearestDist)+" m" : "—";
+  $("dist").textContent = (hasItem("compass") || G.pulseExit > 0) && G.nearestExit ? Math.round(G.nearestDist)+" m" : "—";
 
   G.focus = nearestFocus();
   const pr = $("prompt");
@@ -6551,6 +7155,9 @@ function updateGrain(){
 const ACHIEVEMENTS = [
   {id:"first_exit", name:"Primer noclip",        desc:"Cruza tu primera salida.", name_en:"First noclip", desc_en:"Cross your first exit."},
   {id:"coach",      name:"El Entrenador",        desc:"Desbloquea al Faceling del Level 31.", name_en:"The Coach", desc_en:"Unlock the Level 31 Faceling."},
+  {id:"weapon",     name:"Mano de piedra",       desc:"Golpea a una entidad con un arma de mano.", name_en:"Stone hand", desc_en:"Hit an entity with a hand weapon."},
+  {id:"noclipwall", name:"La pared no era pared", desc:"Cruza una de las paredes inestables.", name_en:"The wall was not a wall", desc_en:"Cross one of the unstable walls."},
+  {id:"ability",    name:"Lo que sabes hacer",    desc:"Usa la habilidad especial de tu personaje.", name_en:"What you are good at", desc_en:"Use your character's special ability."},
   {id:"crowbar",    name:"Se acabó correr",       desc:"Sácate a una entidad de encima con la palanca.", name_en:"No more running", desc_en:"Get an entity off you with the crowbar."},
   {id:"six",        name:"Seis",                 desc:"Saca un 6 al abrir un contenedor.", name_en:"Six", desc_en:"Roll a 6 opening a container."},
   {id:"tape",       name:"Cinta del M.E.G.",     desc:"Encuentra una grabadora escondida.", name_en:"M.E.G. tape", desc_en:"Find a hidden tape recorder."},
@@ -6675,13 +7282,13 @@ function showCleared(cfg, exit){
 const DIFFS = [
   null,
   { name:"Turista",     blurb:"Acabas de hacer noclip y no sabes nada.", name_en:"Tourist", blurb_en:"You just noclipped in and you know nothing.",
-    ents:0.55, sanity:0.55, dmg:0.55, dice:1, grace:12 },
+    ents:0.62, sanity:0.6,  dmg:0.6,  dice:1, grace:11, noSave:false },
   { name:"Vagabundo",   blurb:"Llevas el tiempo justo aquí para desconfiar.", name_en:"Drifter", blurb_en:"You have been here long enough to be suspicious.",
-    ents:1.0,  sanity:1.0,  dmg:1.0,  dice:0,    grace:7 },
+    ents:1.0,  sanity:1.0,  dmg:1.0,  dice:0,    grace:6, noSave:false },
   { name:"Explorador",  blurb:"Bajas por oficio, con el M.E.G. esperando informe.", name_en:"Explorer", blurb_en:"You go down for a living, with the M.E.G. waiting on your report.",
-    ents:1.35, sanity:1.3,  dmg:1.3,  dice:0,    grace:4 },
-  { name:"Sin retorno", blurb:"Nadie ha vuelto de un descenso así.", name_en:"No way back", blurb_en:"Nobody has come back from a descent like this.",
-    ents:1.75, sanity:1.65, dmg:1.6,  dice:-1,   grace:0 }
+    ents:1.5,  sanity:1.45, dmg:1.45, dice:-1,   grace:3, noSave:false },
+  { name:"Sin retorno", blurb:"Nadie ha vuelto de un descenso así. Aquí no hay vuelta atrás: no se guarda.", name_en:"No way back", blurb_en:"Nobody has come back from a descent like this. There is no turning back here: no saving.",
+    ents:2.05, sanity:1.95, dmg:1.9,  dice:-2,   grace:0, noSave:true }
 ];
 function DIFF_LV(){ return DIFFS[clamp(Math.round((G.opts && G.opts.diff) || 2), 1, 4)]; }
 
@@ -6762,8 +7369,51 @@ function updateHand(){
 function slotKey(idx){
   const slot = G.inv[idx];
   if(!slot){ holdItem(null); return; }
-  if(G.held === slot.id) useItem(slot.id);
-  else holdItem(slot.id);
+  useOrHold(slot.id);
+}
+function useOrHold(id){
+  if(G.held === id) useItem(id);
+  else holdItem(id);
+}
+
+/* ── mochila desplegable: [B] la abre y enseña TODO lo que llevas,
+   no sólo los cuatro huecos rápidos. Un clic la coge, otro clic la usa. */
+let bpOpen = false;
+function bpRow(id, qty, held){
+  const def = ITEMS[id];
+  const row = document.createElement("div");
+  row.className = "bp-it" + (held ? " held" : "");
+  const cv = document.createElement("canvas"); cv.width = 16; cv.height = 16;
+  cv.getContext("2d").drawImage(ICON_TEX[def.icon], 0, 0);
+  row.appendChild(cv);
+  const n = document.createElement("div"); n.className = "bp-n"; n.textContent = txf(def,"name");
+  row.appendChild(n);
+  if(qty > 1){ const q = document.createElement("div"); q.className = "bp-q"; q.textContent = "×"+qty; row.appendChild(q); }
+  row.addEventListener("click", ()=>{ useOrHold(id); renderBackpack(); });
+  return row;
+}
+function renderBackpack(){
+  const grid = $("bpGrid");
+  grid.textContent = "";
+  G.inv.forEach(slot=> grid.appendChild(bpRow(slot.id, slot.qty, G.held === slot.id)));
+  ["map","compass","flashlight","backpack"].forEach(id=>{
+    if(G.equip[id]) grid.appendChild(bpRow(id, 1, G.held === id));
+  });
+  ["L","R"].forEach(hand=>{
+    const id = G.weapons[hand];
+    if(id) grid.appendChild(bpRow(id, 1, G.held === id));
+  });
+  $("bpCap").textContent = invCount()+"/"+G.cap;
+}
+function toggleBackpack(){
+  if(!G.running || G.paused || G.grab) return;
+  bpOpen = !bpOpen;
+  $("backpack").hidden = !bpOpen;
+  if(bpOpen) renderBackpack();
+}
+function closeBackpack(){
+  bpOpen = false;
+  $("backpack").hidden = true;
 }
 
 /* ═══════════════ AJUSTES ═══════════════
@@ -7001,7 +7651,7 @@ function flash(ms){
   $("flash").animate([{opacity:0},{opacity:.9},{opacity:0}], {duration:ms, easing:"ease-out"});
 }
 
-const SCREENS = ["titleScreen","mpScreen","charScreen","briefScreen","deadScreen","pauseScreen","clearedScreen","settingsScreen"];
+const SCREENS = ["titleScreen","mpScreen","charScreen","briefScreen","deadScreen","pauseScreen","clearedScreen","settingsScreen","codexScreen"];
 function show(id){
   SCREENS.forEach(s=>{ $(s).hidden = (s!==id); });
   $("hud").classList.remove("on");
@@ -7009,6 +7659,7 @@ function show(id){
 function hideAll(){
   SCREENS.forEach(s=>{ $(s).hidden = true; });
   $("hud").classList.add("on");
+  closeBackpack();
 }
 
 function entityList(cfg){
@@ -7052,6 +7703,50 @@ function statBar(v){
   for(let i=0;i<5;i++) out += '<i class="'+(i<n?"on":"")+'"></i>';
   return out;
 }
+function renderCodex(from){
+  G.codexFrom = from || "titleScreen";
+  const body = $("codexBody");
+  body.textContent = "";
+  let vistos = 0, total = 0;
+
+  function fila(nombre, desc, visto){
+    total++; if(visto) vistos++;
+    const d = document.createElement("div");
+    d.className = "cdx-row" + (visto ? "" : " locked");
+    const n = document.createElement("span"); n.className = "cdx-n";
+    n.textContent = visto ? nombre : "· · ·";
+    const de = document.createElement("span"); de.className = "cdx-d";
+    de.textContent = visto ? desc : tx("Sin catalogar","Not on file");
+    d.appendChild(n); d.appendChild(de);
+    body.appendChild(d);
+  }
+  function seccion(t){
+    const h = document.createElement("div"); h.className = "cdx-sec"; h.textContent = t;
+    body.appendChild(h);
+  }
+
+  seccion(tx("Entidades","Entities"));
+  Object.keys(ENT_DEF).forEach(k=>{
+    const visto = !!(G.codex && G.codex.ent[k]);
+    const def = ENT_DEF[k];
+    fila(ENT_NAMES[k] || k, visto ? txf(def,"death") : "", visto);
+  });
+
+  seccion(tx("Objetos","Items"));
+  Object.keys(ITEMS).forEach(k=>{
+    const visto = !!(G.codex && G.codex.item[k]);
+    fila(txf(ITEMS[k],"name"), visto ? txf(ITEMS[k],"blurb") : "", visto);
+  });
+
+  seccion(tx("Niveles","Levels"));
+  CAT.forEach(c=>{
+    const visto = !!(G.unlocked && G.unlocked["level_"+c.id]);
+    fila(levelTitle(c), visto ? txf(c,"tip") : "", visto);
+  });
+
+  $("codexCount").textContent = vistos+"/"+total+tx(" catalogado"," on file");
+}
+
 function renderChars(){
   // continuar partida guardada
   const save = readSave();
@@ -7552,6 +8247,9 @@ function frame(){
     updatePlayer(dt);
     updateGrab(dt);
     updateEntities(dt);
+    updateWeapons(dt);
+    updateNoclips(dt);
+    updateAbility(dt);
     updateGhosts(dt);
     updateScares(dt);
     updateFlares(dt);
@@ -7629,6 +8327,9 @@ window.addEventListener("keydown",(e)=>{
   if(e.key === "Enter")      $("charGo").click();
   if(e.key === "Escape"){ renderChars(); show("titleScreen"); }
 });
+$("codexBtn").addEventListener("click", ()=>{ renderCodex("titleScreen"); show("codexScreen"); });
+$("pauseCodexBtn").addEventListener("click", ()=>{ renderCodex("pauseScreen"); show("codexScreen"); });
+$("codexBack").addEventListener("click", ()=> show(G.codexFrom || "titleScreen"));
 $("optsBtn").addEventListener("click", ()=> openOpts("titleScreen"));
 $("pauseOptsBtn").addEventListener("click", ()=> openOpts("pauseScreen"));
 $("optsBack").addEventListener("click", closeOpts);

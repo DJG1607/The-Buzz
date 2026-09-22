@@ -28,14 +28,9 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 
 ## Lo que hay dentro
 
-- **34 niveles del catálogo de la wiki** — The Lobby, Habitable Zone, Pipe Dreams, Electrical
-  Station, Abandoned Office, Terror Hotel, Lights Out, Thalassophobia, The Caves, The Suburbs,
-  Field of Wheat, The Endless City, The Boiling Frogs, Matrix, Attic Floorboards, Numbered Doors,
-  Ruins Left Behind, The Roller Rink, The Infinite Mall, Sewer System, An Empty Car Park,
-  Timeless Airport, The Poolrooms, The Black Lake, The Moribund Highway, Eyes On You, Frostbite,
-  The Lurking Darkness, Space Station, Fallout Shelter, Downtown Diner, Ghoul Town, Level ! y
-  Level Fun — más los asentamientos **Base Beta** y **Camp Amber**, y niveles sin catalogar
-  generados por semilla cuando te sales del mapa conocido.
+- **49 niveles del catálogo de la wiki** (más los asentamientos **Base Beta** y **Camp Amber**, y
+  niveles sin catalogar generados por semilla cuando te sales del mapa conocido). El catálogo entero
+  está listado en [mapa-descenso.html](mapa-descenso.html).
 - **Diez entidades** con su número oficial: Facelings (9), Smilers (3), Hounds (8), Skin-Stealers
   (10), Deathmoths (4), Dullers (6), Clumps (5), Crawlers (17), Wretches (15) y Partygoers.
   Persiguen por los pasillos con un campo de distancias, no en línea recta.
@@ -47,14 +42,27 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 - **Multijugador con amigos**: sala con nombre, la partida va directa entre vuestros ordenadores
   por WebRTC. Camináis el mismo laberinto y os veis moveros; cada uno tiene sus enemigos y su
   botín. No hace falta instalar nada.
-- **La palanca**: el primer objeto con el que se puede responder. Si algo te tiene agarrado,
-  **[V]** te suelta de golpe y lo deja tonto. Se gasta al usarla.
+- **La palanca**: si algo te tiene agarrado, **[V]** te suelta de golpe y lo deja tonto. Se gasta
+  al usarla.
+- **Tres armas de mano reutilizables** — tubería, varilla y bate — que se equipan una en cada mano
+  y golpean con el **clic izquierdo y el clic derecho**. No se gastan, cada una golpea distinto
+  (alcance, aturdimiento y cadencia propios).
+- **Una habilidad activa por personaje** (tecla **[C]**), con su propio tiempo de recarga: Marcos
+  localiza la salida sin brújula, Vera se garantiza un buen casillero, Lázaro aguanta la mitad de
+  daño un rato, y el Entrenador aturde todo lo que tenga cerca.
+- **La mochila se despliega con [B]** y enseña todo lo que llevas encima, no sólo los cuatro huecos
+  rápidos — un clic la coge, otro clic la usa.
+- **Códice**: un archivo de campo que documenta cada entidad, objeto y nivel según los vas
+  encontrando, con la ficha real de cada uno.
+- **Paredes que no son paredes de verdad**: entras por una y sales por otra, en otro punto del
+  nivel. Aparecen sueltas por el laberinto, no siempre, y sin avisar cuál es la pareja de cuál.
+- **Modo Sin retorno**: la dificultad más dura no permite guardar la partida en ningún puesto.
 - **Casilleros con tirada de d6**: un 1 no da nada, un 6 es un petate intacto.
 - **Daño por zonas del cuerpo**, con hemorragias y vendajes.
 - **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
   rojas y la Manila Room.
 - **Cuatro personajes**, dos de ellos desbloqueables —entre ellos **el Entrenador**, el Faceling
-  del Level 31, al que los suyos no atacan—, y **52 logros**. Se eligen en un carrusel al darle a
+  del Level 31, al que los suyos no atacan—, y **70 logros**. Se eligen en un carrusel al darle a
   Jugar.
 
 ## Idiomas
@@ -75,6 +83,9 @@ la partida. En inglés el juego se llama *The Buzz*.
 | `F` / `G` | Linterna · bengala |
 | `V` | Palanca: soltarse de un agarre de golpe |
 | `T Z Q X` | Soltarse de un agarre forcejeando |
+| Clic izq. / clic der. | Golpear con el arma de la mano izquierda / derecha |
+| `C` | Habilidad especial del personaje |
+| `B` | Abrir / cerrar la mochila |
 | `ESC` | Pausa y ajustes |
 
 ## Cómo está hecho

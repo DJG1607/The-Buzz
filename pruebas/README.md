@@ -49,7 +49,15 @@ través de la pared.
 ### `objetos.js` — unos segundos
 El botín (que un 6 nunca salga muerto), el dado de la dificultad, que el plano y la
 grabadora caduquen al bajar de nivel pero la brújula no, la luz de las bengalas medida a
-varias distancias, y que los nueve objetos estén en español y en inglés.
+varias distancias, y que todos los objetos estén en español y en inglés.
+
+### `tanda2.js` — unos segundos
+Lo añadido en la tanda de la versión 1.5.0: que las armas de mano se repartan entre las
+dos manos y golpeen con su propio cooldown; que las cuatro habilidades activas hagan
+exactamente lo que dicen (Marcos localiza la salida, Vera se garantiza un buen casillero,
+Lázaro reduce el daño a la mitad, el Entrenador aturde en área); que Sin retorno no deje
+guardar; y que las paredes atravesables salgan en pares, no toquen el laberinto y
+teleporten de verdad.
 
 ---
 

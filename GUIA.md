@@ -101,8 +101,12 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 | Añadir un tipo de salida | `SALIDAS` | `EXIT_KINDS` + su geometría en `SALIDAS: geometría por tipo` |
 | Cambiar un ajuste | `AJUSTES` | `OPT_ROWS` |
 | Añadir un logro | `LOGROS` | `ACHIEVEMENTS` (los de nivel se generan solos) |
-| Añadir un personaje | `PERSONAJES` | `CHARACTERS`; se desbloquea con `unlockAt` (profundidad) o `unlockLevel` (pisar un nivel) |
+| Añadir un personaje | `PERSONAJES` | `CHARACTERS`; se desbloquea con `unlockAt` (profundidad) o `unlockLevel` (pisar un nivel); su `ability` es la habilidad activa |
 | Tocar el multijugador | `MULTIJUGADOR` | `MP`, `mpRecibir()` y `updateGhosts()` |
+| Añadir un arma de mano | `OBJETOS` | Un `ITEMS.xxx` con `weapon:true`, `reach`, `stun`, `cd` — entra sola en `TIERS` |
+| Tocar una habilidad activa | `PERSONAJES` | El campo `ability` de ese personaje + su rama en `useAbility()` |
+| Tocar el códice | `LOGROS` (cerca) | `renderCodex()`, `codexSeeEnt()` / `codexSeeItem()` |
+| Tocar las paredes atravesables | `MONTAJE DEL NIVEL` | El bloque que talla `G.noclips` + `updateNoclips()` |
 
 ### Añadir un nivel, paso a paso
 
@@ -161,6 +165,29 @@ El juego está en español e inglés y se cambia en caliente desde Ajustes.
 > idioma. Por eso la etiqueta de versión va en su propio elemento, fuera.
 
 ---
+
+## 6½. Sistemas de la tanda grande (1.5.0)
+
+Cinco piezas nuevas que comparten un patrón: todas viven fuera de `G.inv`, así que no
+compiten por los cuatro huecos rápidos.
+
+- **Armas de mano** (`ITEMS.pipe/rebar/bat`, campo `weapon:true`). Se guardan en
+  `G.weapons.L` / `G.weapons.R`, no en `G.inv`. `addItem()` las reparte a la primera mano
+  libre y rechaza una tercera. `swingHand("L"|"R")` busca al `walker` más cercano dentro
+  de `reach`, le pone `stun` y lo empuja; cada mano tiene su propio `G.weaponCd`.
+- **Habilidad activa** (`CHARACTERS[x].ability`). `useAbility()` es un único `dispatch`
+  por `ability.id` (`pulse`/`loot`/`shield`/`calm`). El cooldown es un solo número,
+  `G.abilityCd`, que cualquier personaje nuevo reutiliza con sólo darle otro `id`.
+- **Códice** (`G.codex.ent` / `G.codex.item`). Se marca visto en el mismo sitio donde ya
+  se generaba la entidad (`makeEntity`) o se recogía el objeto (`addItem`), así que un
+  nivel o un objeto nuevo queda documentado sin tocar `renderCodex()`.
+- **Paredes atravesables** (`G.noclips`). Se tallan en `buildLevel()` junto a los
+  contenedores, como pares de marcadores pegados a una pared (`wallSpot()`, igual que un
+  casillero). `updateNoclips()` mide la distancia del jugador a cada marca del bucle
+  principal; no tocan `G.grid`, así que no pueden romper la conectividad del laberinto.
+- **Sin retorno sin guardar** (`DIFFS[4].noSave`). Un booleano que `saveGame()` y
+  `useOutpost()` comprueban antes de escribir nada. Si se añade un quinto modo de
+  dificultad, hereda el comportamiento sin tocar el guardado.
 
 ## 7. Trampas que ya han mordido
 

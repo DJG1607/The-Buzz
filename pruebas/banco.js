@@ -30,7 +30,7 @@ const EXPORTA = [
   "CAT", "G", "buildLevel", "bfs", "player", "w2c", "c2w",
   "ENT_DEF", "entitySpecial", "updateSpecial", "PARTS", "bodyAvg",
   "ITEMS", "TIERS", "DICE", "lootForRoll", "txf", "tx", "DIFFS",
-  "hurtPlayer", "VERSION", "ACHIEVEMENTS", "lightFlare", "updateFlares", "hasItem", "addItem", "rollDice", "DIFF_LV"
+  "hurtPlayer", "VERSION", "ACHIEVEMENTS", "lightFlare", "updateFlares", "hasItem", "addItem", "rollDice", "DIFF_LV", "swingHand", "updateWeapons", "useAbility", "updateAbility", "CHARACTERS", "resetRun", "updateNoclips", "saveGame"
 ].join(", ");
 
 /* Stub genérico: devuelve otro stub para cualquier propiedad, y se puede
