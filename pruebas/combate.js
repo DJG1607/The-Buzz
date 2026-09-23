@@ -69,6 +69,8 @@ buildLevel("0", 1);
 const sano = () => {
   PARTS.forEach(p => { G.body[p.id] = 100; G.bleeding[p.id] = 0; });
   G.sanity = 100; G.dead = false; G.grace = 0; G.grab = null;
+  // cada caso prueba una entidad sola: se abre la pausa global entre especiales
+  G.spGate = 0; G.spWarn = null;
 };
 for (const [k, def] of Object.entries(ENT_DEF)) {
   if (!def.sp) continue;

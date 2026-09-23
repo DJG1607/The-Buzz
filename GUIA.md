@@ -120,6 +120,11 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 | Una opción gráfica | `AJUSTES` | `OPT_ROWS` + `qualityRatio()`/`bumpMul()`/`applyFx()`… |
 | El aspecto de los sprites | `PIXEL ART` | Se dibujan igual que siempre; `refineSprite()` les pone resolución, contorno y luz |
 | El modo aleatorio | `MODO ALEATORIO` | `randomizeLevel()` (qué se baraja), `randomLevelId()` (adónde llevan las salidas) |
+| Cuántas entidades como mucho | `MODOS DE JUEGO` | `DIFFS[x].maxEnts` (total), `chasers` (cuántas persiguen a la vez); 4 por especie en `buildLevel()` |
+| Máximo de unidades por objeto | `INVENTARIO` | `STACK_BASE` + `DIFFS[x].stack` → `stackMax()` |
+| Soltar / desechar | `OBJETO EN LA MANO` | `takeOut()`, `dropItem()`, `spawnDrop()`, `pickDrop()` |
+| El aspecto de una salida | `SALIDAS: geometría por tipo` | `EXIT_PAINT` (texturas) y `buildExitMesh()` |
+| Las pestañas de ajustes | `AJUSTES` | `OPT_TABS` y `OPT_TAB_OF` (qué ajuste va en cuál) |
 
 ### Añadir un nivel, paso a paso
 
@@ -261,6 +266,22 @@ muy despacio de una nota a otra con `setTargetAtTime` — nunca salta, nunca hay
   `<audio>` enchufado a WebAudio con `createMediaElementSource`, así que respeta el volumen
   general y el de música. Si IndexedDB no existe (ventana privada), dura sólo la sesión.
 
+## 6⁹⁄₁₀. La tanda 1.7.0
+
+- **Fauna.** `DIFFS` lleva ahora `maxEnts` (techo total), `chasers` (cuántas persiguen a la
+  vez) y `stack` (ajuste del máximo por objeto). En `updateEntities()` se calcula `libres`:
+  las `chasers` entidades más cercanas que te persiguen; el resto está `rondando` a ~8 m y
+  no carga especiales. `G.spGate` es una pausa global de 5 s entre especiales, y
+  `G.spWarn` impide que empiece otro mientras uno carga.
+- **Inventario.** `invCount()` cuenta huecos (`G.inv.length`), no unidades. `addItem()`
+  rechaza si el objeto está en su `stackMax()` o si no queda hueco para uno nuevo.
+  `G.drops` son objetos soltados en el suelo de este nivel; `cellBusy()` los respeta al
+  reordenar el laberinto.
+- **Uso rápido** (`G.opts.quickUse`, por defecto activado): `QUICK_USE` son los objetos que
+  se gastan al primer toque desde las teclas o la mochila.
+- **Curar por zonas.** `toggleHeal()` / `renderHeal()`, con `healOpen` igual que `bpOpen`:
+  suelta el ratón sin pausar.
+
 ## 7. Trampas que ya han mordido
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.
@@ -313,6 +334,13 @@ por hemorragia o cordura, las pistas del objeto en la mano, los controles de la 
 `data-en`), el sello «Catalogado» y la lista de «Tu música», que se pinta al arrancar y no se
 repintaba al cambiar de idioma. `pruebas/tanda4.js` busca ahora esos patrones en el código.
 Si algo se pinta una sola vez, `applyLanguage()` tiene que volver a pintarlo.
+
+**Lo semitransparente tiene que llevar `depthWrite:false`.**
+El personaje «desaparecía» al pisar una zona de clipping: la columna de luz de la salida
+era un cilindro transparente que escribía en el búfer de profundidad, y al estar el
+jugador dentro, lo tapaba. Y un bucle de animación (`updateLights`) les forzaba la
+opacidad a 0,4-0,9 cada fotograma, así que daba igual lo tenue que se pusiera el
+material: ahora late sobre `material.userData.base`.
 
 **Con el ratón capturado no se puede hacer clic en el HUD.**
 La mochila desplegable (1.5.0) decía «clic para cogerlo», pero con el *pointer lock* puesto

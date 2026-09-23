@@ -45,8 +45,11 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 - **El nivel se reordena** cada minuto y pico a tus espaldas: se abren muros, se cierran
   pasillos y alguna salida cambia de sitio. Nunca delante de ti y nunca dejando nada
   incomunicado.
-- **Salidas que cuestan**: pocas, lejos, y hay que **mantener E** unos segundos para cruzarlas,
-  haciendo ruido.
+- **Salidas que cuestan**: pocas, lejos, sin luces que se vean desde la otra punta, y hay que
+  **mantener E** unos segundos para cruzarlas, haciendo ruido. Cada tipo tiene su propio
+  material: madera con veta, pintura desconchada, acero cepillado, tapa de alcantarilla…
+- **Fauna con techo**: por mucha que tenga un nivel, sólo unas pocas entidades te persiguen a la
+  vez (el resto ronda esperando), y los ataques especiales nunca se encadenan.
 - **Multijugador con amigos**: sala con nombre, la partida va directa entre vuestros ordenadores
   por WebRTC. Camináis el mismo laberinto y os veis moveros; cada uno tiene sus enemigos y su
   botín. No hace falta instalar nada.
@@ -58,8 +61,10 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 - **Una habilidad activa por personaje** (tecla **[C]**), con su propio tiempo de recarga: Marcos
   localiza la salida sin brújula, Vera se garantiza un buen casillero, Lázaro aguanta la mitad de
   daño un rato, y el Entrenador aturde todo lo que tenga cerca.
-- **La mochila se despliega con [B]** y enseña todo lo que llevas encima, no sólo los cuatro huecos
-  rápidos — un clic la coge, otro clic la usa.
+- **La mochila se despliega con [B]** y enseña todo lo que llevas. **Cada hueco es un objeto**, no
+  una unidad, y cada objeto tiene un máximo que baja con la dificultad. Desde la mochila puedes
+  **soltar** un objeto al suelo (y recogerlo luego) o **desecharlo**; **[X]** suelta lo que llevas
+  en la mano. Las teclas 1-4 usan el objeto al primer toque.
 - **Códice**: un archivo de campo, con iconos y pestañas, que documenta cada entidad,
   objeto y nivel según los vas encontrando, con la ficha real de cada uno.
 - **Paredes que no son paredes de verdad**: entras por una y sales por otra, en otro punto del
@@ -75,14 +80,15 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   encienden los niveles a los que puedes ir desde él y los que llevan hasta él.
 - **Brújula con sus límites**: tiembla, da la distancia por tramos y pierde la señal lejos o
   con algo persiguiéndote.
-- **Daño por zonas del cuerpo**, con hemorragias y vendajes — y puedes **curar una zona
-  concreta haciendo clic en el maniquí** del HUD, no sólo la peor con `R`.
+- **Daño por zonas del cuerpo**, con hemorragias y vendajes. `R` venda la peor zona y **[N]** (o
+  el botón de la cruz bajo el maniquí) abre un panel para elegir cuál curar.
 - **Música y sonido ambiente**, generados por código igual que el resto del audio: un acorde
   y una melodía con eco que se ponen más tensos cuanto más peligroso es el nivel, más goteo,
   viento o chispazos según el tipo de sitio. **Puedes subir tu propia música** en Ajustes, y
   la música y el ambiente tienen cada uno su volumen.
-- **Opciones gráficas**: calidad (resolución y relieve), distancia de visión, filtro de
-  pantalla (limpio, grano o VHS), temblor de cámara y contador de FPS.
+- **Ajustes en cuatro pestañas** (Partida, Controles, Sonido, Gráficos) que se deslizan de lado.
+  Opciones gráficas: calidad (resolución y relieve), distancia de visión, filtro de pantalla
+  (limpio, grano o VHS), temblor de cámara y contador de FPS.
 - **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
   rojas y la Manila Room.
 - **Cuatro personajes**, dos de ellos desbloqueables —entre ellos **el Entrenador**, el Faceling
@@ -103,7 +109,9 @@ la partida. En inglés el juego se llama *The Buzz*.
 | `SHIFT` | Correr (gasta aliento y hace ruido) |
 | `E` | Abrir contenedor · guardar en un puesto · **mantener** para cruzar una salida |
 | `1`–`4` | Sacar objeto (otra vez para usarlo) |
-| `Q` / `R` | Beber Almond Water · vendarte |
+| `Q` / `R` | Beber Almond Water · vendar la peor zona |
+| `N` | Elegir qué zona curar |
+| `X` | Soltar lo que llevas en la mano |
 | `F` / `G` | Linterna · bengala |
 | `V` | Palanca: soltarse de un agarre de golpe |
 | `T Z Q X` | Soltarse de un agarre forcejeando |

@@ -35,7 +35,8 @@ const EXPORTA = [
   "openContainer", "takeLeftovers", "weaponClick", "cancelSpecial", "compassSignal", "compassBand",
   "startCrossing", "updateCrossing", "keys", "CROSS_TIME", "shiftMaze", "SHIFT_SPARE",
   "musicSource", "melodyFor", "updateMusic", "MEL_SCALES", "refineSprite", "ICON_TEX", "ICON_PX", "REFINE",
-  "dmLayers", "renderDescentMap", "dmSelect", "qualityRatio", "bumpMul", "instantiate", "randomLevelId", "levelTitle"
+  "dmLayers", "renderDescentMap", "dmSelect", "qualityRatio", "bumpMul", "instantiate", "randomLevelId", "levelTitle",
+  "stackMax", "invCount", "dropItem", "pickDrop", "slotKey", "OPT_ROWS", "OPT_TAB_OF", "OPT_TABS"
 ].join(", ");
 
 /* Stub genérico: devuelve otro stub para cualquier propiedad, y se puede

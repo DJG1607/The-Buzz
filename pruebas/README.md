@@ -85,6 +85,14 @@ catálogo normal quede intacto al salir. Al final, un barrido del código contra
 idioma: ningún `textContent = "…"` sin `tx()`, ninguna muerte sólo en español y los controles
 de la pausa con su `data-en`.
 
+### `tanda5.js` — medio minuto
+La tanda 1.7.0: que ningún nivel pase del techo de entidades de su dificultad (ni a
+descenso 21) ni de 4 por especie; que dos entidades no carguen su especial a la vez y
+haya pausa entre uno y otro; que cada hueco sea un objeto y respete su máximo, que baja
+con la dificultad; soltar, recoger y desechar; el uso de una pulsación; los ajustes
+repartidos en pestañas; y en el código, que el brillo de las salidas no tape al jugador,
+que no haya baliza y que las paredes de clipping arranquen casi invisibles.
+
 ---
 
 ## `banco.js`

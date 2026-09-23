@@ -46,7 +46,8 @@ limpio();
 // armas (el equipo repetido se cambia por consumibles), que sí ocupan hueco
 G.equip = { map: true, compass: true, flashlight: true, backpack: true };
 G.weapons = { L: "pipe", R: "rebar" };
-G.cap = 4; G.inv = [{ id: "almond", qty: 4 }];
+// desde 1.7.0 cada hueco es un objeto: para llenarlos hacen falta cuatro distintos, al máximo
+G.cap = 4; G.inv = ["almond", "bandage", "battery", "flare"].map(id => ({ id, qty: j.stackMax(id) }));
 const caja = { name: "Casillero", name_en: "Locker", opened: false, x: 0, z: 0, minRoll: 6 };
 openContainer(caja);
 c.ok(caja.opened && caja.left && caja.left.length > 0, "con los bolsillos llenos, lo que no cabe se queda dentro (" + (caja.left || []).length + ")");
@@ -73,6 +74,7 @@ player.pos.set(G.cell * 4, 0, G.cell * 4);
 G.torchOn = true; G.noise = 1;
 for (const t of ["faceling", "hound", "wretch", "partygoer"]) {
   PARTS.forEach(p => { G.body[p.id] = 100; G.bleeding[p.id] = 0; });
+  G.spGate = 0; G.spWarn = null;                        // una entidad cada vez
   const e = { def: ENT_DEF[t], x: player.pos.x + 1, z: player.pos.z, r: 0.3, stun: 0, grabbed: false, spCd: 0, spWind: 0 };
   updateSpecial(e, 1.0, 1 / 60);
   const avisa = e.spWind > 0 && G.spWarn && G.spWarn.e === e;
@@ -82,6 +84,7 @@ for (const t of ["faceling", "hound", "wretch", "partygoer"]) {
 }
 const coachAntes = G.char;
 G.char = j.CHARACTERS.find(x => x.id === "coach");
+G.spGate = 0; G.spWarn = null;
 const fac = { def: ENT_DEF.faceling, x: player.pos.x + 1, z: player.pos.z, r: 0.3, stun: 0, grabbed: false, spCd: 0, spWind: 0 };
 let alCoach = false;
 for (let i = 0; i < 400; i++) if (updateSpecial(fac, 1.0, 1 / 60)) alCoach = true;
