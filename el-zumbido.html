@@ -156,6 +156,9 @@
   }
   #prompt.on{opacity:1;}
   #prompt b{color:var(--fluor); font-weight:500;}
+  #prompt .crossbar{display:block; height:3px; margin-top:5px; background:rgba(221,214,189,.1); overflow:hidden;}
+  #prompt .crossbar i{display:block; height:100%; background:var(--amber); transform-origin:left;}
+  #prompt.cross{border-color:var(--amber);}
 
   #hand{
     position:fixed; left:50%; bottom:0; transform:translateX(-50%);
@@ -173,6 +176,24 @@
   #handDesc{font-size:11px; color:var(--ink-dim); line-height:1.45;}
   #handHint{font-size:9.5px; color:var(--ink-faint); letter-spacing:.06em; line-height:1.4;}
   @media (max-width:520px){ #hand{max-width:calc(100vw - 24px); padding:9px 11px;} }
+
+  #spwarn{
+    position:fixed; left:50%; top:15%; transform:translateX(-50%) scale(.94);
+    display:grid; gap:4px; justify-items:center; text-align:center;
+    min-width:min(84vw,320px); max-width:min(90vw,460px); padding:10px 18px 12px;
+    border:1px solid rgba(230,74,42,.85); background:rgba(26,6,4,.82);
+    box-shadow:0 0 32px rgba(200,40,20,.35); opacity:0; pointer-events:none;
+    transition:opacity .12s linear, transform .12s ease; z-index:7;
+  }
+  #spwarn.on{opacity:1; transform:translateX(-50%) scale(1); animation:swpulse .5s ease-in-out infinite alternate;}
+  @keyframes swpulse{ from{border-color:rgba(230,74,42,.6);} to{border-color:rgba(255,120,80,1);} }
+  #spwarn .sw-k{font-size:9.5px; letter-spacing:.2em; color:#e8704a;}
+  #spwarn b{font-family:"Special Elite",serif; font-weight:400; font-size:21px; color:#ffb08a;}
+  #spwarn span{font-size:11.5px; color:var(--ink-dim); line-height:1.45;}
+  #spwarn .sw-track{width:100%; height:4px; background:rgba(255,255,255,.08); overflow:hidden; margin-top:4px;}
+  #spwarn .sw-track i{display:block; height:100%; background:#e04a2a; transform-origin:left;}
+  #spwarn .sw-hint{font-size:10px; letter-spacing:.14em; color:#ffd2b8; text-transform:uppercase;}
+  @media (prefers-reduced-motion:reduce){ #spwarn.on{animation:none;} }
 
   #toast{
     position:fixed; left:50%; bottom:21%; transform:translateX(-50%);
@@ -378,22 +399,108 @@
   .bp-it .bp-n{font-size:9.5px; text-align:center; line-height:1.25; color:var(--ink);}
   .bp-it .bp-q{font-size:8.5px; color:var(--ink-faint);}
   .bp-hint{margin-top:9px; font-size:9.5px; color:var(--ink-faint); text-align:center;}
-  #codexBody{max-height:52vh; overflow-y:auto; margin-top:6px;}
-  .cdx-sec{margin-top:16px; font-size:10.5px; letter-spacing:.18em; color:var(--ink-faint); text-transform:uppercase;}
+  #codexProgress{
+    height:4px; background:rgba(221,214,189,.08); border-radius:2px; overflow:hidden; margin-top:10px;
+  }
+  #codexProgress i{
+    display:block; height:100%; width:0%; background:var(--sane);
+    transition:width .4s ease; transform-origin:left;
+  }
+  #codexTabs{display:flex; gap:6px; margin:10px 0 2px; flex-wrap:wrap;}
+  .cdx-tab{
+    font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint);
+    border:1px solid var(--line2); border-radius:2px; padding:5px 10px; cursor:pointer;
+    background:rgba(221,214,189,.03); transition:border-color .15s ease, color .15s ease;
+  }
+  .cdx-tab:hover{border-color:var(--ink-faint); color:var(--ink);}
+  #codexBody{max-height:48vh; overflow-y:auto; margin-top:4px; scroll-behavior:smooth;}
+  .cdx-sec{
+    display:flex; align-items:baseline; gap:8px; margin-top:18px; padding-bottom:4px;
+    border-bottom:1px solid var(--line2);
+    font-size:10.5px; letter-spacing:.18em; color:var(--ink-faint); text-transform:uppercase;
+  }
+  .cdx-sec b{color:var(--ink); letter-spacing:normal; text-transform:none; font-size:10.5px;}
   .cdx-row{
-    display:flex; justify-content:space-between; gap:10px; padding:7px 0;
+    display:flex; align-items:center; gap:10px; padding:8px 2px;
     border-bottom:1px solid var(--line2); font-size:12px;
+    transition:background .12s ease;
   }
-  .cdx-row .cdx-n{color:var(--ink);}
+  .cdx-row:hover{background:rgba(221,214,189,.035);}
+  .cdx-ic{
+    flex:0 0 auto; width:22px; height:28px; image-rendering:pixelated;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cdx-ic canvas{width:100%; height:100%; image-rendering:pixelated;}
+  .cdx-chip{
+    flex:0 0 auto; width:9px; height:9px; border-radius:2px; margin:0 6px 0 2px;
+    box-shadow:0 0 6px currentColor;
+  }
+  .cdx-info{flex:1; min-width:0;}
+  .cdx-row .cdx-n{color:var(--ink); display:block;}
   .cdx-row.locked .cdx-n{color:var(--ink-faint);}
-  .cdx-row .cdx-d{color:var(--ink-faint); font-size:11px; text-align:right; max-width:56%;}
-  .handchip{
-    position:fixed; bottom:14px; font-size:10.5px; letter-spacing:.05em;
-    color:var(--ink-faint); pointer-events:none; transition:color .15s ease;
+  .cdx-row .cdx-d{color:var(--ink-faint); font-size:10.5px; margin-top:2px; line-height:1.4;}
+  .cdx-row .cdx-stat{color:var(--ink-faint); font-size:9.5px; letter-spacing:.04em; margin-top:2px;}
+  .sheet.wide{width:min(1100px,94vw); max-width:none;}
+  #dmapScreen{overflow-x:hidden;}
+  #musicBox{margin-top:16px; padding-top:14px; border-top:1px solid var(--line2);}
+  #musicBox .mb-head{display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim);}
+  #musicBox .mb-head b{color:var(--amber); font-weight:500;}
+  #mbList{display:grid; gap:4px; margin-top:8px; max-height:150px; overflow:auto;}
+  .mb-row{display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:11.5px; color:var(--ink);
+    padding:4px 8px; border:1px solid var(--line2);}
+  .mb-row span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .mb-x{font:inherit; font-size:10px; color:var(--ink-dim); background:none; border:1px solid var(--line2); padding:2px 8px; cursor:pointer;}
+  .mb-x:hover{color:var(--blood2); border-color:var(--blood2);}
+  .mb-empty{font-size:11px; color:var(--ink-faint);}
+  label.btn{display:inline-block; cursor:pointer;}
+  #scan{opacity:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, rgba(0,0,0,0) 1px 3px); mix-blend-mode:multiply;}
+  body[data-fx="0"] #grain{display:none;}
+  body[data-fx="0"] #vignette{opacity:.55;}
+  body[data-fx="2"] #grain{opacity:.3;}
+  body[data-fx="2"] #scan{opacity:1;}
+  body[data-fx="2"] #gl{filter:saturate(.82) contrast(1.06);}
+  #fpsc{position:fixed; right:10px; top:8px; font-size:10px; letter-spacing:.08em; color:var(--sane); pointer-events:none; opacity:.8;}
+  #dmScroll{overflow:auto; max-height:52vh; border:1px solid var(--line2); background:rgba(0,0,0,.25); margin-top:12px;}
+  #dmSvg{display:block; max-width:none;}
+  #dmSvg .dm-n{cursor:pointer; transition:opacity .15s ease;}
+  #dmSvg .dm-n:hover rect.bx{stroke-width:2;}
+  #dmSvg .dm-e{transition:opacity .15s ease;}
+  #dmSvg.pick .dm-e{opacity:.05;}
+  #dmSvg.pick .dm-n{opacity:.25;}
+  #dmSvg.pick .dm-n.sel, #dmSvg.pick .dm-n.to, #dmSvg.pick .dm-n.from{opacity:1;}
+  #dmSvg.pick .dm-e.out{opacity:1; stroke:#f0c060; stroke-width:2.6;}
+  #dmSvg.pick .dm-e.in{opacity:.95; stroke:#7a9ad6; stroke-width:2;}
+  #dmSvg .dm-n.sel rect.bx{stroke:#f6eec9; stroke-width:2.6;}
+  #dmSvg .dm-n.to rect.bx{stroke:#f0c060; stroke-width:2;}
+  #dmSvg .dm-n.from rect.bx{stroke:#7a9ad6; stroke-width:2;}
+  #dmInfo{margin-top:12px; min-height:64px; font-size:11.5px; color:var(--ink-dim); line-height:1.5;}
+  #dmInfo .dm-t{font-family:"Special Elite",serif; font-size:19px; color:var(--fluor);}
+  #dmInfo .dm-k{font-size:8.5px; letter-spacing:.2em; color:var(--ink-faint); text-transform:uppercase; margin:9px 0 5px;}
+  #dmInfo .dm-l{display:flex; flex-wrap:wrap; gap:5px;}
+  .dm-go{font:inherit; font-size:11px; color:var(--ink); background:rgba(221,214,189,.04); border:1px solid var(--line2);
+    padding:4px 8px; cursor:pointer;}
+  .dm-go:hover{border-color:#f0c060;} .dm-go.in:hover{border-color:#7a9ad6;}
+  .dm-go em{font-style:normal; color:var(--amber);} .dm-go.in em{color:#7a9ad6;}
+  #hands{
+    position:fixed; left:50%; bottom:32px; transform:translateX(-50%);
+    display:flex; gap:8px; pointer-events:none; z-index:5;
   }
-  .handchip.left{left:78px;}
-  .handchip.right{right:14px;}
-  .handchip.cd{color:var(--blood2);}
+  .hslot{
+    position:relative; display:flex; align-items:center; gap:7px; min-width:128px;
+    padding:5px 9px 6px 5px; border:1px solid var(--line2); background:rgba(8,8,10,.78);
+    overflow:hidden; transition:border-color .15s ease, opacity .15s ease;
+  }
+  .hslot canvas{width:32px; height:32px; image-rendering:pixelated; flex:0 0 auto;
+    background:rgba(221,214,189,.05); border:1px solid rgba(221,214,189,.08);}
+  .hslot .hs-t{display:grid; gap:1px; min-width:0;}
+  .hslot .hk{font-size:8.5px; letter-spacing:.12em; color:var(--ink-faint);}
+  .hslot b{font-weight:500; font-size:11.5px; color:var(--ink); white-space:nowrap;}
+  .hslot.empty{opacity:.55;} .hslot.empty b{color:var(--ink-faint); font-style:italic;}
+  .hslot > i{position:absolute; left:0; bottom:0; height:2px; width:100%; background:var(--blood2);
+    transform-origin:left; transform:scaleX(0);}
+  .hslot.cd{border-color:var(--blood2);}
+  #hand{bottom:74px !important;}
+  @media (max-width:620px){ .hslot{min-width:0;} .hslot .hs-t{display:none;} }
   #abilityChip{
     position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
     font-size:10.5px; letter-spacing:.05em; color:var(--ink-faint); pointer-events:none;
@@ -479,12 +586,16 @@
 <div class="fx" id="dread"></div>
 <div class="fx" id="bloodfx"></div>
 <canvas class="fx" id="grain"></canvas>
+<div class="fx" id="scan"></div>
 <div class="fx" id="flash"></div>
 
 <div id="hud">
   <div id="mpRoster"></div>
-  <div id="handL" class="handchip left"></div>
-  <div id="handR" class="handchip right"></div>
+  <div id="fpsc" hidden></div>
+  <div id="hands">
+    <div class="hslot" id="handL"><canvas width="32" height="32"></canvas><div class="hs-t"><span class="hk" data-en="LEFT &#183; L-CLICK">IZQUIERDA &#183; CLIC IZQ</span><b></b></div><i></i></div>
+    <div class="hslot" id="handR"><canvas width="32" height="32"></canvas><div class="hs-t"><span class="hk" data-en="RIGHT &#183; R-CLICK">DERECHA &#183; CLIC DER</span><b></b></div><i></i></div>
+  </div>
   <div id="abilityChip"></div>
   <div class="panel" id="slate">
     <div class="lvl" id="lvlName">Level 0</div>
@@ -527,11 +638,11 @@
   <div id="backpack" hidden>
     <div class="bp-head"><span data-en="Backpack">Mochila</span><b id="bpCap"></b></div>
     <div id="bpGrid"></div>
-    <div class="bp-hint" data-en="Click an item to hold it, click again to use it &#183; [B] to close">Clic para cogerlo, otro clic para usarlo &#183; [B] para cerrar</div>
+    <div class="bp-hint" data-en="Click an item to hold it, click again to use it &#183; click a weapon to move it between your hands and the pack &#183; [B] to close">Clic para cogerlo, otro clic para usarlo &#183; clic en un arma para pasarla de la mochila a una mano y al rev&#233;s &#183; [B] para cerrar</div>
   </div>
 
   <div id="hand" hidden>
-    <canvas id="handIcon" width="16" height="16"></canvas>
+    <canvas id="handIcon" width="32" height="32"></canvas>
     <div class="hand-txt">
       <div class="hand-top"><b id="handName"></b><span id="handQty"></span></div>
       <div id="handDesc"></div>
@@ -539,6 +650,13 @@
     </div>
   </div>
 
+  <div id="spwarn">
+    <div class="sw-k" data-en="&#9888; SPECIAL ATTACK">&#9888; ATAQUE ESPECIAL</div>
+    <b id="swName"></b>
+    <span id="swTell"></span>
+    <div class="sw-track"><i id="swBar"></i></div>
+    <div class="sw-hint" data-en="Get out of reach!">&#161;Ap&#225;rtate!</div>
+  </div>
   <div id="prompt"></div>
   <div id="toast"></div>
   <div id="whisper"></div>
@@ -559,12 +677,12 @@
       <div><kbd>W A S D</kbd><span data-en=" move"> moverte</span></div>
       <div><kbd data-en="MOUSE">RATÓN</kbd><span data-en=" look"> mirar</span></div>
       <div><kbd>SHIFT</kbd><span data-en=" run"> correr</span></div>
-      <div><kbd>E</kbd><span data-en=" open / take exit"> abrir / usar salida</span></div>
+      <div><kbd>E</kbd><span data-en=" open / hold to take an exit"> abrir / mantener para salir</span></div>
       <div><kbd>1</kbd>–<kbd>4</kbd><span data-en=" use item"> usar objeto</span></div>
       <div><kbd>F</kbd><span data-en=" flashlight"> linterna</span></div>
       <div><kbd>G</kbd><span data-en=" flare"> bengala</span></div>
       <div><kbd>Q</kbd><span data-en=" drink water"> beber agua</span></div>
-      <div><kbd>R</kbd><span data-en=" bandage up"> vendarte</span></div>
+      <div><kbd>R</kbd><span data-en=" bandage worst part (or click a body part)"> vendarte (o clica una zona)</span></div>
       <div><kbd>V</kbd><span data-en=" crowbar"> palanca</span></div>
       <div><kbd>B</kbd><span data-en=" backpack"> mochila</span></div>
       <div><kbd>C</kbd><span data-en=" ability"> habilidad</span></div>
@@ -576,9 +694,10 @@
     </div>
     <div class="btnrow" id="playRow">
       <button class="btn big" id="playBtn" data-en="Play">Jugar</button>
+      <button class="btn ghost" id="randBtn" data-en="Random mode">Modo aleatorio</button>
       <button class="btn ghost" id="mpBtn" data-en="Play with friends">Jugar con amigos</button>
     </div>
-    <div class="btnrow"><button class="btn ghost small" id="codexBtn" data-en="Codex">Códice</button></div>
+    <div class="btnrow"><button class="btn ghost small" id="codexBtn" data-en="Codex">Códice</button><button class="btn ghost small" id="dmapBtn" data-en="Descent map">Mapa del descenso</button></div>
     <div id="metaLine" class="meta"></div>
     <div class="btnrow"><button class="btn ghost" id="optsBtn" data-en="Settings">Ajustes</button></div>
     <div id="achBox">
@@ -665,7 +784,7 @@
     <div class="eyebrow" id="clEyebrow">M.E.G. · Nivel superado</div>
     <div class="cl-head">
       <h2 id="clTitle">Level 0</h2>
-      <span class="newbadge" id="clBadge" hidden>Catalogado</span>
+      <span class="newbadge" id="clBadge" hidden data-en="Catalogued">Catalogado</span>
     </div>
     <div class="rule"></div>
     <div id="clLore"></div>
@@ -690,9 +809,23 @@
     <div class="eyebrow" data-en="M.E.G. &#183; Field archive">M.E.G. &#183; Archivo de campo</div>
     <h2 data-en="Codex">Códice</h2>
     <div class="rule"></div>
+    <div id="codexProgress"><i></i></div>
     <div id="codexCount" class="meta"></div>
+    <div id="codexTabs"></div>
     <div id="codexBody"></div>
     <div class="btnrow"><button class="btn" id="codexBack" data-en="Back">Volver</button></div>
+  </div>
+</div>
+
+<div class="screen" id="dmapScreen" hidden>
+  <div class="sheet wide">
+    <div class="eyebrow" data-en="M.E.G. &#183; Cartography department">M.E.G. &#183; Departamento de cartograf&#237;a</div>
+    <h2 data-en="Descent map">Mapa del descenso</h2>
+    <div class="rule"></div>
+    <p class="body" data-en="Tap any level: its exits light up in amber and the levels that lead to it in blue. Levels you have already set foot on are marked with a dot.">Toca cualquier nivel: sus salidas se encienden en &#225;mbar y los niveles que llevan hasta &#233;l, en azul. Los que ya has pisado llevan un punto.</p>
+    <div id="dmScroll"><svg id="dmSvg" role="img" aria-label="Grafo de niveles"></svg></div>
+    <div id="dmInfo"></div>
+    <div class="btnrow"><button class="btn" id="dmapBack" data-en="Back">Volver</button></div>
   </div>
 </div>
 
@@ -703,6 +836,12 @@
     <div class="eyebrow" id="verTagOpts"></div>
     <div class="rule"></div>
     <div id="optRows"></div>
+    <div id="musicBox">
+      <div class="mb-head"><span data-en="Your music">Tu m&#250;sica</span><b id="mbCount"></b></div>
+      <div class="opt-note" data-en="Upload your own songs (mp3, ogg, wav&#8230;). They are stored in this browser and never leave your computer. To hear them, set &#171;Music&#187; to &#171;Your music&#187;.">Sube tus propias canciones (mp3, ogg, wav&#8230;). Se guardan en este navegador y no salen de tu ordenador. Para o&#237;rlas, pon &#171;M&#250;sica&#187; en &#171;Tu m&#250;sica&#187;.</div>
+      <div class="btnrow" style="margin-top:8px"><label class="btn ghost small" for="mbFile" data-en="Upload songs">Subir canciones</label><input type="file" id="mbFile" accept="audio/*" multiple hidden></div>
+      <div id="mbList"></div>
+    </div>
     <div class="btnrow">
       <button class="btn" id="optsBack" data-en="Back">Volver</button>
       <button class="btn ghost" id="optsReset" data-en="Defaults">Valores por defecto</button>
@@ -719,20 +858,23 @@
     <div class="rule"></div>
     <p class="body" data-en="The hum is still there when you come back.">El zumbido sigue ahí cuando vuelvas.</p>
     <div class="keys">
-      <div><kbd>W A S D</kbd> moverte</div>
-      <div><kbd>SHIFT</kbd> correr</div>
-      <div><kbd>E</kbd> abrir / salir</div>
-      <div><kbd>1</kbd>–<kbd>4</kbd> usar objeto</div>
-      <div><kbd>F</kbd> linterna</div>
-      <div><kbd>G</kbd> bengala</div>
-      <div><kbd>Q</kbd> beber</div>
-      <div><kbd>R</kbd> vendarte</div>
+      <div><kbd>W A S D</kbd><span data-en=" move"> moverte</span></div>
+      <div><kbd>SHIFT</kbd><span data-en=" run"> correr</span></div>
+      <div><kbd>E</kbd><span data-en=" open / hold to take an exit"> abrir / mantener para salir</span></div>
+      <div><kbd>1</kbd>–<kbd>4</kbd><span data-en=" use item"> usar objeto</span></div>
+      <div><kbd>F</kbd><span data-en=" flashlight"> linterna</span></div>
+      <div><kbd>G</kbd><span data-en=" flare"> bengala</span></div>
+      <div><kbd>Q</kbd><span data-en=" drink"> beber</span></div>
+      <div><kbd>R</kbd><span data-en=" bandage"> vendarte</span></div>
+      <div><kbd>B</kbd><span data-en=" backpack"> mochila</span></div>
+      <div><kbd>C</kbd><span data-en=" ability"> habilidad</span></div>
     </div>
     <div class="btnrow">
       <button class="btn" id="resumeBtn" data-en="Resume">Reanudar</button>
       <button class="btn ghost" id="pauseOptsBtn" data-en="Settings">Ajustes</button>
       <button class="btn ghost" id="abandonBtn" data-en="Abandon run">Abandonar la partida</button>
       <button class="btn ghost" id="pauseCodexBtn" data-en="Codex">Códice</button>
+      <button class="btn ghost" id="pauseMapBtn" data-en="Descent map">Mapa del descenso</button>
     </div>
   </div>
 </div>
@@ -842,7 +984,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "1.5.0";
+const VERSION = "1.6.0";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1026,20 +1168,24 @@ function drawHumanoid(x, ox, oy, dir, frame, p, o){
 // ── Smiler (Entity 3) ──
 function drawSmiler(x, ox, oy, frame){
   const b = [0,1,2,1][frame];
-  const y = oy + 6 + b;
-  P(x, ox+3, y+3, 18, 17, "rgba(4,4,6,.93)");
-  P(x, ox+2, y+6, 20, 11, "rgba(4,4,6,.93)");
-  P(x, ox+5, y+2, 14, 3, "rgba(4,4,6,.75)");
-  const w = "#f4f1df";
-  P(x, ox+6,  y+6, 4, 3, w);
-  P(x, ox+14, y+6, 4, 3, w);
-  P(x, ox+7,  y+7, 2, 1, "rgba(0,0,0,.25)");
-  P(x, ox+15, y+7, 2, 1, "rgba(0,0,0,.25)");
-  P(x, ox+6, y+12, 12, 2, w);
-  P(x, ox+5, y+11, 1, 2, w);
-  P(x, ox+18, y+11, 1, 2, w);
-  for(let i=0;i<6;i++) P(x, ox+6+i*2, y+14, 1, 3, w);
-  P(x, ox+6, y+16, 12, 1, "rgba(0,0,0,.35)");
+  const y = oy + 5 + b, cx = ox + 12;
+  // una mancha redonda de oscuridad, más densa en el centro
+  [6,10,14,16,18,18,20,20,20,20,20,18,18,16,14,10,6].forEach((w,i)=>
+    P(x, cx - w/2, y+i, w, 1, "rgba(6,5,8,.95)"));
+  [4,6,8,10,10,10,8,6].forEach((w,i)=> P(x, cx - w/2, y+4+i, w, 1, "rgba(0,0,0,.5)"));
+  const w = "#f4f1df", sombra = "rgba(120,110,90,.55)";
+  // ojos: rasgados hacia arriba, con un brillo
+  P(x, cx-8, y+5, 5, 2, w); P(x, cx+3, y+5, 5, 2, w);
+  P(x, cx-7, y+4, 3, 1, w); P(x, cx+4, y+4, 3, 1, w);
+  P(x, cx-8, y+7, 5, 1, sombra); P(x, cx+3, y+7, 5, 1, sombra);
+  P(x, cx-6, y+5, 1, 1, "#ffffff"); P(x, cx+5, y+5, 1, 1, "#ffffff");
+  // la sonrisa: un arco de dientes de lado a lado
+  P(x, cx-9, y+9, 1, 2, w); P(x, cx+8, y+9, 1, 2, w);
+  P(x, cx-8, y+10, 16, 1, w);
+  for(let i=0;i<8;i++) P(x, cx-8+i*2, y+11, 1, 2 + (i%2), w);
+  for(let i=0;i<7;i++) P(x, cx-7+i*2, y+11, 1, 1, sombra);
+  P(x, cx-7, y+13, 14, 1, w);
+  P(x, cx-6, y+14, 12, 1, sombra);
 }
 
 // ── Hound (Entity 8) ──
@@ -1070,20 +1216,24 @@ function drawHound(x, ox, oy, frame){
 function drawMoth(x, ox, oy, frame){
   const f = [0,1,2,1][frame];
   const y = oy + 8;
-  const w1="#6f5d47", w2="#4a3d2e", body="#2b231b", dust="#d8cba4";
-  P(x, ox+11, y+7, 3, 12, body);
-  P(x, ox+11, y+4, 3, 3, "#191410");
-  P(x, ox+9,  y+2, 2, 3, "#191410");
-  P(x, ox+14, y+2, 2, 3, "#191410");
-  P(x, ox+10, y+5, 1, 1, dust);
-  P(x, ox+14, y+5, 1, 1, dust);
-  const sp = [7,4,1][f];
-  P(x, ox+10-sp-6, y+6, 7, 9, w1);
-  P(x, ox+14+sp,   y+6, 7, 9, w1);
-  P(x, ox+10-sp-5, y+9, 5, 5, w2);
-  P(x, ox+14+sp+1, y+9, 5, 5, w2);
-  P(x, ox+10-sp-6, y+6, 7, 1, dust);
-  P(x, ox+14+sp,   y+6, 7, 1, dust);
+  const w1="#6f5d47", w2="#4a3d2e", body="#2b231b", dust="#d8cba4", ojo="#c9b27a", dark="#191410";
+  // las alas salen del cuerpo (antes quedaban sueltas en el fotograma abierto)
+  const ww = [9,7,4][f], wh = [11,9,12][f], wy = y + 5 - (f === 2 ? 2 : 0);
+  P(x, ox+11-ww, wy, ww, wh, w1);               // alas de arriba
+  P(x, ox+14,    wy, ww, wh, w1);
+  P(x, ox+13-ww, wy+wh-1, ww-2, 4, w2);         // alas de abajo, más pequeñas
+  P(x, ox+14,    wy+wh-1, ww-2, 4, w2);
+  P(x, ox+11-ww, wy, ww, 1, dust);              // polvo del borde
+  P(x, ox+14,    wy, ww, 1, dust);
+  if(ww >= 6){                                  // los "ojos" de las alas
+    P(x, ox+13-ww, wy+3, 3, 3, ojo); P(x, ox+14+ww-5, wy+3, 3, 3, ojo);
+    P(x, ox+14-ww, wy+4, 1, 1, dark); P(x, ox+14+ww-4, wy+4, 1, 1, dark);
+  }
+  P(x, ox+11, y+4, 3, 15, body);                // cuerpo con anillos
+  P(x, ox+11, y+9, 3, 1, "#46382a"); P(x, ox+11, y+12, 3, 1, "#46382a"); P(x, ox+11, y+15, 3, 1, "#46382a");
+  P(x, ox+11, y+2, 3, 3, dark);                 // cabeza
+  P(x, ox+11, y+3, 1, 1, "#ff5a2a"); P(x, ox+13, y+3, 1, 1, "#ff5a2a");
+  P(x, ox+9,  y,   2, 3, dark); P(x, ox+14, y, 2, 3, dark);   // antenas
 }
 
 // ── Clump (Entity 5): masa de carne que se arrastra ──
@@ -1143,13 +1293,92 @@ function shadeCell(x, ox, oy, seed){
   x.restore();
 }
 
+/* ── refinado de sprites ──
+   Cada sprite se dibuja a 24×36 como siempre y luego pasa por aquí:
+     1. Scale2x: dobla la resolución suavizando las diagonales sin emborronar
+        (sólo copia colores vecinos, nunca inventa uno nuevo).
+     2. A doble resolución: contorno oscuro del color de al lado, luz de borde
+        arriba y a la derecha (la misma dirección que shadeCell), sombra abajo
+        y a la izquierda, y oclusión en el último tercio (pies, suelo).
+   Se trabaja celda a celda para que un fotograma no manche al de al lado. */
+const REFINE = 2;
+function refineSprite(src, cw, ch, cols, rows, o){
+  o = o || {};
+  const W = cw*cols, H = ch*rows, W2 = W*2, H2 = H*2;
+  const sd = src.getContext("2d").getImageData(0, 0, W, H);
+  if(!sd || !sd.data || sd.data.length < W*H*4) return src;
+  const s32 = new Uint32Array(sd.data.buffer, sd.data.byteOffset, W*H);
+  const {c, x} = newCanvas(W2, H2);
+  const out = x.createImageData(W2, H2);
+  if(!out || !out.data || out.data.length < W2*H2*4) return src;
+  const o32 = new Uint32Array(out.data.buffer, out.data.byteOffset, W2*H2);
+  for(let y=0;y<H;y++){
+    const y0 = y - (y % ch), y1 = y0 + ch - 1;
+    for(let xx=0;xx<W;xx++){
+      const x0 = xx - (xx % cw), x1 = x0 + cw - 1;
+      const P = s32[y*W+xx];
+      const A = y  > y0 ? s32[(y-1)*W+xx] : 0;   // arriba
+      const D = y  < y1 ? s32[(y+1)*W+xx] : 0;   // abajo
+      const L = xx > x0 ? s32[y*W+xx-1] : 0;     // izquierda
+      const R = xx < x1 ? s32[y*W+xx+1] : 0;     // derecha
+      let e0 = P, e1 = P, e2 = P, e3 = P;
+      if(A !== D && L !== R){
+        if(L === A) e0 = A;
+        if(A === R) e1 = R;
+        if(L === D) e2 = L;
+        if(D === R) e3 = R;
+      }
+      const i = (y*2)*W2 + xx*2;
+      o32[i] = e0; o32[i+1] = e1; o32[i+W2] = e2; o32[i+W2+1] = e3;
+    }
+  }
+  const d = out.data, cw2 = cw*2, ch2 = ch*2;
+  const solid = new Uint8Array(W2*H2);
+  for(let i=0;i<W2*H2;i++) solid[i] = d[i*4+3] > 100 ? 1 : 0;
+  const rim = o.rim === undefined ? 1 : o.rim;
+  for(let y=0;y<H2;y++){
+    const cy0 = y - (y % ch2), cy1 = cy0 + ch2 - 1;
+    for(let xx=0;xx<W2;xx++){
+      const cx0 = xx - (xx % cw2), cx1 = cx0 + cw2 - 1;
+      const k = y*W2 + xx, p = k*4;
+      if(!solid[k]){
+        if(o.outline === false) continue;
+        let n = -1;
+        if(xx > cx0 && solid[k-1]) n = k-1;
+        else if(xx < cx1 && solid[k+1]) n = k+1;
+        else if(y > cy0 && solid[k-W2]) n = k-W2;
+        else if(y < cy1 && solid[k+W2]) n = k+W2;
+        if(n >= 0){
+          d[p] = d[n*4]*0.2; d[p+1] = d[n*4+1]*0.18; d[p+2] = d[n*4+2]*0.16; d[p+3] = 235;
+        }
+        continue;
+      }
+      const up    = y === cy0  || !solid[k-W2];
+      const down  = y === cy1  || !solid[k+W2];
+      const left  = xx === cx0 || !solid[k-1];
+      const right = xx === cx1 || !solid[k+1];
+      let f = 1;
+      if(up) f *= 1 + 0.2*rim; else if(right) f *= 1 + 0.12*rim;
+      if(down) f *= 1 - 0.2*rim; else if(left) f *= 1 - 0.12*rim;
+      const r = (y - cy0) / ch2;
+      if(r > 0.72) f *= 1 - (r - 0.72)*0.45;
+      d[p]   = Math.min(255, d[p]*f);
+      d[p+1] = Math.min(255, d[p+1]*f);
+      d[p+2] = Math.min(255, d[p+2]*f);
+    }
+  }
+  x.putImageData(out, 0, 0);
+  return c;
+}
+
 function buildAtlas(cols, rows, drawCell, shadeSeed){
   const {c,x} = newCanvas(SW*cols, SH*rows);
   for(let r=0;r<rows;r++) for(let col=0;col<cols;col++){
     drawCell(x, col*SW, r*SH, col, r);
     if(shadeSeed) shadeCell(x, col*SW, r*SH, shadeSeed + r*977);
   }
-  const t = new THREE.CanvasTexture(c);
+  const fin = refineSprite(c, SW, SH, cols, rows);
+  const t = new THREE.CanvasTexture(fin);
   t.magFilter = THREE.NearestFilter;
   t.minFilter = THREE.NearestFilter;
   t.generateMipmaps = false;
@@ -1275,9 +1504,11 @@ function buildSprites(){
 function charPortrait(ch, scale, frame, dir){
   const {c,x} = newCanvas(SW,SH);
   drawHumanoid(x,0,0,dir||0,frame||0,ch.pal, Object.assign({}, ch.opts));
+  shadeCell(x, 0, 0, 4100+ch.id.length*31);
+  const fin = refineSprite(c, SW, SH, 1, 1);
   const {c:big, x:bx} = newCanvas(SW*scale, SH*scale);
   bx.imageSmoothingEnabled = false;
-  bx.drawImage(c,0,0,SW*scale,SH*scale);
+  bx.drawImage(fin,0,0,SW*scale,SH*scale);
   return big;
 }
 
@@ -1353,12 +1584,15 @@ const ICON_DRAW = {
   }
 };
 
+// Los iconos se dibujan a 16×16 y se refinan a 32×32 (contorno y luz de borde).
+// Quien los pinte tiene que usar canvas de ICON_PX, no de 16.
 const ICON_TEX = {};
+const ICON_PX = 32;
 function buildIcons(){
   for(const k in ICON_DRAW){
     const {c,x} = newCanvas(16,16);
     ICON_DRAW[k](x);
-    ICON_TEX[k] = c;
+    ICON_TEX[k] = refineSprite(c, 16, 16, 1, 1, {rim:1.3});
   }
 }
 
@@ -1760,7 +1994,7 @@ const CAT = [
     ceil:["ceilTile",{base:"#d2ccb0"}],
     drain:1.0, boxes:10, outpost:0.35, deco:"lobby",
     special:["arch","pillar","hole","blackout","red","manila"],
-    ents:{faceling:2, smiler:3, deathmoth:1, hound:0},
+    ents:{},
     exitsTo:[
       {to:"1", kind:"noclip", note:"pared parpadeante"},
       {to:"1", kind:"crack",  note:"suelo que cede"},
@@ -1781,7 +2015,7 @@ const CAT = [
     ceil:["concrete",{base:"#4a4944",dark:"rgba(24,24,22,.5)",light:"rgba(96,95,90,.2)"}],
     drain:1.2, boxes:11, outpost:0.6, deco:"warehouse",
     special:["pillar","blackout","manila"],
-    ents:{hound:2, smiler:2, faceling:2, duller:1, clump:1, crawler:1, stealer:1, wretch:1},
+    ents:{hound:2,smiler:2,duller:1,clump:1,crawler:1,stealer:1,wretch:1},
     exitsTo:[
       {to:"2",  kind:"vent",     note:"conducto"},
       {to:"4",  kind:"door",     note:"puerta del almacén"},
@@ -1805,7 +2039,7 @@ const CAT = [
     ceil:["concrete",{base:"#26231e",dark:"rgba(10,9,8,.6)",light:"rgba(56,50,42,.18)"}],
     drain:1.7, boxes:8, outpost:0.25, deco:"pipes",
     special:["blackout","hole"],
-    ents:{smiler:5, deathmoth:2, clump:1, wretch:2, crawler:2},
+    ents:{smiler:5,deathmoth:2,clump:1,wretch:2,hound:1,stealer:1},
     exitsTo:[
       {to:"3", kind:"hatch", note:"trampilla"},
       {to:"1", kind:"vent",  note:"volver al almacén"},
@@ -1827,7 +2061,7 @@ const CAT = [
     ceil:["concrete",{base:"#33312c",dark:"rgba(14,14,12,.55)",light:"rgba(70,68,62,.2)"}],
     drain:1.5, boxes:11, outpost:0.4, deco:"electrical",
     special:["blackout","pillar"],
-    ents:{hound:2, faceling:2, wretch:1, deathmoth:2, stealer:1, smiler:1, clump:1, crawler:1},
+    ents:{hound:2,faceling:2,wretch:1,deathmoth:2,stealer:1,smiler:1,clump:1},
     exitsTo:[
       {to:"4", kind:"door",   note:"puerta de mantenimiento"},
       {to:"2", kind:"hatch",  note:"volver a las tuberías"},
@@ -1849,7 +2083,7 @@ const CAT = [
     ceil:["ceilTile",{base:"#c6c4b6"}],
     drain:0.95, boxes:12, outpost:0.75, deco:"office",
     special:["manila","blackout","arch"],
-    ents:{hound:2, duller:3, smiler:1, faceling:1},
+    ents:{hound:2,duller:3,smiler:1},
     exitsTo:[
       {to:"5",  kind:"elevator", note:"ascensor"},
       {to:"33", kind:"door",     note:"puerta al centro comercial"},
@@ -1873,7 +2107,7 @@ const CAT = [
     ceil:["wood",{base:"#3e2a18",dark:"rgba(24,16,8,.55)",light:"rgba(96,70,42,.3)"}],
     drain:1.45, boxes:11, outpost:0.4, deco:"hotel",
     special:["red","manila"],
-    ents:{deathmoth:4, hound:2, stealer:3, smiler:1, wretch:1},
+    ents:{deathmoth:4,hound:2,stealer:3},
     exitsTo:[
       {to:"6", kind:"stairs",   note:"escalera al sótano"},
       {to:"4", kind:"elevator", note:"ascensor de servicio"},
@@ -1896,7 +2130,7 @@ const CAT = [
     ceil:["concrete",{base:"#2a2926",dark:"rgba(8,8,8,.6)",light:"rgba(50,48,44,.15)"}],
     drain:2.6, boxes:9, outpost:0.15, deco:"dark",
     special:["hole","red"],
-    ents:{smiler:5, hound:2, crawler:3, wretch:2, clump:2},
+    ents:{},
     exitsTo:[
       {to:"7", kind:"hatch", note:"trampilla inundada"},
       {to:"8", kind:"crack", note:"grieta"},
@@ -1919,7 +2153,7 @@ const CAT = [
     ceil:["metal",{base:"#1c2428",dark:"rgba(8,12,14,.6)",light:"rgba(44,54,58,.25)"}],
     drain:1.6, boxes:10, outpost:0.3, deco:"sea",
     special:["pillar"],
-    ents:{smiler:3, deathmoth:3, faceling:3, wretch:2, crawler:2},
+    ents:{},
     exitsTo:[
       {to:"8",  kind:"hatch",  note:"escotilla"},
       {to:"37", kind:"drain",  note:"desagüe"},
@@ -1943,7 +2177,7 @@ const CAT = [
     ceil:["stone",{base:"#2e2922",dark:"#1e1a15",light:"#443d33"}],
     drain:1.8, boxes:8, outpost:0.2, deco:"caves",
     special:["hole","blackout"],
-    ents:{hound:2, crawler:3, clump:2, wretch:1, smiler:3},
+    ents:{smiler:3,deathmoth:2,wretch:2},
     exitsTo:[
       {to:"9",  kind:"well",  note:"pozo"},
       {to:"10", kind:"crack", note:"grieta hacia arriba"},
@@ -1956,8 +2190,8 @@ const CAT = [
     ],
     lore:"Un sistema de cuevas húmedas que no aparece en ningún mapa de roca conocido. Se oye agua correr en todas direcciones y nunca la encuentras.",
     lore_en:"A system of damp caves that appears on no known rock map. You can hear water running in every direction and you never find it.",
-    tip:"Los Hounds anidan aquí. Si oyes uno, ya estás en su territorio.",
-    tip_en:"Hounds nest here. If you hear one, you are already in its territory."
+    tip:"Las Deathmoths anidan en las galerías altas. Si oyes aleteo, ya estás en su territorio.",
+    tip_en:"Deathmoths nest in the upper galleries. If you hear wings, you are already in their territory."
   },
   {
     id:"9", num:"9", title:"The Suburbs", risk:1,
@@ -1969,7 +2203,7 @@ const CAT = [
     ceil:null,
     drain:1.1, boxes:14, outpost:0.6, deco:"suburb",
     special:["manila","blackout"],
-    ents:{deathmoth:3, smiler:2, stealer:3, hound:2, wretch:2, faceling:2},
+    ents:{deathmoth:3,smiler:2,stealer:3,hound:2,wretch:2},
     exitsTo:[
       {to:"19", kind:"hatch",    note:"trampilla del ático"},
       {to:"11", kind:"door",     note:"puerta al final de la calle"},
@@ -1984,8 +2218,8 @@ const CAT = [
     ],
     lore:"Un barrio residencial en una noche que no avanza. Las casas están abiertas, las luces encendidas y las mesas puestas para gente que no llega.",
     lore_en:"A residential neighbourhood on a night that never moves on. The houses are open, the lights are on and the tables are set for people who never arrive.",
-    tip:"Muchos Facelings: se mueven como vecinos hasta que uno te mira.",
-    tip_en:"Plenty of Facelings: they move like neighbours until one of them looks at you."
+    tip:"Lo que camina por estas calles no es un vecino: los Skin-Stealers imitan a la gente.",
+    tip_en:"Whatever walks these streets is no neighbour: Skin-Stealers imitate people."
   },
   {
     id:"10", num:"10", title:"Field of Wheat", risk:1,
@@ -1997,7 +2231,7 @@ const CAT = [
     ceil:null,
     drain:0.9, boxes:11, outpost:0.5, deco:"field",
     special:[],
-    ents:{deathmoth:3, faceling:3, hound:2, crawler:1},
+    ents:{},
     exitsTo:[
       {to:"11", kind:"door",  note:"puerta del granero"},
       {to:"9",  kind:"hatch", note:"volver al barrio"},
@@ -2020,7 +2254,7 @@ const CAT = [
     ceil:null,
     drain:1.35, boxes:14, outpost:0.7, deco:"city",
     special:["pillar","arch"],
-    ents:{faceling:7, stealer:3, hound:2, smiler:2, duller:3},
+    ents:{faceling:7,hound:2},
     exitsTo:[
       {to:"beta", kind:"door",   note:"puerta de Base Beta"},
       {to:"33",   kind:"elevator",note:"ascensor del centro comercial"},
@@ -2045,7 +2279,7 @@ const CAT = [
     ceil:["tile",{base:"#c8d2ce",grout:"#8e9a96",tiles:5}],
     drain:0.6, boxes:11, outpost:0.8, deco:"pool",
     special:["arch","pillar"],
-    ents:{smiler:1, faceling:1, deathmoth:1},
+    ents:{},
     exitsTo:[
       {to:"11",   kind:"door",  note:"puerta de vestuarios"},
       {to:"9",    kind:"hatch", note:"trampilla"},
@@ -2086,7 +2320,7 @@ const CAT = [
     ceil:["ceilTile",{base:"#e8b6d2"}],
     drain:2.4, boxes:11, outpost:0.1, deco:"party",
     special:["red"],
-    ents:{partygoer:5, smiler:3, stealer:2, faceling:2},
+    ents:{partygoer:5,faceling:2},
     exitsTo:[
       {to:"11",   kind:"stage", note:"puerta de atrás"},
       {to:"!",    kind:"door",  note:"pasillo rojo"},
@@ -2129,7 +2363,7 @@ const CAT = [
     ceil:["wood",{base:"#42331f",dark:"rgba(24,18,10,.55)",light:"rgba(92,74,48,.25)"}],
     drain:1.15, boxes:8, outpost:0.45, deco:"attic",
     special:["hole","blackout"],
-    ents:{deathmoth:3, faceling:1, crawler:2, duller:1},
+    ents:{},
     exitsTo:[
       {to:"9",  kind:"hatch", note:"trampilla del techo"},
       {to:"12", kind:"crack", note:"resplandor naranja bajo los tablones"},
@@ -2151,7 +2385,7 @@ const CAT = [
     ceil:["ceilTile",{base:"#b8b4a8"}],
     drain:1.3, boxes:13, outpost:0.55, deco:"mall",
     special:["pillar","blackout"],
-    ents:{hound:3, duller:3, stealer:2, smiler:3, crawler:2},
+    ents:{hound:3,duller:3,stealer:2,smiler:3},
     exitsTo:[
       {to:"11",   kind:"firedoor", note:"salida de incendios"},
       {to:"4",    kind:"elevator", note:"ascensor del centro"},
@@ -2200,7 +2434,7 @@ const CAT = [
     ceil:["stone",{base:"#232624",dark:"#151716",light:"#343836"}],
     drain:2.3, boxes:8, outpost:0.15, deco:"pipes",
     special:["hole","blackout"],
-    ents:{smiler:4, crawler:3, hound:2, stealer:1, deathmoth:1},
+    ents:{smiler:4,hound:2,stealer:1},
     exitsTo:[
       {to:"7",  kind:"drain", note:"nadar hacia abajo"},
       {to:"9",  kind:"hatch", note:"reja a la calle"},
@@ -2223,7 +2457,7 @@ const CAT = [
     ceil:["concrete",{base:"#3a3d40",dark:"rgba(18,20,22,.5)",light:"rgba(78,82,86,.2)"}],
     drain:1.05, boxes:11, outpost:0.5, deco:"warehouse",
     special:["pillar","blackout"],
-    ents:{smiler:3, faceling:2, duller:1, hound:1},
+    ents:{smiler:3},
     exitsTo:[
       {to:"9",  kind:"stairs",   note:"escalera a la calle"},
       {to:"11", kind:"firedoor", note:"salida de incendios"},
@@ -2267,15 +2501,15 @@ const CAT = [
     ceil:["stone",{base:"#2a2620",dark:"#1a1714",light:"#403a31"}],
     drain:2.0, boxes:12, outpost:0.3, deco:"caves",
     special:["pillar","blackout","red"],
-    ents:{faceling:4, wretch:3, smiler:3, hound:2},
+    ents:{},
     exitsTo:[
       {to:"11", kind:"hole", note:"túnel marcado «11»"},
       {to:"8",  kind:"hole", note:"túnel marcado «8»"},
       {to:"10", kind:"well", note:"pozo de la veta"},
       {to:"deep", kind:"hole", note:"un túnel mal marcado"}
     ],
-    lore:"Una caverna enorme de caliza y mármol con antorchas clavadas de trecho en trecho: alumbran lo justo para que el fondo siga negro. Hay vetas de oro, cuarzo y platino, y por eso baja gente a comerciar. Los Facelings y los Wretches de aquí no atacan, sólo te miran pasar, y eso es exactamente lo que acaba contigo.",
-    lore_en:"An enormous limestone and marble cavern with torches driven in here and there: they light just enough to keep the far side black. There are seams of gold, quartz and platinum, which is why people come down to trade. The Facelings and Wretches here do not attack, they only watch you go by, and that is exactly what wears you down.",
+    lore:"Una caverna enorme de caliza y mármol con antorchas clavadas de trecho en trecho: alumbran lo justo para que el fondo siga negro. Hay vetas de oro, cuarzo y platino, y por eso baja gente a comerciar. Nadie ha catalogado qué vive aquí: sólo se nota que algo te mira pasar desde lo oscuro, y eso es exactamente lo que acaba contigo.",
+    lore_en:"An enormous limestone and marble cavern with torches driven in here and there: they light just enough to keep the far side black. There are seams of gold, quartz and platinum, which is why people come down to trade. Nobody has catalogued what lives here: you only feel something watching you go by from the dark, and that is exactly what wears you down.",
     tip:"La sensación de que te vigilan es real y te come la cordura. No te entretengas.",
     tip_en:"The feeling of being watched is real and it eats your sanity. Do not linger."
   },
@@ -2289,7 +2523,7 @@ const CAT = [
     ceil:["concrete",{base:"#2a2d30",dark:"rgba(12,14,16,.55)",light:"rgba(60,64,68,.2)"}],
     drain:2.5, boxes:10, outpost:0.2, deco:"electrical",
     special:["blackout","hole"],
-    ents:{hound:4, smiler:3, clump:3, crawler:2},
+    ents:{hound:4,smiler:3,clump:3},
     exitsTo:[
       {to:"2",  kind:"firedoor", note:"pasillo largo"},
       {to:"3",  kind:"stairs",   note:"pasillo largo hacia arriba"},
@@ -2331,7 +2565,7 @@ const CAT = [
     ceil:["concrete",{base:"#343432",dark:"rgba(14,14,13,.55)",light:"rgba(70,70,66,.2)"}],
     drain:1.9, boxes:12, outpost:0.25, deco:"warehouse",
     special:["hole","pillar","blackout"],
-    ents:{crawler:3, wretch:2, faceling:2, smiler:2, clump:1},
+    ents:{},
     exitsTo:[
       {to:"21", kind:"hole",  note:"boquete hacia los pasillos"},
       {to:"1",  kind:"crack", note:"grieta original"},
@@ -2373,7 +2607,7 @@ const CAT = [
     ceil:null,
     drain:2.4, boxes:9, outpost:0.15, deco:"sea",
     special:["hole","blackout"],
-    ents:{wretch:4, crawler:3, clump:2, smiler:2, deathmoth:1},
+    ents:{},
     exitsTo:[
       {to:"7",  kind:"drain", note:"un barco hundido"},
       {to:"8",  kind:"hole",  note:"grieta de la orilla"},
@@ -2394,7 +2628,7 @@ const CAT = [
     ceil:null,
     drain:1.45, boxes:11, outpost:0.4, deco:"field",
     special:["pillar","blackout"],
-    ents:{faceling:5, stealer:3, duller:2, hound:2, smiler:1},
+    ents:{},
     exitsTo:[
       {to:"35", kind:"door",   note:"una autocaravana abierta"},
       {to:"11", kind:"stairs", note:"salida elevada"},
@@ -2415,7 +2649,7 @@ const CAT = [
     ceil:["stone",{base:"#2f4b59",dark:"#1e323c",light:"#456b7c"}],
     drain:2.1, boxes:9, outpost:0.2, deco:"caves",
     special:["arch","blackout"],
-    ents:{crawler:4, deathmoth:3, wretch:2, smiler:2},
+    ents:{deathmoth:4},
     exitsTo:[
       {to:"8",  kind:"hole",   note:"galer\u00eda de roca"},
       {to:"78", kind:"hatch",  note:"una escotilla en el hielo"},
@@ -2436,7 +2670,7 @@ const CAT = [
     ceil:["wood",{base:"#3a2b1c",dark:"rgba(20,14,9,.6)",light:"rgba(86,66,44,.2)"}],
     drain:2.7, boxes:10, outpost:0.15, deco:"attic",
     special:["blackout","hole","manila"],
-    ents:{duller:5, faceling:3, smiler:3, crawler:2, wretch:1},
+    ents:{},
     exitsTo:[
       {to:"9",  kind:"door",  note:"una puerta de cristal al jard\u00edn"},
       {to:"0",  kind:"noclip",note:"la \u00fanica habitaci\u00f3n con luz"},
@@ -2479,7 +2713,7 @@ const CAT = [
     ceil:null,
     drain:0.9, boxes:12, outpost:0.7, deco:"city",
     special:["arch","manila"],
-    ents:{faceling:4, smiler:1, duller:1},
+    ents:{faceling:4},
     exitsTo:[
       {to:"6",  kind:"hole",   note:"el callej\u00f3n del fondo"},
       {to:"5",  kind:"door",   note:"la puerta de entrada, que se cierra detr\u00e1s"},
@@ -2500,7 +2734,7 @@ const CAT = [
     ceil:null,
     drain:1.3, boxes:11, outpost:0.55, deco:"suburb",
     special:["arch","pillar","manila"],
-    ents:{faceling:4, duller:2, crawler:1},
+    ents:{},
     exitsTo:[
       {to:"7",  kind:"door",  note:"la puerta que pone «Piscina»"},
       {to:"4",  kind:"door",  note:"la puerta por la que se entra"},
@@ -2541,7 +2775,7 @@ const CAT = [
     ceil:null,
     drain:1.3, boxes:12, outpost:0.35, deco:"caves",
     special:["hole","arch"],
-    ents:{hound:2, clump:2, smiler:2, deathmoth:2, crawler:1},
+    ents:{hound:2,clump:2,smiler:2,deathmoth:2},
     exitsTo:[
       {to:"7",  kind:"drain", note:"el corazón de agua"},
       {to:"43", kind:"door",  note:"el mismo corazón, otro día"},
@@ -2603,7 +2837,7 @@ const CAT = [
     ceil:null,
     drain:2.8, boxes:7, outpost:0.1, deco:"field",
     special:["blackout","manila"],
-    ents:{smiler:3, wretch:2, duller:2, faceling:2},
+    ents:{},
     exitsTo:[
       {to:"65", kind:"door",   note:"una verja de madera"},
       {to:"deep", kind:"noclip", note:"despertar en otro bosque"}
@@ -2663,7 +2897,7 @@ const CAT = [
     ceil:["stone",{base:"#9a8a66",dark:"#665840",light:"#bcac82"}],
     drain:1.55, boxes:12, outpost:0.35, deco:"caves",
     special:["arch","pillar","manila"],
-    ents:{deathmoth:3, crawler:2, duller:1},
+    ents:{deathmoth:3,crawler:2},
     exitsTo:[
       {to:"10", kind:"hole", note:"un agujero en el techo del laberinto"},
       {to:"11", kind:"door", note:"una de las diez puertas del templo"}
@@ -2723,7 +2957,7 @@ const CAT = [
     ceil:null,
     drain:2.0, boxes:10, outpost:0.25, deco:"field",
     special:["hole","blackout"],
-    ents:{crawler:3, wretch:2, clump:1},
+    ents:{},
     exitsTo:[
       {to:"32", kind:"door", note:"una verja hacia el bosque oscuro"},
       {to:"14", kind:"door", note:"una verja hacia el jardín rojo"},
@@ -2744,7 +2978,7 @@ const CAT = [
     ceil:["stone",{base:"#182420",dark:"#0c1412",light:"#2c3c36"}],
     drain:2.9, boxes:7, outpost:0.1, deco:"caves",
     special:["hole","blackout"],
-    ents:{crawler:3, deathmoth:2, hound:1},
+    ents:{},
     exitsTo:[
       {to:"43", kind:"drain", note:"un túnel sumergido"},
       {to:"8",  kind:"crack", note:"vuelta arriba, si encuentras el hueco"}
@@ -2804,7 +3038,7 @@ const CAT = [
     ceil:["tile",{base:"#3a6068",grout:"#1c3438",tiles:5}],
     drain:1.65, boxes:12, outpost:0.35, deco:"pool",
     special:["arch","hole"],
-    ents:{stealer:2, hound:2, duller:1, wretch:1},
+    ents:{stealer:2,hound:2,duller:1,wretch:1,faceling:1,smiler:1},
     exitsTo:[
       {to:"9",  kind:"door",  note:"los arbustos del parque"},
       {to:"2",  kind:"hatch", note:"pasillos de personal"},
@@ -3025,8 +3259,50 @@ function makeDeepLevel(seed){
 const ALL_EXITS = Object.keys(EXIT_KINDS);
 const deepCache = {};
 
+/* ═══════════════ MODO ALEATORIO ═══════════════
+   El mismo juego, pero sin orden: empiezas en un nivel cualquiera, cada
+   salida lleva a otro nivel al azar (a veces a uno sin catalogar) y cada
+   nivel sale con su fauna, su botín y sus zonas especiales barajados.
+   Todo sale de la semilla del nivel, así que el nombre del destino que
+   enseña una salida es el mismo nivel que te encuentras al cruzarla. */
+let wantRandom = false;
+const randCache = {};
+const RAND_SPECIALS = ["arch","pillar","hole","blackout","red","manila"];
+function randomLevelId(rand, not){
+  if(rand() < 0.08) return "deep";
+  const pool = CAT.filter(l=> l.id !== not && (!l.settlement || rand() < 0.35));
+  return pool[(rand()*pool.length)|0].id;
+}
+function randomizeLevel(base, seed){
+  let h = 0x2c1b3c6d;                      // el id entra en la mezcla: misma semilla, otro nivel, otra fauna
+  for(const ch of String(base.id)) h = Math.imul(h ^ ch.charCodeAt(0), 0x9e3779b1) >>> 0;
+  const rand = makeRand((seed ^ h) >>> 0);
+  rand(); rand();                          // los primeros valores de semillas cercanas se parecen mucho
+  const cfg = Object.assign({}, base);
+  const tipos = shuffle(Object.keys(ENT_DEF), rand);
+  const ents = {};
+  if(!base.settlement && rand() > 0.12){
+    const n = 1 + ((rand()*4)|0);
+    for(let i=0;i<n;i++) ents[tipos[i]] = 1 + ((rand()*3)|0);
+  }
+  cfg.ents = ents;
+  cfg.boxes = 4 + ((rand()*9)|0);
+  cfg.outpost = base.settlement ? base.outpost : 0.1 + rand()*0.35;
+  cfg.special = base.settlement ? base.special : shuffle(RAND_SPECIALS.slice(), rand).slice(0, (rand()*3)|0);
+  const peso = Object.keys(ents).reduce((a,k)=> a + ents[k], 0);
+  cfg.risk = base.settlement ? 0 : clamp(Math.round(peso/2.5), 0, 3);
+  cfg.randomized = true;
+  return cfg;
+}
+
 function instantiate(id, seed){
-  if(id !== "deep") return CAT_BY_ID[id] || CAT[0];
+  if(id !== "deep"){
+    const base = CAT_BY_ID[id] || CAT[0];
+    if(!G.randomMode) return base;
+    const k = id+"@"+seed;
+    if(!randCache[k]) randCache[k] = randomizeLevel(base, seed);
+    return randCache[k];
+  }
   if(!deepCache[seed]) deepCache[seed] = makeDeepLevel(seed);
   return deepCache[seed];
 }
@@ -3039,7 +3315,7 @@ function levelTitle(cfg){ return cfg.settlement ? cfg.title : ("Level "+cfg.num+
 
 const ITEMS = {
   map:        {name:"Mapa del M.E.G.", icon:"map",        equip:true, blurb:"Dibuja el nivel y el camino hasta la salida más cercana.", name_en:"M.E.G. map", blurb_en:"Draws the level and the path you have already walked."},
-  compass:    {name:"Brújula",         icon:"compass",    equip:true, blurb:"La aguja apunta siempre a la salida más cercana.", name_en:"Compass", blurb_en:"The needle always points to the nearest exit."},
+  compass:    {name:"Brújula",         icon:"compass",    equip:true, blurb:"La aguja tira hacia la salida más cercana, pero tiembla, y lejos o con algo detrás pierde la señal.", name_en:"Compass", blurb_en:"The needle pulls towards the nearest exit, but it shakes, and far away or with something behind you it loses the signal."},
   flashlight: {name:"Linterna",        icon:"flashlight", equip:true, key:"F", blurb:"Haz de luz largo. Gasta pilas mientras está encendida.", name_en:"Flashlight", blurb_en:"A long beam. Eats batteries while it is on."},
   backpack:   {name:"Mochila",         icon:"backpack",   equip:true, blurb:"Sube la carga de 4 a 10 huecos.", name_en:"Backpack", blurb_en:"Raises your load from 4 to 10 slots."},
   almond:     {name:"Almond Water",    icon:"almond",     stack:true, key:"Q", blurb:"Recupera 39 de cordura.", name_en:"Almond Water", blurb_en:"Restores 39 sanity."},
@@ -3121,7 +3397,8 @@ const G = {
   inv:[], equip:{}, cap:4,
   weapons:{L:null,R:null}, weaponCd:{L:0,R:0},
   codex:{ent:{}, item:{}},
-  abilityCd:0, shield:0, pulseExit:0, lootBonus:0,
+  abilityCd:0, shield:0, pulseExit:0, lootBonus:0, ambTimer:3,
+  crossing:null, spWarn:null, shiftT:90, shiftWarned:false, shifts:0, wallMesh:null, wallInst:null, wallFree:[],
   torchOn:false, torchFuel:0,
   exits:[], nearestExit:null, revealPath:null, mapExit:null,
   containers:[], entities:[], lamps:[], flickers:[], flares:[], specials:[], obs:{},
@@ -3181,11 +3458,13 @@ function resetRun(charId){
   G.inv = []; G.equip = {}; G.cap = 4;
   G.weapons = {L:null, R:null}; G.weaponCd = {L:0, R:0};
   G.abilityCd = 0; G.shield = 0; G.pulseExit = 0; G.lootBonus = 0;
+  G.ambTimer = 2 + Math.random()*3;
   G.torchOn = false; G.torchFuel = 0;
   G.body = {}; G.bleeding = {};
   PARTS.forEach(p=>{ G.body[p.id] = 100; G.bleeding[p.id] = 0; });
   G.char.startEquip.forEach(id=> addItem(id,1));
   G.stamina = staminaMax();
+  G.randomMode = false;
   G.levelId = "0";
   G.levelSeed = rollSeed();
 }
@@ -3197,6 +3476,7 @@ function saveGame(){
     charId:G.char.id, depth:G.depth, levelId:G.levelId, levelSeed:G.levelSeed,
     sanity:G.sanity, body:G.body, bleeding:G.bleeding,
     inv:G.inv, equip:G.equip, cap:G.cap, torchFuel:G.torchFuel,
+    weapons:G.weapons, randomMode:!!G.randomMode,
     when:Date.now()
   };
   try{
@@ -3226,6 +3506,9 @@ function applySave(d){
   G.inv = d.inv || [];
   G.equip = d.equip || {};
   G.cap = d.cap || 4;
+  G.weapons = d.weapons ? {L:d.weapons.L||null, R:d.weapons.R||null} : {L:null, R:null};
+  G.randomMode = !!d.randomMode;
+  G.weaponCd = {L:0, R:0};
   G.torchFuel = d.torchFuel || 0;
   G.torchOn = false;
   G.stamina = staminaMax();
@@ -3247,7 +3530,7 @@ function invCount(){ let n=0; for(let i=0;i<G.inv.length;i++) n += G.inv[i].qty;
 function invFind(id){ for(let i=0;i<G.inv.length;i++) if(G.inv[i].id===id) return G.inv[i]; return null; }
 function hasItem(id){
   const def = ITEMS[id];
-  if(def && def.weapon) return G.weapons.L === id || G.weapons.R === id;
+  if(def && def.weapon) return G.weapons.L === id || G.weapons.R === id || !!invFind(id);
   return def && def.equip ? !!G.equip[id] : !!invFind(id);
 }
 
@@ -3260,7 +3543,8 @@ function addItem(id, qty){
     if(G.weapons.L === id || G.weapons.R === id) return false;   // ya la llevas
     if(!G.weapons.L){ G.weapons.L = id; toast(tx("Equipada en la mano izquierda: ","Equipped in your left hand: ")+txf(def,"name"),3); return true; }
     if(!G.weapons.R){ G.weapons.R = id; toast(tx("Equipada en la mano derecha: ","Equipped in your right hand: ")+txf(def,"name"),3); return true; }
-    return false;   // las dos manos ocupadas
+    // con las dos manos ocupadas va a la mochila: desde ahí se cambia de mano [B]
+    if(invFind(id)) return false;
   }
   codexSeeItem(id);
   if(def.equip){
@@ -3888,11 +4172,15 @@ function buildContainer(type, wx, wz, rot){
 
 /* ── la tirada del casillero ── */
 function rollDice(rand){
-  let r = 1 + ((rand()*6)|0);
+  const nat = 1 + ((rand()*6)|0);
+  let r = nat;
   if(G.char && G.char.luck) r += G.char.luck;
   r += DIFF_LV().dice;
   if(G.lootBonus){ r += G.lootBonus; G.lootBonus = 0; }   // Ojo de carroñera, se gasta al usarse
-  return clamp(r, 1, 6);
+  // Los modificadores cambian lo BUENO que es el botín, no SI hay botín: un
+  // casillero sólo sale vacío con un 1 natural. Antes el -1/-2 de Explorador y
+  // Sin retorno convertía doses y treses en unos y la mitad salían vacíos.
+  return clamp(r, nat === 1 ? 1 : 2, 6);
 }
 function lootForRoll(roll, rand){
   const d = DICE[roll];
@@ -3902,7 +4190,7 @@ function lootForRoll(roll, rand){
     let id = pool[(rand()*pool.length)|0];
     if(id === "map" && (G.navPrize !== "map" || hasItem("map"))) id = "almond";
     // el equipo repetido no entra en la mochila: se cambia por algo que sí sirva
-    if(ITEMS[id].equip && hasItem(id)){
+    if((ITEMS[id].equip || ITEMS[id].weapon) && hasItem(id)){
       const sob = ["almond","almond","bandage","battery","flare"];
       id = sob[(rand()*sob.length)|0];
     }
@@ -3940,7 +4228,11 @@ const Audio_ = {
       const g=this.ctx.createGain(); g.gain.value = i===0?0.35:(i===1?0.18:0.06);
       o.connect(g).connect(flt); o.start();
     });
-    flt.connect(humG).connect(this.master);
+    // dos buses con su propio volumen (Ajustes): música y ambiente
+    this.musicBus = this.ctx.createGain(); this.musicBus.connect(this.master);
+    this.ambBus = this.ctx.createGain(); this.ambBus.connect(this.master);
+    this.setBusVols();
+    flt.connect(humG).connect(this.ambBus);
     this.humGain = humG;
 
     const dg=this.ctx.createGain(); dg.gain.value=0;
@@ -3953,18 +4245,89 @@ const Audio_ = {
     const ho=this.ctx.createOscillator(); ho.type="sine"; ho.frequency.value=52;
     ho.connect(hg).connect(this.master); ho.start();
     this.heartGain=hg; this.heart=ho;
+
+    // música: un acorde grave de cuatro voces que casi no se mueve. El "modo"
+    // (qué intervalos suenan) cambia con lo peligroso que sea el nivel — ver
+    // musicModeFor() más abajo. setMood() lo desliza suave con setTargetAtTime,
+    // nunca salta, así que no hay ni un solo click al cambiar de nivel.
+    const mg=this.ctx.createGain(); mg.gain.value=0;
+    const mflt=this.ctx.createBiquadFilter(); mflt.type="lowpass"; mflt.frequency.value=700; mflt.Q.value=0.5;
+    this.musicVoices = [];
+    for(let i=0;i<4;i++){
+      const o=this.ctx.createOscillator();
+      o.type = i<2 ? "sine" : "triangle"; o.frequency.value = 90+i*7;
+      const vg=this.ctx.createGain(); vg.gain.value = [0.5,0.34,0.22,0.15][i];
+      o.connect(vg).connect(mflt); o.start();
+      this.musicVoices.push(o);
+    }
+    mflt.connect(mg).connect(this.musicBus);
+    this.musicGain = mg; this.musicFilter = mflt; this.mood = null;
+
+    // melodía: notas sueltas por encima del acorde, con un eco largo. Es lo que
+    // hace que la música se oiga como música y no sólo como un zumbido más.
+    this.melGain = this.ctx.createGain(); this.melGain.gain.value = 0;
+    const echo = this.ctx.createDelay(1.5); echo.delayTime.value = 0.46;
+    const fb = this.ctx.createGain(); fb.gain.value = 0.42;
+    const eflt = this.ctx.createBiquadFilter(); eflt.type = "lowpass"; eflt.frequency.value = 1500;
+    this.melIn = this.ctx.createGain();
+    this.melIn.connect(this.melGain);
+    this.melIn.connect(echo); echo.connect(eflt).connect(fb).connect(echo);
+    eflt.connect(this.melGain);
+    this.melGain.connect(this.musicBus);
+
+    // sonido ambiente: un colchón de ruido continuo, grave y casi imperceptible
+    // de fondo, distinto del zumbido de los fluorescentes (humGain). Encima
+    // van los "sabores" de updateAmbient() — goteo, viento, chispazos.
+    const ag=this.ctx.createGain(); ag.gain.value=0;
+    const asrc=this.ctx.createBufferSource(); asrc.buffer=this.noiseBuf; asrc.loop=true;
+    const aflt=this.ctx.createBiquadFilter(); aflt.type="lowpass"; aflt.frequency.value=220; aflt.Q.value=0.6;
+    asrc.connect(aflt).connect(ag).connect(this.ambBus); asrc.start();
+    this.ambGain = ag; this.ambFilter = aflt;
+
     this.started = true;
   },
   resume(){ if(this.ctx && this.ctx.state==="suspended") this.ctx.resume(); },
+  setBusVols(){
+    if(!this.ctx || !this.musicBus) return;
+    const o = G.opts || {}, n = this.ctx.currentTime;
+    this.musicBus.gain.setTargetAtTime(typeof o.musicVol === "number" ? o.musicVol : 0.7, n, 0.05);
+    this.ambBus.gain.setTargetAtTime(typeof o.ambVol === "number" ? o.ambVol : 0.8, n, 0.05);
+    if(this.userGain) this.userGain.gain.setTargetAtTime(typeof o.musicVol === "number" ? o.musicVol : 0.7, n, 0.05);
+  },
+  // una nota de la melodía: triángulo + seno una octava arriba, ataque corto y cola larga
+  pluck(freq, vol, dur){
+    if(!this.ctx || !this.melIn) return;
+    const t = this.ctx.currentTime;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+    const o1 = this.ctx.createOscillator(); o1.type = "triangle"; o1.frequency.value = freq;
+    const o2 = this.ctx.createOscillator(); o2.type = "sine"; o2.frequency.value = freq*2.003;
+    const g2 = this.ctx.createGain(); g2.gain.value = 0.28;
+    o1.connect(g); o2.connect(g2).connect(g); g.connect(this.melIn);
+    o1.start(t); o2.start(t); o1.stop(t+dur+0.05); o2.stop(t+dur+0.05);
+  },
+  // desliza el acorde de música hacia el modo del nivel actual, sin saltos
+  setMood(mood){
+    if(!this.ctx || !this.musicVoices || !mood) return;
+    this.mood = mood;
+    const n = this.ctx.currentTime;
+    this.musicVoices.forEach((o,i)=>{
+      const f = mood.root * Math.pow(2, mood.intervals[i]/12);
+      o.frequency.cancelScheduledValues(n);
+      o.frequency.setTargetAtTime(f, n, 4.5);
+    });
+    this.musicFilter.frequency.setTargetAtTime(560 + (3-mood.risk)*260, n, 5);
+  },
   set(t,v,time){ if(!t||!this.ctx) return; const n=this.ctx.currentTime; t.gain.cancelScheduledValues(n); t.gain.setTargetAtTime(v,n,time||0.4); },
-  noise(dur,freq,q,vol,type){
+  noise(dur,freq,q,vol,type,dest){
     if(!this.ctx) return;
     const s=this.ctx.createBufferSource(); s.buffer=this.noiseBuf; s.loop=true;
     const f=this.ctx.createBiquadFilter(); f.type=type||"bandpass"; f.frequency.value=freq; f.Q.value=q||1;
     const g=this.ctx.createGain(); const t=this.ctx.currentTime;
     g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.012);
     g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    s.connect(f).connect(g).connect(this.master); s.start(t); s.stop(t+dur+0.05);
+    s.connect(f).connect(g).connect(dest || this.master); s.start(t); s.stop(t+dur+0.05);
   },
   tone(freq,dur,vol,type,slide){
     if(!this.ctx) return;
@@ -3998,6 +4361,205 @@ const Audio_ = {
   qteMiss(){ this.tone(150,0.22,0.12,"square",80); this.noise(0.2,240,1.4,0.12); },
   shove(){ this.noise(0.4,320,1.1,0.2); this.tone(200,0.3,0.1,"triangle",420); }
 };
+
+/* ═══════════════ MÚSICA Y AMBIENTE ═══════════════
+   Nada de archivos: la "música" es un acorde de cuatro voces que se desliza
+   muy despacio entre notas (WebAudio puro, igual que el resto del audio del
+   juego). Qué intervalos suenan depende de lo peligroso que sea el nivel:
+   consonante y abierto en los seguros, un clúster pegado y grave en los
+   letales. El sonido ambiente es un colchón de ruido de fondo más un goteo,
+   viento o chisporroteo suelto según el tipo de nivel (cfg.deco). */
+
+// intervalos en semitonos sobre la raíz, uno por riesgo (0 seguro … 3 letal)
+const MUSIC_MODES = [
+  [0, 7, 12, 19],   // abierto: raíz, quinta, octava, docena — consonante
+  [0, 7, 12, 15],   // una tercera menor alta añade algo de inquietud
+  [0, 6, 12, 15],   // quinta disminuida (tritono): ya suena mal
+  [0, 1, 12, 13]    // segunda menor pegada a la raíz: un clúster grave
+];
+function musicModeFor(cfg){
+  const risk = cfg.settlement ? 0 : clamp(cfg.risk||0, 0, 3);
+  const root = cfg.settlement ? 98 : 132 - risk*14;   // más grave cuanto peor está el nivel
+  return { root, risk, intervals: MUSIC_MODES[risk] };
+}
+
+// qué sonido suelto pega con cada tipo de nivel
+const AMB_FLAVOR = {
+  sea:"water", pool:"water", caves:"water",
+  field:"wind", suburb:"wind", party:"wind", red:"wind",
+  electrical:"spark", pipes:"spark"
+};
+function ambientFlavorFor(cfg){ return (cfg && AMB_FLAVOR[cfg.deco]) || "none"; }
+
+function updateAmbient(dt){
+  if(!G.cfg || !G.running || G.paused) return;
+  G.ambTimer -= dt;
+  if(G.ambTimer > 0) return;
+  const flavor = ambientFlavorFor(G.cfg);
+  const bus = Audio_.ambBus;
+  if(flavor === "water"){
+    G.ambTimer = 3 + Math.random()*6;
+    Audio_.noise(0.16, 1900+Math.random()*900, 7, 0.032, "bandpass", bus);
+  } else if(flavor === "wind"){
+    G.ambTimer = 6 + Math.random()*9;
+    Audio_.noise(3.2, 260+Math.random()*160, 0.55, 0.03, "bandpass", bus);
+  } else if(flavor === "spark"){
+    G.ambTimer = 9 + Math.random()*13;
+    Audio_.noise(0.07, 2800+Math.random()*1600, 9, 0.045, "bandpass", bus);
+  } else {
+    G.ambTimer = 16 + Math.random()*12;
+  }
+}
+
+// escalas de la melodía, una por riesgo: pentatónica mayor en los seguros,
+// frigio con tritono en los letales
+const MEL_SCALES = [
+  [0, 2, 4, 7, 9, 12, 14],
+  [0, 3, 5, 7, 10, 12],
+  [0, 1, 5, 6, 10, 12],
+  [0, 1, 6, 7, 13]
+];
+function melodyFor(cfg){
+  const m = musicModeFor(cfg);
+  return { scale: MEL_SCALES[m.risk], base: m.root * (m.risk >= 3 ? 1 : 2), risk: m.risk };
+}
+function updateMusic(dt){
+  if(!G.cfg || !G.running || G.paused || musicSource() !== 0) return;
+  G.melT = (G.melT === undefined ? 3 : G.melT) - dt;
+  if(G.melT > 0) return;
+  const mel = melodyFor(G.cfg);
+  G.melT = 4 + Math.random()*6 + mel.risk*1.5;
+  if(Math.random() < 0.18) return;                     // a veces, silencio
+  const n = 1 + ((Math.random()*3)|0);
+  let idx = (Math.random()*mel.scale.length)|0;
+  for(let i=0;i<n;i++){
+    const semi = mel.scale[idx];
+    const f = mel.base * Math.pow(2, semi/12);
+    setTimeout(()=> Audio_.pluck(f, mel.risk >= 3 ? 0.05 : 0.07, 2.6 + Math.random()*1.4), i*(420 + Math.random()*420));
+    idx = clamp(idx + (Math.random() < 0.5 ? -1 : 1) * (1 + ((Math.random()*2)|0)), 0, mel.scale.length-1);
+  }
+}
+// 0 = música del juego · 1 = tu música (si has subido alguna) · 2 = sin música
+function musicSource(){
+  const s = (G.opts && G.opts.musicSrc) || 0;
+  if(s === 1 && !USER_TRACKS.length) return 0;
+  return s;
+}
+
+// hum + música + ambiente, todos a la vez: los usan beginPlay() y resumeGame()
+function applyLevelAudio(){
+  const humVol = G.cfg.ambI>0.3 ? 0.06 : 0.03;
+  Audio_.set(Audio_.humGain, humVol, 1.5);
+  Audio_.set(Audio_.droneGain, 0.035, 1.5);
+  Audio_.setMood(musicModeFor(G.cfg));
+  Audio_.setBusVols();
+  const src = musicSource();
+  Audio_.set(Audio_.musicGain, src === 0 ? (G.cfg.settlement ? 0.07 : 0.055) : 0, 2.5);
+  Audio_.set(Audio_.melGain, src === 0 ? 1 : 0, 1.5);
+  if(src === 1) userMusicPlay(); else userMusicStop();
+  if(Audio_.ambFilter) Audio_.ambFilter.frequency.setTargetAtTime(G.cfg.ambI<0.2 ? 170 : 300, Audio_.ctx.currentTime, 3);
+  Audio_.set(Audio_.ambGain, 0.05, 2.5);
+}
+
+/* ═══════════════ TU MÚSICA ═══════════════
+   Ajustes → «Tu música» deja subir canciones propias. Se guardan en el
+   IndexedDB de este navegador (no salen del ordenador) y suenan en bucle,
+   una tras otra, con el volumen de música. Todo va en try/catch: en una
+   ventana privada IndexedDB puede no existir, y entonces sólo duran la sesión. */
+const USER_TRACKS = [];          // {id, name, blob, url}
+let userTrackIdx = 0;
+function musicDB(){
+  return new Promise((ok, mal)=>{
+    try{
+      const rq = indexedDB.open("zumbido.music", 1);
+      rq.onupgradeneeded = ()=> rq.result.createObjectStore("tracks", {keyPath:"id"});
+      rq.onsuccess = ()=> ok(rq.result);
+      rq.onerror = ()=> mal(rq.error);
+    }catch(e){ mal(e); }
+  });
+}
+function loadUserTracks(){
+  return musicDB().then(db=> new Promise(ok=>{
+    const rq = db.transaction("tracks").objectStore("tracks").getAll();
+    rq.onsuccess = ()=>{
+      USER_TRACKS.length = 0;
+      (rq.result||[]).sort((a,b)=> a.id - b.id).forEach(t=> USER_TRACKS.push({id:t.id, name:t.name, blob:t.blob, url:null}));
+      ok();
+    };
+    rq.onerror = ()=> ok();
+  })).catch(()=>{}).then(renderMusicBox);
+}
+function addUserTracks(files){
+  const list = Array.from(files||[]).filter(f=> /^audio\//.test(f.type) || /\.(mp3|ogg|wav|m4a|aac|flac|opus|webm)$/i.test(f.name));
+  if(!list.length){ toast(tx("Eso no parece audio.","That does not look like audio.")); return; }
+  const nuevos = list.map((f,i)=> ({id:Date.now()+i, name:f.name.replace(/\.[^.]+$/,""), blob:f, url:null}));
+  nuevos.forEach(t=> USER_TRACKS.push(t));
+  renderMusicBox();
+  musicDB().then(db=>{
+    const st = db.transaction("tracks","readwrite").objectStore("tracks");
+    nuevos.forEach(t=> st.put({id:t.id, name:t.name, blob:t.blob}));
+  }).catch(()=>{ toast(tx("No se han podido guardar: sonarán sólo esta sesión.","Could not store them: they will only play this session."), 4); });
+  if(G.opts.musicSrc !== 1){ G.opts.musicSrc = 1; saveOpts(); refreshOpts(); }
+}
+function removeUserTrack(id){
+  const i = USER_TRACKS.findIndex(t=> t.id === id);
+  if(i < 0) return;
+  const t = USER_TRACKS.splice(i,1)[0];
+  if(t.url){ try{ URL.revokeObjectURL(t.url); }catch(e){} }
+  musicDB().then(db=> db.transaction("tracks","readwrite").objectStore("tracks").delete(id)).catch(()=>{});
+  if(!USER_TRACKS.length) userMusicStop();
+  renderMusicBox();
+}
+function renderMusicBox(){
+  const host = document.getElementById("mbList");
+  if(!host) return;
+  host.textContent = "";
+  $("mbCount").textContent = USER_TRACKS.length ? String(USER_TRACKS.length) : "";
+  if(!USER_TRACKS.length){
+    const p = document.createElement("div"); p.className = "mb-empty";
+    p.textContent = tx("Aún no has subido ninguna canción.","You have not uploaded any songs yet.");
+    host.appendChild(p);
+    return;
+  }
+  USER_TRACKS.forEach(t=>{
+    const row = document.createElement("div"); row.className = "mb-row";
+    const n = document.createElement("span"); n.textContent = "♪ "+t.name; row.appendChild(n);
+    const b = document.createElement("button"); b.type = "button"; b.className = "mb-x";
+    b.textContent = tx("Quitar","Remove"); b.addEventListener("click", ()=> removeUserTrack(t.id));
+    row.appendChild(b);
+    host.appendChild(row);
+  });
+}
+function ensureUserAudio(){
+  if(!Audio_.ctx) return null;
+  if(Audio_.userEl) return Audio_.userEl;
+  try{
+    const el = new window.Audio();
+    el.preload = "auto";
+    el.addEventListener("ended", ()=>{ userTrackIdx = (userTrackIdx+1) % Math.max(1, USER_TRACKS.length); userMusicPlay(true); });
+    const src = Audio_.ctx.createMediaElementSource(el);
+    Audio_.userGain = Audio_.ctx.createGain();
+    src.connect(Audio_.userGain).connect(Audio_.master);
+    Audio_.userEl = el;
+    Audio_.setBusVols();
+    return el;
+  }catch(e){ return null; }
+}
+function userMusicPlay(next){
+  if(!USER_TRACKS.length) return;
+  const el = ensureUserAudio();
+  if(!el) return;
+  userTrackIdx = userTrackIdx % USER_TRACKS.length;
+  const t = USER_TRACKS[userTrackIdx];
+  if(!t.url) t.url = URL.createObjectURL(t.blob);
+  if(el.src !== t.url){ el.src = t.url; }
+  Audio_.setBusVols();
+  if(el.paused || next){ const p = el.play(); if(p && p.catch) p.catch(()=>{}); }
+}
+function userMusicStop(){ if(Audio_.userEl && !Audio_.userEl.paused) Audio_.userEl.pause(); }
+function userMusicDuck(){
+  if(Audio_.userGain && Audio_.ctx) Audio_.userGain.gain.setTargetAtTime(0.15*((G.opts && G.opts.musicVol) || 0.7), Audio_.ctx.currentTime, 0.3);
+}
 
 /* ═══════════════ DECORADO POR NIVEL ═══════════════
    Cuatro trastos bien puestos hacen más por el ambiente que veinte
@@ -4813,7 +5375,7 @@ function surfaceMat(spec, rep){
   const map = finishTex(canvasTex, rep);
   const bump = finishTex(canvasTex, rep);
   return new THREE.MeshStandardMaterial({
-    map, bumpMap:bump, bumpScale:0.055, roughness:0.93, metalness:0.03
+    map, bumpMap:bump, bumpScale:0.055*bumpMul(), roughness:0.93, metalness:0.03
   });
 }
 
@@ -4928,7 +5490,7 @@ function buildLevel(levelId, seed){
   G.revealPath = null; G.mapExit = null;
   flowField = null; flowCell = [-1,-1];
 
-  scene.fog = new THREE.FogExp2(cfg.fogColor, cfg.fog);
+  scene.fog = new THREE.FogExp2(cfg.fogColor, cfg.fog / viewMul());
   renderer.setClearColor(cfg.fogColor, 1);
   ambient.color.setHex(cfg.amb); ambient.intensity = cfg.ambI;
   hemi.intensity = cfg.ceil ? 0.1 : 0.22;
@@ -4951,16 +5513,38 @@ function buildLevel(levelId, seed){
 
   let count = 0;
   for(let i=0;i<G.grid.length;i++) if(G.grid[i]===1) count++;
-  const walls = new THREE.InstancedMesh(new THREE.BoxGeometry(G.cell, cfg.wallH, G.cell), wallMat, count);
+  // SHIFT_SPARE instancias de reserva, escondidas: son los muros que aparecen
+  // cuando el nivel se reordena (ver shiftMaze).
+  const wallGeo = new THREE.BoxGeometry(G.cell, cfg.wallH, G.cell);
+  {
+    // suciedad y sombra de contacto: el pie del muro, más oscuro que la parte alta
+    const pos = wallGeo.attributes.position, n = pos.count || 0, col = new Float32Array(n*3);
+    for(let i=0;i<n;i++){
+      const t = pos.getY(i)/cfg.wallH + 0.5;
+      const v = 0.6 + 0.4*Math.pow(t, 0.55);
+      col[i*3] = v; col[i*3+1] = v*0.985; col[i*3+2] = v*0.96;
+    }
+    if(n) wallGeo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    wallMat.vertexColors = n > 0;
+  }
+  const walls = new THREE.InstancedMesh(wallGeo, wallMat, count + SHIFT_SPARE);
+  walls.frustumCulled = false;
   const m4 = new THREE.Matrix4();
+  G.wallInst = new Int32Array(G.n*G.n).fill(-1);
+  G.wallFree = [];
   let k = 0;
   for(let y=0;y<G.n;y++) for(let x=0;x<G.n;x++){
     if(G.grid[y*G.n+x]!==1) continue;
     m4.makeTranslation(c2w(x), cfg.wallH/2, c2w(y));
+    G.wallInst[y*G.n+x] = k;
     walls.setMatrixAt(k++, m4);
   }
+  m4.makeScale(0,0,0);
+  for(let i=0;i<SHIFT_SPARE;i++){ walls.setMatrixAt(count+i, m4); G.wallFree.push(count+i); }
   walls.instanceMatrix.needsUpdate = true;
   world.add(walls);
+  G.wallMesh = walls;
+  G.shiftT = shiftDelay(); G.shiftWarned = false; G.shifts = 0;
 
   const open = [];
   for(let y=1;y<G.n-1;y++) for(let x=1;x<G.n-1;x++) if(G.grid[y*G.n+x]===0) open.push([x,y]);
@@ -5023,14 +5607,22 @@ function buildLevel(levelId, seed){
   for(let i=0;i<dist.length;i++) if(dist[i]>far) far = dist[i];
 
   // ── salidas: salen del grafo del catálogo ──
-  const routes = shuffle(cfg.exitsTo.slice(), rand);
-  const nExits = Math.min(routes.length, 2 + ((rand()*3)|0));
-  const exitPool = shuffle(open.filter(([x,y])=> dist[y*G.n+x] > far*0.55), rand);
+  // Más lejos y menos que antes: 2-3 salidas en el último tercio del nivel.
+  // Si el nivel es muy cerrado y no caben, se relaja la distancia poco a poco.
+  const routes = G.randomMode
+    ? [0,1,2].map(()=> ({to: randomLevelId(rand, cfg.id), kind: pick(ALL_EXITS, rand), note:""}))
+    : shuffle(cfg.exitsTo.slice(), rand);
+  const nExits = Math.min(routes.length, 2 + (rand() < 0.4 ? 1 : 0));
   const usedCells = [];
   const wallKinds = {door:1, firedoor:1, stage:1, vent:1, hole:1, elevator:1};
+  const exitPool = [];
+  for(const lim of [0.68, 0.5, 0.3]){
+    shuffle(open.filter(([x,y])=> dist[y*G.n+x] > far*lim), rand).forEach(c=> exitPool.push(c));
+  }
 
   for(let i=0;i<exitPool.length && G.exits.length<nExits; i++){
     const [x,y] = exitPool[i];
+    if(G.exits.some(e=> e.cell[0]===x && e.cell[1]===y)) continue;
     if(usedCells.some(c=> Math.hypot(c[0]-x, c[1]-y) < G.n*0.3)) continue;
     const route = routes[G.exits.length];
     let rot = 0, wx = c2w(x), wz = c2w(y);
@@ -5207,13 +5799,13 @@ function buildLevel(levelId, seed){
 
   G.grab = null;
   $("qte").hidden = true; $("qte").classList.remove("on");
-  G.stamina = staminaMax(); G.dead = false; G.noise = 0; G.focus = null;
+  G.stamina = staminaMax(); G.dead = false; G.noise = 0; G.focus = null; G.crossing = null; G.spWarn = null;
   resetStats();
   updateNearestExit();
   if(typeof mpAnunciarNivel === "function") mpAnunciarNivel();
 
   $("lvlName").textContent = levelTitle(cfg);
-  $("lvlDepth").textContent = tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
+  $("lvlDepth").textContent = (G.randomMode ? tx("ALEATORIO · ","RANDOM · ") : "")+tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
 }
 
 /* ── puesto avanzado abandonado del M.E.G. ── */
@@ -5324,32 +5916,35 @@ const ENT_DEF = {
   faceling:{ atlas:"faceling", w:1.0, h:1.9, r:0.34, speed:1.5, chase:3.5, sight:17, dmg:14, kind:"walker", memory:5,
              sp:{ name:"Manotazos", name_en:"Flailing",
                   pct:0.09, parts:["armL","armR"], sanity:4,
+                  reach:2.3, windup:1.1, cd:15,
                   tell:"El Faceling levanta los brazos.", tell_en:"The Faceling raises its arms.",
                   log:"Te golpea y te araña sin fuerza real. La wiki no miente: no están hechos para esto.",
                   log_en:"It hits and scratches you with no real strength. The wiki does not lie: they are not built for this.",
                   death:"Un Faceling te remató a manotazos. Tuvieron que insistir mucho.",
                   death_en:"A Faceling finished you off with its bare hands. It took them a lot of trying." },
-             death:"Un Faceling te alcanzó. No tenía cara, pero sabía perfectamente dónde estabas." },
+             death:"Un Faceling te alcanzó. No tenía cara, pero sabía perfectamente dónde estabas.", death_en:"A Faceling caught you. It had no face, but it knew exactly where you were." },
   stealer: { atlas:"stealer",  w:1.0, h:1.55,r:0.32, speed:1.9, chase:4.1, sight:20, dmg:18, kind:"walker", memory:6, tires:true,
              sp:{ name:"Desgarro a manos", name_en:"Torn apart by hand",
                   pct:0.21, parts:["armL","armR","torso"], bleed:true, sanity:10,
+                  reach:2.5, windup:1.2, cd:16,
                   tell:"El Skin-Stealer deja de imitar a una persona y te agarra con las dos manos.",
                   tell_en:"The Skin-Stealer stops imitating a person and grabs you with both hands.",
                   log:"Te abre a pulso. Es literalmente como matan: con las manos, a lo bruto.",
                   log_en:"It tears you open by main force. That is literally how they kill: with their hands, brutally.",
                   death:"Un Skin-Stealer te descuartizó con las manos. Mañana llevará tu cara.",
                   death_en:"A Skin-Stealer tore you apart with its hands. Tomorrow it will be wearing your face." },
-             death:"Un Skin-Stealer te alcanzó. Llevaba puesta la cara de alguien que también bajó hasta aquí." },
+             death:"Un Skin-Stealer te alcanzó. Llevaba puesta la cara de alguien que también bajó hasta aquí.", death_en:"A Skin-Stealer caught you. It was wearing the face of someone else who came down here." },
   hound:   { atlas:"hound",    w:1.3, h:1.0, r:0.36, speed:2.0, chase:4.6, sight:12, dmg:20, kind:"walker", memory:8, ears:17, tires:true,
              sp:{ name:"Dentellada", name_en:"Mauling",
                   pct:0.22, parts:["legL","legR","torso"], bleed:true, sanity:7,
+                  reach:3.6, windup:0.95, cd:13,
                   tell:"El Hound clava las patas y abre esa boca enorme.",
                   tell_en:"The Hound digs in its paws and opens that enormous mouth.",
                   log:"Garras y dientes a la vez, a las piernas. Para eso está hecho.",
                   log_en:"Claws and teeth at once, straight at the legs. That is what it is built for.",
                   death:"Un Hound te desgarró. Flaco como estaba, tenía fuerza de sobra.",
                   death_en:"A Hound tore you apart. Skinny as it was, it had strength to spare." },
-             death:"Un Hound te derribó. Te oyó mucho antes de que tú lo vieras." },
+             death:"Un Hound te derribó. Te oyó mucho antes de que tú lo vieras.", death_en:"A Hound brought you down. It heard you long before you saw it." },
   duller:  { atlas:"duller",   w:1.0, h:1.7, r:0.34, speed:1.2, chase:2.9, sight:15, dmg:17, kind:"walker", memory:22,
              sp:{ name:"Brazo por la pared", name_en:"Arm through the wall",
                   pct:0.17, parts:["armL","torso"], sanity:14,
@@ -5360,37 +5955,40 @@ const ENT_DEF = {
                   log_en:"An arm phases through the wall, hooks you and pulls you towards its hallway.",
                   death:"Un Duller te arrastró a través de la pared. Nadie ha documentado qué pasa después.",
                   death_en:"A Duller dragged you through the wall. Nobody has documented what happens next." },
-             death:"Un Duller te alcanzó. Llevaba siguiéndote desde mucho antes de que lo vieras." },
+             death:"Un Duller te alcanzó. Llevaba siguiéndote desde mucho antes de que lo vieras.", death_en:"A Duller caught you. It had been following you since long before you saw it." },
   wretch:  { atlas:"wretch",   w:1.0, h:1.6, r:0.32, speed:1.9, chase:4.4, sight:16, dmg:19, kind:"walker", memory:6, tires:true,
              sp:{ name:"Légamo", name_en:"Sludge",
                   pct:0.15, parts:["head","torso","armR"], bleed:true, sanity:22,
+                  reach:4.0, windup:1.25, cd:15,
                   tell:"El Wretch se hincha y algo pardo le sube por la garganta.",
                   tell_en:"The Wretch swells and something brown rises up its throat.",
                   log:"Te rocía la secreción parda. Quema, y sabes perfectamente en qué convierte a la gente.",
                   log_en:"It sprays you with the brown secretion. It burns, and you know exactly what it turns people into.",
                   death:"El légamo de un Wretch te cubrió. Lo que se levante de ahí ya no serás tú.",
                   death_en:"A Wretch\u2019s sludge covered you. Whatever gets up from there will not be you." },
-             death:"Un Wretch te alcanzó. No hubo forcejeo: fue cuestión de segundos." },
+             death:"Un Wretch te alcanzó. No hubo forcejeo: fue cuestión de segundos.", death_en:"A Wretch caught you. There was no struggle: it took seconds." },
   crawler: { atlas:"crawler",  w:1.1, h:0.8, r:0.28, speed:2.4, chase:4.3, sight:10, dmg:8,  kind:"walker", memory:5, tires:true,
              sp:{ name:"Mordisco con esporas", name_en:"Spore bite",
                   pct:0.07, parts:["legL","armR"], bleed:true, sanity:16,
+                  reach:2.4, windup:0.9, cd:12,
                   tell:"El Crawler abre la boca y suelta una nube blanca.",
                   tell_en:"The Crawler opens its mouth and lets out a white cloud.",
                   log:"Muerde poco, pero abre la herida justo para meter las esporas. Así es como se contagia.",
                   log_en:"It barely bites, but it opens the wound just enough to get the spores in. That is how it spreads.",
                   death:"Las esporas de los Crawlers te ganaron. Doce minutos, dicen que se tarda.",
                   death_en:"The Crawlers\u2019 spores got you. Twelve minutes, they say it takes." },
-             death:"Los Crawlers te rodearon. Nunca van de uno en uno." },
+             death:"Los Crawlers te rodearon. Nunca van de uno en uno.", death_en:"The Crawlers surrounded you. They never come one at a time." },
   partygoer:{atlas:"partygoer",w:1.0, h:1.6, r:0.33, speed:1.7, chase:3.9, sight:18, dmg:17, kind:"walker", memory:7, tires:true,
              sp:{ name:"Te meten en la fiesta", name_en:"Dragged into the party",
                   pct:0.16, parts:["armL","armR","legL"], sanity:18,
+                  reach:3.0, windup:1.3, cd:17,
                   tell:"Los Partygoers te rodean y empiezan a aplaudir.",
                   tell_en:"The Partygoers close in around you and start clapping.",
                   log:"Te sujetan entre varios y tiran de ti hacia dentro. No aceptan un no.",
                   log_en:"Several of them hold you and pull you inwards. They do not take no for an answer.",
                   death:"Los Partygoers te quedaron para siempre en la fiesta.",
                   death_en:"The Partygoers kept you at the party for good." },
-             death:"Los Partygoers insistieron en que te quedaras a la fiesta." },
+             death:"Los Partygoers insistieron en que te quedaras a la fiesta.", death_en:"The Partygoers insisted that you stay for the party." },
   clump:   { atlas:"clump",    w:1.3, h:0.9, r:0.42, speed:0.7, chase:1.5, sight:9,  dmg:23, kind:"walker", memory:16,
              sp:{ name:"Tirón al centro", name_en:"Pulled to the centre",
                   pct:0.26, parts:["torso","armL","armR","legL","legR"], bleed:true, sanity:12,
@@ -5401,7 +5999,7 @@ const ENT_DEF = {
                   log_en:"It hooks you and drags you to its centre, where a mouth full of teeth opens up.",
                   death:"Un Clump te llevó hasta su boca. Después se enterrará a dormir.",
                   death_en:"A Clump pulled you into its mouth. Afterwards it will bury itself and sleep." },
-             death:"Un Clump te cubrió. Lo peor no fue el contacto: fue lo despacio que pasó." },
+             death:"Un Clump te cubrió. Lo peor no fue el contacto: fue lo despacio que pasó.", death_en:"A Clump covered you. The worst part was not the touch: it was how slowly it happened." },
   smiler:  { atlas:"smiler",   w:1.2, h:1.2, r:0.4,  speed:0,   chase:0,   sight:0,  dmg:18, kind:"lurker",
              sp:{ name:"Se lanza", name_en:"It lunges",
                   pct:0.24, parts:["head","torso"], bleed:true, sanity:20,
@@ -5412,7 +6010,7 @@ const ENT_DEF = {
                   log_en:"It comes out of the dark at the height of your face.",
                   death:"Un Smiler se te echó encima. No había que correr ni hacer ruido.",
                   death_en:"A Smiler threw itself at you. You were not supposed to run or make noise." },
-             death:"Un Smiler esperaba en la oscuridad exactamente donde ibas a pasar." },
+             death:"Un Smiler esperaba en la oscuridad exactamente donde ibas a pasar.", death_en:"A Smiler was waiting in the dark exactly where you were about to pass." },
   deathmoth:{atlas:"deathmoth",w:1.1, h:1.1, r:0.3,  speed:1.2, chase:2.2, sight:8,  dmg:5,  kind:"drifter", memory:3,
              sp:{ name:"Enjambre", name_en:"Swarm",
                   pct:0.13, parts:["armL","armR","head"], bleed:true, sanity:15,
@@ -5423,7 +6021,7 @@ const ENT_DEF = {
                   log_en:"They strip the flesh off whatever you leave exposed. They do not kill in one blow: they kill by blood loss.",
                   death:"Un enjambre de Deathmoths te desangró.",
                   death_en:"A swarm of Deathmoths bled you dry." },
-             death:"Una Deathmoth te cubrió. Dicen que no atacan; este informe dice lo contrario." }
+             death:"Una Deathmoth te cubrió. Dicen que no atacan; este informe dice lo contrario.", death_en:"A Deathmoth covered you. They say they do not attack; this report says otherwise." }
 };
 
 function makeEntity(type, cell, rand){
@@ -5551,7 +6149,7 @@ window.addEventListener("keydown",(e)=>{
 });
 window.addEventListener("keyup",(e)=>{ keys[e.key.toLowerCase()] = false; });
 window.addEventListener("blur",()=>{ for(const k in keys) keys[k]=false; });
-canvas.addEventListener("click",()=>{ if(!pointerLocked) grabPointer(); });
+canvas.addEventListener("click",()=>{ if(bpOpen){ closeBackpack(); return; } if(!pointerLocked) grabPointer(); });
 canvas.addEventListener("mousedown",(e)=>{
   if(!pointerLocked || !G.running || G.paused) return;
   if(e.button === 0) swingHand("L");
@@ -5560,7 +6158,7 @@ canvas.addEventListener("mousedown",(e)=>{
 canvas.addEventListener("contextmenu",(e)=>{ if(pointerLocked) e.preventDefault(); });
 document.addEventListener("pointerlockchange",()=>{
   pointerLocked = document.pointerLockElement === canvas;
-  if(!pointerLocked && G.running && !G.paused) pauseGame();
+  if(!pointerLocked && G.running && !G.paused && !bpOpen) pauseGame();
 });
 document.addEventListener("mousemove",(e)=>{
   if(!pointerLocked) return;
@@ -5683,7 +6281,8 @@ function updateCamera(dt){
   if(player.mesh) player.mesh.visible = player.camDist > 1.15;
 
   if(G.shake>0.001){
-    cx+=(Math.random()-0.5)*G.shake; cy+=(Math.random()-0.5)*G.shake; cz+=(Math.random()-0.5)*G.shake;
+    const sk = G.shake * ((G.opts && typeof G.opts.shake === "number") ? G.opts.shake : 1);
+    cx+=(Math.random()-0.5)*sk; cy+=(Math.random()-0.5)*sk; cz+=(Math.random()-0.5)*sk;
     G.shake *= Math.pow(0.02,dt);
   }
   const insane = G.sanity<40 ? (40-G.sanity)/40 : 0;
@@ -5734,7 +6333,7 @@ function hurtPlayer(amount, source){
     }
   }
   if((part==="head"||part==="torso") && G.body[part] <= 0){
-    die(source || "Tu cuerpo no aguantó más.");
+    die(source || tx("Tu cuerpo no aguantó más.","Your body could not take any more."));
     return;
   }
   if(bodyAvg() <= 6) die(source || "Te desangraste antes de encontrar la salida.");
@@ -5747,7 +6346,7 @@ function updateBleeding(dt){
     any++;
     G.body[p.id] = Math.max(0, G.body[p.id] - dt*1.6);
     if(G.body[p.id] <= 0 && (p.id==="head"||p.id==="torso")){
-      die("Te desangraste por una herida en "+txf(p,"name")+".");
+      die(tx("Te desangraste por una herida en ","You bled out from a wound in the ")+txf(p,"name")+".");
       return;
     }
   }
@@ -5757,7 +6356,7 @@ function updateBleeding(dt){
   } else if(!G.hurtFlash){
     $("bloodfx").style.opacity = "0";
   }
-  if(bodyAvg() <= 6 && !G.dead) die("Te desangraste antes de encontrar la salida.");
+  if(bodyAvg() <= 6 && !G.dead) die(tx("Te desangraste antes de encontrar la salida.","You bled out before finding the exit."));
 }
 function flashBlood(){
   G.hurtFlash = true;
@@ -5801,18 +6400,37 @@ function specialArmed(e){
   return true;
 }
 
-// Carga telegrafiada: avisa, y si al acabar sigues en rango, entra
+// Mientras carga, la entidad se tiñe de rojo y late: se ve venir.
+function spTint(e, on){
+  const m = e.mesh && e.mesh.material;
+  if(!m || !m.color || !m.color.setRGB) return;
+  if(!on){ m.color.setRGB(1,1,1); return; }
+  const p = 0.5 + 0.5*Math.sin(G.t*18);
+  m.color.setRGB(1, 0.32 + 0.3*p, 0.28 + 0.25*p);
+}
+function cancelSpecial(e){
+  e.spWind = 0;
+  spTint(e, false);
+  if(G.spWarn && G.spWarn.e === e) G.spWarn = null;
+}
+
+// Carga telegrafiada: avisa, y si al acabar sigues en rango, entra.
+// Antes sólo cuatro entidades lo hacían; las otras seis únicamente remataban
+// si perdías el forcejeo entero, así que casi nunca se veía. Ahora todas.
 function updateSpecial(e, dist, dt){
   const sp = e.def && e.def.sp;
   if(!sp || !sp.reach || G.dead) return false;
-  if(e.spCd === undefined){ e.spCd = 5 + Math.random()*7; e.spWind = 0; }
+  if(e.def.atlas === "faceling" && G.char && G.char.id === "coach") return false;   // los suyos no le atacan
+  if(e.spCd === undefined){ e.spCd = 3 + Math.random()*5; e.spWind = 0; }
   const alcanza = ()=> sp.wallHack || canSee(player.pos.x, player.pos.z, e.x, e.z);
 
   if(e.spWind > 0){
     e.spWind -= dt;
     G.shake = Math.max(G.shake, 0.07);
+    spTint(e, true);
     if(e.spWind <= 0){
       e.spCd = sp.cd || 16;
+      cancelSpecial(e);
       if(dist < sp.reach*1.2 && alcanza()){ entitySpecial(e); return true; }
       logLine(tx("Te apartas a tiempo de ","You get clear of ")+"<b>"+txf(sp,"name")+"</b>.");
     }
@@ -5820,11 +6438,32 @@ function updateSpecial(e, dist, dt){
   }
   e.spCd -= dt;
   if(e.spCd <= 0 && dist < sp.reach && alcanza() && specialArmed(e)){
-    e.spWind = sp.windup || 1.2;
-    toast("⚠ "+txf(sp,"tell"), 2.4);
+    e.spWind = e.spMax = sp.windup || 1.2;
+    G.spWarn = {e, name:txf(sp,"name"), tell:txf(sp,"tell")};
+    showSpWarn();
     Audio_.noise(0.5, 420, 2.2, 0.10);
+    Audio_.tone(880, 0.12, 0.07, "square", 440);
   }
   return false;
+}
+// El aviso grande del centro de la pantalla, con la barra de lo que le queda
+function showSpWarn(){
+  const w = G.spWarn, box = document.getElementById("spwarn");
+  if(!w || !box) return;
+  $("swName").textContent = w.name;
+  $("swTell").textContent = w.tell;
+  box.classList.add("on");
+}
+function updateSpWarn(){
+  const box = document.getElementById("spwarn");
+  if(!box) return;
+  const w = G.spWarn;
+  if(w && w.e.spWind > 0 && !G.dead){
+    $("swBar").style.transform = "scaleX("+clamp(w.e.spWind/(w.e.spMax||1),0,1)+")";
+  } else if(box.classList.contains("on")){
+    box.classList.remove("on");
+    G.spWarn = null;
+  }
 }
 
 /* ═══════════════ USO DE OBJETOS ═══════════════ */
@@ -5844,13 +6483,7 @@ function useItem(id){
       const v = G.body[p.id] - (G.bleeding[p.id] ? 25 : 0);
       if(v < wv){ wv = v; worst = p; }
     }
-    if(!worst || (G.body[worst.id] >= 99 && !G.bleeding[worst.id])){ toast(tx("No tienes nada que vendar.","Nothing to bandage.")); return; }
-    removeItem("bandage");
-    G.body[worst.id] = Math.min(100, G.body[worst.id] + 45);
-    const wasBleeding = G.bleeding[worst.id];
-    G.bleeding[worst.id] = 0;
-    Audio_.wrap();
-    logLine(tx("Vendas ","You bandage the ")+txf(worst,"name")+(wasBleeding?tx(". Hemorragia cortada.",". Bleeding stopped."):". <b>+45</b>."));
+    bandagePart(worst, true);
   }
   else if(id === "battery"){
     if(!hasItem("flashlight")){ toast(tx("No tienes linterna donde meterlas.","No flashlight to put them in.")); return; }
@@ -5908,7 +6541,38 @@ function useItem(id){
     playTape();
   }
   else if(id === "flashlight") toggleTorch();
+  else if(id === "map" || id === "compass" || id === "backpack"){
+    // equipo permanente: un segundo clic no hacía nada y parecía roto
+    toast(tx("Ya la llevas puesta. Se usa sola mientras la tengas encima.","You are already wearing it. It works on its own while you have it."));
+  }
   refreshSlots();
+}
+
+// venda una zona concreta: la comparte el atajo R (peor zona) y el clic en
+// el maniquí del HUD (la zona que elijas). worst puede venir nulo si no hay
+// ninguna zona dañada.
+function bandagePart(part, avisaSiNoHay){
+  if(!hasItem("bandage")){ toast(tx("No te quedan vendajes.","No bandages left.")); return false; }
+  if(!part || (G.body[part.id] >= 99 && !G.bleeding[part.id])){
+    if(avisaSiNoHay) toast(tx("No tienes nada que vendar.","Nothing to bandage."));
+    else toast(tx(txf(part,"name")+" ya está bien.",txf(part,"name")+" is already fine."));
+    return false;
+  }
+  removeItem("bandage");
+  G.body[part.id] = Math.min(100, G.body[part.id] + 45);
+  const wasBleeding = G.bleeding[part.id];
+  G.bleeding[part.id] = 0;
+  Audio_.wrap();
+  logLine(tx("Vendas ","You bandage the ")+txf(part,"name")+(wasBleeding?tx(". Hemorragia cortada.",". Bleeding stopped."):". <b>+45</b>."));
+  refreshSlots();
+  return true;
+}
+// clic en el maniquí de vitales: venda justo esa zona
+function healBodyPart(id){
+  if(!G.running || G.paused || G.dead) return;
+  const part = PARTS.find(p=> p.id === id);
+  if(!part) return;
+  bandagePart(part, false);
 }
 
 function toggleTorch(){
@@ -5983,7 +6647,7 @@ function nearestFocus(){
   let best = null, bd = 2.3;
   for(let i=0;i<G.containers.length;i++){
     const c = G.containers[i];
-    if(c.opened) continue;
+    if(c.opened && !(c.left && c.left.length)) continue;
     const d = Math.hypot(player.pos.x-c.x, player.pos.z-c.z);
     if(d < bd){ bd = d; best = {kind:"box", ref:c, d}; }
   }
@@ -6008,10 +6672,43 @@ function nearestFocus(){
 function interact(){
   const f = G.focus;
   if(!f) return;
-  if(f.kind === "box") openContainer(f.ref);
+  if(f.kind === "box"){ if(f.ref.opened) takeLeftovers(f.ref); else openContainer(f.ref); }
   else if(f.kind === "tape") takeTape(f.ref);
   else if(f.kind === "save") useOutpost(f.ref);
-  else takeExit(f.ref);
+  else startCrossing(f.ref);
+}
+
+/* ── cruzar una salida lleva su tiempo: hay que mantener [E] sin moverse
+   mucho, hace ruido y cualquier agarre lo corta. Antes bastaba un toque. */
+const CROSS_TIME = {door:1.8, firedoor:1.5, stairs:1.6, elevator:3.6, vent:2.8, hatch:2.2,
+  hole:2.6, drain:2.8, well:3.0, crack:2.2, noclip:2.0, stage:1.8};
+function startCrossing(e){
+  if(G.crossing || transitioning) return;
+  const need = (CROSS_TIME[e.kind] || 2.2) * (1 + (G.cfg ? G.cfg.risk : 0)*0.12);
+  G.crossing = {e, t:0, need};
+  Audio_.tone(160, 0.2, 0.06, "square", 120);
+}
+function cancelCrossing(why){
+  if(!G.crossing) return;
+  G.crossing = null;
+  $("prompt").classList.remove("cross");
+  if(why) logLine(why);
+}
+function updateCrossing(dt){
+  const c = G.crossing;
+  if(!c) return;
+  const d = Math.hypot(player.pos.x-c.e.mx, player.pos.z-c.e.mz);
+  if(G.grab){ cancelCrossing(tx("Algo te arranca de la salida.","Something tears you away from the exit.")); return; }
+  if(!keys["e"]){ cancelCrossing(tx("Sueltas la salida a medias.","You let go of the exit halfway.")); return; }
+  if(d > 2.8){ cancelCrossing(tx("Te alejas de la salida.","You move away from the exit.")); return; }
+  c.t += dt;
+  G.noise = Math.max(G.noise || 0, 0.75);             // forzar una salida se oye
+  if(Math.random() < dt*2.2) Audio_.noise(0.18, 300+Math.random()*500, 3, 0.05);
+  if(c.t >= c.need){
+    G.crossing = null;
+    $("prompt").classList.remove("cross");
+    takeExit(c.e);
+  }
 }
 
 function takeTape(t){
@@ -6204,11 +6901,13 @@ function openContainer(c){
   const face = DICE[roll];
   const loot = lootForRoll(roll, Math.random);
 
+  // lo que no te cabe ya no se pierde: se queda dentro y puedes volver a por ello
   const got = [], dupes = [], full = [];
+  c.left = [];
   for(const id of loot){
     if(addItem(id,1)) got.push(txf(ITEMS[id],"name"));
-    else if(ITEMS[id].equip) dupes.push(txf(ITEMS[id],"name"));
-    else full.push(txf(ITEMS[id],"name"));
+    else if((ITEMS[id].equip || ITEMS[id].weapon) && hasItem(id)) dupes.push(txf(ITEMS[id],"name"));
+    else { full.push(txf(ITEMS[id],"name")); c.left.push(id); }
   }
 
   if(G.stats){ G.stats.boxes++; G.stats.best = Math.max(G.stats.best, roll); }
@@ -6216,13 +6915,27 @@ function openContainer(c){
   if(invCount() >= G.cap && G.cap >= 10) unlockAch("packed");
   showDice(roll, txf(face,"label"), got.length > 0);
   if(!got.length && !full.length && !dupes.length){
-    logLine(txf(c,"name")+": <b>vacío</b>. "+txf(face,"note"));
+    logLine(txf(c,"name")+": <b>"+tx("vacío","empty")+"</b>. "+txf(face,"note"));
   } else if(got.length){
     logLine(txf(c,"name")+": "+got.map(n=>"<b>"+n+"</b>").join(", "));
   }
   if(dupes.length) logLine(tx("Ya llevabas: ","Already carrying: ")+dupes.join(", ")+".");
-  if(full.length) toast(tx("No te cabe: ","No room for: ")+full.join(", ")+tx(". Busca una mochila.",". Find a backpack."));
+  if(full.length) toast(tx("No te cabe: ","No room for: ")+full.join(", ")+tx(". Se queda dentro: vuelve cuando hagas sitio.",". It stays inside: come back when you have room."), 4);
 
+  refreshSlots();
+  if(got.indexOf(txf(ITEMS.map,"name")) >= 0) computeReveal(true);
+}
+// volver a un casillero ya abierto a por lo que no cabía
+function takeLeftovers(c){
+  const got = [], still = [];
+  for(const id of (c.left || [])){
+    if(addItem(id,1)) got.push(txf(ITEMS[id],"name"));
+    else if((ITEMS[id].equip || ITEMS[id].weapon) && hasItem(id)) continue;
+    else still.push(id);
+  }
+  c.left = still;
+  if(got.length){ Audio_.found(); logLine(txf(c,"name")+": "+got.map(n=>"<b>"+n+"</b>").join(", ")); }
+  if(still.length) toast(tx("Sigue sin caberte: ","Still no room for: ")+still.map(id=> txf(ITEMS[id],"name")).join(", "));
   refreshSlots();
   if(got.indexOf(txf(ITEMS.map,"name")) >= 0) computeReveal(true);
 }
@@ -6241,6 +6954,7 @@ function takeExit(e){
     G.best = Math.max(G.best, G.depth);
     if(G.depth+1 >= 5)  unlockAch("deep5");
     if(G.depth+1 >= 10) unlockAch("deep10");
+    if(G.randomMode && G.depth+1 >= 5) unlockAch("random5");
     checkUnlocks();
     saveMeta();
     G.running = false;
@@ -6362,7 +7076,7 @@ function qteKey(k){
   } else {
     g.fails++;
     g.t = Math.max(0.35, g.t - 0.55);              // fallar cuesta tiempo
-    hurtPlayer(g.ent.def.dmg*0.18, g.ent.def.death);
+    hurtPlayer(g.ent.def.dmg*0.18, txf(g.ent.def,"death"));
     Audio_.qteMiss();
   }
   paintQte();
@@ -6394,7 +7108,7 @@ function updateGrab(dt){
   g.shove = Math.max(0, g.shove - dt*4);
 
   // daño lento mientras te sujeta
-  hurtPlayer(e.def.dmg*dt*0.32, e.def.death);
+  hurtPlayer(e.def.dmg*dt*0.32, txf(e.def,"death"));
   G.sanity -= dt*3.4;
 
   g.t -= dt;
@@ -6408,7 +7122,7 @@ function updateGrab(dt){
 
   if(g.t <= 0){
     if(e.def.sp) entitySpecial(e);
-    else { hurtPlayer(e.def.dmg*1.2, e.def.death); Audio_.scream(); }
+    else { hurtPlayer(e.def.dmg*1.2, txf(e.def,"death")); Audio_.scream(); }
     endGrab(false);
   }
 }
@@ -6476,6 +7190,7 @@ function updateEntities(dt){
     const dist = Math.hypot(px-e.x, pz-e.z);
     // el especial se carga igual la persiga, aceche o revolotee
     if(!G.grab && !e.grabbed && e.stun <= 0 && G.grace <= 0) updateSpecial(e, dist, dt);
+    else if(e.spWind > 0) cancelSpecial(e);
 
     if(def.kind === "lurker"){                        // Smiler
       const visible = dist < 12;
@@ -6492,7 +7207,7 @@ function updateEntities(dt){
           if(e.seen>1.3 && Math.random()<dt*0.5){ Audio_.noise(0.5,2200,4,0.05); e.seen=0; }
         }
         if(dist < 1.5 && e.lunge<=0){
-          hurtPlayer(def.dmg, def.death);
+          hurtPlayer(def.dmg, txf(def,"death"));
           G.sanity -= 7; Audio_.scream(); e.lunge = 3.2;
         }
       }
@@ -6510,7 +7225,7 @@ function updateEntities(dt){
       e.mesh.position.set(e.x, 1.4+Math.sin(G.t*1.8+e.phase)*0.35, e.z);
       billboard(e.mesh, cam);
       if(dist < 1.0){
-        hurtPlayer(def.dmg*dt*1.4, def.death);
+        hurtPlayer(def.dmg*dt*1.4, txf(def,"death"));
         G.sanity -= dt*3.5;
       }
       continue;
@@ -6574,7 +7289,7 @@ function updateEntities(dt){
         tired = 0.7;
         if(!e.panted){ e.panted = true; Audio_.noise(0.9, 260, 1.6, 0.07); }
       }
-      const step = def.chase*dt*tired;
+      const step = def.chase*dt*tired*(e.spWind > 0 ? 0.08 : 1);   // cargando el especial se planta
       const queued = (closest && closest !== e && closestD < 3.2) || !!G.grab;
       if(queued && dist < 5.0){
         // hay otra encima del jugador: ésta ronda en vez de apelotonarse
@@ -6587,7 +7302,7 @@ function updateEntities(dt){
       if(e.type==="hound" && e.growlCd<=0 && dist<26){ Audio_.growl(dist); e.growlCd = 2.2+Math.random()*2; }
       if(e.type==="wretch" && Math.random()<dt*0.3 && dist<18) Audio_.noise(0.4,900,5,0.06);
       if(e.type==="stealer" && Math.random()<dt*0.2 && dist<16) Audio_.noise(0.7,700,4,0.05);
-      if(!queued && !tryGrab(e, dist) && dist < 1.2 + e.r) hurtPlayer(def.dmg*dt*0.9, def.death);
+      if(!queued && !tryGrab(e, dist) && dist < 1.2 + e.r) hurtPlayer(def.dmg*dt*0.9, txf(def,"death"));
     } else {
       e.chaseTime = 0; e.panted = false;
       e.timer -= dt;
@@ -6617,11 +7332,163 @@ function updateEntities(dt){
       e.mesh.scale.x = cross < 0 ? -1 : 1;
     }
     e.mesh.position.set(e.x, def.h/2 + Math.abs(Math.sin(e.anim*1.6))*0.03, e.z);
+    e.mesh.scale.y = e.spWind > 0 ? 1 + Math.sin(G.t*22)*0.07 : 1;
     billboard(e.mesh, cam);
     if(e.shadow) e.shadow.position.set(e.x, 0.02, e.z);
   }
 
   G.chasing = chasing;
+}
+
+/* ═══════════════ EL NIVEL SE REORDENA ═══════════════
+   Cada minuto y pico el laberinto se recoloca a tus espaldas: se abren
+   muros, se cierran pasillos y alguna salida cambia de sitio. Sólo se toca
+   lo que no estás viendo, nunca se empareda nada que importe, y después de
+   cada cambio todo el nivel sigue conectado (se comprueba con un BFS y si
+   un cierre lo rompe, se deshace). */
+const SHIFT_SPARE = 48;
+function shiftDelay(){ return 70 + Math.random()*50 - ((G.cfg && G.cfg.risk) || 0)*6; }
+function shiftEnabled(){ return !!(G.cfg && !G.cfg.settlement && !MP.activo && G.wallMesh); }
+
+function setWallCell(x, y, solid){
+  const k = y*G.n+x, m4 = new THREE.Matrix4();
+  if(solid){
+    const idx = G.wallFree.pop();
+    if(idx === undefined) return false;
+    m4.makeTranslation(c2w(x), G.cfg.wallH/2, c2w(y));
+    G.wallMesh.setMatrixAt(idx, m4);
+    G.wallInst[k] = idx;
+    G.grid[k] = 1;
+  } else {
+    const idx = G.wallInst[k];
+    if(idx >= 0){
+      m4.makeScale(0,0,0);
+      G.wallMesh.setMatrixAt(idx, m4);
+      G.wallFree.push(idx);
+    }
+    G.wallInst[k] = -1;
+    G.grid[k] = 0;
+  }
+  G.wallMesh.instanceMatrix.needsUpdate = true;
+  return true;
+}
+// cosas que no se pueden emparedar ni dejar flotando
+function cellBusy(x, y){
+  const wx = c2w(x), wz = c2w(y), h = G.cell*0.62;
+  const near = (px,pz)=> Math.abs(px-wx) < h && Math.abs(pz-wz) < h;
+  if(G.obs[y*G.n+x]) return true;
+  if(G.containers.some(c=> near(c.x,c.z))) return true;
+  if(G.exits.some(e=> e.cell[0]===x && e.cell[1]===y)) return true;
+  if(G.tapes.some(t=> !t.taken && near(t.x,t.z))) return true;
+  if(G.outpost && Math.hypot(x-G.outpost.cell[0], y-G.outpost.cell[1]) < 3) return true;
+  if(G.noclips && G.noclips.some(p=> near(p.A.x,p.A.z) || near(p.B.x,p.B.z))) return true;
+  if(G.lamps.some(l=> near(l.x,l.z))) return true;
+  if(G.specials.some(sp=> Math.abs(x-sp.cx) <= sp.r+1 && Math.abs(y-sp.cy) <= sp.r+1)) return true;
+  if(G.entities.some(e=> near(e.x,e.z))) return true;
+  return false;
+}
+function reachable(sx, sy){
+  const {dist} = bfs(G.grid, G.n, sx, sy);
+  let n = 0;
+  for(let i=0;i<dist.length;i++) if(dist[i] >= 0) n++;
+  return {n, dist};
+}
+function openCount(){ let n = 0; for(let i=0;i<G.grid.length;i++) if(G.grid[i]===0) n++; return n; }
+
+function shiftMaze(rand){
+  const n = G.n, g = G.grid;
+  const pcx = clamp(w2c(player.pos.x),0,n-1), pcy = clamp(w2c(player.pos.z),0,n-1);
+  if(g[pcy*n+pcx] === 1) return {changed:false};
+  const hidden = (x,y)=> Math.hypot(x-pcx, y-pcy) >= 3.5 && !canSee(player.pos.x, player.pos.z, c2w(x), c2w(y));
+  const nb4 = [[1,0],[-1,0],[0,1],[0,-1]];
+  let opened = 0, closed = 0, moved = 0;
+
+  // 1) se abren muros que separan dos pasillos
+  const wallsC = [];
+  for(let y=1;y<n-1;y++) for(let x=1;x<n-1;x++){
+    if(g[y*n+x] !== 1) continue;
+    const h = g[y*n+x-1]===0 && g[y*n+x+1]===0, v = g[(y-1)*n+x]===0 && g[(y+1)*n+x]===0;
+    if(!(h || v) || !hidden(x,y)) continue;
+    if(nb4.some(([dx,dy])=> g[(y+dy)*n+x+dx]===0 && cellBusy(x+dx,y+dy))) continue;  // nada pegado al muro
+    wallsC.push([x,y]);
+  }
+  shuffle(wallsC, rand);
+  const nOpen = Math.min(wallsC.length, 3 + ((rand()*4)|0));
+  for(let i=0;i<nOpen;i++){ setWallCell(wallsC[i][0], wallsC[i][1], false); opened++; }
+
+  // 2) se cierran pasillos, sin dejar nada incomunicado
+  let total = reachable(pcx,pcy).n;
+  const cand = [];
+  for(let y=1;y<n-1;y++) for(let x=1;x<n-1;x++){
+    if(g[y*n+x] !== 0 || !hidden(x,y) || cellBusy(x,y)) continue;
+    let o = 0; for(const [dx,dy] of nb4) if(g[(y+dy)*n+x+dx]===0) o++;
+    if(o === 2) cand.push([x,y]);
+  }
+  shuffle(cand, rand);
+  const nClose = opened + 1 + ((rand()*2)|0);
+  for(let i=0;i<cand.length && closed<nClose;i++){
+    const [x,y] = cand[i];
+    if(!setWallCell(x, y, true)) break;
+    if(reachable(pcx,pcy).n !== total-1){ setWallCell(x, y, false); continue; }
+    total--; closed++;
+  }
+
+  // 3) a veces una salida se va a otra parte del nivel
+  if(G.exits.length && rand() < 0.55){
+    const e = G.exits[(rand()*G.exits.length)|0];
+    const {dist} = reachable(pcx,pcy);
+    let far = 0; for(let i=0;i<dist.length;i++) if(dist[i]>far) far = dist[i];
+    const wallK = {door:1, firedoor:1, stage:1, vent:1, hole:1, elevator:1};
+    const spots = [];
+    for(let y=1;y<n-1;y++) for(let x=1;x<n-1;x++){
+      const k = y*n+x;
+      if(g[k]!==0 || dist[k] < far*0.5 || !hidden(x,y) || cellBusy(x,y)) continue;
+      if(!hidden(w2c(e.mx), w2c(e.mz))) continue;
+      if(G.exits.some(o=> o!==e && Math.hypot(o.cell[0]-x, o.cell[1]-y) < n*0.25)) continue;
+      if(wallK[e.kind] && !wallSpot(x,y).length) continue;
+      spots.push([x,y]);
+    }
+    if(spots.length){
+      const [x,y] = spots[(rand()*spots.length)|0];
+      let wx = c2w(x), wz = c2w(y), rot = 0;
+      if(wallK[e.kind]){
+        const ws = wallSpot(x,y), s = ws[(rand()*ws.length)|0];
+        rot = s.rot; wx += s.dx*G.cell*0.42; wz += s.dy*G.cell*0.42;
+      }
+      e.cell = [x,y]; e.x = c2w(x); e.z = c2w(y); e.mx = wx; e.mz = wz;
+      e.known = false;
+      if(e.group){ e.group.position.set(wx, 0, wz); e.group.rotation.y = rot; }
+      if(G.crossing && G.crossing.e === e) cancelCrossing();
+      moved++;
+    }
+  }
+
+  if(opened || closed || moved){
+    flowField = null; flowCell = [-1,-1];
+    G.shifts = (G.shifts||0) + 1;
+    computeReveal(true);
+  }
+  return {changed: !!(opened || closed || moved), opened, closed, exits:moved};
+}
+
+function updateShift(dt){
+  if(!shiftEnabled()) return;
+  G.shiftT -= dt;
+  if(G.shiftT <= 4 && !G.shiftWarned){
+    G.shiftWarned = true;
+    Audio_.noise(2.8, 90, 1.2, 0.12);
+    G.shake = Math.max(G.shake, 0.22);
+    logLine(tx("Las paredes <b>crujen</b>. Algo se está recolocando.","The walls <b>creak</b>. Something is rearranging itself."));
+  }
+  if(G.shiftT > 0) return;
+  G.shiftT = shiftDelay(); G.shiftWarned = false;
+  const r = shiftMaze(Math.random);
+  if(!r.changed) return;
+  G.blackout = Math.max(G.blackout, 0.7);
+  G.shake = Math.max(G.shake, 0.35);
+  Audio_.noise(0.9, 140, 1.4, 0.16);
+  toast(tx("El nivel se ha reordenado.","The level has rearranged itself."), 3);
+  if(r.exits) logLine(tx("Alguna salida ya no está donde estaba.","Some exit is no longer where it was."));
 }
 
 /* ═══════════════ SUSTOS AMBIENTALES ═══════════════
@@ -6718,8 +7585,9 @@ function updateSanity(dt){
   Audio_.set(Audio_.heartGain, panic>0.15 ? 0.06+panic*0.16 : 0, 0.6);
   if(Audio_.heart) Audio_.heart.frequency.value = 48+panic*26;
   Audio_.set(Audio_.droneGain, 0.03+panic*0.06, 1.2);
+  if(Audio_.musicFilter && Audio_.mood) Audio_.musicFilter.frequency.setTargetAtTime(560+(3-Audio_.mood.risk)*260+panic*260, Audio_.ctx.currentTime, 1.5);
 
-  if(G.sanity<=0 && !G.dead) die("Tu cordura llegó a cero. El zumbido dejó de ser un sonido y pasó a ser un sitio.");
+  if(G.sanity<=0 && !G.dead) die(tx("Tu cordura llegó a cero. El zumbido dejó de ser un sonido y pasó a ser un sitio.","Your sanity hit zero. The hum stopped being a sound and became a place."));
 }
 
 /* ═══════════════ ANTORCHA Y LÁMPARAS ═══════════════ */
@@ -6918,7 +7786,7 @@ function drawMap(){
 
   for(let i=0;i<G.containers.length;i++){
     const c=G.containers[i];
-    if(c.opened) continue;
+    if(c.opened && !(c.left && c.left.length)) continue;
     const cx=w2c(c.x), cy=w2c(c.z);
     if(cx<0||cy<0||cx>=G.n||cy>=G.n) continue;
     if(!G.explored[cy*G.n+cx]) continue;
@@ -6937,10 +7805,34 @@ function drawMap(){
 }
 
 const needle = $("needle"), nctx = needle.getContext("2d");
+// La brújula era demasiado buena: aguja exacta y metros exactos a cualquier
+// distancia. Ahora tiembla siempre, pierde la señal lejos de la salida o con
+// algo persiguiéndote, y sólo da la distancia por tramos.
+const COMPASS_RANGE = 85;
+function compassSignal(){
+  if(G.pulseExit > 0) return 1;                        // el Ojo de topógrafo sí es exacto
+  if(!G.nearestExit || G.nearestDist > COMPASS_RANGE) return 0;
+  let s = 1 - G.nearestDist/COMPASS_RANGE*0.8;         // de lejos, señal débil y aguja loca
+  if(G.chasing > 0) s *= 0.3;                          // con algo detrás casi no sirve
+  if(G.sanity < 40) s *= 0.4 + G.sanity/40*0.6;
+  return s < 0.12 ? 0 : clamp(s, 0, 1);
+}
+function compassWobble(){
+  const sig = compassSignal();
+  if(sig <= 0) return G.t*7.5;                         // sin señal: gira sin parar
+  const ruido = Math.sin(G.t*2.3)*0.6 + Math.sin(G.t*5.1+1.3)*0.3 + Math.sin(G.t*0.7)*0.5;
+  return ruido * (0.28 + (1-sig)*1.1);
+}
+function compassBand(){
+  if(G.pulseExit > 0) return Math.round(G.nearestDist)+" m";
+  if(compassSignal() <= 0) return tx("sin señal","no signal");
+  const d = G.nearestDist;
+  return d < 14 ? tx("cerca","close") : (d < 30 ? tx("a media distancia","mid range") : tx("lejos","far"));
+}
 function drawNeedle(){
   nctx.clearRect(0,0,14,14);
   if(!hasItem("compass") || !G.nearestExit) return;
-  const a = Math.atan2(G.nearestExit.mz-player.pos.z, G.nearestExit.mx-player.pos.x) - (-player.facing+Math.PI/2) - Math.PI/2;
+  const a = Math.atan2(G.nearestExit.mz-player.pos.z, G.nearestExit.mx-player.pos.x) - (-player.facing+Math.PI/2) - Math.PI/2 + compassWobble();
   nctx.save(); nctx.translate(7,7); nctx.rotate(a);
   nctx.fillStyle="#c8863a";
   nctx.beginPath(); nctx.moveTo(0,-6); nctx.lineTo(3.2,4); nctx.lineTo(0,2); nctx.lineTo(-3.2,4); nctx.closePath(); nctx.fill();
@@ -6954,6 +7846,27 @@ const BODY_BOXES = {
   head:[12,2,7,7], torso:[10,10,11,15], armL:[6,11,3,13], armR:[22,11,3,13],
   legL:[11,26,4,17], legR:[16,26,4,17]
 };
+let bodyHover = null;
+function partAtBodyClick(clientX, clientY){
+  const r = bodyc.getBoundingClientRect();
+  const x = (clientX - r.left) / r.width * 31;
+  const y = (clientY - r.top) / r.height * 48;
+  for(const id in BODY_BOXES){
+    const b = BODY_BOXES[id];
+    if(x>=b[0] && x<=b[0]+b[2] && y>=b[1] && y<=b[1]+b[3]) return id;
+  }
+  return null;
+}
+bodyc.style.cursor = "pointer";
+bodyc.addEventListener("mousemove",(e)=>{
+  bodyHover = partAtBodyClick(e.clientX, e.clientY);
+  bodyc.title = bodyHover ? txf(PARTS.find(p=>p.id===bodyHover),"name")+" · "+Math.round(G.body[bodyHover])+"%" : "";
+});
+bodyc.addEventListener("mouseleave",()=>{ bodyHover = null; });
+bodyc.addEventListener("click",(e)=>{
+  const id = partAtBodyClick(e.clientX, e.clientY);
+  if(id) healBodyPart(id);
+});
 function drawBody(){
   bctx.clearRect(0,0,31,48);
   for(const id in BODY_BOXES){
@@ -6968,19 +7881,38 @@ function drawBody(){
     bctx.fillRect(b[0],b[1],b[2],b[3]);
     bctx.fillStyle = "rgba(0,0,0,.35)";
     bctx.fillRect(b[0],b[1],b[2],1);
+    if(bodyHover === id){
+      bctx.strokeStyle = "#f2e9c9"; bctx.lineWidth = 1;
+      bctx.strokeRect(b[0]+0.5,b[1]+0.5,b[2]-1,b[3]-1);
+    }
   }
 }
 
 const KEYCAP = ["1","2","3","4","5","6","7","8","9","0"];
 function iconNode(icon){
   const c = document.createElement("canvas");
-  c.width = c.height = 16;
-  c.getContext("2d").drawImage(ICON_TEX[icon],0,0);
+  c.width = c.height = ICON_PX;
+  c.getContext("2d").drawImage(ICON_TEX[icon],0,0,ICON_PX,ICON_PX);
   return c;
 }
 
+// las dos manos, siempre a la vista: con qué pega cada clic
+function paintHands(){
+  ["L","R"].forEach(h=>{
+    const box = $("hand"+h);
+    if(!box) return;
+    const id = G.weapons && G.weapons[h];
+    const cv = box.querySelector("canvas"), cx = cv.getContext("2d");
+    cx.imageSmoothingEnabled = false;
+    cx.clearRect(0,0,cv.width,cv.height);
+    if(id) cx.drawImage(ICON_TEX[ITEMS[id].icon], 0, 0, cv.width, cv.height);
+    box.querySelector("b").textContent = id ? txf(ITEMS[id],"name") : tx("vacía","empty");
+    box.classList.toggle("empty", !id);
+  });
+}
 function refreshSlots(){
   if(typeof bpOpen !== "undefined" && bpOpen) renderBackpack();
+  paintHands();
   const eq = $("equip");
   eq.textContent = "";
   const equipIds = ["map","compass","flashlight","backpack"];
@@ -7071,39 +8003,47 @@ function updateHud(dt){
     abc.classList.toggle("ready", G.abilityCd <= 0);
     abc.textContent = "[C] "+txf(ab,"name")+(G.abilityCd > 0 ? " · "+Math.ceil(G.abilityCd)+"s" : "");
   }
-  const hl = $("handL"), hr = $("handR");
-  if(hl){
-    hl.textContent = G.weapons.L ? "◧ "+txf(ITEMS[G.weapons.L],"name") : "";
-    hl.classList.toggle("cd", G.weaponCd.L > 0);
-  }
-  if(hr){
-    hr.textContent = G.weapons.R ? txf(ITEMS[G.weapons.R],"name")+" ◨" : "";
-    hr.classList.toggle("cd", G.weaponCd.R > 0);
-  }
+  ["L","R"].forEach(h=>{
+    const box = $("hand"+h);
+    if(!box) return;
+    const id = G.weapons[h], cd = G.weaponCd[h] || 0;
+    box.classList.toggle("cd", cd > 0);
+    box.lastElementChild.style.transform = "scaleX("+(id && cd > 0 ? clamp(cd/ITEMS[id].cd,0,1) : 0)+")";
+  });
+  updateSpWarn();
 
   const el = $("exitLine");
   const known = G.exits.filter(e=>e.known).length;
   if(G.mapExit && (hasItem("map") || G.pulseExit > 0)){
     el.innerHTML = tx("SALIDA MÁS CERCANA","NEAREST EXIT")+"<br><b>"+txf(EXIT_KINDS[G.mapExit.kind],"name")+"</b> → "+G.mapExit.destName;
-  } else if(G.mapExit && (hasItem("compass") || known)){
+  } else if(G.mapExit && known){
     el.innerHTML = tx("SALIDA MÁS CERCANA","NEAREST EXIT")+"<br><b>"+txf(EXIT_KINDS[G.mapExit.kind],"name")+"</b> · "+Math.round(G.nearestDist)+" m";
+  } else if(G.nearestExit && hasItem("compass")){
+    el.innerHTML = tx("LA AGUJA TIRA HACIA ALGO","THE NEEDLE PULLS TOWARDS SOMETHING")+"<br><b>"+compassBand()+"</b>";
   } else {
     el.innerHTML = '<span class="locked">'+G.exits.length+tx(" salidas en este nivel · sin localizar"," exits on this level · not located")+"</span>";
   }
-  $("dist").textContent = (hasItem("compass") || G.pulseExit > 0) && G.nearestExit ? Math.round(G.nearestDist)+" m" : "—";
+  $("dist").textContent = (hasItem("compass") || G.pulseExit > 0) && G.nearestExit ? compassBand() : "—";
 
   G.focus = nearestFocus();
   const pr = $("prompt");
   if(G.focus){
     pr.classList.add("on");
     const f = G.focus;
-    if(f.kind==="box") pr.innerHTML = "<b>[E]</b> "+tx("Abrir ","Open ")+txf(f.ref,"name").toLowerCase()+tx(" · se tira un d6"," · rolls a d6");
+    if(f.kind==="box" && f.ref.opened) pr.innerHTML = "<b>[E]</b> "+tx("Coger lo que se quedó dentro ","Take what was left inside ")+"("+f.ref.left.length+")";
+    else if(f.kind==="box") pr.innerHTML = "<b>[E]</b> "+tx("Abrir ","Open ")+txf(f.ref,"name").toLowerCase()+tx(" · se tira un d6"," · rolls a d6");
     else if(f.kind==="tape") pr.innerHTML = "<b>[E]</b> "+tx("Recoger grabadora del M.E.G.","Pick up M.E.G. tape recorder");
     else if(f.kind==="save") pr.innerHTML = "<b>[E]</b> "+tx("Anotar el progreso en el registro <i>(guardar)</i>","Write progress into the log <i>(save)</i>");
     else{
       const k = EXIT_KINDS[f.ref.kind];
       const dest = (hasItem("map")||f.ref.known) ? " → "+f.ref.destName : tx(" → destino desconocido"," → unknown destination");
-      pr.innerHTML = "<b>[E]</b> "+txf(k,"verb")+" · "+txf(k,"name")+dest;
+      if(G.crossing && G.crossing.e === f.ref){
+        const pct = Math.round(clamp(G.crossing.t/G.crossing.need,0,1)*100);
+        pr.innerHTML = "<b>"+txf(k,"verb")+"…</b> "+pct+"%"+'<span class="crossbar"><i style="transform:scaleX('+(pct/100)+')"></i></span>';
+        pr.classList.add("cross");
+      } else {
+        pr.innerHTML = "<b>"+tx("[mantén E]","[hold E]")+"</b> "+txf(k,"verb")+" · "+txf(k,"name")+dest;
+      }
     }
   } else pr.classList.remove("on");
 
@@ -7168,6 +8108,7 @@ const ACHIEVEMENTS = [
   {id:"deep10",     name:"Diez abajo",           desc:"Alcanza el descenso 10.", name_en:"Ten down", desc_en:"Reach depth 10."},
   {id:"packed",     name:"Hasta arriba",         desc:"Llena la mochila entera.", name_en:"Loaded up", desc_en:"Fill the whole backpack."},
   {id:"clean",      name:"Sin tocar nada",       desc:"Supera un nivel sin abrir un solo contenedor.", name_en:"Touched nothing", desc_en:"Clear a level without opening a single container."},
+  {id:"random5",    name:"Dado cargado",         desc:"Llega al descenso 5 en el modo aleatorio.", name_en:"Loaded die", desc_en:"Reach depth 5 in random mode."},
   {id:"nomap",      name:"De memoria",           desc:"Supera un nivel sin mapa ni brújula.", name_en:"From memory", desc_en:"Clear a level with no map and no compass."},
   {id:"intact",     name:"Ni un rasguño",        desc:"Supera un nivel sin recibir daño.", name_en:"Not a scratch", desc_en:"Clear a level without taking damage."},
   {id:"catalog",    name:"Cartógrafo",           desc:"Supera 10 niveles distintos del catálogo.", name_en:"Cartographer", desc_en:"Clear 10 different levels from the catalogue."},
@@ -7328,16 +8269,16 @@ function paintHand(){
   box.hidden = false;
   const c = $("handIcon");
   const cx = c.getContext("2d");
-  cx.clearRect(0,0,16,16);
-  cx.drawImage(ICON_TEX[def.icon],0,0);
+  cx.clearRect(0,0,ICON_PX,ICON_PX);
+  cx.drawImage(ICON_TEX[def.icon],0,0,ICON_PX,ICON_PX);
   $("handName").textContent = txf(def,"name");
   $("handDesc").textContent = txf(def,"blurb");
   const slot = invFind(id);
   const key = ITEMS[id].key;
   let hint;
-  if(id === "map" || id === "compass" || id === "backpack") hint = "Se usa solo mientras lo lleves encima.";
-  else if(id === "flashlight") hint = "Pulsa otra vez (o F) para encenderla y apagarla.";
-  else hint = "Pulsa otra vez la misma tecla para usarlo" + (key ? " · atajo ["+key+"]" : "");
+  if(id === "map" || id === "compass" || id === "backpack") hint = tx("Se usa solo mientras lo lleves encima.","It works on its own while you carry it.");
+  else if(id === "flashlight") hint = tx("Pulsa otra vez (o F) para encenderla y apagarla.","Press again (or F) to switch it on and off.");
+  else hint = tx("Pulsa otra vez la misma tecla para usarlo","Press the same key again to use it") + (key ? tx(" · atajo ["," · shortcut [")+key+"]" : "");
   $("handHint").textContent = hint;
   $("handQty").textContent = slot && slot.qty > 1 ? "×"+slot.qty : "";
 
@@ -7379,18 +8320,43 @@ function useOrHold(id){
 /* ── mochila desplegable: [B] la abre y enseña TODO lo que llevas,
    no sólo los cuatro huecos rápidos. Un clic la coge, otro clic la usa. */
 let bpOpen = false;
-function bpRow(id, qty, held){
+function bpRow(id, qty, held, hand){
   const def = ITEMS[id];
   const row = document.createElement("div");
-  row.className = "bp-it" + (held ? " held" : "");
-  const cv = document.createElement("canvas"); cv.width = 16; cv.height = 16;
-  cv.getContext("2d").drawImage(ICON_TEX[def.icon], 0, 0);
+  row.className = "bp-it" + (held ? " held" : "") + (hand ? " inhand" : "");
+  const cv = document.createElement("canvas"); cv.width = ICON_PX; cv.height = ICON_PX;
+  cv.getContext("2d").drawImage(ICON_TEX[def.icon], 0, 0, ICON_PX, ICON_PX);
   row.appendChild(cv);
   const n = document.createElement("div"); n.className = "bp-n"; n.textContent = txf(def,"name");
   row.appendChild(n);
   if(qty > 1){ const q = document.createElement("div"); q.className = "bp-q"; q.textContent = "×"+qty; row.appendChild(q); }
-  row.addEventListener("click", ()=>{ useOrHold(id); renderBackpack(); });
+  if(hand){ const q = document.createElement("div"); q.className = "bp-q"; q.textContent = hand === "L" ? tx("IZQ","L") : tx("DER","R"); row.appendChild(q); }
+  row.addEventListener("click", ()=>{
+    if(def.weapon) weaponClick(id, hand); else useOrHold(id);
+    renderBackpack();
+  });
   return row;
+}
+// Armas: desde la mochila van a una mano (la libre, o cambian con la
+// izquierda); desde una mano vuelven a la mochila si hay sitio.
+function weaponClick(id, hand){
+  if(hand){
+    if(invCount() >= G.cap){ toast(tx("No cabe en la mochila.","No room in the backpack.")); return; }
+    G.weapons[hand] = null;
+    G.inv.push({id, qty:1});
+    toast(txf(ITEMS[id],"name")+tx(" a la mochila."," into the backpack."), 2);
+  } else {
+    const to = !G.weapons.L ? "L" : (!G.weapons.R ? "R" : "L");
+    const prev = G.weapons[to];
+    removeItem(id);
+    G.weapons[to] = id;
+    G.weaponCd[to] = 0;
+    if(prev) G.inv.push({id:prev, qty:1});
+    toast(txf(ITEMS[id],"name")+(to === "L" ? tx(" en la mano izquierda"," in your left hand") : tx(" en la mano derecha"," in your right hand"))+
+      (prev ? tx(" · "+txf(ITEMS[prev],"name")+" a la mochila"," · "+txf(ITEMS[prev],"name")+" into the backpack") : "")+".", 2.6);
+  }
+  Audio_.click();
+  refreshSlots();
 }
 function renderBackpack(){
   const grid = $("bpGrid");
@@ -7401,7 +8367,7 @@ function renderBackpack(){
   });
   ["L","R"].forEach(hand=>{
     const id = G.weapons[hand];
-    if(id) grid.appendChild(bpRow(id, 1, G.held === id));
+    if(id) grid.appendChild(bpRow(id, 1, G.held === id, hand));
   });
   $("bpCap").textContent = invCount()+"/"+G.cap;
 }
@@ -7409,11 +8375,17 @@ function toggleBackpack(){
   if(!G.running || G.paused || G.grab) return;
   bpOpen = !bpOpen;
   $("backpack").hidden = !bpOpen;
-  if(bpOpen) renderBackpack();
+  if(bpOpen){
+    renderBackpack();
+    // con el ratón capturado no se podía hacer clic en nada de la mochila
+    if(document.pointerLockElement) document.exitPointerLock();
+  } else grabPointer();
 }
 function closeBackpack(){
+  if(!bpOpen) return;
   bpOpen = false;
   $("backpack").hidden = true;
+  grabPointer();
 }
 
 /* ═══════════════ AJUSTES ═══════════════
@@ -7421,10 +8393,11 @@ function closeBackpack(){
    y se aplican en vivo mientras mueves el control. */
 
 const OPTS_KEY = "zumbido.opts.v1";
-const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es" };
+const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es",
+  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0 };
 
 function loadOpts(){
-  G.opts = { fov:OPTS_DEF.fov, vol:OPTS_DEF.vol, sens:OPTS_DEF.sens, bright:OPTS_DEF.bright, qte:OPTS_DEF.qte, diff:OPTS_DEF.diff, lang:OPTS_DEF.lang };
+  G.opts = Object.assign({}, OPTS_DEF);
   try{
     const raw = localStorage.getItem(OPTS_KEY);
     if(raw){
@@ -7436,6 +8409,14 @@ function loadOpts(){
       if(typeof o.qte === "number") G.opts.qte = clamp(Math.round(o.qte), 1, 5);
       if(typeof o.diff === "number") G.opts.diff = clamp(Math.round(o.diff), 1, 4);
       if(o.lang === "en" || o.lang === "es") G.opts.lang = o.lang;
+      if(typeof o.musicVol === "number") G.opts.musicVol = clamp(o.musicVol, 0, 1);
+      if(typeof o.ambVol === "number") G.opts.ambVol = clamp(o.ambVol, 0, 1);
+      if(typeof o.musicSrc === "number") G.opts.musicSrc = clamp(Math.round(o.musicSrc), 0, 2);
+      if(typeof o.quality === "number") G.opts.quality = clamp(Math.round(o.quality), 1, 4);
+      if(typeof o.view === "number") G.opts.view = clamp(o.view, 0.6, 1.6);
+      if(typeof o.fx === "number") G.opts.fx = clamp(Math.round(o.fx), 0, 2);
+      if(typeof o.shake === "number") G.opts.shake = clamp(o.shake, 0, 1);
+      if(typeof o.fps === "number") G.opts.fps = o.fps ? 1 : 0;
     }
   }catch(e){}
 }
@@ -7447,16 +8428,32 @@ function applyLanguage(){
   applyLangDom();
   if(G.cfg){
     $("lvlName").textContent = levelTitle(G.cfg);
-    $("lvlDepth").textContent = tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
+    $("lvlDepth").textContent = (G.randomMode ? tx("ALEATORIO · ","RANDOM · ") : "")+tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
     $("lvlObj") && ($("lvlObj").innerHTML = "");
   }
   refreshSlots();
   renderChars();
   buildOpts();
+  renderMusicBox();         // se pinta al arrancar: sin esto se quedaba en el idioma de antes
 }
 function applyBrightness(){
   renderer.toneMappingExposure = 0.96 * ((G.opts && G.opts.bright) || 1);
 }
+// calidad: resolución interna y relieve de texturas
+function qualityRatio(){
+  const q = (G.opts && G.opts.quality) || 3, dpr = window.devicePixelRatio || 1;
+  return [0.7, 1, Math.min(dpr, 1.6), Math.min(dpr, 2)][q-1];
+}
+function bumpMul(){ const q = (G.opts && G.opts.quality) || 3; return q === 1 ? 0 : (q === 4 ? 1.5 : 1); }
+function applyQuality(){
+  renderer.setPixelRatio(qualityRatio());
+  lowFps = 0;
+  resize();
+}
+function viewMul(){ return (G.opts && G.opts.view) || 1; }
+function applyView(){ if(scene.fog && G.cfg) scene.fog.density = G.cfg.fog / viewMul(); }
+function applyFx(){ document.body.setAttribute("data-fx", String((G.opts && G.opts.fx !== undefined) ? G.opts.fx : 1)); }
+function applyFps(){ const e = document.getElementById("fpsc"); if(e) e.hidden = !(G.opts && G.opts.fps); }
 function applyVolume(){
   if(Audio_.master && Audio_.ctx){
     Audio_.master.gain.setTargetAtTime(G.opts.vol, Audio_.ctx.currentTime, 0.05);
@@ -7501,6 +8498,55 @@ const OPT_ROWS = [
     fmt:(v)=> v<=0 ? "silencio" : Math.round(v)+"%"
   },
   {
+    id:"musicSrc", key:"musicSrc", label:"Música", min:0, max:2, step:1, note:"",
+    get:()=> G.opts.musicSrc,
+    set:(v)=>{ G.opts.musicSrc = v; if(G.running && G.cfg) applyLevelAudio(); },
+    fmt:(v)=> [tx("Del juego","The game's"), tx("Tu música","Your music"), tx("Sin música","No music")][Math.round(v)] +
+      (Math.round(v) === 1 && !USER_TRACKS.length ? tx(" (sube alguna abajo)"," (upload some below)") : "")
+  },
+  {
+    id:"musicVol", key:"musicVol", label:"Volumen de la música", min:0, max:100, step:1, note:"",
+    get:()=> G.opts.musicVol*100,
+    set:(v)=>{ G.opts.musicVol = v/100; Audio_.setBusVols(); },
+    fmt:(v)=> v<=0 ? tx("apagada","off") : Math.round(v)+"%"
+  },
+  {
+    id:"ambVol", key:"ambVol", label:"Volumen del ambiente", min:0, max:100, step:1, note:"",
+    get:()=> G.opts.ambVol*100,
+    set:(v)=>{ G.opts.ambVol = v/100; Audio_.setBusVols(); },
+    fmt:(v)=> v<=0 ? tx("apagado","off") : Math.round(v)+"%"
+  },
+  {
+    id:"quality", key:"quality", label:"Calidad gráfica", min:1, max:4, step:1, note:"",
+    get:()=> G.opts.quality,
+    set:(v)=>{ G.opts.quality = v; applyQuality(); },
+    fmt:(v)=> [tx("Baja","Low"), tx("Media","Medium"), tx("Alta","High"), "Ultra"][Math.round(v)-1]
+  },
+  {
+    id:"view", key:"view", label:"Distancia de visión", min:60, max:160, step:5, note:"",
+    get:()=> G.opts.view*100,
+    set:(v)=>{ G.opts.view = v/100; applyView(); },
+    fmt:(v)=> Math.round(v)+"%"
+  },
+  {
+    id:"fx", key:"fx", label:"Filtro de pantalla", min:0, max:2, step:1, note:"",
+    get:()=> G.opts.fx,
+    set:(v)=>{ G.opts.fx = v; applyFx(); },
+    fmt:(v)=> [tx("Limpio","Clean"), tx("Grano de cinta","Tape grain"), "VHS"][Math.round(v)]
+  },
+  {
+    id:"shake", key:"shake", label:"Temblor de cámara", min:0, max:100, step:5, note:"",
+    get:()=> G.opts.shake*100,
+    set:(v)=>{ G.opts.shake = v/100; },
+    fmt:(v)=> v<=0 ? tx("sin temblor","none") : Math.round(v)+"%"
+  },
+  {
+    id:"fps", key:"fps", label:"Contador de FPS", min:0, max:1, step:1, note:"",
+    get:()=> G.opts.fps,
+    set:(v)=>{ G.opts.fps = v >= 1 ? 1 : 0; applyFps(); },
+    fmt:(v)=> v >= 1 ? tx("visible","shown") : tx("oculto","hidden")
+  },
+  {
     id:"qte", key:"qte", label:"Dificultad del forcejeo", min:1, max:5, step:1,
     note:"Cuando una entidad te agarra hay que pulsar una secuencia de teclas. Esto cambia cuántas son y cuánto tiempo tienes.",
     get:()=> G.opts.qte,
@@ -7525,7 +8571,15 @@ const OPT_LABELS = {
   bright: ["Brillo","Brightness"],
   vol:    ["Volumen","Volume"],
   qte:    ["Dificultad del forcejeo","Struggle difficulty"],
-  sens:   ["Sensibilidad del ratón","Mouse sensitivity"]
+  sens:   ["Sensibilidad del ratón","Mouse sensitivity"],
+  musicSrc:["Música","Music"],
+  musicVol:["Volumen de la música","Music volume"],
+  ambVol: ["Volumen del ambiente","Ambience volume"],
+  quality:["Calidad gráfica","Graphics quality"],
+  view:   ["Distancia de visión","View distance"],
+  fx:     ["Filtro de pantalla","Screen filter"],
+  shake:  ["Temblor de cámara","Camera shake"],
+  fps:    ["Contador de FPS","FPS counter"]
 };
 const OPT_NOTES = {
   lang:   ["Cambia todos los textos del juego. Los nombres de los niveles se quedan como están en la wiki.",
@@ -7541,7 +8595,23 @@ const OPT_NOTES = {
   qte:    ["Cuando una entidad te agarra hay que pulsar una secuencia de teclas. Esto cambia cuántas son y cuánto tiempo tienes.",
            "When an entity grabs you, you must hit a sequence of keys. This changes how many there are and how long you get."],
   sens:   ["Cuánto gira la cámara con el mismo movimiento de ratón.",
-           "How far the camera turns for the same mouse movement."]
+           "How far the camera turns for the same mouse movement."],
+  musicSrc:["La música generada por el juego, las canciones que subas tú (más abajo) o nada.",
+           "The game's generated music, songs you upload yourself (below) or nothing."],
+  musicVol:["El acorde de fondo y la melodía, o tus canciones. Aparte del volumen general.",
+           "The background chord and melody, or your songs. Separate from the master volume."],
+  ambVol: ["El zumbido de los fluorescentes, el goteo, el viento y los chispazos.",
+           "The fluorescent hum, the dripping, the wind and the sparks."],
+  quality:["Resolución interna y relieve de las texturas. Baja si el juego va a tirones; Ultra en pantallas de alta densidad. El relieve se nota al cambiar de nivel.",
+           "Internal resolution and texture relief. Lower it if the game stutters; Ultra for high-density screens. Relief kicks in on the next level."],
+  view:   ["Cuánto se ve antes de que la niebla se lo coma. Más alto quita miedo y cuesta algo de rendimiento.",
+           "How far you can see before the fog swallows it. Higher is less scary and costs some performance."],
+  fx:     ["Limpio sin nada, grano de cinta como siempre, o VHS con líneas de barrido y color lavado.",
+           "Clean with nothing, tape grain as always, or VHS with scanlines and washed-out colour."],
+  shake:  ["Baja esto si el temblor al recibir golpes te marea.",
+           "Lower this if the shaking when you take hits makes you dizzy."],
+  fps:    ["Enseña los fotogramas por segundo en la esquina.",
+           "Shows frames per second in the corner."]
 };
 
 function buildOpts(){
@@ -7610,7 +8680,7 @@ function wipeProgress(){
     setTimeout(()=>{
       if(wipeArmed === 1){
         wipeArmed = 0;
-        btn.textContent = "Borrar progreso";
+        btn.textContent = tx("Borrar progreso","Wipe progress");
         btn.classList.remove("danger");
       }
     }, 4000);
@@ -7621,10 +8691,10 @@ function wipeProgress(){
     localStorage.removeItem(SAVE_KEY);
     localStorage.removeItem(META_KEY);
   }catch(e){}
-  G.best = 0; G.unlocked = {}; G.ach = {};
+  G.best = 0; G.unlocked = {}; G.ach = {}; G.codex = {ent:{}, item:{}};
   btn.textContent = tx("Progreso borrado","Progress wiped");
   btn.classList.remove("danger");
-  setTimeout(()=>{ btn.textContent = "Borrar progreso"; }, 2600);
+  setTimeout(()=>{ btn.textContent = tx("Borrar progreso","Wipe progress"); }, 2600);
   renderChars();
 }
 
@@ -7635,10 +8705,126 @@ function resetOpts(){
   G.opts.bright = OPTS_DEF.bright;
   G.opts.qte = OPTS_DEF.qte;
   G.opts.diff = OPTS_DEF.diff;
+  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
   applyVolume();
   applyBrightness();
+  Audio_.setBusVols(); applyQuality(); applyView(); applyFx(); applyFps();
   saveOpts();
   refreshOpts();
+}
+
+/* ═══════════════ MAPA DEL DESCENSO ═══════════════
+   El grafo entero de salidas, dentro del juego. Columnas = cuántas salidas
+   hay que cruzar como mínimo desde el Level 0. Tocar un nivel enciende sus
+   salidas (ámbar) y los niveles desde los que se llega (azul). */
+let dmFrom = "titleScreen", dmSel = null, dmPos = {};
+// centra un nivel dentro del marco del mapa (scrollIntoView movía también la pantalla)
+function dmCenter(id){
+  const p = dmPos[id], box = $("dmScroll");
+  if(!p || !box) return;
+  box.scrollLeft = Math.max(0, p.x + 64 - box.clientWidth/2);
+  box.scrollTop  = Math.max(0, p.y + 20 - box.clientHeight/2);
+}
+function dmLayers(){
+  const layer = {"0":0};
+  let fr = ["0"];
+  while(fr.length){
+    const nx = [];
+    fr.forEach(id=>{
+      const c = CAT_BY_ID[id];
+      (c && c.exitsTo || []).forEach(r=>{
+        if(layer[r.to] === undefined && CAT_BY_ID[r.to]){ layer[r.to] = layer[id]+1; nx.push(r.to); }
+      });
+    });
+    fr = nx;
+  }
+  return layer;
+}
+function dmName(c){ return c.settlement ? c.title : "Level "+c.num; }
+function renderDescentMap(from){
+  if(from) dmFrom = from;
+  const layer = dmLayers();
+  const cols = {};
+  CAT.forEach(c=>{ const k = layer[c.id] === undefined ? 1 : layer[c.id]; (cols[k] = cols[k] || []).push(c); });
+  const keys = Object.keys(cols).map(Number).sort((a,b)=>a-b);
+  // una capa con muchos niveles se parte en varias columnas de MAXR como
+  // mucho, para que el grafo no salga kilométrico hacia abajo
+  const MAXR = 9, NW = 128, NH = 40, CW = 170, RH = 52, PX = 18, PY = 18;
+  const columns = [];
+  keys.forEach(k=>{ const l = cols[k]; for(let i=0;i<l.length;i+=MAXR) columns.push(l.slice(i, i+MAXR)); });
+  const maxR = Math.max.apply(null, columns.map(c=> c.length));
+  const W = PX*2 + (columns.length-1)*CW + NW, H = PY*2 + (maxR-1)*RH + NH;
+  const pos = {};
+  columns.forEach((list,ci)=> list.forEach((c,ri)=>{ pos[c.id] = {x:PX + ci*CW, y:PY + ((maxR-list.length)/2 + ri)*RH}; }));
+  const here = G.running || G.paused ? G.levelId : null;
+  let out = "";
+  CAT.forEach(c=> (c.exitsTo||[]).forEach(r=>{
+    const a = pos[c.id], b = pos[r.to];
+    if(!a || !b || r.to === c.id) return;
+    const fwd = pos[r.to].x > pos[c.id].x;
+    let d;
+    if(fwd){
+      const ax = a.x+NW, ay = a.y+NH/2, bx = b.x, by = b.y+NH/2, m = (ax+bx)/2;
+      d = "M"+ax+","+ay+" C"+m+","+ay+" "+m+","+by+" "+bx+","+by;
+    } else {
+      const sx = a.x, sy = a.y+NH/2, ex = b.x+NW, ey = b.y+NH/2, dip = Math.max(sy,ey)+26;
+      d = "M"+sx+","+sy+" C"+(sx-50)+","+dip+" "+(ex+50)+","+dip+" "+ex+","+ey;
+    }
+    out += '<path class="dm-e" data-from="'+c.id+'" data-to="'+r.to+'" d="'+d+'" fill="none" stroke="'+(fwd ? "rgba(200,134,58,.55)" : "rgba(221,214,189,.18)")+'" stroke-width="1.3"'+(fwd ? "" : ' stroke-dasharray="4 4"')+'></path>';
+  }));
+  CAT.forEach(c=>{
+    const p = pos[c.id];
+    const col = c.settlement ? "#7ce07a" : RISK_COL[c.risk||0];
+    const seen = c.id === "0" || G.unlocked["level_"+c.id];
+    out += '<g class="dm-n" data-id="'+c.id+'">'+
+      '<rect class="bx" x="'+p.x+'" y="'+p.y+'" width="'+NW+'" height="'+NH+'" fill="#141417" stroke="'+col+'" stroke-width="1"></rect>'+
+      '<rect x="'+p.x+'" y="'+p.y+'" width="3" height="'+NH+'" fill="'+col+'"></rect>'+
+      '<text x="'+(p.x+10)+'" y="'+(p.y+16)+'" font-size="12" fill="#f6eec9" font-family="Special Elite, Georgia, serif">'+dmName(c)+'</text>'+
+      '<text x="'+(p.x+10)+'" y="'+(p.y+31)+'" font-size="8.5" fill="#8b8570" font-family="IBM Plex Mono, monospace">'+(c.title.length > 21 ? c.title.slice(0,20)+"…" : c.title).replace(/&/g,"&amp;")+'</text>'+
+      (seen ? '<circle cx="'+(p.x+NW-9)+'" cy="'+(p.y+9)+'" r="3" fill="#b9c463"></circle>' : '')+
+      (here === c.id ? '<rect x="'+(p.x-3)+'" y="'+(p.y-3)+'" width="'+(NW+6)+'" height="'+(NH+6)+'" fill="none" stroke="#f6eec9" stroke-dasharray="3 3"></rect>' : '')+
+      '</g>';
+  });
+  const svg = $("dmSvg");
+  svg.setAttribute("viewBox", "0 0 "+W+" "+H);
+  svg.setAttribute("width", W); svg.setAttribute("height", H);   // a tamaño real: se lee, y el marco hace scroll
+  svg.innerHTML = out;
+  dmPos = pos;
+  dmSelect(here || dmSel || "0");
+  setTimeout(()=> dmCenter(dmSel), 30);
+}
+function dmSelect(id){
+  const svg = $("dmSvg"), info = $("dmInfo");
+  svg.querySelectorAll(".sel,.to,.from,.out,.in").forEach(n=> n.classList.remove("sel","to","from","out","in"));
+  const c = id && CAT_BY_ID[id];
+  dmSel = c ? id : null;
+  if(!c){
+    svg.classList.remove("pick");
+    info.innerHTML = tx("Toca un nivel para ver sus salidas.","Tap a level to see its exits.");
+    return;
+  }
+  svg.classList.add("pick");
+  const node = svg.querySelector('.dm-n[data-id="'+id+'"]');
+  if(node) node.classList.add("sel");
+  const outs = (c.exitsTo||[]).filter(r=> CAT_BY_ID[r.to] && r.to !== id);
+  const ins = [];
+  CAT.forEach(o=> (o.exitsTo||[]).forEach(r=>{ if(r.to === id && o.id !== id) ins.push({from:o.id, kind:r.kind}); }));
+  outs.forEach(r=>{ const n = svg.querySelector('.dm-n[data-id="'+r.to+'"]'); if(n) n.classList.add("to"); });
+  ins.forEach(r=>{ const n = svg.querySelector('.dm-n[data-id="'+r.from+'"]'); if(n) n.classList.add("from"); });
+  svg.querySelectorAll('.dm-e[data-from="'+id+'"]').forEach(n=> n.classList.add("out"));
+  svg.querySelectorAll('.dm-e[data-to="'+id+'"]').forEach(n=> n.classList.add("in"));
+  const kn = k=> EXIT_KINDS[k] ? txf(EXIT_KINDS[k],"name").toLowerCase() : k;
+  const btn = (lid, k, cls)=> '<button type="button" class="dm-go '+cls+'" data-go="'+lid+'"><em>'+kn(k)+'</em> '+
+    (cls === "in" ? tx("desde ","from ") : "→ ")+dmName(CAT_BY_ID[lid])+" · "+CAT_BY_ID[lid].title+'</button>';
+  const ents = Object.keys(c.ents||{}).filter(k=> c.ents[k] > 0 && ENT_NAMES[k]).map(k=> ENT_NAMES[k].split(" (")[0]);
+  info.innerHTML =
+    '<div class="dm-t">'+dmName(c)+' · '+c.title+'</div>'+
+    '<div>'+(c.settlement ? tx("Asentamiento del M.E.G.","M.E.G. settlement") : riskName(c.risk||0))+' · '+
+      (ents.length ? ents.join(", ") : tx("sin entidades documentadas","no documented entities"))+'</div>'+
+    '<div class="dm-k">'+tx("Desde aquí puedes ir a","From here you can go to")+' ('+outs.length+')</div>'+
+    '<div class="dm-l">'+outs.map(r=> btn(r.to, r.kind, "out")).join("")+'</div>'+
+    '<div class="dm-k">'+tx("Se llega desde","Reached from")+' ('+ins.length+')</div>'+
+    '<div class="dm-l">'+(ins.length ? ins.map(r=> btn(r.from, r.kind, "in")).join("") : tx("sólo haciendo noclip","only by noclipping"))+'</div>';
 }
 
 /* ═══════════════ PANTALLAS Y FLUJO ═══════════════ */
@@ -7651,7 +8837,7 @@ function flash(ms){
   $("flash").animate([{opacity:0},{opacity:.9},{opacity:0}], {duration:ms, easing:"ease-out"});
 }
 
-const SCREENS = ["titleScreen","mpScreen","charScreen","briefScreen","deadScreen","pauseScreen","clearedScreen","settingsScreen","codexScreen"];
+const SCREENS = ["titleScreen","mpScreen","charScreen","briefScreen","deadScreen","pauseScreen","clearedScreen","settingsScreen","codexScreen","dmapScreen"];
 function show(id){
   SCREENS.forEach(s=>{ $(s).hidden = (s!==id); });
   $("hud").classList.remove("on");
@@ -7703,46 +8889,112 @@ function statBar(v){
   for(let i=0;i<5;i++) out += '<i class="'+(i<n?"on":"")+'"></i>';
   return out;
 }
+// miniatura de una entidad: recorta el primer fotograma de su hoja de sprites
+const RISK_COL = ["#6f7a45","#9a8f3c","#a86a2c","#9c3527"];   // mismos 4 tonos que el maniquí de vitales
+function entityIcon(type){
+  const def = ENT_DEF[type];
+  const c = document.createElement("canvas");
+  c.width = SW*REFINE; c.height = SH*REFINE;
+  const cx = c.getContext("2d");
+  cx.imageSmoothingEnabled = false;
+  const atlas = SPRITES[def.atlas];
+  if(atlas && atlas.tex && atlas.tex.image){
+    // el atlas ya viene refinado: su celda mide SW*k × SH*k
+    const img = atlas.tex.image, k = (img.width / atlas.cols) / SW || 1;
+    cx.drawImage(img, 0, 0, SW*k, SH*k, 0, 0, c.width, c.height);
+  }
+  return c;
+}
+function itemIconCanvas(icon){
+  const c = document.createElement("canvas"); c.width = ICON_PX; c.height = ICON_PX;
+  c.getContext("2d").drawImage(ICON_TEX[icon], 0, 0, ICON_PX, ICON_PX);
+  return c;
+}
+
 function renderCodex(from){
   G.codexFrom = from || "titleScreen";
   const body = $("codexBody");
   body.textContent = "";
   let vistos = 0, total = 0;
+  const cuentaSec = {};
 
-  function fila(nombre, desc, visto){
-    total++; if(visto) vistos++;
+  function fila(sec, nombre, desc, visto, icono, extra){
+    total++; if(visto){ vistos++; cuentaSec[sec] = (cuentaSec[sec]||0)+1; }
     const d = document.createElement("div");
     d.className = "cdx-row" + (visto ? "" : " locked");
+    d.dataset.sec = sec;
+
+    if(icono === null){
+      // nivel: un cuadrito de color según lo peligroso que es, no un icono
+      const chip = document.createElement("div");
+      chip.className = "cdx-chip";
+      if(visto){ chip.style.background = extra; chip.style.color = extra; }
+      d.appendChild(chip);
+    } else {
+      const ic = document.createElement("div"); ic.className = "cdx-ic";
+      if(visto) ic.appendChild(icono);
+      d.appendChild(ic);
+    }
+
+    const info = document.createElement("div"); info.className = "cdx-info";
     const n = document.createElement("span"); n.className = "cdx-n";
     n.textContent = visto ? nombre : "· · ·";
-    const de = document.createElement("span"); de.className = "cdx-d";
-    de.textContent = visto ? desc : tx("Sin catalogar","Not on file");
-    d.appendChild(n); d.appendChild(de);
+    info.appendChild(n);
+    if(visto && desc){
+      const de = document.createElement("div"); de.className = "cdx-d";
+      de.textContent = desc;
+      info.appendChild(de);
+    } else if(!visto){
+      const de = document.createElement("div"); de.className = "cdx-d";
+      de.textContent = tx("Sin catalogar","Not on file");
+      info.appendChild(de);
+    }
+    d.appendChild(info);
     body.appendChild(d);
   }
-  function seccion(t){
-    const h = document.createElement("div"); h.className = "cdx-sec"; h.textContent = t;
+  function seccion(id, t){
+    const h = document.createElement("div"); h.className = "cdx-sec"; h.dataset.sec = id;
+    h.innerHTML = "<b>"+t+"</b>";
     body.appendChild(h);
   }
 
-  seccion(tx("Entidades","Entities"));
+  seccion("ent", tx("Entidades","Entities"));
   Object.keys(ENT_DEF).forEach(k=>{
     const visto = !!(G.codex && G.codex.ent[k]);
     const def = ENT_DEF[k];
-    fila(ENT_NAMES[k] || k, visto ? txf(def,"death") : "", visto);
+    const stat = visto ? (ENT_NAMES[k]||"") : "";
+    fila("ent", stat, visto ? txf(def,"death") : "", visto, visto ? entityIcon(k) : null);
   });
 
-  seccion(tx("Objetos","Items"));
+  seccion("item", tx("Objetos","Items"));
   Object.keys(ITEMS).forEach(k=>{
     const visto = !!(G.codex && G.codex.item[k]);
-    fila(txf(ITEMS[k],"name"), visto ? txf(ITEMS[k],"blurb") : "", visto);
+    fila("item", txf(ITEMS[k],"name"), visto ? txf(ITEMS[k],"blurb") : "", visto, visto ? itemIconCanvas(ITEMS[k].icon) : undefined);
   });
 
-  seccion(tx("Niveles","Levels"));
+  seccion("lvl", tx("Niveles","Levels"));
   CAT.forEach(c=>{
     const visto = !!(G.unlocked && G.unlocked["level_"+c.id]);
-    fila(levelTitle(c), visto ? txf(c,"tip") : "", visto);
+    const nombre = visto ? levelTitle(c)+"  ·  "+riskName(c.risk) : "";
+    fila("lvl", nombre, visto ? txf(c,"tip") : "", visto, null, RISK_COL[c.risk]);
   });
+
+  // pestañas + barra de progreso, con las cuentas ya hechas arriba
+  const tabs = $("codexTabs");
+  tabs.textContent = "";
+  [["ent",tx("Entidades","Entities"),Object.keys(ENT_DEF).length],
+   ["item",tx("Objetos","Items"),Object.keys(ITEMS).length],
+   ["lvl",tx("Niveles","Levels"),CAT.length]].forEach(([id,nom,tot])=>{
+    const b = document.createElement("div");
+    b.className = "cdx-tab";
+    b.textContent = nom+" "+(cuentaSec[id]||0)+"/"+tot;
+    b.addEventListener("click", ()=>{
+      const target = body.querySelector('[data-sec="'+id+'"]');
+      if(target) target.scrollIntoView({block:"start"});
+    });
+    tabs.appendChild(b);
+  });
+  $("codexProgress").firstElementChild.style.width = (total ? vistos/total*100 : 0)+"%";
 
   $("codexCount").textContent = vistos+"/"+total+tx(" catalogado"," on file");
 }
@@ -7756,7 +9008,7 @@ function renderChars(){
     const who = (CHARACTERS.filter(c=>c.id===save.charId)[0]||{}).name || "?";
     cont.hidden = false;
     $("continueInfo").innerHTML =
-      "<b>"+who+"</b> · descenso "+((save.depth||0)+1)+" · "+levelTitle(cfg);
+      "<b>"+who+"</b> · "+tx("descenso ","depth ")+((save.depth||0)+1)+" · "+levelTitle(cfg);
   } else cont.hidden = true;
 
   const grid = $("achGrid");
@@ -8110,7 +9362,14 @@ function mpSalir(){
 function startRun(charId){
   Audio_.init(); Audio_.resume();
   resetRun(charId);
-  buildLevel("0", G.levelSeed);
+  if(wantRandom){
+    G.randomMode = true;
+    G.levelId = randomLevelId(Math.random, "0");
+    // un par de cosas al azar en los bolsillos para empezar
+    const cajon = TIERS.comun.concat(TIERS.bueno);
+    for(let i=0;i<2;i++) addItem(cajon[(Math.random()*cajon.length)|0], 1);
+  }
+  buildLevel(G.levelId, G.levelSeed);
   refreshSlots();
   computeReveal(true);
   renderBrief();
@@ -8128,7 +9387,7 @@ function continueRun(){
 
 function renderBrief(){
   const cfg = G.cfg;
-  $("brEyebrow").textContent = (cfg.procedural
+  $("brEyebrow").textContent = (G.randomMode ? tx("MODO ALEATORIO · ","RANDOM MODE · ") : "") + (cfg.procedural
     ? tx("M.E.G. · Nivel sin catalogar · ","M.E.G. · Uncatalogued level · ")
     : tx("M.E.G. · Informe de nivel · ","M.E.G. · Level report · ")) + tx("Descenso ","Depth ")+(G.depth+1)+" · "+G.char.name;
   $("brTitle").textContent = levelTitle(cfg);
@@ -8171,9 +9430,7 @@ function beginPlay(){
   }
   G.running = true; G.paused = false; G.dead = false;
   Audio_.init(); Audio_.resume();
-  const humVol = G.cfg.ambI>0.3 ? 0.06 : 0.03;
-  Audio_.set(Audio_.humGain, humVol, 1.5);
-  Audio_.set(Audio_.droneGain, 0.035, 1.5);
+  applyLevelAudio();
   grabPointer();
   refreshSlots();
   toast(levelTitle(G.cfg), 3.6);
@@ -8184,13 +9441,17 @@ function pauseGame(){
   G.paused = true;
   if(document.pointerLockElement) document.exitPointerLock();
   Audio_.set(Audio_.humGain, 0.01, 0.4);
+  Audio_.set(Audio_.musicGain, 0.012, 0.4);
+  Audio_.set(Audio_.melGain, 0.2, 0.4);
+  Audio_.set(Audio_.ambGain, 0.01, 0.4);
+  userMusicDuck();
   show("pauseScreen");
 }
 function resumeGame(){
   G.paused = false;
   hideAll();
   Audio_.resume();
-  Audio_.set(Audio_.humGain, G.cfg.ambI>0.3?0.06:0.03, 1.0);
+  applyLevelAudio();
   grabPointer();
 }
 function toTitle(){
@@ -8198,6 +9459,10 @@ function toTitle(){
   if(document.pointerLockElement) document.exitPointerLock();
   Audio_.set(Audio_.humGain, 0, 0.8);
   Audio_.set(Audio_.heartGain, 0, 0.5);
+  Audio_.set(Audio_.musicGain, 0, 1.2);
+  Audio_.set(Audio_.melGain, 0, 1.2);
+  Audio_.set(Audio_.ambGain, 0, 1.2);
+  userMusicStop();
   resetRun(G.char ? G.char.id : CHARACTERS[0].id);
   buildLevel("0", G.levelSeed);
   renderChars();
@@ -8212,6 +9477,10 @@ function die(why){
   if(document.pointerLockElement) document.exitPointerLock();
   Audio_.set(Audio_.humGain, 0, 0.6);
   Audio_.set(Audio_.heartGain, 0, 0.6);
+  Audio_.set(Audio_.musicGain, 0, 1.0);
+  Audio_.set(Audio_.melGain, 0, 1.0);
+  Audio_.set(Audio_.ambGain, 0, 1.0);
+  userMusicStop();
   Audio_.scream();
   const hurtParts = PARTS.filter(p=> G.body[p.id] < 70).map(p=> txf(p,"name"));
   $("deadTitle").textContent = G.sanity<=0 ? tx("Te has quedado","You stayed") : tx("Te han encontrado","Something found you");
@@ -8249,9 +9518,13 @@ function frame(){
     updateEntities(dt);
     updateWeapons(dt);
     updateNoclips(dt);
+    updateShift(dt);
+    updateCrossing(dt);
     updateAbility(dt);
     updateGhosts(dt);
     updateScares(dt);
+    updateAmbient(dt);
+    updateMusic(dt);
     updateFlares(dt);
     updateBleeding(dt);
     updateSanity(dt);
@@ -8267,7 +9540,8 @@ function frame(){
     fpsAcc += dt; frames++;
     if(fpsAcc > 2){
       const fps = frames/fpsAcc;
-      if(fps < 32 && lowFps === 0){ lowFps = 1; renderer.setPixelRatio(1); }
+      if(fps < 32 && lowFps === 0){ lowFps = 1; renderer.setPixelRatio(Math.min(1, qualityRatio())); }
+      if(G.opts.fps) $("fpsc").textContent = Math.round(fps)+" FPS";
       fpsAcc = 0; frames = 0;
     }
   } else if(G.cfg){
@@ -8288,6 +9562,10 @@ buildIcons();
 loadMeta();
 loadOpts();
 applyBrightness();
+renderer.setPixelRatio(qualityRatio());
+applyFx(); applyFps();
+loadUserTracks();
+$("mbFile").addEventListener("change", ev=>{ addUserTracks(ev.target.files); ev.target.value = ""; });
 LANG = (G.opts.lang === "en") ? "en" : "es";
 applyLangDom();
 paintVersion();
@@ -8307,12 +9585,13 @@ $("retryBtn").addEventListener("click", ()=>{ renderChars(); show("titleScreen")
 $("loadBtn").addEventListener("click", continueRun);
 $("quitBtn").addEventListener("click", toTitle);
 $("resumeBtn").addEventListener("click", resumeGame);
-$("playBtn").addEventListener("click", ()=>{ mpSalir(); openChars(); });
+$("playBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; openChars(); });
+$("randBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = true; openChars(); });
 $("mpBtn").addEventListener("click", mpAbrir);
 $("mpCreate").addEventListener("click", ()=> mpEmpezar(true));
 $("mpJoin").addEventListener("click", ()=> mpEmpezar(false));
 $("mpBack").addEventListener("click", ()=>{ mpSalir(); renderChars(); show("titleScreen"); });
-$("mpGo").addEventListener("click", openChars);
+$("mpGo").addEventListener("click", ()=>{ wantRandom = false; openChars(); });
 $("charPrev").addEventListener("click", ()=> charStep(-1));
 $("charNext").addEventListener("click", ()=> charStep(1));
 $("charBack").addEventListener("click", ()=>{ renderChars(); show("titleScreen"); });
@@ -8330,6 +9609,20 @@ window.addEventListener("keydown",(e)=>{
 $("codexBtn").addEventListener("click", ()=>{ renderCodex("titleScreen"); show("codexScreen"); });
 $("pauseCodexBtn").addEventListener("click", ()=>{ renderCodex("pauseScreen"); show("codexScreen"); });
 $("codexBack").addEventListener("click", ()=> show(G.codexFrom || "titleScreen"));
+$("dmapBtn").addEventListener("click", ()=>{ renderDescentMap("titleScreen"); show("dmapScreen"); });
+$("pauseMapBtn").addEventListener("click", ()=>{ renderDescentMap("pauseScreen"); show("dmapScreen"); });
+$("dmapBack").addEventListener("click", ()=> show(dmFrom));
+$("dmSvg").addEventListener("click", ev=>{
+  const n = ev.target.closest && ev.target.closest(".dm-n");
+  dmSelect(n ? n.getAttribute("data-id") : null);
+});
+$("dmInfo").addEventListener("click", ev=>{
+  const b = ev.target.closest && ev.target.closest("[data-go]");
+  if(!b) return;
+  const id = b.getAttribute("data-go");
+  dmSelect(id);
+  dmCenter(id);
+});
 $("optsBtn").addEventListener("click", ()=> openOpts("titleScreen"));
 $("pauseOptsBtn").addEventListener("click", ()=> openOpts("pauseScreen"));
 $("optsBack").addEventListener("click", closeOpts);

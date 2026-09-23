@@ -70,7 +70,9 @@ for (const [modo, nombre] of [[1, "Turista (+1)"], [2, "Vagabundo (0)"], [4, "Si
   const medio = cuenta.reduce((a, v, k) => a + v * k, 0) / 60000;
   console.log("  " + nombre.padEnd(16) + reparto + "   media " + medio.toFixed(2));
   if (mod > 0) c.ok(cuenta[1] === 0, "    con +1 nunca sale un 1");
-  if (mod < 0) c.ok(cuenta[6] === 0 && cuenta[1] > 60000 * 0.25, "    con -1 no salen seises y abundan los unos");
+  if (mod < 0) c.ok(cuenta[6] === 0, "    con penalización no salen seises");
+  // el 1 (vacío) sólo sale con un 1 natural: la penalización baja la calidad, no vacía casilleros
+  if (mod < 0) c.ok(cuenta[1] < 60000 * 0.19 && cuenta[1] > 60000 * 0.14, "    y los vacíos siguen siendo 1 de cada 6, no 1 de cada 3");
   if (mod === 0) c.ok(cuenta.slice(1).every(v => v > 60000 * 0.12), "    sin modificador, las seis caras salen");
 }
 G.char = charAntes;

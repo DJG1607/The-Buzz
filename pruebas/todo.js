@@ -11,10 +11,12 @@ const path = require("path");
 
 const PRUEBAS = [
   ["sintaxis", "que el archivo no tenga errores de JavaScript ni definiciones repetidas"],
-  ["niveles", "que los 26 niveles se puedan jugar y el grafo de saltos esté sano"],
+  ["niveles", "que los 51 niveles se puedan jugar y el grafo de saltos esté sano"],
   ["combate", "velocidades, aliento y los ataques especiales de las entidades"],
   ["objetos", "botín, dado, plano y cinta, bengalas y traducciones"],
-  ["tanda2", "armas de mano, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"]
+  ["tanda2", "armas de mano, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"],
+  ["tanda3", "curación por zona, códice que se reinicia y se ve mejor, música y ambiente"],
+  ["tanda4", "casilleros, especiales, fauna de la wiki, brújula, salidas, reordenamiento, manos, mapa, música y sprites"]
 ];
 
 const pedida = process.argv[2];

@@ -107,6 +107,19 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 | Tocar una habilidad activa | `PERSONAJES` | El campo `ability` de ese personaje + su rama en `useAbility()` |
 | Tocar el códice | `LOGROS` (cerca) | `renderCodex()`, `codexSeeEnt()` / `codexSeeItem()` |
 | Tocar las paredes atravesables | `MONTAJE DEL NIVEL` | El bloque que talla `G.noclips` + `updateNoclips()` |
+| Curar una zona concreta | `DAÑO POR ZONAS` | `bandagePart()` (compartida por la tecla R y el clic en el maniquí) |
+| Tocar el códice (qué se ve, cómo se ve) | `LOGROS` (cerca) | `renderCodex()`, `entityIcon()`, `itemIconCanvas()` |
+| Tocar la música o el ambiente | `AUDIO` | `musicModeFor()`, `AMB_FLAVOR`/`ambientFlavorFor()`, `applyLevelAudio()` |
+| Tocar la melodía | `MÚSICA Y AMBIENTE` | `MEL_SCALES`, `melodyFor()`, `updateMusic()`, `Audio_.pluck()` |
+| Tocar la música que sube el jugador | `TU MÚSICA` | `USER_TRACKS`, `addUserTracks()`, `userMusicPlay()` (IndexedDB `zumbido.music`) |
+| Cada cuánto se reordena el nivel | `EL NIVEL SE REORDENA` | `shiftDelay()`, y cuánto cambia en `shiftMaze()` |
+| Cuánto cuesta cruzar una salida | `USO DE OBJETOS` (tras `interact()`) | `CROSS_TIME` por tipo de salida |
+| Cuántas salidas hay y lo lejos que están | `MONTAJE DEL NIVEL` | `nExits` y la lista `[0.68, 0.5, 0.3]` |
+| Lo buena que es la brújula | `MAPA, CAMINO Y BRÚJULA` | `COMPASS_RANGE`, `compassSignal()`, `compassWobble()` |
+| El mapa del descenso del juego | `MAPA DEL DESCENSO` | `renderDescentMap()`, `dmSelect()` |
+| Una opción gráfica | `AJUSTES` | `OPT_ROWS` + `qualityRatio()`/`bumpMul()`/`applyFx()`… |
+| El aspecto de los sprites | `PIXEL ART` | Se dibujan igual que siempre; `refineSprite()` les pone resolución, contorno y luz |
+| El modo aleatorio | `MODO ALEATORIO` | `randomizeLevel()` (qué se baraja), `randomLevelId()` (adónde llevan las salidas) |
 
 ### Añadir un nivel, paso a paso
 
@@ -173,7 +186,8 @@ compiten por los cuatro huecos rápidos.
 
 - **Armas de mano** (`ITEMS.pipe/rebar/bat`, campo `weapon:true`). Se guardan en
   `G.weapons.L` / `G.weapons.R`, no en `G.inv`. `addItem()` las reparte a la primera mano
-  libre y rechaza una tercera. `swingHand("L"|"R")` busca al `walker` más cercano dentro
+  libre; desde 1.6.0 una tercera va a la mochila (antes se perdía) y `weaponClick()` las
+  pasa de la mochila a una mano y al revés. `swingHand("L"|"R")` busca al `walker` más cercano dentro
   de `reach`, le pone `stun` y lo empuja; cada mano tiene su propio `G.weaponCd`.
 - **Habilidad activa** (`CHARACTERS[x].ability`). `useAbility()` es un único `dispatch`
   por `ability.id` (`pulse`/`loot`/`shield`/`calm`). El cooldown es un solo número,
@@ -188,6 +202,64 @@ compiten por los cuatro huecos rápidos.
 - **Sin retorno sin guardar** (`DIFFS[4].noSave`). Un booleano que `saveGame()` y
   `useOutpost()` comprueban antes de escribir nada. Si se añade un quinto modo de
   dificultad, hereda el comportamiento sin tocar el guardado.
+
+## 6¾. Música y ambiente (1.5.1)
+
+No hay archivos de audio, así que la "música" es WebAudio puro, igual que el resto del
+sonido del juego: un acorde de cuatro osciladores (`Audio_.musicVoices`) que se desliza
+muy despacio de una nota a otra con `setTargetAtTime` — nunca salta, nunca hay un click.
+
+- **`musicModeFor(cfg)`** decide la raíz y los intervalos según `cfg.risk` (0-3):
+  consonante y grave-suave en los niveles seguros, un clúster de segunda menor pegado a
+  la raíz en los letales. Un asentamiento (`cfg.settlement`) suena siempre como riesgo 0,
+  aunque su campo `risk` diga otra cosa.
+- **`AMB_FLAVOR` / `ambientFlavorFor(cfg)`** añade un sonido suelto según `cfg.deco`:
+  goteo de agua en `sea`/`pool`/`caves`, viento en `field`/`suburb`, chispazos en
+  `electrical`/`pipes`. `updateAmbient(dt)` lo dispara con un temporizador (`G.ambTimer`),
+  igual que `updateScares()` ya hacía con los sustos.
+- **`applyLevelAudio()`** junta el hum, la música y el ambiente en una sola llamada; la
+  usan `beginPlay()` y `resumeGame()` para no repetir los mismos números en dos sitios.
+  `pauseGame()`, `toTitle()` y `die()` bajan `musicGain`/`ambGain` igual que ya hacían con
+  `humGain`.
+- **No se puede verificar de oído.** `pruebas/tanda3.js` prueba los números que deciden el
+  sonido (la raíz baja con el riesgo, el sabor coincide con el `deco`), no el sonido en
+  sí. Si tocas esto, compruébalo jugando.
+
+## 6⅞. La tanda 1.6.0
+
+- **Ataques especiales.** Las diez entidades tienen `sp.reach`/`windup`/`cd`; antes seis
+  no los tenían y su especial sólo salía si perdías el forcejeo entero, así que no se veía
+  nunca. Mientras cargan se plantan (`step × 0.08`), se tiñen de rojo (`spTint()`) y sale
+  un cartel grande con barra (`#spwarn`, `G.spWarn`). Un aturdimiento o un agarre cancela
+  la carga (`cancelSpecial()`).
+- **Casilleros.** `rollDice()` sólo da un 1 con un 1 natural: la dificultad baja la
+  calidad del botín, no lo vacía. Lo que no cabe se queda en `c.left` y `takeLeftovers()`
+  lo recoge al volver.
+- **Salidas.** Menos (2-3) y más lejos, y hay que **mantener E** el tiempo de
+  `CROSS_TIME` sin alejarse; hace ruido y un agarre la corta (`updateCrossing()`).
+- **El nivel se reordena.** Los muros son un `InstancedMesh` con `SHIFT_SPARE` bloques de
+  reserva escondidos; `G.wallInst` dice qué bloque ocupa cada celda. `shiftMaze()` abre
+  muros entre pasillos, cierra pasillos comprobando con un BFS que no se incomunica nada
+  (si un cierre rompe algo, se deshace) y a veces mueve una salida. Sólo toca celdas que el
+  jugador **no ve** y que no tienen nada encima (`cellBusy()`). Desactivado en
+  multijugador: cada jugador lo haría distinto y dejaríais de compartir laberinto.
+- **Fauna fiel a la wiki.** Revisada nivel a nivel contra la sección *Entities* de cada
+  artículo. Varios niveles se han quedado sin entidades del catálogo porque la wiki no
+  documenta ninguna (Level 0, 6, 7, 37…): su peligro es el propio nivel.
+- **Sprites.** `refineSprite()` pasa cada atlas por Scale2x y le pone contorno, luz de
+  borde y oclusión. Las texturas quedan al doble de tamaño; **los iconos miden
+  `ICON_PX` (32)**, así que cualquier sitio que los pinte tiene que usar un canvas de ese
+  tamaño o `drawImage(icono, 0, 0, ICON_PX, ICON_PX)`.
+- **Modo aleatorio.** `G.randomMode` hace que `instantiate()` devuelva una **copia**
+  barajada del nivel del catálogo (fauna, casilleros, puesto, zonas especiales y un
+  `risk` recalculado con la fauna), nunca el objeto de `CAT`, que queda intacto. Todo sale
+  de la semilla del nivel mezclada con su id, así que el nombre que anuncia una salida es
+  el nivel que te encuentras al cruzarla. Las salidas ignoran `exitsTo` y usan
+  `randomLevelId()`. Se guarda con la partida (`randomMode` en el guardado) y el
+  multijugador siempre arranca en modo normal.
+- **Tu música.** Se guarda en IndexedDB (`zumbido.music`, almacén `tracks`) y suena por un
+  `<audio>` enchufado a WebAudio con `createMediaElementSource`, así que respeta el volumen
+  general y el de música. Si IndexedDB no existe (ventana privada), dura sólo la sesión.
 
 ## 7. Trampas que ya han mordido
 
@@ -218,6 +290,39 @@ bórralo ahí también.
 Servido por HTTP sin declarar UTF-8, «brújula» sale como «brÃºjula». Está puesto; no lo
 quites. Y **no** le pongas `<!DOCTYPE>`: la maqueta está hecha en modo *quirks* y el
 doctype la cambiaría.
+
+**Reiniciar progreso tiene que tocar TODO lo que persiste, no sólo `localStorage`.**
+`wipeProgress()` borraba `META_KEY` del `localStorage` pero se olvidaba de `G.codex` en
+memoria (1.5.1). El bug no se veía al momento: se veía en la **siguiente** partida, cuando
+`codexSeeEnt()`/`codexSeeItem()` volvían a llamar a `saveMeta()` y reescribían el códice
+viejo encima del que acababas de borrar. Si añades un nuevo `G.algo` que se guarde junto a
+`G.unlocked`/`G.ach`/`G.codex`, añádelo también a `wipeProgress()` — y prueba el flujo de
+**las dos pulsaciones** (arma → confirma), no sólo una, o el test no lo va a pillar.
+
+**Un objeto "de equipo" sin un `else if` en `useItem()` no falla: se queda mudo.**
+Antes de 1.5.1, usar el mapa, la brújula o la mochila una segunda vez no hacía nada — ni
+error, ni aviso, sencillamente atravesaba todos los `if/else if` sin entrar en ninguno.
+Se sentía roto aunque técnicamente no lo estaba. Si añades un objeto `equip:true` sin
+una acción de "uso" real, dale al menos un `toast()` de vuelta.
+
+**Todo texto que el código escribe tiene que pasar por `tx()` o `txf()`, también al *restaurarlo*.**
+«Borrar progreso» volvía en español con el juego en inglés porque, tras borrar, el código le
+devolvía el texto con `btn.textContent = "Borrar progreso"`. Buscando el mismo patrón (1.6.0)
+salieron más: la frase de muerte de las diez entidades (no tenían `death_en`), las muertes
+por hemorragia o cordura, las pistas del objeto en la mano, los controles de la pausa (sin
+`data-en`), el sello «Catalogado» y la lista de «Tu música», que se pinta al arrancar y no se
+repintaba al cambiar de idioma. `pruebas/tanda4.js` busca ahora esos patrones en el código.
+Si algo se pinta una sola vez, `applyLanguage()` tiene que volver a pintarlo.
+
+**Con el ratón capturado no se puede hacer clic en el HUD.**
+La mochila desplegable (1.5.0) decía «clic para cogerlo», pero con el *pointer lock* puesto
+los clics nunca le llegaban. Ahora abrirla suelta el ratón (sin pausar: el manejador de
+`pointerlockchange` mira `bpOpen`) y cerrarla lo vuelve a capturar.
+
+**El banco de pruebas se engancha en el ÚLTIMO `resize();`.**
+Inyecta la exportación de símbolos justo antes. Hasta 1.6.0 usaba el primero, y en cuanto
+`applyQuality()` llamó a `resize()` la exportación acabó dentro de esa función y ninguna
+prueba arrancaba.
 
 **Three.js tiene que ser 0.150.1.**
 Las versiones a partir de la r160 quitaron el build UMD, que es el que permite cargarlo

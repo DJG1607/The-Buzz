@@ -24,7 +24,7 @@ También comprueba el `<meta charset>`, la versión de Three.js y que no haya ap
 ninguna dependencia externa.
 
 ### `niveles.js` — un par de minutos
-Genera los 26 niveles con 20 semillas cada uno y comprueba que se pueden jugar: que se
+Genera los 51 niveles con 20 semillas cada uno y comprueba que se pueden jugar: que se
 llega a las salidas y a los contenedores, que no apareces dentro de una pared ni con una
 entidad encima, y que ningún mueble deja trozos del mapa incomunicados.
 
@@ -58,6 +58,32 @@ exactamente lo que dicen (Marcos localiza la salida, Vera se garantiza un buen c
 Lázaro reduce el daño a la mitad, el Entrenador aturde en área); que Sin retorno no deje
 guardar; y que las paredes atravesables salgan en pares, no toquen el laberinto y
 teleporten de verdad.
+
+### `tanda3.js` — unos segundos
+Tres arreglos y un añadido de la versión 1.5.1. El más sutil: **`wipeProgress()` borraba
+`localStorage` pero no `G.codex` en memoria**, así que el primer objeto o entidad que
+vieras en la siguiente partida volvía a guardar el códice viejo por encima del que
+acababas de borrar — el bug no se notaba hasta la *segunda* vez que mirabas el códice.
+También prueba que curar una zona concreta del maniquí no toca las demás (y que la tecla
+R sigue curando la peor, sin romper eso), que `renderCodex()` no revienta con los iconos
+nuevos, y que la música/ambiente calculan bien su modo y su sabor por nivel — el propio
+sonido no se puede verificar en un test, así que esto comprueba los números que lo deciden
+(la raíz baja y los intervalos se cierran cuanto más peligroso es el nivel) y que la
+generación de audio en 10 niveles reales no lanza ninguna excepción.
+
+### `tanda4.js` — medio minuto
+La tanda 1.6.0. Que el dado sólo vacíe casilleros con un 1 natural y que lo que no cabe se
+quede dentro; que las diez entidades avisen y peguen con su especial (y los Facelings no
+contra el Entrenador); la fauna de varios niveles contra la wiki; que la brújula pierda
+señal con la distancia y no dé metros; que haya 1-3 salidas y lejos, y que cruzarlas se
+corte al soltar E, alejarte o que te agarren. Lo más pesado es el **reordenamiento**: cada
+nivel con varias semillas, reordenado cuatro veces, comprobando con un BFS que nada queda
+incomunicado, que no se empareda ningún casillero y que cada muro tiene su bloque en 3D.
+Y el **modo aleatorio**: que las salidas vayan a sitios fuera del grafo normal, que el
+destino anunciado sea el que te encuentras, que la fauna se baraje de verdad y que el
+catálogo normal quede intacto al salir. Al final, un barrido del código contra el bug del
+idioma: ningún `textContent = "…"` sin `tx()`, ninguna muerte sólo en español y los controles
+de la pausa con su `data-en`.
 
 ---
 

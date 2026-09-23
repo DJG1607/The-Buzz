@@ -38,31 +38,55 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   de teclas antes de que se acabe el tiempo. Cuanto más limpio lo hagas, más tarda en levantarse.
 - **Ataque especial por entidad**, fiel a su ficha de la wiki: el Hound te desgarra las piernas, el
   Clump te arrastra a su boca, el Duller mete el brazo **a través de la pared** y el Smiler sólo
-  salta si le das luz o haces ruido. Siempre avisan antes y se pueden esquivar.
+  salta si le das luz o haces ruido. Las diez lo tienen: se plantan, se ponen rojas y sale un
+  aviso grande con una barra — si te apartas a tiempo, fallan.
+- **Fauna fiel a la wiki**, revisada nivel a nivel: donde la wiki no documenta entidades (el
+  Level 0, Lights Out, Thalassophobia…) no hay, y el peligro es el propio nivel.
+- **El nivel se reordena** cada minuto y pico a tus espaldas: se abren muros, se cierran
+  pasillos y alguna salida cambia de sitio. Nunca delante de ti y nunca dejando nada
+  incomunicado.
+- **Salidas que cuestan**: pocas, lejos, y hay que **mantener E** unos segundos para cruzarlas,
+  haciendo ruido.
 - **Multijugador con amigos**: sala con nombre, la partida va directa entre vuestros ordenadores
   por WebRTC. Camináis el mismo laberinto y os veis moveros; cada uno tiene sus enemigos y su
   botín. No hace falta instalar nada.
 - **La palanca**: si algo te tiene agarrado, **[V]** te suelta de golpe y lo deja tonto. Se gasta
   al usarla.
-- **Tres armas de mano reutilizables** — tubería, varilla y bate — que se equipan una en cada mano
-  y golpean con el **clic izquierdo y el clic derecho**. No se gastan, cada una golpea distinto
-  (alcance, aturdimiento y cadencia propios).
+- **Dos manos a la vista** con **tres armas reutilizables** — tubería, varilla y bate —, una en
+  cada mano: golpean con el **clic izquierdo y el clic derecho**. Si llevas las dos ocupadas, la
+  tercera va a la mochila y desde ahí se cambia de mano.
 - **Una habilidad activa por personaje** (tecla **[C]**), con su propio tiempo de recarga: Marcos
   localiza la salida sin brújula, Vera se garantiza un buen casillero, Lázaro aguanta la mitad de
   daño un rato, y el Entrenador aturde todo lo que tenga cerca.
 - **La mochila se despliega con [B]** y enseña todo lo que llevas encima, no sólo los cuatro huecos
   rápidos — un clic la coge, otro clic la usa.
-- **Códice**: un archivo de campo que documenta cada entidad, objeto y nivel según los vas
-  encontrando, con la ficha real de cada uno.
+- **Códice**: un archivo de campo, con iconos y pestañas, que documenta cada entidad,
+  objeto y nivel según los vas encontrando, con la ficha real de cada uno.
 - **Paredes que no son paredes de verdad**: entras por una y sales por otra, en otro punto del
   nivel. Aparecen sueltas por el laberinto, no siempre, y sin avisar cuál es la pareja de cuál.
 - **Modo Sin retorno**: la dificultad más dura no permite guardar la partida en ningún puesto.
-- **Casilleros con tirada de d6**: un 1 no da nada, un 6 es un petate intacto.
-- **Daño por zonas del cuerpo**, con hemorragias y vendajes.
+- **Modo aleatorio** (botón propio en el título): empiezas en un nivel al azar con un par de
+  objetos al azar, cada salida lleva a cualquier nivel —a veces a uno sin catalogar— y cada
+  nivel sale con su fauna, su botín y sus zonas especiales barajados. No se juega en
+  multijugador.
+- **Casilleros con tirada de d6**: un 1 no da nada, un 6 es un petate intacto. Lo que no te
+  cabe se queda dentro y puedes volver a por ello.
+- **Mapa del descenso interactivo**, dentro del juego y en el anexo: tocas un nivel y se
+  encienden los niveles a los que puedes ir desde él y los que llevan hasta él.
+- **Brújula con sus límites**: tiembla, da la distancia por tramos y pierde la señal lejos o
+  con algo persiguiéndote.
+- **Daño por zonas del cuerpo**, con hemorragias y vendajes — y puedes **curar una zona
+  concreta haciendo clic en el maniquí** del HUD, no sólo la peor con `R`.
+- **Música y sonido ambiente**, generados por código igual que el resto del audio: un acorde
+  y una melodía con eco que se ponen más tensos cuanto más peligroso es el nivel, más goteo,
+  viento o chispazos según el tipo de sitio. **Puedes subir tu propia música** en Ajustes, y
+  la música y el ambiente tienen cada uno su volumen.
+- **Opciones gráficas**: calidad (resolución y relieve), distancia de visión, filtro de
+  pantalla (limpio, grano o VHS), temblor de cámara y contador de FPS.
 - **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
   rojas y la Manila Room.
 - **Cuatro personajes**, dos de ellos desbloqueables —entre ellos **el Entrenador**, el Faceling
-  del Level 31, al que los suyos no atacan—, y **70 logros**. Se eligen en un carrusel al darle a
+  del Level 31, al que los suyos no atacan—, y **71 logros**. Se eligen en un carrusel al darle a
   Jugar.
 
 ## Idiomas
@@ -77,7 +101,7 @@ la partida. En inglés el juego se llama *The Buzz*.
 | `W A S D` | Moverte |
 | Ratón | Mirar |
 | `SHIFT` | Correr (gasta aliento y hace ruido) |
-| `E` | Abrir contenedor · usar salida · guardar en un puesto |
+| `E` | Abrir contenedor · guardar en un puesto · **mantener** para cruzar una salida |
 | `1`–`4` | Sacar objeto (otra vez para usarlo) |
 | `Q` / `R` | Beber Almond Water · vendarte |
 | `F` / `G` | Linterna · bengala |
@@ -97,7 +121,8 @@ el juego normal sigue funcionando igual:
 - El laberinto sale de un *recursive backtracker* con *braiding* para abrir salas.
 - Las texturas del entorno se pintan en canvas de 384 px (moqueta con fibras, papel pintado con
   costuras y humedades, hormigón con grietas ramificadas, madera con nudos…).
-- Los personajes son sprites de 24×36 dibujados píxel a píxel y sombreados dentro de su silueta.
+- Los personajes son sprites de 24×36 dibujados píxel a píxel, sombreados dentro de su silueta y
+  refinados al doble de resolución con Scale2x, contorno y luz de borde.
 - El audio es WebAudio puro: el zumbido de los fluorescentes son tres osciladores filtrados.
 - Las entidades comparten un *flow field* recalculado desde el jugador cada 0,35 s.
 

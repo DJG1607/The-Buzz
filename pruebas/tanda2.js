@@ -19,13 +19,15 @@ function limpio() {
   G.running = true; G.paused = false; G.dead = false; G.grab = null;
 }
 
-/* ── 1. armas de mano: se reparten entre las dos manos y no una tercera ── */
+/* ── 1. armas de mano: se reparten entre las dos manos y la tercera va a la mochila ── */
 console.log("── ARMAS DE MANO ──");
 limpio();
 G.weapons = { L: null, R: null }; G.weaponCd = { L: 0, R: 0 };
 c.ok(addItem("pipe", 1) && G.weapons.L === "pipe", "la primera arma va a la mano izquierda");
 c.ok(addItem("rebar", 1) && G.weapons.R === "rebar", "la segunda va a la derecha");
-c.ok(addItem("bat", 1) === false, "con las dos manos llenas, la tercera no entra");
+c.ok(addItem("bat", 1) === true && G.weapons.L === "pipe" && G.weapons.R === "rebar" && G.inv.some(x => x.id === "bat"),
+  "con las dos manos llenas, la tercera va a la mochila (antes se perdía)");
+c.ok(addItem("bat", 1) === false, "y una repetida no entra dos veces");
 c.ok(hasItem("pipe") && hasItem("rebar"), "hasItem() reconoce las dos armas equipadas");
 
 const e = { def: { kind: "walker", dmg: 10 }, x: player.pos.x + 1.0, z: player.pos.z, r: 0.3, stun: 0, grabbed: false };

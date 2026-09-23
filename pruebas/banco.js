@@ -30,7 +30,12 @@ const EXPORTA = [
   "CAT", "G", "buildLevel", "bfs", "player", "w2c", "c2w",
   "ENT_DEF", "entitySpecial", "updateSpecial", "PARTS", "bodyAvg",
   "ITEMS", "TIERS", "DICE", "lootForRoll", "txf", "tx", "DIFFS",
-  "hurtPlayer", "VERSION", "ACHIEVEMENTS", "lightFlare", "updateFlares", "hasItem", "addItem", "rollDice", "DIFF_LV", "swingHand", "updateWeapons", "useAbility", "updateAbility", "CHARACTERS", "resetRun", "updateNoclips", "saveGame"
+  "hurtPlayer", "VERSION", "ACHIEVEMENTS", "lightFlare", "updateFlares", "hasItem", "addItem", "rollDice", "DIFF_LV", "swingHand", "updateWeapons", "useAbility", "updateAbility", "CHARACTERS", "resetRun", "updateNoclips", "saveGame", "bandagePart", "healBodyPart", "wipeProgress", "useItem", "renderCodex", "entityIcon", "itemIconCanvas", "codexSeeEnt", "codexSeeItem", "ENT_DEF",
+  "musicModeFor", "ambientFlavorFor", "updateAmbient", "applyLevelAudio", "beginPlay", "pauseGame", "resumeGame", "toTitle", "die", "MUSIC_MODES", "Audio_",
+  "openContainer", "takeLeftovers", "weaponClick", "cancelSpecial", "compassSignal", "compassBand",
+  "startCrossing", "updateCrossing", "keys", "CROSS_TIME", "shiftMaze", "SHIFT_SPARE",
+  "musicSource", "melodyFor", "updateMusic", "MEL_SCALES", "refineSprite", "ICON_TEX", "ICON_PX", "REFINE",
+  "dmLayers", "renderDescentMap", "dmSelect", "qualityRatio", "bumpMul", "instantiate", "randomLevelId", "levelTitle"
 ].join(", ");
 
 /* Stub genérico: devuelve otro stub para cualquier propiedad, y se puede
@@ -172,11 +177,12 @@ function cargar(ruta) {
   };
 
   vm.createContext(entorno);
-  // se cuelga la exportación justo antes del resize() final, ya dentro de la IIFE
-  const conSalida = src.replace(
-    "resize();",
-    "window.__t = {" + EXPORTA + "};" + String.fromCharCode(10) + "resize();"
-  );
+  // se cuelga la exportación justo antes del resize() final, ya dentro de la IIFE.
+  // Tiene que ser el ÚLTIMO resize(): hay otros antes (applyQuality lo llama) y
+  // si se engancha en uno de ésos la exportación queda dentro de una función.
+  const ult = src.lastIndexOf("resize();");
+  const conSalida = ult < 0 ? src : src.slice(0, ult) +
+    "window.__t = {" + EXPORTA + "};" + String.fromCharCode(10) + src.slice(ult);
   if (conSalida === src) throw new Error("no he podido inyectar la exportación (¿ha cambiado el arranque?)");
 
   vm.runInContext(conSalida, entorno, { filename: "el-zumbido.js" });
