@@ -36,7 +36,10 @@ const EXPORTA = [
   "startCrossing", "updateCrossing", "keys", "CROSS_TIME", "shiftMaze", "SHIFT_SPARE",
   "musicSource", "melodyFor", "updateMusic", "MEL_SCALES", "refineSprite", "ICON_TEX", "ICON_PX", "REFINE",
   "dmLayers", "renderDescentMap", "dmSelect", "qualityRatio", "bumpMul", "instantiate", "randomLevelId", "levelTitle",
-  "stackMax", "invCount", "dropItem", "pickDrop", "slotKey", "OPT_ROWS", "OPT_TAB_OF", "OPT_TABS"
+  "stackMax", "invCount", "dropItem", "pickDrop", "slotKey", "OPT_ROWS", "OPT_TAB_OF", "OPT_TABS",
+  "MP", "mpRecibir", "mpEnviar", "updateGhosts", "goDown", "reviveMe", "startRevive", "updateRevive", "updateDowned",
+  "mpAlguienVivo", "mpElegirModo", "SKINS", "skinUnlocked", "skinAtlas", "skinOf", "checkSkins", "kb", "setKey",
+  "doKeyAction", "ACTIONS", "PAD", "pollPad", "startRun", "btn", "tag", "setInput", "keyify"
 ].join(", ");
 
 /* Stub genérico: devuelve otro stub para cualquier propiedad, y se puede
@@ -189,6 +192,7 @@ function cargar(ruta) {
   vm.runInContext(conSalida, entorno, { filename: "el-zumbido.js" });
   if (entorno.__zerr) throw new Error("el juego peta al arrancar: " + entorno.__zerr);
   if (!entorno.__t) throw new Error("el juego cargó pero no expuso sus símbolos");
+  entorno.__t.__ctx = entorno;          // para tocar el navegador de mentira (p. ej. un mando)
   return entorno.__t;
 }
 

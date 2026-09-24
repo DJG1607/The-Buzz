@@ -125,6 +125,10 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 | Soltar / desechar | `OBJETO EN LA MANO` | `takeOut()`, `dropItem()`, `spawnDrop()`, `pickDrop()` |
 | El aspecto de una salida | `SALIDAS: geometría por tipo` | `EXIT_PAINT` (texturas) y `buildExitMesh()` |
 | Las pestañas de ajustes | `AJUSTES` | `OPT_TABS` y `OPT_TAB_OF` (qué ajuste va en cuál) |
+| Una acción nueva con tecla | `JUGADOR` | Añadirla a `ACTIONS` y su rama en `doKeyAction()`; la tecla se lee siempre con `kb("id")` |
+| Qué hace cada botón del mando | `MANDO` | `pollPad()` (en partida) y `padMenu()` (menús) |
+| Un aspecto nuevo | `PERSONAJES` (cerca) | `SKINS`: `pal`/`opts` que se superponen a los del personaje, y `need` |
+| El multijugador | `MULTIJUGADOR` | `MP_REENVIA` (qué reenvía el anfitrión), `mpRecibir()`, caer/reanimar en `goDown()`/`reviveMe()` |
 
 ### Añadir un nivel, paso a paso
 
@@ -282,6 +286,26 @@ muy despacio de una nota a otra con `setTargetAtTime` — nunca salta, nunca hay
 - **Curar por zonas.** `toggleHeal()` / `renderHeal()`, con `healOpen` igual que `bpOpen`:
   suelta el ratón sin pausar.
 
+## 6¹⁰. La tanda 1.8.0
+
+- **La red es una estrella.** Cada invitado sólo está conectado al anfitrión. Hasta 1.8.0 el
+  anfitrión no reenviaba nada, así que **los invitados no se veían entre sí**. Ahora reenvía
+  todo lo de `MP_REENVIA` añadiendo `from` (el id del que lo mandó), y todos indexan a los
+  demás por `m.from || c.peer`.
+- **Modo de sala.** `MP.modo` lo elige el anfitrión y viaja en `sala` y en `nivel`; el modo
+  aleatorio funciona en multijugador porque todo sale de la semilla del nivel.
+- **Caer y reanimar.** `die()` con amigos en pie llama a `goDown()`: `G.downed`, 40 s, sin
+  daño ni agarres ni especiales. Reanimar es mantener la tecla de usar 3 s junto al caído con
+  un botiquín (`startRevive`/`updateRevive`), que manda `revivir` con `to`. Si se acaba el
+  tiempo o no queda nadie en pie, `die()` de verdad (con `dieForce`).
+- **Los fantasmas se recrean al cambiar de nivel**: `buildLevel()` tira el `world` entero, y
+  sus sprites se quedaban colgando de un mundo que ya no se dibujaba.
+- **Aspectos.** `skinAtlas(ch, skin)` construye el atlas bajo demanda. El progreso
+  (`G.prog`: `rand`, `mp`, `rev`) y lo elegido (`G.skins`) van en el meta, y
+  `wipeProgress()` los borra.
+- **Teclas.** Todo lo que antes miraba `keys["e"]` mira `keys[kb("use")]`. El cambio de
+  tecla se captura con un `keydown` en fase de captura, antes que el del juego.
+
 ## 7. Trampas que ya han mordido
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.
@@ -341,6 +365,14 @@ era un cilindro transparente que escribía en el búfer de profundidad, y al est
 jugador dentro, lo tapaba. Y un bucle de animación (`updateLights`) les forzaba la
 opacidad a 0,4-0,9 cada fotograma, así que daba igual lo tenue que se pusiera el
 material: ahora late sobre `material.userData.base`.
+
+**Ningún texto puede llevar una tecla escrita a mano: se nombra con `tag("accion")`.**
+Con mando el juego seguía enseñando «[E]», «[C]», «CLIC IZQ»… (y con teclas cambiadas,
+también las de siempre). Ahora `INPUT` dice qué se tocó lo último (`setInput()` desde el
+teclado, el ratón o `pollPad()`), y `btn()`/`tag()` devuelven la tecla o el botón del mando
+(`PAD_BTN`). En los datos (fichas de objetos) se escribe `{crowbar}` y lo traduce `keyify()`.
+Con mando, la mochila y el panel de curar se manejan con `padPanel()`. `tanda6` busca
+teclas escritas a mano en el código.
 
 **Con el ratón capturado no se puede hacer clic en el HUD.**
 La mochila desplegable (1.5.0) decía «clic para cogerlo», pero con el *pointer lock* puesto

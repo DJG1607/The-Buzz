@@ -239,6 +239,45 @@
   .body em{color:var(--sane); font-style:normal;}
   .body .warn{color:var(--blood2);}
 
+  .menu{display:grid; gap:10px; margin-top:22px;}
+  .menu button{font:inherit; cursor:pointer; text-align:left; color:var(--ink); transition:border-color .16s ease, background .16s ease, transform .16s ease;}
+  .menu-main{display:grid; gap:3px; padding:16px 20px; border:1px solid var(--fluor);
+    background:linear-gradient(180deg, #f6eec9, #d9cf9f); color:#15130d !important;}
+  .menu-main b{font-family:"Special Elite",serif; font-weight:400; font-size:26px; line-height:1;}
+  .menu-main span{font-size:11px; letter-spacing:.06em; color:#4a4430;}
+  .menu-main:hover, .menu-main.padfocus{transform:translateY(-1px); box-shadow:0 8px 30px rgba(246,238,201,.18);}
+  .menu-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
+  .mcard, .menu-opts{display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; column-gap:12px; row-gap:2px;
+    align-items:center; padding:12px 14px; border:1px solid var(--line2); background:rgba(221,214,189,.03);}
+  .mcard i, .menu-opts i{grid-row:1 / span 2; font-style:normal; font-size:22px; color:var(--amber); width:28px; text-align:center;}
+  .mcard b, .menu-opts b{font-family:"Special Elite",serif; font-weight:400; font-size:16px; color:var(--fluor);}
+  .mcard span, .menu-opts span{font-size:10.5px; color:var(--ink-faint); line-height:1.35;}
+  .mcard:hover, .menu-opts:hover, .mcard.padfocus, .menu-opts.padfocus{border-color:var(--amber); background:rgba(200,134,58,.07);}
+  .ctl-hint{margin-top:16px; font-size:11px; color:var(--ink-faint);}
+  .ctl-hint b{color:var(--ink-dim); font-weight:500;}
+  @media (max-width:520px){ .menu-grid{grid-template-columns:1fr;} }
+  .padfocus{outline:2px solid var(--amber) !important; outline-offset:2px;}
+  #keyBox, #padBox{margin-top:16px; padding-top:14px; border-top:1px solid var(--line2);}
+  .kb-head{display:flex; justify-content:space-between; align-items:center; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:10px;}
+  .kb-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px 14px;}
+  .kb-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:6px 8px;
+    border:1px solid var(--line2); background:rgba(221,214,189,.025); font-size:11.5px; color:var(--ink-dim);}
+  .kb-key{font:inherit; min-width:58px; padding:4px 9px; font-size:11px; letter-spacing:.06em; text-align:center; cursor:pointer;
+    color:var(--fluor); background:rgba(246,238,201,.06); border:1px solid var(--line); border-bottom-width:3px; border-radius:3px;}
+  .kb-key:hover{border-color:var(--amber);}
+  .kb-key.wait{color:#15130d; background:var(--amber); border-color:var(--amber); animation:kbw .7s ease-in-out infinite alternate;}
+  @keyframes kbw{ from{opacity:.65;} to{opacity:1;} }
+  .kb-fixed{margin-top:10px; font-size:10.5px; color:var(--ink-faint); line-height:1.6;}
+  .kb-fixed kbd{font-size:10px;}
+  .kb-reset{font:inherit; font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; cursor:pointer;
+    color:var(--ink-dim); background:none; border:1px solid var(--line2);}
+  .pad-map{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 14px; font-size:11px; color:var(--ink-dim);}
+  .pad-map div{display:flex; gap:8px; align-items:center;}
+  .pad-map b{min-width:44px; text-align:center; padding:2px 6px; font-weight:500; font-size:10px; color:var(--fluor);
+    border:1px solid var(--line); border-radius:10px;}
+  #padState{font-size:10.5px; color:var(--ink-faint); text-transform:none; letter-spacing:.02em;}
+  #padState.on{color:var(--sane);}
+  @media (max-width:520px){ .kb-grid, .pad-map{grid-template-columns:1fr;} }
   .keys{display:grid; grid-template-columns:repeat(auto-fit,minmax(142px,1fr)); gap:8px 18px; margin-top:18px;}
   .keys div{display:flex; gap:9px; align-items:baseline; font-size:11.5px; color:var(--ink-dim);}
   kbd{
@@ -374,6 +413,43 @@
   }
   .mpi:focus{outline:none; border-color:var(--ink-faint);}
   #mpPeople{display:grid; gap:5px; margin-top:10px;}
+  .char-artcol{display:grid; gap:8px; justify-items:center; align-content:start; width:150px;}
+  .skin-row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:6px; width:100%;}
+  .skin-arr{padding:4px 7px !important;}
+  .skin-arr{font:inherit; font-size:18px; line-height:1; padding:4px 10px; cursor:pointer; color:var(--ink);
+    background:rgba(221,214,189,.04); border:1px solid var(--line2);}
+  .skin-arr:hover{border-color:var(--amber);}
+  .skin-name{text-align:center; font-family:"Special Elite",serif; font-size:14px; color:var(--fluor); display:grid; gap:2px;}
+  .skin-name small{font-family:inherit; font-size:9px; letter-spacing:.2em; color:var(--ink-faint);}
+  .skin-need{font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--amber); line-height:1.4;}
+  .char-art.skin-locked canvas{filter:brightness(.35) grayscale(.6);}
+  .mp-modes{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .mp-mode{font:inherit; text-align:left; display:grid; gap:2px; padding:10px 12px; cursor:pointer; color:var(--ink);
+    background:rgba(221,214,189,.03); border:1px solid var(--line2);}
+  .mp-mode b{font-family:"Special Elite",serif; font-weight:400; font-size:15px; color:var(--fluor);}
+  .mp-mode span{font-size:10.5px; color:var(--ink-faint);}
+  .mp-mode.on{border-color:var(--amber); background:rgba(200,134,58,.08);}
+  .mp-mode:disabled{cursor:default;}
+  .mp-modenote{font-size:10.5px; color:var(--ink-faint); margin-top:6px;}
+  #mpLobbyChat{margin-top:12px; border:1px solid var(--line2); background:rgba(0,0,0,.2);}
+  #mpChatLog{height:92px; overflow:auto; padding:6px 9px; font-size:11px; color:var(--ink-dim); line-height:1.5;}
+  #mpChatIn, #chatIn{width:100%; box-sizing:border-box; font:inherit; font-size:12px; color:var(--ink); padding:7px 9px;
+    background:rgba(7,7,10,.9); border:none; border-top:1px solid var(--line2); outline:none;}
+  #chat{position:fixed; left:14px; bottom:236px; width:min(340px,calc(100vw - 28px)); z-index:7; pointer-events:none;}
+  #chatLog{font-size:11.5px; line-height:1.5; color:var(--ink); text-shadow:0 1px 6px #000; max-height:150px; overflow:hidden;
+    opacity:0; transition:opacity .6s ease;}
+  #chatLog.fresh{opacity:1;}
+  #chatLog b{color:var(--amber); font-weight:500;} #chatLog b.me, #mpChatLog b.me{color:var(--sane);}
+  #chatLog i, #mpChatLog i{color:var(--ink-faint);}
+  #chatIn{pointer-events:auto; border:1px solid var(--line);}
+  #downed{position:fixed; left:50%; top:34%; transform:translateX(-50%); z-index:8; display:grid; gap:6px; justify-items:center;
+    text-align:center; padding:16px 22px; border:1px solid rgba(230,74,42,.8); background:rgba(26,6,4,.86); pointer-events:none;}
+  #downed b{font-family:"Special Elite",serif; font-weight:400; font-size:30px; color:#ff9a7a; letter-spacing:.08em;}
+  #downedT{font-size:22px; color:var(--fluor); font-variant-numeric:tabular-nums;}
+  #downed em{font-style:normal; font-size:11px; color:var(--ink-dim);}
+  #mpRoster div{display:flex; gap:8px; justify-content:flex-end; align-items:center;}
+  #mpRoster .st{font-size:9.5px; padding:1px 6px; border:1px solid var(--line2); color:var(--ink-dim);}
+  #mpRoster .st.dn{color:#ff9a7a; border-color:rgba(230,74,42,.7);} #mpRoster .st.ko{color:var(--ink-faint); text-decoration:line-through;}
   .mpp{
     display:flex; justify-content:space-between; gap:10px; font-size:11.5px;
     border:1px solid var(--line2); padding:6px 10px; border-radius:2px;
@@ -636,6 +712,8 @@
 
 <div id="hud">
   <div id="mpRoster"></div>
+  <div id="chat"><div id="chatLog"></div><input id="chatIn" maxlength="120" hidden placeholder="Enter para enviar · Esc para cerrar"></div>
+  <div id="downed" hidden><b data-en="DOWN">CA&#205;DO</b><span id="downedT"></span><em data-en="A teammate with a first-aid kit can revive you">Un compa&#241;ero con un botiqu&#237;n puede reanimarte</em></div>
   <div id="fpsc" hidden></div>
   <div id="hands">
     <div class="hslot" id="handL"><canvas width="32" height="32"></canvas><div class="hs-t"><span class="hk" data-en="LEFT &#183; L-CLICK">IZQUIERDA &#183; CLIC IZQ</span><b></b></div><i></i></div>
@@ -651,7 +729,7 @@
   <div id="vitals">
     <div id="bodyWrap">
       <canvas class="panel" id="bodyc" width="31" height="48" style="padding:0"></canvas>
-      <button type="button" id="healBtn" title="Curar una zona"><span>&#10010;</span><b>N</b></button>
+      <button type="button" id="healBtn"><span>&#10010;</span><b>N</b></button>
     </div>
     <div class="panel" id="meters">
       <div class="meter"><span class="k" data-en="SANITY">CORDURA</span><span class="bar" id="b-san"><i></i></span><span class="v" id="v-san">100</span></div>
@@ -680,19 +758,19 @@
     <div class="qte-top"><b id="qteWho">Algo</b><span data-en=" has got you"> te ha agarrado</span></div>
     <div id="qteKeys"></div>
     <div class="qte-track"><i id="qteBar"></i></div>
-    <div class="qte-hint" data-en="Hit the keys in order to break free">Pulsa las teclas en orden para soltarte</div>
+    <div class="qte-hint" data-en="Hit the keys in order to break free &#183; controller: A B X Y = T Z Q X">Pulsa las teclas en orden para soltarte &#183; mando: A B X Y = T Z Q X</div>
   </div>
 
   <div id="healPanel" hidden>
     <div class="hp-head"><span data-en="Bandage a body part">Vendar una zona</span><b id="hpBand"></b></div>
     <div id="hpRows"></div>
-    <div class="bp-hint" data-en="Click a part or press its number &#183; [N] to close">Clic en una zona o pulsa su n&#250;mero &#183; [N] para cerrar</div>
+    <div class="bp-hint" id="hpHint"></div>
   </div>
 
   <div id="backpack" hidden>
     <div class="bp-head"><span data-en="Backpack">Mochila</span><b id="bpCap"></b></div>
     <div id="bpGrid"></div>
-    <div class="bp-hint" data-en="Click an item to hold it, click again to use it &#183; click a weapon to move it between your hands and the pack &#183; [B] to close">Clic para cogerlo, otro clic para usarlo &#183; clic en un arma para pasarla de la mochila a una mano y al rev&#233;s &#183; [B] para cerrar</div>
+    <div class="bp-hint" id="bpHint"></div>
   </div>
 
   <div id="hand" hidden>
@@ -727,35 +805,24 @@
     <p class="body" data-en="Everything you need is inside lockers, boxes and service carts. Opening one &lt;em&gt;rolls a d6&lt;/em&gt;: a 1 gives you nothing, a 6 is an untouched duffel.">Todo lo que necesitas está dentro de casilleros, cajas y carros de servicio. Al abrir uno se <em>tira un d6</em>: un 1 no da nada y un 6 es un petate intacto.</p>
     <p class="body" data-en="You start at &lt;em&gt;Level 0&lt;/em&gt; and every exit opens the levels that follow, in the order the wiki documents. Some levels hold &lt;em&gt;abandoned M.E.G. outposts&lt;/em&gt;: the only place you can save.">Se empieza por el <em>Level 0</em> y cada salida abre los niveles siguientes, siguiendo el orden de la wiki. En algunos hay <em>puestos abandonados del M.E.G.</em>: es el único sitio donde puedes guardar la partida.</p>
     <p class="body" data-en="&lt;span class=&quot;warn&quot;&gt;Get as deep as you can before something finds you.&lt;/span&gt;"><span class="warn">Baja todo lo que puedas antes de que te encuentren.</span></p>
-    <div class="keys">
-      <div><kbd>W A S D</kbd><span data-en=" move"> moverte</span></div>
-      <div><kbd data-en="MOUSE">RATÓN</kbd><span data-en=" look"> mirar</span></div>
-      <div><kbd>SHIFT</kbd><span data-en=" run"> correr</span></div>
-      <div><kbd>E</kbd><span data-en=" open / hold to take an exit"> abrir / mantener para salir</span></div>
-      <div><kbd>1</kbd>–<kbd>4</kbd><span data-en=" use item"> usar objeto</span></div>
-      <div><kbd>F</kbd><span data-en=" flashlight"> linterna</span></div>
-      <div><kbd>G</kbd><span data-en=" flare"> bengala</span></div>
-      <div><kbd>Q</kbd><span data-en=" drink water"> beber agua</span></div>
-      <div><kbd>R</kbd><span data-en=" bandage worst part"> vendar la peor zona</span></div>
-      <div><kbd>N</kbd><span data-en=" choose which part to heal"> elegir qu&#233; zona curar</span></div>
-      <div><kbd>X</kbd><span data-en=" drop held item"> soltar lo que llevas en la mano</span></div>
-      <div><kbd>V</kbd><span data-en=" crowbar"> palanca</span></div>
-      <div><kbd>B</kbd><span data-en=" backpack"> mochila</span></div>
-      <div><kbd>C</kbd><span data-en=" ability"> habilidad</span></div>
-      <div><kbd>ESC</kbd><span data-en=" pause"> pausa</span></div>
-    </div>
+    <div class="ctl-hint" data-en="Controls, controller and key remapping: &lt;b&gt;Settings &#8594; Controls&lt;/b&gt;.">Controles, mando y cambiar teclas: <b>Ajustes &#8594; Controles</b>.</div>
     <div id="continueBox" hidden>
       <div class="cont-l"><span class="cont-k" data-en="SAVED RUN">PARTIDA GUARDADA</span><span id="continueInfo"></span></div>
       <button class="btn small" id="continueBtn" data-en="Continue">Continuar</button>
     </div>
-    <div class="btnrow" id="playRow">
-      <button class="btn big" id="playBtn" data-en="Play">Jugar</button>
-      <button class="btn ghost" id="randBtn" data-en="Random mode">Modo aleatorio</button>
-      <button class="btn ghost" id="mpBtn" data-en="Play with friends">Jugar con amigos</button>
+    <div class="menu" id="playRow">
+      <button class="menu-main" id="playBtn" type="button">
+        <b data-en="Play">Jugar</b><span data-en="Descent from Level 0, in the wiki's order">Descenso desde el Level 0, en el orden de la wiki</span>
+      </button>
+      <div class="menu-grid">
+        <button class="mcard" id="randBtn" type="button"><i>&#9860;</i><b data-en="Random mode">Modo aleatorio</b><span data-en="Random start, random exits">Nivel y salidas al azar</span></button>
+        <button class="mcard" id="mpBtn" type="button"><i>&#9775;</i><b data-en="Play with friends">Jugar con amigos</b><span data-en="Room, chat and revives">Sala, chat y reanimar</span></button>
+        <button class="mcard" id="codexBtn" type="button"><i>&#9636;</i><b data-en="Codex">C&#243;dice</b><span data-en="Everything you have seen">Todo lo que has visto</span></button>
+        <button class="mcard" id="dmapBtn" type="button"><i>&#8982;</i><b data-en="Descent map">Mapa del descenso</b><span data-en="Where every exit leads">Ad&#243;nde lleva cada salida</span></button>
+      </div>
+      <button class="menu-opts" id="optsBtn" type="button"><i>&#9881;</i><b data-en="Settings">Ajustes</b><span data-en="Controls, controller, sound, graphics">Controles, mando, sonido, gr&#225;ficos</span></button>
     </div>
-    <div class="btnrow"><button class="btn ghost small" id="codexBtn" data-en="Codex">Códice</button><button class="btn ghost small" id="dmapBtn" data-en="Descent map">Mapa del descenso</button></div>
     <div id="metaLine" class="meta"></div>
-    <div class="btnrow"><button class="btn ghost" id="optsBtn" data-en="Settings">Ajustes</button></div>
     <div id="achBox">
       <div class="ach-head"><span data-en="Achievements">Logros</span><b id="achCount">0/0</b></div>
       <div id="achGrid"></div>
@@ -777,6 +844,14 @@
       <label class="mpl" data-en="Room name">Nombre de la sala</label>
       <input id="mpRoom" class="mpi" maxlength="24" placeholder="la cuadrilla">
     </div>
+    <div id="mpMode" hidden>
+      <label class="mpl" data-en="Room mode">Modo de la sala</label>
+      <div class="mp-modes">
+        <button type="button" class="mp-mode on" data-modo="normal"><b data-en="Descent">Descenso</b><span data-en="From Level 0, in the wiki's order">Desde el Level 0, en el orden de la wiki</span></button>
+        <button type="button" class="mp-mode" data-modo="random"><b data-en="Random">Aleatorio</b><span data-en="Random start and exits, shared by everyone">Inicio y salidas al azar, iguales para todos</span></button>
+      </div>
+      <div class="mp-modenote" id="mpModeNote"></div>
+    </div>
     <div class="btnrow">
       <button class="btn" id="mpCreate" data-en="Create room">Crear sala</button>
       <button class="btn" id="mpJoin" data-en="Join">Entrar</button>
@@ -784,6 +859,10 @@
     </div>
     <div id="mpStatus" class="meta"></div>
     <div id="mpPeople"></div>
+    <div id="mpLobbyChat" hidden>
+      <div id="mpChatLog"></div>
+      <input id="mpChatIn" maxlength="120" placeholder="Escribe al grupo y pulsa Enter">
+    </div>
     <div class="btnrow" id="mpGoRow" hidden>
       <button class="btn big" id="mpGo" data-en="Choose character">Elegir personaje</button>
     </div>
@@ -894,6 +973,31 @@
     <div id="optTabs" role="tablist"></div>
     <div id="optViewport"><div id="optRows"></div></div>
     <div id="optDots"></div>
+    <div id="keyBox">
+      <div class="kb-head"><span data-en="Keys">Teclas</span><button type="button" class="kb-reset" id="kbReset" data-en="Default keys">Teclas por defecto</button></div>
+      <div class="kb-grid" id="keyGrid"></div>
+      <div class="kb-fixed" data-en="Click a key and press the new one; if another action already had it, they swap. Fixed: &lt;kbd&gt;1&lt;/kbd&gt;–&lt;kbd&gt;9&lt;/kbd&gt; items, &lt;kbd&gt;ESC&lt;/kbd&gt; pause, left/right click weapons, &lt;kbd&gt;T Z Q X&lt;/kbd&gt; to break free, mouse to look.">Haz clic en una tecla y pulsa la nueva; si ya era de otra acci&#243;n, se intercambian. Fijas: <kbd>1</kbd>–<kbd>9</kbd> objetos, <kbd>ESC</kbd> pausa, clic izquierdo/derecho armas, <kbd>T Z Q X</kbd> para soltarte, rat&#243;n para mirar.</div>
+    </div>
+    <div id="padBox">
+      <div class="kb-head"><span data-en="Controller">Mando</span><span id="padState"></span></div>
+      <div class="pad-map">
+        <div><b>L</b><span data-en="move (click: run)">moverte (pulsado: correr)</span></div>
+        <div><b>R</b><span data-en="look">mirar</span></div>
+        <div><b>A</b><span data-en="open · hold to exit">abrir · mantener para salir</span></div>
+        <div><b>B</b><span data-en="backpack">mochila</span></div>
+        <div><b>X</b><span data-en="flashlight">linterna</span></div>
+        <div><b>Y</b><span data-en="heal a part">curar una zona</span></div>
+        <div><b>LB · RB</b><span data-en="left / right weapon">arma izquierda / derecha</span></div>
+        <div><b>LT</b><span data-en="run">correr</span></div>
+        <div><b>RT</b><span data-en="ability">habilidad</span></div>
+        <div><b>&#8593; &#8595;</b><span data-en="drink · bandage">beber · vendarte</span></div>
+        <div><b>&#8592; &#8594;</b><span data-en="flare · crowbar">bengala · palanca</span></div>
+        <div><b>VIEW</b><span data-en="drop held item">soltar lo de la mano</span></div>
+        <div><b>MENU</b><span data-en="pause">pausa</span></div>
+        <div><b>A B X Y</b><span data-en="T Z Q X when grabbed">T Z Q X al forcejear</span></div>
+      </div>
+      <div class="kb-fixed" data-en="In menus: D-pad or stick to move, A to select, B to go back.">En los men&#250;s: cruceta o stick para moverte, A para elegir, B para volver.</div>
+    </div>
     <div id="musicBox">
       <div class="mb-head"><span data-en="Your music">Tu m&#250;sica</span><b id="mbCount"></b></div>
       <div class="opt-note" data-en="Upload your own songs (mp3, ogg, wav&#8230;). They are stored in this browser and never leave your computer. To hear them, set &#171;Music&#187; to &#171;Your music&#187;.">Sube tus propias canciones (mp3, ogg, wav&#8230;). Se guardan en este navegador y no salen de tu ordenador. Para o&#237;rlas, pon &#171;M&#250;sica&#187; en &#171;Tu m&#250;sica&#187;.</div>
@@ -915,20 +1019,7 @@
     <h2 data-en="A moment of quiet">Silencio momentáneo</h2>
     <div class="rule"></div>
     <p class="body" data-en="The hum is still there when you come back.">El zumbido sigue ahí cuando vuelvas.</p>
-    <div class="keys">
-      <div><kbd>W A S D</kbd><span data-en=" move"> moverte</span></div>
-      <div><kbd>SHIFT</kbd><span data-en=" run"> correr</span></div>
-      <div><kbd>E</kbd><span data-en=" open / hold to take an exit"> abrir / mantener para salir</span></div>
-      <div><kbd>1</kbd>–<kbd>4</kbd><span data-en=" use item"> usar objeto</span></div>
-      <div><kbd>F</kbd><span data-en=" flashlight"> linterna</span></div>
-      <div><kbd>G</kbd><span data-en=" flare"> bengala</span></div>
-      <div><kbd>Q</kbd><span data-en=" drink"> beber</span></div>
-      <div><kbd>R</kbd><span data-en=" bandage"> vendarte</span></div>
-      <div><kbd>N</kbd><span data-en=" heal a part"> curar una zona</span></div>
-      <div><kbd>X</kbd><span data-en=" drop item"> soltar objeto</span></div>
-      <div><kbd>B</kbd><span data-en=" backpack"> mochila</span></div>
-      <div><kbd>C</kbd><span data-en=" ability"> habilidad</span></div>
-    </div>
+    <div class="keys" id="pauseKeys"></div>
     <div class="btnrow">
       <button class="btn" id="resumeBtn" data-en="Resume">Reanudar</button>
       <button class="btn ghost" id="pauseOptsBtn" data-en="Settings">Ajustes</button>
@@ -1043,7 +1134,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "1.7.0";
+const VERSION = "1.8.0";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1559,10 +1650,74 @@ function buildSprites(){
   SPRITES.crawler   = buildAtlas(4,1,(x,ox,oy,c)=> drawCrawler(x,ox,oy,c), 8029);
 }
 
+/* ── aspectos ──
+   Ropa alternativa para cualquier personaje. Cuestan: se desbloquean
+   superando muchos niveles en el modo aleatorio, jugando con amigos o
+   reanimando compañeros. Se eligen en la ficha del personaje. */
+const SKINS = [
+  {id:"base", es:"Ropa de siempre", en:"Usual clothes"},
+  {id:"meg", es:"Uniforme del M.E.G.", en:"M.E.G. uniform", need:{rand:10},
+   pal:{shirt:"#2c3a52", shirtShade:"#1f2a3c", pants:"#23262e", pantsShade:"#191b21", collar:"#c8a03a", belt:"#15171c", shoe:"#101114", shoeShade:"#0a0b0d"}, opts:{cap:"#2c3a52"}},
+  {id:"hazmat", es:"Traje de contención", en:"Hazmat suit", need:{rand:30},
+   pal:{shirt:"#d8b23a", shirtShade:"#b08e26", pants:"#d0aa34", pantsShade:"#a88822", shoe:"#2a2a2a", shoeShade:"#1a1a1a", belt:"#3a3a3a", collar:"#e8c850"}, opts:{hood:"#c8a430"}},
+  {id:"lobby", es:"Papel pintado del Level 0", en:"Level 0 wallpaper", need:{rand:60},
+   pal:{shirt:"#c8b972", shirtShade:"#a8994f", pants:"#b5a35d", pantsShade:"#8e7f45", collar:"#e0d49a", belt:"#7e6f3a"}},
+  {id:"void", es:"El vacío", en:"The void", need:{rand:120},
+   pal:{skin:"#2a2436", skinShade:"#1c1826", shirt:"#140f1e", shirtShade:"#0c0914", pants:"#140f1e", pantsShade:"#0a0810",
+        eye:"#b090ff", mouth:"#6a4ab8", hair:"#0a0810", hairShade:"#06050a", shoe:"#08060c", shoeShade:"#040305", belt:"#6a4ab8", collar:"#8f6bd6"}},
+  {id:"medic", es:"Sanitario de campaña", en:"Field medic", need:{rev:5},
+   pal:{shirt:"#e8e4dc", shirtShade:"#c4c0b6", pants:"#d8d4ca", pantsShade:"#b4b0a6", collar:"#b4402f", belt:"#b4402f"}, opts:{cap:"#e8e4dc"}},
+  {id:"crew", es:"Expedición conjunta", en:"Joint expedition", need:{mp:25},
+   pal:{shirt:"#6a4a2a", shirtShade:"#4e361e", pants:"#3a3e2e", pantsShade:"#2a2e20", collar:"#c86a2a", belt:"#2a2016"}, opts:{cap:"#c86a2a"}}
+];
+const SKIN_BY = {}; SKINS.forEach(s=> SKIN_BY[s.id] = s);
+function skinNeedText(s){
+  const n = s.need; if(!n) return "";
+  const p = G.prog || {};
+  if(n.rand) return tx("Supera "+n.rand+" niveles en el modo aleatorio","Clear "+n.rand+" levels in random mode")+" ("+Math.min(p.rand||0,n.rand)+"/"+n.rand+")";
+  if(n.rev)  return tx("Reanima a "+n.rev+" compañeros con un botiquín","Revive "+n.rev+" teammates with a first-aid kit")+" ("+Math.min(p.rev||0,n.rev)+"/"+n.rev+")";
+  if(n.mp)   return tx("Supera "+n.mp+" niveles jugando con amigos","Clear "+n.mp+" levels playing with friends")+" ("+Math.min(p.mp||0,n.mp)+"/"+n.mp+")";
+  return "";
+}
+function skinUnlocked(s){
+  const n = s && s.need; if(!n) return true;
+  const p = G.prog || {};
+  return (!n.rand || (p.rand||0) >= n.rand) && (!n.rev || (p.rev||0) >= n.rev) && (!n.mp || (p.mp||0) >= n.mp);
+}
+function skinOf(chId){ const id = (G.skins || {})[chId]; return SKIN_BY[id] && skinUnlocked(SKIN_BY[id]) ? id : "base"; }
+function skinLook(ch, skinId){
+  const s = SKIN_BY[skinId] || SKINS[0];
+  const pal = Object.assign({}, ch.pal, s.pal || {});
+  if(ch.id === "coach" && skinId !== "void"){ pal.eye = pal.skin; pal.mouth = pal.skin; }   // el Entrenador sigue sin cara
+  return {pal, opts: Object.assign({pack:ch.id==="scav"?"#4d4437":null}, ch.opts, s.opts || {})};
+}
+function skinAtlas(chId, skinId){
+  const ch = CHARACTERS.find(c=> c.id === chId) || CHARACTERS[0];
+  if(!skinId || skinId === "base" || !SKIN_BY[skinId]) return SPRITES["char_"+ch.id];
+  const key = "char_"+ch.id+"_"+skinId;
+  if(!SPRITES[key]){
+    const look = skinLook(ch, skinId);
+    SPRITES[key] = buildAtlas(4,4,(x,ox,oy,col,row)=> drawHumanoid(x,ox,oy,row,col,look.pal,look.opts), 4100+ch.id.length*31);
+  }
+  return SPRITES[key];
+}
+function checkSkins(){
+  G.prog = G.prog || {};
+  G.prog.seen = G.prog.seen || {};
+  SKINS.forEach(s=>{
+    if(s.need && skinUnlocked(s) && !G.prog.seen[s.id]){
+      G.prog.seen[s.id] = 1;
+      toast(tx("Aspecto desbloqueado: ","Look unlocked: ")+tx(s.es, s.en), 4);
+      unlockAch("skin");
+    }
+  });
+}
+
 // retrato grande para la pantalla de selección
-function charPortrait(ch, scale, frame, dir){
+function charPortrait(ch, scale, frame, dir, skinId){
   const {c,x} = newCanvas(SW,SH);
-  drawHumanoid(x,0,0,dir||0,frame||0,ch.pal, Object.assign({}, ch.opts));
+  const look = skinLook(ch, skinId || "base");
+  drawHumanoid(x,0,0,dir||0,frame||0,look.pal, look.opts);
   shadeCell(x, 0, 0, 4100+ch.id.length*31);
   const fin = refineSprite(c, SW, SH, 1, 1);
   const {c:big, x:bx} = newCanvas(SW*scale, SH*scale);
@@ -1635,6 +1790,11 @@ const ICON_DRAW = {
   bandage(x){
     P(x,2,6,12,4,"#ddd6c0"); P(x,2,6,12,1,"#f0ead6"); P(x,2,9,12,1,"#bdb69e");
     P(x,6,4,4,8,"#cfc6ab"); P(x,7,7,2,2,"#b4402f");
+  },
+  medkit(x){
+    P(x,2,4,12,10,"#e4ded0"); P(x,2,4,12,1,"#f6f2e6"); P(x,2,13,12,1,"#b2ab98");
+    P(x,6,2,4,2,"#9a9484"); P(x,7,2,2,1,"#4a463c");
+    P(x,7,6,2,6,"#c0392b"); P(x,5,8,6,2,"#c0392b"); P(x,7,6,2,1,"#e0584a");
   },
   backpack(x){
     P(x,3,3,10,11,"#4d4437"); P(x,5,1,6,3,"#3b3429");
@@ -3381,21 +3541,22 @@ const ITEMS = {
   bandage:    {name:"Vendaje",         icon:"bandage",    stack:true, key:"R", blurb:"Cura la zona más dañada y corta la hemorragia.", name_en:"Bandage", blurb_en:"Heals the worst hit limb and stops the bleeding."},
   battery:    {name:"Pilas",           icon:"battery",    stack:true, blurb:"Recarga la linterna al 100%.", name_en:"Batteries", blurb_en:"Recharges the flashlight to 100%."},
   flare:      {name:"Bengala",         icon:"flare",      stack:true, key:"G", blurb:"Se enciende y se deja en el suelo: luz amplia un buen rato.", name_en:"Flare", blurb_en:"Light it and drop it: wide light for a good while."},
-  crowbar:    {name:"Palanca",         icon:"crowbar",    stack:true, key:"V", blurb:"Hierro del M.E.G. Si algo te agarra, <b>[V]</b> te suelta de golpe. Se gasta al usarla.", name_en:"Crowbar", blurb_en:"M.E.G. iron. If something grabs you, <b>[V]</b> gets you loose at once. It is used up."},
+  crowbar:    {name:"Palanca",         icon:"crowbar",    stack:true, key:"V", blurb:"Hierro del M.E.G. Si algo te agarra, <b>{crowbar}</b> te suelta de golpe. Se gasta al usarla.", name_en:"Crowbar", blurb_en:"M.E.G. iron. If something grabs you, <b>{crowbar}</b> gets you loose at once. It is used up."},
   pipe:       {name:"Tubería de acero", icon:"pipe",  weapon:true, reach:2.4, stun:3.4, cd:1.1,
               blurb:"Se equipa en una mano (clic izquierdo o derecho) y golpea a lo que tengas cerca. No se gasta.", name_en:"Steel pipe", blurb_en:"Equips in a hand (left or right click) and hits whatever is close. Does not run out."},
   rebar:      {name:"Varilla oxidada",   icon:"rebar", weapon:true, reach:2.0, stun:4.4, cd:1.6,
               blurb:"Pega más fuerte que la tubería, pero tarda más entre golpe y golpe. No se gasta.", name_en:"Rusted rebar", blurb_en:"Hits harder than the pipe, but is slower between swings. Does not run out."},
   bat:        {name:"Bate de madera",    icon:"bat",   weapon:true, reach:2.6, stun:2.6, cd:0.8,
               blurb:"Rápido y de más alcance, pero deja menos aturdida a la entidad. No se gasta.", name_en:"Wooden bat", blurb_en:"Fast with good reach, but leaves the entity dazed for less time. Does not run out."},
-  recorder:   {name:"Grabadora",       icon:"recorder",   stack:true, blurb:"Cinta del M.E.G.: al escucharla te sitúa una salida del nivel.", name_en:"Tape recorder", blurb_en:"A M.E.G. tape: playing it pinpoints one exit of the level."}
+  recorder:   {name:"Grabadora",       icon:"recorder",   stack:true, blurb:"Cinta del M.E.G.: al escucharla te sitúa una salida del nivel.", name_en:"Tape recorder", blurb_en:"A M.E.G. tape: playing it pinpoints one exit of the level."},
+  medkit:     {name:"Botiquín",        icon:"medkit",     stack:true, blurb:"Cura un poco todas las zonas y corta las hemorragias. Con amigos, sirve para reanimar a un compañero caído.", name_en:"First-aid kit", blurb_en:"Heals every body part a little and stops bleeding. With friends, it revives a downed teammate."}
 };
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
   comun: ["almond","almond","almond","bandage","bandage","battery","bat"],
-  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage"],
-  raro:  ["compass","backpack","crowbar","rebar","map","flashlight"]
+  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage","medkit"],
+  raro:  ["compass","backpack","crowbar","rebar","map","flashlight","medkit"]
 };
 
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
@@ -3457,7 +3618,7 @@ const G = {
   weapons:{L:null,R:null}, weaponCd:{L:0,R:0},
   codex:{ent:{}, item:{}},
   abilityCd:0, shield:0, pulseExit:0, lootBonus:0, ambTimer:3,
-  crossing:null, spWarn:null, spGate:0, drops:[], shiftT:90, shiftWarned:false, shifts:0, wallMesh:null, wallInst:null, wallFree:[],
+  crossing:null, spWarn:null, spGate:0, drops:[], downed:false, downT:0, reviving:null, prog:{rand:0, mp:0, rev:0, seen:{}}, skins:{}, shiftT:90, shiftWarned:false, shifts:0, wallMesh:null, wallInst:null, wallFree:[],
   torchOn:false, torchFuel:0,
   exits:[], nearestExit:null, revealPath:null, mapExit:null,
   containers:[], entities:[], lamps:[], flickers:[], flares:[], specials:[], obs:{},
@@ -3479,11 +3640,13 @@ function loadMeta(){
     G.unlocked = m.unlocked || {};
     G.ach = m.ach || {};
     G.codex = m.codex || {ent:{}, item:{}};
-  }catch(e){ G.best = 0; G.unlocked = {}; G.ach = {}; G.codex = {ent:{}, item:{}}; }
+    G.prog = m.prog || {rand:0, mp:0, rev:0, seen:{}};
+    G.skins = m.skins || {};
+  }catch(e){ G.best = 0; G.unlocked = {}; G.ach = {}; G.codex = {ent:{}, item:{}}; G.prog = {rand:0, mp:0, rev:0, seen:{}}; G.skins = {}; }
 }
 function saveMeta(){
   try{
-    localStorage.setItem(META_KEY, JSON.stringify({best:G.best, unlocked:G.unlocked, ach:G.ach, codex:G.codex}));
+    localStorage.setItem(META_KEY, JSON.stringify({best:G.best, unlocked:G.unlocked, ach:G.ach, codex:G.codex, prog:G.prog, skins:G.skins}));
   }catch(e){}
 }
 function codexSeeEnt(type){
@@ -3588,7 +3751,7 @@ function legPenalty(){
 // Cada hueco es un objeto distinto, lleve las unidades que lleve. Lo que
 // limita las unidades es el máximo por objeto, que baja con la dificultad.
 function invCount(){ return G.inv.length; }
-const STACK_BASE = {almond:6, bandage:5, battery:4, flare:4, crowbar:2, recorder:2};
+const STACK_BASE = {almond:6, bandage:5, battery:4, flare:4, crowbar:2, recorder:2, medkit:3};
 function stackMax(id){
   const def = ITEMS[id];
   if(!def || def.weapon || def.equip) return 1;
@@ -5990,7 +6153,7 @@ function buildLevel(levelId, seed){
   G.grace = cfg.settlement ? 0 : DIFF_LV().grace;   // margen al entrar a un nivel
 
   // ── jugador ──
-  const atlas = SPRITES["char_"+G.char.id];
+  const atlas = skinAtlas(G.char.id, skinOf(G.char.id));
   if(!player.mesh){
     player.mesh = makeSprite(atlas, 0.94, 1.42);
     scene.add(player.mesh);
@@ -6018,7 +6181,8 @@ function buildLevel(levelId, seed){
 
   G.grab = null;
   $("qte").hidden = true; $("qte").classList.remove("on");
-  G.stamina = staminaMax(); G.dead = false; G.noise = 0; G.focus = null; G.crossing = null; G.spWarn = null;
+  G.stamina = staminaMax(); G.dead = false; G.noise = 0; G.focus = null; G.crossing = null; G.spWarn = null; G.downed = false; G.reviving = null;
+  if($("downed")) $("downed").hidden = true;
   resetStats();
   updateNearestExit();
   if(typeof mpAnunciarNivel === "function") mpAnunciarNivel();
@@ -6339,6 +6503,126 @@ const player = {
 const WALK = 3.4, RUN = 6.1, RADIUS = 0.36;
 
 const keys = Object.create(null);
+
+/* ── qué se enseña: teclas o botones del mando ──
+   Lo decide lo último que hayas tocado. Todo texto que nombre una tecla pasa
+   por btn()/tag(), así que con mando dice «[A]» y con teclado «[E]» (o la
+   tecla que hayas puesto). Antes todo decía las teclas de PC. */
+let INPUT = "kb";
+function btn(id){ return INPUT === "pad" ? (PAD_BTN[id] || "—") : keyLabel(kb(id)); }
+function tag(id){ return "["+btn(id)+"]"; }
+function keyify(t){ return String(t||"").replace(/\{(\w+)\}/g, (m, id)=> ACTION_BY[id] ? tag(id) : m); }
+function setInput(modo){
+  if(INPUT === modo) return;
+  INPUT = modo;
+  document.body.setAttribute("data-input", modo);
+  // repintar lo que nombra teclas
+  renderPauseKeys();
+  if(typeof refreshSlots === "function" && G.cfg) refreshSlots();
+  if(G.grab && typeof buildQte === "function") buildQte();
+  if(typeof healOpen !== "undefined" && healOpen) renderHeal();
+  if(typeof bpOpen !== "undefined" && bpOpen) renderBackpack();
+  panelHints();
+}
+// las pistas de los paneles de mochila y curar
+function panelHints(){
+  const h1 = document.getElementById("hpHint"), h2 = document.getElementById("bpHint");
+  if(h1) h1.textContent = INPUT === "pad"
+    ? tx("↑ ↓ elegir zona · A vendar · B cerrar","↑ ↓ choose part · A bandage · B close")
+    : tx("Clic en una zona o pulsa su número · "+tag("heal")+" para cerrar","Click a part or press its number · "+tag("heal")+" to close");
+  if(h2) h2.textContent = INPUT === "pad"
+    ? tx("↑ ↓ elegir · A usar o cambiar de mano · X soltar · Y desechar · B cerrar","↑ ↓ choose · A use or swap hands · X drop · Y discard · B close")
+    : tx("Clic para usarlo · clic en un arma para pasarla de la mochila a una mano y al revés · "+tag("pack")+" para cerrar",
+         "Click to use it · click a weapon to move it between your hands and the pack · "+tag("pack")+" to close");
+  const hb = document.getElementById("healBtn");
+  if(hb){ const b = hb.querySelector("b"); if(b) b.textContent = btn("heal"); }
+}
+window.addEventListener("mousedown", ()=> setInput("kb"));
+window.addEventListener("mousemove", (e)=>{ if(Math.abs(e.movementX||0) + Math.abs(e.movementY||0) > 3) setInput("kb"); });
+
+/* ── teclas a gusto ──
+   Cada acción tiene su tecla por defecto y se puede cambiar en Ajustes →
+   Controles. Se guardan en G.opts.keys. Fijas: 1-9 objetos, ESC pausa, clic
+   izquierdo/derecho armas y T Z Q X del forcejeo. */
+const ACTIONS = [
+  {id:"fwd",     def:"w",     es:"Avanzar",                 en:"Forward"},
+  {id:"back",    def:"s",     es:"Retroceder",              en:"Back"},
+  {id:"left",    def:"a",     es:"Izquierda",               en:"Left"},
+  {id:"right",   def:"d",     es:"Derecha",                 en:"Right"},
+  {id:"run",     def:"shift", es:"Correr",                  en:"Run"},
+  {id:"use",     def:"e",     es:"Abrir · mantener para salir", en:"Open · hold to exit"},
+  {id:"torch",   def:"f",     es:"Linterna",                en:"Flashlight"},
+  {id:"flare",   def:"g",     es:"Bengala",                 en:"Flare"},
+  {id:"drink",   def:"q",     es:"Beber Almond Water",      en:"Drink Almond Water"},
+  {id:"bandage", def:"r",     es:"Vendar la peor zona",     en:"Bandage worst part"},
+  {id:"heal",    def:"n",     es:"Elegir qué zona curar",   en:"Choose part to heal"},
+  {id:"drop",    def:"x",     es:"Soltar lo de la mano",    en:"Drop held item"},
+  {id:"crowbar", def:"v",     es:"Palanca",                 en:"Crowbar"},
+  {id:"pack",    def:"b",     es:"Mochila",                 en:"Backpack"},
+  {id:"ability", def:"c",     es:"Habilidad",               en:"Ability"},
+  {id:"chat",    def:"enter", es:"Chat (con amigos)",       en:"Chat (with friends)"}
+];
+const ACTION_BY = {};
+ACTIONS.forEach(a=> ACTION_BY[a.id] = a);
+function kb(id){ const m = G.opts && G.opts.keys; return (m && m[id]) || ACTION_BY[id].def; }
+function keyLabel(k){
+  const names = {" ":tx("ESPACIO","SPACE"), shift:"SHIFT", control:"CTRL", alt:"ALT", enter:"ENTER", tab:"TAB",
+    arrowup:"↑", arrowdown:"↓", arrowleft:"←", arrowright:"→", backspace:"⌫", capslock:"BLOQ MAYÚS"};
+  return names[k] || String(k).toUpperCase();
+}
+let rebinding = null;
+function renderKeyBox(){
+  const host = document.getElementById("keyGrid");
+  if(!host) return;
+  host.textContent = "";
+  ACTIONS.forEach(a=>{
+    const row = document.createElement("div"); row.className = "kb-row";
+    const n = document.createElement("span"); n.textContent = tx(a.es, a.en); row.appendChild(n);
+    const b = document.createElement("button"); b.type = "button";
+    b.className = "kb-key" + (rebinding === a.id ? " wait" : "");
+    b.textContent = rebinding === a.id ? tx("pulsa…","press…") : keyLabel(kb(a.id));
+    b.addEventListener("click", ()=>{ rebinding = a.id; renderKeyBox(); });
+    row.appendChild(b);
+    host.appendChild(row);
+  });
+  renderPauseKeys();
+}
+function setKey(id, k){
+  G.opts.keys = Object.assign({}, G.opts.keys || {});
+  const viejo = kb(id);
+  // si la tecla ya era de otra acción, se intercambian
+  ACTIONS.forEach(a=>{ if(a.id !== id && kb(a.id) === k) G.opts.keys[a.id] = viejo; });
+  G.opts.keys[id] = k;
+  saveOpts();
+}
+function resetKeys(){ G.opts.keys = {}; saveOpts(); rebinding = null; renderKeyBox(); }
+// el cambio de tecla se captura antes que nada: si no, la tecla también actuaría
+window.addEventListener("keydown", (e)=>{
+  if(!rebinding) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  const k = e.key.toLowerCase();
+  const prohibidas = ["escape","1","2","3","4","5","6","7","8","9","0"];
+  if(k !== "escape" && prohibidas.indexOf(k) < 0) setKey(rebinding, k);
+  else if(k !== "escape") toast(tx("Esa tecla está reservada.","That key is reserved."));
+  rebinding = null;
+  renderKeyBox();
+}, true);
+function renderPauseKeys(){
+  const host = document.getElementById("pauseKeys");
+  if(!host) return;
+  if(INPUT === "pad"){
+    host.innerHTML = [["L",tx("moverte","move")],["R",tx("mirar","look")],["LT",tx("correr","run")],["A",tx("abrir · mantener para salir","open · hold to exit")],
+      ["B",tx("mochila","backpack")],["X",tx("linterna","flashlight")],["Y",tx("curar una zona","heal a part")],["LB · RB",tx("armas","weapons")],
+      ["RT",tx("habilidad","ability")],["↑ ↓",tx("beber · vendarte","drink · bandage")],["← →",tx("bengala · palanca","flare · crowbar")],["VIEW",tx("soltar","drop")]]
+      .map(([b,t])=> "<div><kbd>"+b+"</kbd><span> "+t+"</span></div>").join("");
+    return;
+  }
+  host.innerHTML = ["fwd","run","use","torch","flare","drink","bandage","heal","drop","pack","ability"].map(id=>{
+    const a = ACTION_BY[id];
+    const tecla = id === "fwd" ? [kb("fwd"),kb("left"),kb("back"),kb("right")].map(keyLabel).join(" ") : keyLabel(kb(id));
+    return "<div><kbd>"+tecla+"</kbd><span> "+(id === "fwd" ? tx("moverte","move") : tx(a.es, a.en).toLowerCase())+"</span></div>";
+  }).join("") + "<div><kbd>1</kbd>–<kbd>4</kbd><span> "+tx("usar objeto","use item")+"</span></div>";
+}
 let pointerLocked = false;
 
 function grabPointer(){
@@ -6347,6 +6631,8 @@ function grabPointer(){
 }
 
 window.addEventListener("keydown",(e)=>{
+  if(document.activeElement && document.activeElement.id === "chatIn") return;   // escribiendo en el chat
+  setInput("kb");
   const k = e.key.toLowerCase();
   keys[k] = true;
   if(k===" ") e.preventDefault();
@@ -6355,23 +6641,28 @@ window.addEventListener("keydown",(e)=>{
     setOptTab(optTab + (k==="arrowright" ? 1 : -1)); return;
   }
   if(!G.running || G.paused) { if(k==="escape" && G.paused) resumeGame(); return; }
-  if(k==="v"){ useItem("crowbar"); return; }        // antes del QTE: si no, se la come
-  if(k==="b"){ closeHeal(); toggleBackpack(); return; }
-  if(k==="n"){ toggleHeal(); return; }
+  doKeyAction(k);
+});
+// lo que hace cada tecla en partida; también lo usa el mando
+function doKeyAction(k){
+  if(k===kb("crowbar")){ useItem("crowbar"); return; }        // antes del QTE: si no, se la come
+  if(k===kb("pack")){ closeHeal(); toggleBackpack(); return; }
+  if(k===kb("heal")){ toggleHeal(); return; }
   if(healOpen && k>="1" && k<="6"){ const p = PARTS[parseInt(k,10)-1]; if(p){ healBodyPart(p.id); renderHeal(); } return; }
-  if(k==="c"){ useAbility(); return; }
+  if(k===kb("ability")){ useAbility(); return; }
   if(G.grab){ qteKey(k); if(k!=="escape") return; }
-  if(k==="e") interact();
-  if(k==="f") toggleTorch();
-  if(k==="g") useItem("flare");
-  if(k==="q") useItem("almond");
-  if(k==="r") useItem("bandage");
-  if(k==="x" && G.held) dropItem(G.held, null, false);
+  if(k===kb("chat") && MP.activo){ openChat(); return; }
+  if(k===kb("use")) interact();
+  if(k===kb("torch")) toggleTorch();
+  if(k===kb("flare")) useItem("flare");
+  if(k===kb("drink")) useItem("almond");
+  if(k===kb("bandage")) useItem("bandage");
+  if(k===kb("drop") && G.held) dropItem(G.held, null, false);
   if(k>="0" && k<="9"){
     slotKey(k==="0" ? 9 : parseInt(k,10)-1);
   }
   if(k==="escape") pauseGame();
-});
+}
 window.addEventListener("keyup",(e)=>{ keys[e.key.toLowerCase()] = false; });
 window.addEventListener("blur",()=>{ for(const k in keys) keys[k]=false; });
 canvas.addEventListener("click",()=>{
@@ -6408,13 +6699,16 @@ function updatePlayer(dt){
     }
     return;
   }
-  if(keys["w"]||keys["arrowup"])   iz+=1;
-  if(keys["s"]||keys["arrowdown"]) iz-=1;
-  if(keys["a"]||keys["arrowleft"]) ix-=1;
-  if(keys["d"]||keys["arrowright"])ix+=1;
+  if(G.downed){ player.speed = 0; return; }
+  if(keys[kb("fwd")]||keys["arrowup"])    iz+=1;
+  if(keys[kb("back")]||keys["arrowdown"]) iz-=1;
+  if(keys[kb("left")]||keys["arrowleft"]) ix-=1;
+  if(keys[kb("right")]||keys["arrowright"])ix+=1;
+  ix += PAD.move.x; iz += PAD.move.y;                  // el stick del mando suma
+  ix = clamp(ix,-1,1); iz = clamp(iz,-1,1);
 
-  const moving = ix!==0 || iz!==0;
-  const wantsRun = (keys["shift"]) && G.stamina>1;
+  const moving = Math.abs(ix) > 0.08 || Math.abs(iz) > 0.08;
+  const wantsRun = (keys[kb("run")] || PAD.run) && G.stamina>1;
   const running = moving && wantsRun;
 
   const stamMax = staminaMax();
@@ -6546,7 +6840,7 @@ function rollPart(){
 function partName(id){ for(const p of PARTS) if(p.id===id) return txf(p,"name"); return id; }
 
 function hurtPlayer(amount, source){
-  if(G.dead) return;
+  if(G.dead || G.downed) return;
   amount *= (G.char ? G.char.tough : 1) * DIFF_LV().dmg;
   if(G.shield > 0) amount *= 0.5;   // Aguante, la habilidad de Lázaro
   if(G.stats) G.stats.hurt += amount;
@@ -6558,7 +6852,7 @@ function hurtPlayer(amount, source){
     flashBlood();
     if(G.body[part] < 55 && Math.random() < 0.45 && !G.bleeding[part]){
       G.bleeding[part] = 1;
-      logLine(tx("Hemorragia en ","Bleeding from the ")+partName(part)+tx(". <b>[R]</b> para vendarte.",". <b>[R]</b> to bandage."));
+      logLine(tx("Hemorragia en ","Bleeding from the ")+partName(part)+tx(". <b>"+tag("bandage")+"</b> para vendarte.",". <b>"+tag("bandage")+"</b> to bandage."));
     }
   }
   if((part==="head"||part==="torso") && G.body[part] <= 0){
@@ -6609,7 +6903,7 @@ function entitySpecial(e){
     G.body[id] = Math.max(0, G.body[id] - each);
     if(sp.bleed && !G.bleeding[id] && G.body[id] < 78){
       G.bleeding[id] = 1;
-      logLine(tx("Hemorragia en ","Bleeding from the ")+partName(id)+tx(". <b>[R]</b> para vendarte.",". <b>[R]</b> to bandage."));
+      logLine(tx("Hemorragia en ","Bleeding from the ")+partName(id)+tx(". <b>"+tag("bandage")+"</b> para vendarte.",". <b>"+tag("bandage")+"</b> to bandage."));
     }
   }
   if(G.stats) G.stats.hurt += total;
@@ -6648,7 +6942,7 @@ function cancelSpecial(e){
 // si perdías el forcejeo entero, así que casi nunca se veía. Ahora todas.
 function updateSpecial(e, dist, dt){
   const sp = e.def && e.def.sp;
-  if(!sp || !sp.reach || G.dead) return false;
+  if(!sp || !sp.reach || G.dead || G.downed) return false;
   if(e.def.atlas === "faceling" && G.char && G.char.id === "coach") return false;   // los suyos no le atacan
   if(e.spCd === undefined){ e.spCd = 3 + Math.random()*5; e.spWind = 0; }
   const alcanza = ()=> sp.wallHack || canSee(player.pos.x, player.pos.z, e.x, e.z);
@@ -6771,6 +7065,13 @@ function useItem(id){
     playTape();
   }
   else if(id === "flashlight") toggleTorch();
+  else if(id === "medkit"){
+    if(!hasItem("medkit")){ toast(tx("No te quedan botiquines.","No first-aid kits left.")); return; }
+    removeItem("medkit");
+    PARTS.forEach(p=>{ G.body[p.id] = Math.min(100, G.body[p.id] + 30); G.bleeding[p.id] = 0; });
+    Audio_.wrap();
+    logLine(tx("Botiquín: <b>+30</b> en todas las zonas y sin hemorragias.","First-aid kit: <b>+30</b> on every part and no bleeding."));
+  }
   else if(id === "map" || id === "compass" || id === "backpack"){
     // equipo permanente: un segundo clic no hacía nada y parecía roto
     toast(tx("Ya la llevas puesta. Se usa sola mientras la tengas encima.","You are already wearing it. It works on its own while you have it."));
@@ -6803,6 +7104,7 @@ let healOpen = false;
 function renderHeal(){
   const host = $("hpRows");
   host.textContent = "";
+  panelHints();
   const inv = invFind("bandage");
   $("hpBand").textContent = tx("vendas ","bandages ")+"×"+(inv ? inv.qty : 0);
   PARTS.forEach((p,i)=>{
@@ -6810,7 +7112,8 @@ function renderHeal(){
     const b = document.createElement("button"); b.type = "button";
     b.className = "hp-row" + (bleed ? " bleed" : "") + (v >= 99 && !bleed ? " fine" : "");
     const col = RISK_COL[v > 75 ? 0 : v > 50 ? 1 : v > 25 ? 2 : 3];
-    b.innerHTML = "<kbd>"+(i+1)+"</kbd><span>"+txf(p,"name")+"</span>"+
+    if(INPUT === "pad" && i === (PAD.sel||0)) b.classList.add("padfocus");
+    b.innerHTML = "<kbd>"+(INPUT === "pad" ? (i === (PAD.sel||0) ? "▸" : "") : (i+1))+"</kbd><span>"+txf(p,"name")+"</span>"+
       '<span class="hp-bar"><i style="background:'+col+';transform:scaleX('+(v/100)+')"></i></span>'+
       '<span class="hp-v">'+(bleed ? "&#9679; " : "")+v+"%</span>";
     b.addEventListener("click", ()=>{ healBodyPart(p.id); renderHeal(); });
@@ -6921,6 +7224,12 @@ function nearestFocus(){
     const d = Math.hypot(player.pos.x-G.outpost.x, player.pos.z-G.outpost.z);
     if(d < bd){ bd = d; best = {kind:"save", ref:G.outpost, d}; }
   }
+  if(MP.activo) for(const k in MP.otros){
+    const o = MP.otros[k];
+    if(!o.dn || o.muerto || o.vx === undefined) continue;
+    const d = Math.hypot(player.pos.x-o.vx, player.pos.z-o.vz);
+    if(d < Math.min(bd, 2.2)){ bd = d; best = {kind:"revive", ref:o, d}; }
+  }
   for(let i=0;i<(G.drops||[]).length;i++){
     const o = G.drops[i];
     const d = Math.hypot(player.pos.x-o.x, player.pos.z-o.z);
@@ -6941,6 +7250,7 @@ function interact(){
   else if(f.kind === "tape") takeTape(f.ref);
   else if(f.kind === "save") useOutpost(f.ref);
   else if(f.kind === "drop") pickDrop(f.ref);
+  else if(f.kind === "revive") startRevive(f.ref);
   else startCrossing(f.ref);
 }
 
@@ -6965,7 +7275,7 @@ function updateCrossing(dt){
   if(!c) return;
   const d = Math.hypot(player.pos.x-c.e.mx, player.pos.z-c.e.mz);
   if(G.grab){ cancelCrossing(tx("Algo te arranca de la salida.","Something tears you away from the exit.")); return; }
-  if(!keys["e"]){ cancelCrossing(tx("Sueltas la salida a medias.","You let go of the exit halfway.")); return; }
+  if(!keys[kb("use")] && !PAD.use){ cancelCrossing(tx("Sueltas la salida a medias.","You let go of the exit halfway.")); return; }
   if(d > 2.8){ cancelCrossing(tx("Te alejas de la salida.","You move away from the exit.")); return; }
   c.t += dt;
   G.noise = Math.max(G.noise || 0, 0.75);             // forzar una salida se oye
@@ -7222,6 +7532,10 @@ function takeExit(e){
     if(G.depth+1 >= 5)  unlockAch("deep5");
     if(G.depth+1 >= 10) unlockAch("deep10");
     if(G.randomMode && G.depth+1 >= 5) unlockAch("random5");
+    G.prog = G.prog || {rand:0, mp:0, rev:0, seen:{}};
+    if(G.randomMode) G.prog.rand = (G.prog.rand||0) + 1;
+    if(MP.activo) G.prog.mp = (G.prog.mp||0) + 1;
+    checkSkins();
     checkUnlocks();
     saveMeta();
     G.running = false;
@@ -7401,7 +7715,7 @@ function buildQte(){
   G.grab.seq.forEach((k,i)=>{
     const d = document.createElement("div");
     d.className = "qk";
-    d.textContent = QTE_LABEL[k];
+    d.textContent = INPUT === "pad" ? ({t:"A", z:"B", q:"X", x:"Y"})[k] : QTE_LABEL[k];
     host.appendChild(d);
   });
   paintQte();
@@ -7418,7 +7732,7 @@ function paintQte(){
 
 // una entidad sólo puede agarrarte si te toca, no está aturdida y no acaba de soltarte
 function tryGrab(e, dist){
-  if(G.grab || G.grabImmune > 0 || e.stun > 0 || e.grabCd > 0) return false;
+  if(G.grab || G.downed || G.grabImmune > 0 || e.stun > 0 || e.grabCd > 0) return false;
   if(dist > 1.15 + e.r) return false;
   startGrab(e);
   return true;
@@ -8195,6 +8509,9 @@ function paintHands(){
     cx.clearRect(0,0,cv.width,cv.height);
     if(id) cx.drawImage(ICON_TEX[ITEMS[id].icon], 0, 0, cv.width, cv.height);
     box.querySelector("b").textContent = id ? txf(ITEMS[id],"name") : tx("vacía","empty");
+    const hk = box.querySelector(".hk");
+    if(hk) hk.textContent = (h === "L" ? tx("IZQUIERDA · ","LEFT · ") : tx("DERECHA · ","RIGHT · ")) +
+      (INPUT === "pad" ? (h === "L" ? "LB" : "RB") : (h === "L" ? tx("CLIC IZQ","L-CLICK") : tx("CLIC DER","R-CLICK")));
     box.classList.toggle("empty", !id);
   });
 }
@@ -8233,7 +8550,7 @@ function refreshSlots(){
       const q = document.createElement("span");
       q.className="qty" + (slot.qty >= stackMax(slot.id) ? " max" : ""); q.textContent = String(slot.qty);
       d.appendChild(q);
-      d.title = txf(def,"name") + " — " + txf(def,"blurb");
+      d.title = txf(def,"name") + " — " + keyify(txf(def,"blurb")).replace(/<[^>]+>/g,"");
     }
     const key = document.createElement("span");
     key.className = "key"; key.textContent = KEYCAP[i] || "";
@@ -8289,7 +8606,7 @@ function updateHud(dt){
   if(abc && G.char && G.char.ability){
     const ab = G.char.ability;
     abc.classList.toggle("ready", G.abilityCd <= 0);
-    abc.textContent = "[C] "+txf(ab,"name")+(G.abilityCd > 0 ? " · "+Math.ceil(G.abilityCd)+"s" : "");
+    abc.textContent = tag("ability")+" "+txf(ab,"name")+(G.abilityCd > 0 ? " · "+Math.ceil(G.abilityCd)+"s" : "");
   }
   ["L","R"].forEach(h=>{
     const box = $("hand"+h);
@@ -8318,11 +8635,21 @@ function updateHud(dt){
   if(G.focus){
     pr.classList.add("on");
     const f = G.focus;
-    if(f.kind==="box" && f.ref.opened) pr.innerHTML = "<b>[E]</b> "+tx("Coger lo que se quedó dentro ","Take what was left inside ")+"("+f.ref.left.length+")";
-    else if(f.kind==="box") pr.innerHTML = "<b>[E]</b> "+tx("Abrir ","Open ")+txf(f.ref,"name").toLowerCase()+tx(" · se tira un d6"," · rolls a d6");
-    else if(f.kind==="tape") pr.innerHTML = "<b>[E]</b> "+tx("Recoger grabadora del M.E.G.","Pick up M.E.G. tape recorder");
-    else if(f.kind==="drop") pr.innerHTML = "<b>[E]</b> "+tx("Recoger ","Pick up ")+txf(ITEMS[f.ref.id],"name")+(f.ref.qty>1?" ×"+f.ref.qty:"");
-    else if(f.kind==="save") pr.innerHTML = "<b>[E]</b> "+tx("Anotar el progreso en el registro <i>(guardar)</i>","Write progress into the log <i>(save)</i>");
+    const E = "<b>"+tag("use")+"</b> ";
+    if(f.kind==="box" && f.ref.opened) pr.innerHTML = E+tx("Coger lo que se quedó dentro ","Take what was left inside ")+"("+f.ref.left.length+")";
+    else if(f.kind==="box") pr.innerHTML = E+tx("Abrir ","Open ")+txf(f.ref,"name").toLowerCase()+tx(" · se tira un d6"," · rolls a d6");
+    else if(f.kind==="tape") pr.innerHTML = E+tx("Recoger grabadora del M.E.G.","Pick up M.E.G. tape recorder");
+    else if(f.kind==="revive"){
+      const bot = invFind("medkit");
+      if(G.reviving && G.reviving.o === f.ref){
+        const pct = Math.round(clamp(G.reviving.t/G.reviving.need,0,1)*100);
+        pr.innerHTML = "<b>"+tx("Reanimando…","Reviving…")+"</b> "+pct+"%"+'<span class="crossbar"><i style="transform:scaleX('+(pct/100)+')"></i></span>';
+      } else pr.innerHTML = bot
+        ? "<b>"+tx("[mantén "+btn("use")+"]","[hold "+btn("use")+"]")+"</b> "+tx("Reanimar a ","Revive ")+mpEsc(f.ref.nombre||"?")+tx(" · gasta un botiquín (tienes "," · uses a first-aid kit (you have ")+bot.qty+")"
+        : mpEsc(f.ref.nombre||"?")+tx(" está caído: te hace falta un botiquín."," is down: you need a first-aid kit.");
+    }
+    else if(f.kind==="drop") pr.innerHTML = E+tx("Recoger ","Pick up ")+txf(ITEMS[f.ref.id],"name")+(f.ref.qty>1?" ×"+f.ref.qty:"");
+    else if(f.kind==="save") pr.innerHTML = E+tx("Anotar el progreso en el registro <i>(guardar)</i>","Write progress into the log <i>(save)</i>");
     else{
       const k = EXIT_KINDS[f.ref.kind];
       const dest = (hasItem("map")||f.ref.known) ? " → "+f.ref.destName : tx(" → destino desconocido"," → unknown destination");
@@ -8331,7 +8658,7 @@ function updateHud(dt){
         pr.innerHTML = "<b>"+txf(k,"verb")+"…</b> "+pct+"%"+'<span class="crossbar"><i style="transform:scaleX('+(pct/100)+')"></i></span>';
         pr.classList.add("cross");
       } else {
-        pr.innerHTML = "<b>"+tx("[mantén E]","[hold E]")+"</b> "+txf(k,"verb")+" · "+txf(k,"name")+dest;
+        pr.innerHTML = "<b>"+tx("[mantén "+btn("use")+"]","[hold "+btn("use")+"]")+"</b> "+txf(k,"verb")+" · "+txf(k,"name")+dest;
       }
     }
   } else pr.classList.remove("on");
@@ -8397,6 +8724,8 @@ const ACHIEVEMENTS = [
   {id:"deep10",     name:"Diez abajo",           desc:"Alcanza el descenso 10.", name_en:"Ten down", desc_en:"Reach depth 10."},
   {id:"packed",     name:"Hasta arriba",         desc:"Llena la mochila entera.", name_en:"Loaded up", desc_en:"Fill the whole backpack."},
   {id:"clean",      name:"Sin tocar nada",       desc:"Supera un nivel sin abrir un solo contenedor.", name_en:"Touched nothing", desc_en:"Clear a level without opening a single container."},
+  {id:"revive",     name:"Nadie se queda atrás", desc:"Reanima a un compañero con un botiquín.", name_en:"Nobody left behind", desc_en:"Revive a teammate with a first-aid kit."},
+  {id:"skin",       name:"Otra piel",            desc:"Desbloquea un aspecto nuevo.", name_en:"Another skin", desc_en:"Unlock a new look."},
   {id:"random5",    name:"Dado cargado",         desc:"Llega al descenso 5 en el modo aleatorio.", name_en:"Loaded die", desc_en:"Reach depth 5 in random mode."},
   {id:"nomap",      name:"De memoria",           desc:"Supera un nivel sin mapa ni brújula.", name_en:"From memory", desc_en:"Clear a level with no map and no compass."},
   {id:"intact",     name:"Ni un rasguño",        desc:"Supera un nivel sin recibir daño.", name_en:"Not a scratch", desc_en:"Clear a level without taking damage."},
@@ -8561,13 +8890,18 @@ function paintHand(){
   cx.clearRect(0,0,ICON_PX,ICON_PX);
   cx.drawImage(ICON_TEX[def.icon],0,0,ICON_PX,ICON_PX);
   $("handName").textContent = txf(def,"name");
-  $("handDesc").textContent = txf(def,"blurb");
+  $("handDesc").innerHTML = keyify(txf(def,"blurb"));
   const slot = invFind(id);
   const key = ITEMS[id].key;
   let hint;
   if(id === "map" || id === "compass" || id === "backpack") hint = tx("Se usa solo mientras lo lleves encima.","It works on its own while you carry it.");
-  else if(id === "flashlight") hint = tx("Pulsa otra vez (o F) para encenderla y apagarla.","Press again (or F) to switch it on and off.");
-  else hint = tx("Pulsa otra vez la misma tecla para usarlo","Press the same key again to use it") + (key ? tx(" · atajo ["," · shortcut [")+key+"]" : "");
+  else if(id === "flashlight") hint = tx("Se enciende y se apaga con "+tag("torch")+".","Switch it on and off with "+tag("torch")+".");
+  else {
+    const accion = {F:"torch", Q:"drink", R:"bandage", G:"flare", V:"crowbar"}[key];
+    hint = INPUT === "pad"
+      ? (accion ? tx("Se usa con "+tag(accion)+".","Use it with "+tag(accion)+".") : tx("Se usa desde la mochila "+tag("pack")+".","Use it from the backpack "+tag("pack")+"."))
+      : tx("Pulsa otra vez la misma tecla para usarlo","Press the same key again to use it") + (accion ? tx(" · atajo "," · shortcut ")+tag(accion) : "");
+  }
   $("handHint").textContent = hint;
   $("handQty").textContent = slot && slot.qty > 1 ? "×"+slot.qty : "";
 
@@ -8597,7 +8931,7 @@ function updateHand(){
 
 // 1..0: con «uso rápido» (por defecto) el primer toque ya lo usa; si no,
 // el primero lo saca y el segundo lo usa, como antes.
-const QUICK_USE = {almond:1, bandage:1, battery:1, flare:1, recorder:1};
+const QUICK_USE = {almond:1, bandage:1, battery:1, flare:1, recorder:1, medkit:1};
 function slotKey(idx){
   const slot = G.inv[idx];
   if(!slot){ holdItem(null); return; }
@@ -8688,7 +9022,7 @@ function dropItem(id, hand, destroy){
   } else {
     spawnDrop(id, n, player.pos.x, player.pos.z);
     Audio_.noise(0.18, 300, 1.4, 0.08);
-    logLine(tx("Dejas en el suelo: ","Dropped: ")+"<b>"+txf(ITEMS[id],"name")+"</b>"+(n>1?" ×"+n:"")+tx(". [E] para recogerlo.",". [E] to pick it up."));
+    logLine(tx("Dejas en el suelo: ","Dropped: ")+"<b>"+txf(ITEMS[id],"name")+"</b>"+(n>1?" ×"+n:"")+tx(". "+tag("use")+" para recogerlo.",". "+tag("use")+" to pick it up."));
   }
   refreshSlots();
 }
@@ -8742,6 +9076,7 @@ function weaponClick(id, hand){
 function renderBackpack(){
   const grid = $("bpGrid");
   grid.textContent = "";
+  panelHints();
   G.inv.forEach(slot=> grid.appendChild(bpRow(slot.id, slot.qty, G.held === slot.id)));
   ["map","compass","flashlight","backpack"].forEach(id=>{
     if(G.equip[id]) grid.appendChild(bpRow(id, 1, G.held === id));
@@ -8775,10 +9110,10 @@ function closeBackpack(){
 
 const OPTS_KEY = "zumbido.opts.v1";
 const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es",
-  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1 };
+  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, pad:1, padSens:1.0, padInvert:0, keys:{} };
 
 function loadOpts(){
-  G.opts = Object.assign({}, OPTS_DEF);
+  G.opts = Object.assign({}, OPTS_DEF, {keys:{}});
   try{
     const raw = localStorage.getItem(OPTS_KEY);
     if(raw){
@@ -8799,6 +9134,13 @@ function loadOpts(){
       if(typeof o.shake === "number") G.opts.shake = clamp(o.shake, 0, 1);
       if(typeof o.fps === "number") G.opts.fps = o.fps ? 1 : 0;
       if(typeof o.quickUse === "number") G.opts.quickUse = o.quickUse ? 1 : 0;
+      if(typeof o.pad === "number") G.opts.pad = o.pad ? 1 : 0;
+      if(typeof o.padSens === "number") G.opts.padSens = clamp(o.padSens, 0.4, 3);
+      if(typeof o.padInvert === "number") G.opts.padInvert = o.padInvert ? 1 : 0;
+      if(o.keys && typeof o.keys === "object"){
+        G.opts.keys = {};
+        for(const id in o.keys) if(ACTION_BY[id] && typeof o.keys[id] === "string") G.opts.keys[id] = o.keys[id];
+      }
     }
   }catch(e){}
 }
@@ -8817,6 +9159,10 @@ function applyLanguage(){
   renderChars();
   buildOpts();
   renderMusicBox();         // se pinta al arrancar: sin esto se quedaba en el idioma de antes
+  $("mpChatIn").placeholder = tx("Escribe al grupo y pulsa Enter","Write to the group and press Enter");
+  $("chatIn").placeholder = tx("Enter para enviar · Esc para cerrar","Enter to send · Esc to close");
+  renderPauseKeys();
+  panelHints();
 }
 function applyBrightness(){
   renderer.toneMappingExposure = 0.96 * ((G.opts && G.opts.bright) || 1);
@@ -8929,6 +9275,24 @@ const OPT_ROWS = [
     fmt:(v)=> v >= 1 ? tx("visible","shown") : tx("oculto","hidden")
   },
   {
+    id:"pad", key:"pad", label:"Jugar con mando", min:0, max:1, step:1, note:"",
+    get:()=> G.opts.pad,
+    set:(v)=>{ G.opts.pad = v >= 1 ? 1 : 0; padStatus(); },
+    fmt:(v)=> v >= 1 ? tx("activado","on") : tx("desactivado","off")
+  },
+  {
+    id:"padSens", key:"padSens", label:"Sensibilidad del stick", min:40, max:300, step:10, note:"",
+    get:()=> G.opts.padSens*100,
+    set:(v)=>{ G.opts.padSens = v/100; },
+    fmt:(v)=> (v/100).toFixed(1)+"×"
+  },
+  {
+    id:"padInvert", key:"padInvert", label:"Invertir eje vertical", min:0, max:1, step:1, note:"",
+    get:()=> G.opts.padInvert,
+    set:(v)=>{ G.opts.padInvert = v >= 1 ? 1 : 0; },
+    fmt:(v)=> v >= 1 ? tx("invertido","inverted") : tx("normal","normal")
+  },
+  {
     id:"quickUse", key:"quickUse", label:"Usar objetos", min:0, max:1, step:1, note:"",
     get:()=> G.opts.quickUse,
     set:(v)=>{ G.opts.quickUse = v >= 1 ? 1 : 0; },
@@ -8968,7 +9332,10 @@ const OPT_LABELS = {
   fx:     ["Filtro de pantalla","Screen filter"],
   shake:  ["Temblor de cámara","Camera shake"],
   fps:    ["Contador de FPS","FPS counter"],
-  quickUse:["Usar objetos","Using items"]
+  quickUse:["Usar objetos","Using items"],
+  pad:    ["Jugar con mando","Play with a controller"],
+  padSens:["Sensibilidad del stick","Stick sensitivity"],
+  padInvert:["Invertir eje vertical","Invert vertical axis"]
 };
 const OPT_NOTES = {
   lang:   ["Cambia todos los textos del juego. Los nombres de los niveles se quedan como están en la wiki.",
@@ -9002,7 +9369,11 @@ const OPT_NOTES = {
   fps:    ["Enseña los fotogramas por segundo en la esquina.",
            "Shows frames per second in the corner."],
   quickUse:["Con las teclas 1-4 o un clic en la mochila: gastar el objeto al momento, o sacarlo primero y confirmar con otra pulsación.",
-           "With keys 1-4 or a click in the backpack: use the item straight away, or take it out first and confirm with another press."]
+           "With keys 1-4 or a click in the backpack: use the item straight away, or take it out first and confirm with another press."],
+  pad:    ["Cualquier mando que el navegador reconozca (Xbox, PlayStation, genéricos). Conéctalo y pulsa un botón.",
+           "Any controller the browser recognises (Xbox, PlayStation, generic). Plug it in and press a button."],
+  padSens:["Lo rápido que gira la cámara con el stick derecho.","How fast the right stick turns the camera."],
+  padInvert:["Para quien mira hacia arriba empujando el stick hacia abajo.","For people who look up by pushing the stick down."]
 };
 
 // Los ajustes van en cuatro pestañas que se deslizan de lado.
@@ -9010,13 +9381,13 @@ const OPT_TABS = [
   {id:"game",  icon:"◈", es:"Partida",   en:"Game",
    intro:["Idioma, dificultad y cómo de duro es soltarse cuando algo te agarra.","Language, difficulty and how hard it is to break free when something grabs you."]},
   {id:"ctrl",  icon:"⌨", es:"Controles", en:"Controls",
-   intro:["Cómo se mueve la cámara y cómo se usan los objetos.","How the camera moves and how items are used."]},
+   intro:["Teclas a tu gusto, mando, cámara y cómo se usan los objetos.","Keys your way, controller, camera and how items are used."]},
   {id:"sound", icon:"♪", es:"Sonido",    en:"Sound",
    intro:["Volúmenes por separado, y tu propia música si quieres.","Separate volumes, and your own music if you like."]},
   {id:"gfx",   icon:"◐", es:"Gráficos",  en:"Graphics",
    intro:["Brillo, calidad, niebla y filtros de pantalla.","Brightness, quality, fog and screen filters."]}
 ];
-const OPT_TAB_OF = {lang:"game", diff:"game", qte:"game", fov:"ctrl", sens:"ctrl", quickUse:"ctrl",
+const OPT_TAB_OF = {lang:"game", diff:"game", qte:"game", fov:"ctrl", sens:"ctrl", quickUse:"ctrl", pad:"ctrl", padSens:"ctrl", padInvert:"ctrl",
   vol:"sound", musicSrc:"sound", musicVol:"sound", ambVol:"sound",
   bright:"gfx", quality:"gfx", view:"gfx", fx:"gfx", shake:"gfx", fps:"gfx"};
 let optTab = 0;
@@ -9026,6 +9397,11 @@ function optFit(){
 }
 function setOptTab(i){
   optTab = clamp(i, 0, OPT_TABS.length-1);
+  // el foco (Tab, mando, scrollIntoView) puede desplazar el marco por dentro y
+  // dejar a la vista otra página: se deshace al momento
+  const vp = $("optViewport");
+  if(vp && !vp.dataset.fijo){ vp.dataset.fijo = 1; vp.addEventListener("scroll", ()=>{ vp.scrollLeft = 0; }); }
+  if(vp) vp.scrollLeft = 0;
   $("optRows").style.transform = "translateX(" + (-optTab*100) + "%)";
   const pages = $("optRows").children;
   for(let k=0;k<pages.length;k++) pages[k].classList.toggle("on", k === optTab);
@@ -9088,6 +9464,10 @@ function buildOpts(){
   });
   const mb = document.getElementById("musicBox");
   if(mb) pages.sound.appendChild(mb);
+  const kbx = document.getElementById("keyBox"), pdx = document.getElementById("padBox");
+  if(kbx) pages.ctrl.appendChild(kbx);
+  if(pdx) pages.ctrl.appendChild(pdx);
+  renderKeyBox(); padStatus();
   setOptTab(optTab);
 }
 function refreshOpts(){
@@ -9132,7 +9512,7 @@ function wipeProgress(){
     localStorage.removeItem(SAVE_KEY);
     localStorage.removeItem(META_KEY);
   }catch(e){}
-  G.best = 0; G.unlocked = {}; G.ach = {}; G.codex = {ent:{}, item:{}};
+  G.best = 0; G.unlocked = {}; G.ach = {}; G.codex = {ent:{}, item:{}}; G.prog = {rand:0, mp:0, rev:0, seen:{}}; G.skins = {};
   btn.textContent = tx("Progreso borrado","Progress wiped");
   btn.classList.remove("danger");
   setTimeout(()=>{ btn.textContent = tx("Borrar progreso","Wipe progress"); }, 2600);
@@ -9146,7 +9526,8 @@ function resetOpts(){
   G.opts.bright = OPTS_DEF.bright;
   G.opts.qte = OPTS_DEF.qte;
   G.opts.diff = OPTS_DEF.diff;
-  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","quickUse"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
+  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","quickUse","pad","padSens","padInvert"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
+  G.opts.keys = {}; renderKeyBox();
   applyVolume();
   applyBrightness();
   Audio_.setBusVols(); applyQuality(); applyView(); applyFx(); applyFps();
@@ -9411,7 +9792,7 @@ function renderCodex(from){
   seccion("item", tx("Objetos","Items"));
   Object.keys(ITEMS).forEach(k=>{
     const visto = !!(G.codex && G.codex.item[k]);
-    fila("item", txf(ITEMS[k],"name"), visto ? txf(ITEMS[k],"blurb") : "", visto, visto ? itemIconCanvas(ITEMS[k].icon) : undefined);
+    fila("item", txf(ITEMS[k],"name"), visto ? keyify(txf(ITEMS[k],"blurb")).replace(/<[^>]+>/g,"") : "", visto, visto ? itemIconCanvas(ITEMS[k].icon) : undefined);
   });
 
   seccion("lvl", tx("Niveles","Levels"));
@@ -9478,6 +9859,13 @@ function renderChars(){
 
 let charIdx = 0;
 let charAnim = null;
+const skinView = {};                  // qué aspecto se está mirando de cada personaje
+function skinStep(ch, d){
+  const i = ((skinView[ch.id] || 0) + d + SKINS.length) % SKINS.length;
+  skinView[ch.id] = i;
+  if(skinUnlocked(SKINS[i])){ G.skins = G.skins || {}; G.skins[ch.id] = SKINS[i].id; saveMeta(); }
+  renderCarousel();
+}
 
 function charCard(ch, frame){
   const open = charUnlocked(ch);
@@ -9492,8 +9880,24 @@ function charCard(ch, frame){
 
   const art = document.createElement("div");
   art.className = "char-art";
-  art.appendChild(charPortrait(ch, 4, open ? (frame||0) : 0, 0));
-  card.appendChild(art);
+  const sk = SKINS[skinView[ch.id] || 0];
+  art.appendChild(charPortrait(ch, 4, open ? (frame||0) : 0, 0, sk.id));
+  if(!skinUnlocked(sk)) art.classList.add("skin-locked");
+  const artCol = document.createElement("div"); artCol.className = "char-artcol";
+  artCol.appendChild(art);
+  card.appendChild(artCol);
+  if(open){
+    const row = document.createElement("div"); row.className = "skin-row";
+    const mkA = (t, d)=>{ const b = document.createElement("button"); b.type = "button"; b.className = "skin-arr"; b.textContent = t;
+      b.addEventListener("click", ()=> skinStep(ch, d)); return b; };
+    row.appendChild(mkA("‹", -1));
+    const nm = document.createElement("div"); nm.className = "skin-name";
+    nm.innerHTML = "<small>"+tx("ASPECTO","LOOK")+" "+((skinView[ch.id]||0)+1)+"/"+SKINS.length+"</small>"+tx(sk.es, sk.en)+
+      (skinUnlocked(sk) ? "" : '<span class="skin-need">&#128274; '+skinNeedText(sk)+'</span>');
+    row.appendChild(nm);
+    row.appendChild(mkA("›", 1));
+    artCol.appendChild(row);
+  }
 
   const txt = document.createElement("div");
   txt.className = "char-txt";
@@ -9545,7 +9949,7 @@ function startCharAnim(){
     if(!charUnlocked(ch)) return;
     f = (f+1)%4;
     const art = stage.firstChild.querySelector(".char-art");
-    if(art && art.firstChild) art.replaceChild(charPortrait(ch, 4, f, 0), art.firstChild);
+    if(art && art.firstChild) art.replaceChild(charPortrait(ch, 4, f, 0, SKINS[skinView[ch.id] || 0].id), art.firstChild);
   }, 220);
 }
 
@@ -9555,6 +9959,7 @@ function charStep(d){
 }
 
 function openChars(){
+  CHARACTERS.forEach(c=>{ if(skinView[c.id] === undefined) skinView[c.id] = Math.max(0, SKINS.findIndex(s=> s.id === skinOf(c.id))); });
   // se abre en el primero que esté desbloqueado
   if(!charUnlocked(CHARACTERS[charIdx])){
     const libre = CHARACTERS.findIndex(charUnlocked);
@@ -9585,8 +9990,13 @@ const MP_RITMO = 0.08;                     // cada cuánto se manda la posición
 
 const MP = {
   activo:false, anfitrion:false, peer:null, conexiones:[],
-  sala:"", nombre:"", otros:{}, reloj:0, libreria:false
+  sala:"", nombre:"", otros:{}, reloj:0, libreria:false, modo:"normal"
 };
+// Qué reenvía el anfitrión: la red es una estrella (cada invitado sólo está
+// conectado al anfitrión), así que sin esto los invitados no se veían entre sí.
+const MP_REENVIA = {hola:1, pos:1, chat:1, caido:1, muerto:1, revivir:1};
+function mpEsc(t){ return String(t).replace(/[&<>"]/g, c=> ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function mpYo(){ return MP.peer && MP.peer.id; }
 
 function mpSlug(t){
   return String(t||"").toLowerCase().trim()
@@ -9619,17 +10029,40 @@ function mpAbrir(){
 function mpPintarGente(){
   const host = $("mpPeople");
   host.textContent = "";
+  $("mpMode").hidden = !MP.activo;
+  $("mpLobbyChat").hidden = !MP.activo;
+  mpPintarModo();
   if(!MP.activo) return;
-  const lista = [[MP.nombre + (MP.anfitrion ? tx(" (anfitrión)"," (host)") : ""), tx("tú","you")]]
-    .concat(Object.keys(MP.otros).map(k=> [MP.otros[k].nombre, tx("conectado","connected")]));
-  lista.forEach(([n, e])=>{
+  const nombreCh = id=> { const c = CHARACTERS.find(x=> x.id === id); return c ? txf(c,"name") : ""; };
+  const lista = [[MP.nombre, (MP.anfitrion ? tx("anfitrión","host") : tx("tú","you")), true]]
+    .concat(Object.keys(MP.otros).map(k=> [MP.otros[k].nombre, nombreCh(MP.otros[k].ch) || tx("conectado","connected"), false]));
+  const cab = document.createElement("div"); cab.className = "mpp";
+  cab.innerHTML = "<b>"+tx("En la sala","In the room")+"</b><span>"+lista.length+tx(" jugadores"," players")+"</span>";
+  host.appendChild(cab);
+  lista.forEach(([n, e, yo])=>{
     const d = document.createElement("div");
     d.className = "mpp";
-    d.innerHTML = "<b>"+n+"</b><span>"+e+"</span>";
+    d.innerHTML = "<b>"+(yo ? "● " : "○ ")+mpEsc(n)+"</b><span>"+mpEsc(e)+"</span>";
     host.appendChild(d);
   });
 }
+function mpPintarModo(){
+  document.querySelectorAll(".mp-mode").forEach(b=>{
+    b.classList.toggle("on", b.getAttribute("data-modo") === MP.modo);
+    b.disabled = !MP.anfitrion;
+  });
+  const n = $("mpModeNote");
+  if(n) n.textContent = MP.anfitrion ? tx("Tú eliges el modo: lo verán todos.","You pick the mode: everyone sees it.")
+                                     : tx("El modo lo elige quien ha creado la sala.","The room creator picks the mode.");
+}
+function mpElegirModo(modo){
+  if(!MP.anfitrion) return;
+  MP.modo = modo === "random" ? "random" : "normal";
+  mpEnviar({t:"sala", modo:MP.modo});
+  mpPintarModo();
+}
 
+// arriba a la derecha: quién está, cómo va y si está caído
 function mpRoster(){
   const host = $("mpRoster");
   if(!host) return;
@@ -9638,9 +10071,127 @@ function mpRoster(){
   Object.keys(MP.otros).forEach(k=>{
     const o = MP.otros[k];
     const d = document.createElement("div");
-    d.textContent = o.nombre;
+    let st, cls = "st";
+    if(o.muerto){ st = tx("perdido","lost"); cls += " ko"; }
+    else if(o.dn){ st = tx("CAÍDO","DOWN"); cls += " dn"; }
+    else if(o.lv && G.cfg && o.lv !== G.levelId+"@"+G.levelSeed) st = tx("otro nivel","other level");
+    else st = (o.hp !== undefined ? Math.round(o.hp)+"%" : "…");
+    d.innerHTML = "<span>"+mpEsc(o.nombre||"?")+'</span><span class="'+cls+'">'+st+"</span>";
     host.appendChild(d);
   });
+}
+
+/* ── chat ── [Enter] en partida (tecla configurable), y otro en la sala */
+let chatFade = null;
+function addChat(nombre, txt, mio, sistema){
+  const linea = sistema ? "<i>"+mpEsc(txt)+"</i>" : "<b"+(mio ? ' class="me"' : "")+">"+mpEsc(nombre)+":</b> "+mpEsc(txt);
+  ["chatLog","mpChatLog"].forEach(id=>{
+    const h = document.getElementById(id); if(!h) return;
+    const d = document.createElement("div"); d.innerHTML = linea; h.appendChild(d);
+    while(h.children.length > 40) h.firstChild.remove();
+    h.scrollTop = h.scrollHeight;
+  });
+  const cl = $("chatLog"); cl.classList.add("fresh");
+  clearTimeout(chatFade); chatFade = setTimeout(()=>{ if($("chatIn").hidden) cl.classList.remove("fresh"); }, 8000);
+  if(!mio) Audio_.tone(880, 0.05, 0.035, "sine");
+}
+function openChat(){
+  const i = $("chatIn");
+  for(const k in keys) keys[k] = false;
+  i.hidden = false; i.value = ""; i.focus();
+  $("chatLog").classList.add("fresh");
+}
+function closeChat(){
+  const i = $("chatIn");
+  i.blur(); i.hidden = true;
+  chatFade = setTimeout(()=> $("chatLog").classList.remove("fresh"), 4000);
+}
+function sendChat(inp){
+  const t = String(inp.value || "").trim().slice(0,120);
+  inp.value = "";
+  if(!t || !MP.activo) return;
+  addChat(MP.nombre, t, true);
+  mpEnviar({t:"chat", n:MP.nombre, txt:t});
+}
+
+/* ── caer y que te reanimen ──
+   Con amigos, morir te deja CAÍDO 40 s: no te mueves, nada te ataca, y un
+   compañero con un botiquín puede reanimarte manteniendo [E] a tu lado. Si
+   se acaba el tiempo o no queda nadie en pie, ahí sí se acaba. */
+let dieForce = false;
+function mpAlguienVivo(){
+  return Object.keys(MP.otros).some(k=>{ const o = MP.otros[k]; return !o.dn && !o.muerto && (o.visto||0) < 6; });
+}
+function goDown(why){
+  G.downed = true; G.downT = 40; G.downWhy = why;
+  if(G.grab){ G.grab.ent.grabbed = false; G.grab = null; }
+  $("qte").hidden = true; $("qte").classList.remove("on");
+  PARTS.forEach(p=> G.bleeding[p.id] = 0);
+  closeBackpack(); closeHeal(); cancelCrossing();
+  G.entities.forEach(e=>{ e.state = "wander"; e.alert = 0; e.hunt = 0; if(e.spWind > 0) cancelSpecial(e); });
+  Audio_.scream();
+  $("downed").hidden = false;
+  if(player.mesh){ player.mesh.scale.y = 0.45; player.mesh.position.y = 0.34; }
+  mpEnviar({t:"caido", on:1});
+  addChat("", MP.nombre+tx(" ha caído."," is down."), true, true);
+}
+function updateDowned(dt){
+  if(!G.downed) return;
+  G.downT -= dt;
+  $("downedT").textContent = Math.max(0, Math.ceil(G.downT))+" s";
+  if(G.downT <= 0 || !mpAlguienVivo()){
+    G.downed = false; $("downed").hidden = true;
+    if(player.mesh) player.mesh.scale.y = 1;
+    dieForce = true; die(G.downWhy || tx("Nadie llegó a tiempo.","Nobody got there in time.")); dieForce = false;
+  }
+}
+function reviveMe(by){
+  if(!G.downed) return;
+  G.downed = false; $("downed").hidden = true;
+  if(player.mesh) player.mesh.scale.y = 1;
+  PARTS.forEach(p=>{ G.body[p.id] = Math.max(G.body[p.id], 40); G.bleeding[p.id] = 0; });
+  G.sanity = Math.max(G.sanity, 45);
+  G.grabImmune = 5; G.grace = Math.max(G.grace, 3);
+  Audio_.save();
+  toast(String(by||"?")+tx(" te ha reanimado."," revived you."), 3.5);
+  mpEnviar({t:"caido", on:0});
+  refreshSlots();
+}
+function startRevive(o){
+  if(!hasItem("medkit")){ toast(tx("Necesitas un botiquín para reanimar.","You need a first-aid kit to revive.")); return; }
+  if(G.reviving) return;
+  G.reviving = {o, t:0, need:3};
+  Audio_.tone(300, 0.2, 0.05, "sine", 420);
+}
+function updateRevive(dt){
+  const r = G.reviving;
+  if(!r) return;
+  const d = Math.hypot(player.pos.x - (r.o.vx||0), player.pos.z - (r.o.vz||0));
+  if(!r.o.dn || G.grab || d > 2.8 || (!keys[kb("use")] && !PAD.use)){ G.reviving = null; return; }
+  r.t += dt;
+  if(r.t < r.need) return;
+  G.reviving = null;
+  removeItem("medkit");
+  r.o.dn = 0;
+  mpEnviar({t:"revivir", to:r.o.id, by:MP.nombre});
+  G.prog = G.prog || {}; G.prog.rev = (G.prog.rev||0) + 1;
+  unlockAch("revive"); checkSkins(); saveMeta();
+  logLine(tx("Reanimas a <b>","You revive <b>")+mpEsc(r.o.nombre||"?")+tx("</b>. Te cuesta un botiquín.","</b>. It costs you a first-aid kit."));
+  refreshSlots();
+}
+// cartel con el nombre encima de cada compañero
+function nameTag(nombre, caido){
+  const c = document.createElement("canvas"); c.width = 256; c.height = 48;
+  const x = c.getContext("2d");
+  x.font = "bold 22px monospace"; x.textAlign = "center"; x.textBaseline = "middle";
+  const w = Math.min(250, x.measureText(nombre).width + 24);
+  x.fillStyle = caido ? "rgba(90,14,8,.85)" : "rgba(8,8,10,.72)"; x.fillRect(128-w/2, 6, w, 36);
+  x.fillStyle = caido ? "#ffb09a" : "#f6eec9"; x.fillText((caido ? "✚ " : "")+nombre, 128, 25);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.26),
+    new THREE.MeshBasicMaterial({map:t, transparent:true, depthWrite:false, depthTest:false}));
+  m.renderOrder = 10;
+  return m;
 }
 
 function mpEmpezar(anfitrion){
@@ -9688,8 +10239,13 @@ function mpEmpezar(anfitrion){
 function mpAtarConexion(c){
   c.on("open", ()=>{
     MP.conexiones.push(c);
-    c.send({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout"});
-    if(MP.anfitrion && G.cfg) c.send({t:"nivel", id:G.levelId, seed:G.levelSeed});
+    c.send({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base"});
+    if(MP.anfitrion){
+      c.send({t:"sala", modo:MP.modo});
+      // presenta a los que ya estaban
+      Object.keys(MP.otros).forEach(k=>{ const o = MP.otros[k]; c.send({t:"hola", from:k, nombre:o.nombre, ch:o.ch, sk:o.sk}); });
+    }
+    if(MP.anfitrion && G.cfg) c.send({t:"nivel", id:G.levelId, seed:G.levelSeed, modo:MP.modo});
     $("mpGoRow").hidden = false;
     mpEstado(tx("Conectado.","Connected."));
     mpPintarGente();
@@ -9702,7 +10258,13 @@ function mpAtarConexion(c){
 function mpSoltar(c){
   MP.conexiones = MP.conexiones.filter(x=> x !== c);
   const o = MP.otros[c.peer];
-  if(o){ if(o.mesh) world.remove(o.mesh); delete MP.otros[c.peer]; }
+  if(o){
+    if(o.mesh) world.remove(o.mesh);
+    if(o.tag) world.remove(o.tag);
+    addChat("", (o.nombre||"?")+tx(" se ha ido."," has left."), false, true);
+    delete MP.otros[c.peer];
+    if(MP.anfitrion) mpEnviar({t:"muerto", from:c.peer, fuera:1});
+  }
   mpPintarGente(); mpRoster();
 }
 
@@ -9714,20 +10276,42 @@ function mpEnviar(m){
 
 function mpRecibir(c, m){
   if(!m || !m.t) return;
+  const from = m.from || c.peer;
+  // el anfitrión hace de centralita: lo que le llega de un invitado lo pasa a los demás
+  if(MP.anfitrion && !m.from && MP_REENVIA[m.t]){
+    const fw = Object.assign({}, m, {from:c.peer});
+    MP.conexiones.forEach(x=>{ if(x !== c){ try{ x.send(fw); }catch(e){} } });
+  }
+  if(m.t === "sala" && !MP.anfitrion){ MP.modo = m.modo === "random" ? "random" : "normal"; mpPintarModo(); return; }
+  if(m.t === "chat"){ addChat(String(m.n||"?").slice(0,14), String(m.txt||"").slice(0,120), false); return; }
+  if(m.t === "caido"){ const o = MP.otros[from]; if(o){ o.dn = m.on ? 1 : 0; o.tagDn = -1; } mpRoster(); if(o && m.on) addChat("", (o.nombre||"?")+tx(" ha caído: llévale un botiquín."," is down: bring a first-aid kit."), false, true); return; }
+  if(m.t === "muerto"){
+    const o = MP.otros[from];
+    if(o){ o.muerto = true; o.dn = 0; if(o.mesh) o.mesh.visible = false; if(o.tag) o.tag.visible = false;
+      if(m.fuera){ if(o.mesh) world.remove(o.mesh); if(o.tag) world.remove(o.tag); delete MP.otros[from]; }
+      else addChat("", (o.nombre||"?")+tx(" se ha perdido."," is lost."), false, true); }
+    mpRoster(); mpPintarGente(); return;
+  }
+  if(m.t === "revivir"){ if(m.to === mpYo()) reviveMe(m.by); else { const o = MP.otros[m.to]; if(o) o.dn = 0; } return; }
   if(m.t === "hola"){
-    MP.otros[c.peer] = MP.otros[c.peer] || {};
-    const o = MP.otros[c.peer];
+    const nuevo = !MP.otros[from];
+    MP.otros[from] = MP.otros[from] || {};
+    const o = MP.otros[from];
+    o.id = from;
     o.nombre = String(m.nombre||"?").slice(0,14);
     o.ch = m.ch || "scout";
+    o.sk = m.sk || "base";
     o.visto = 0;
+    if(nuevo) addChat("", o.nombre+tx(" ha entrado en la sala."," joined the room."), false, true);
     mpPintarGente(); mpRoster();
     // el anfitrión contesta diciendo en qué nivel está la expedición
-    if(MP.anfitrion && G.cfg){
-      try { c.send({t:"nivel", id:G.levelId, seed:G.levelSeed}); } catch(e){}
+    if(MP.anfitrion && G.cfg && !m.from){
+      try { c.send({t:"nivel", id:G.levelId, seed:G.levelSeed, modo:MP.modo}); } catch(e){}
     }
     return;
   }
   if(m.t === "nivel" && !MP.anfitrion){
+    if(m.modo){ MP.modo = m.modo; G.randomMode = m.modo === "random"; }
     if(G.levelId !== m.id || G.levelSeed !== m.seed){
       G.levelId = m.id; G.levelSeed = m.seed;
       if(G.cfg) buildLevel(m.id, m.seed);
@@ -9735,17 +10319,21 @@ function mpRecibir(c, m){
     return;
   }
   if(m.t === "pos"){
-    const o = MP.otros[c.peer] = MP.otros[c.peer] || {nombre:"?", ch:"scout"};
+    const o = MP.otros[from] = MP.otros[from] || {nombre:"?", ch:"scout"};
+    o.id = from;
     o.x = m.x; o.z = m.z; o.yaw = m.yaw; o.frame = m.f|0; o.row = m.r|0; o.visto = 0;
+    o.hp = m.hp; o.lv = m.lv; o.muerto = false;
+    if((m.dn ? 1 : 0) !== (o.dn ? 1 : 0)) o.dn = m.dn ? 1 : 0;
     if(m.n) o.nombre = String(m.n).slice(0,14);
-    if(m.ch) o.ch = m.ch;
+    if(m.ch && m.ch !== o.ch){ o.ch = m.ch; o.cambio = true; }
+    if(m.sk && m.sk !== o.sk){ o.sk = m.sk; o.cambio = true; }
     return;
   }
 }
 
 // el anfitrión manda el nivel cada vez que se genera uno
 function mpAnunciarNivel(){
-  if(MP.activo && MP.anfitrion) mpEnviar({t:"nivel", id:G.levelId, seed:G.levelSeed});
+  if(MP.activo && MP.anfitrion) mpEnviar({t:"nivel", id:G.levelId, seed:G.levelSeed, modo:MP.modo});
 }
 
 /* Los demás jugadores se dibujan como sprites del personaje que eligieron.
@@ -9760,9 +10348,14 @@ function updateGhosts(dt){
     mpEnviar({
       t:"pos", x:+player.pos.x.toFixed(2), z:+player.pos.z.toFixed(2),
       yaw:+player.yaw.toFixed(2), f:(player.animFrame|0), r:(player.animRow|0),
-      n:MP.nombre, ch:(G.char && G.char.id) || "scout"
+      n:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base",
+      hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed
     });
+    MP.rosterT = (MP.rosterT||0) - MP_RITMO;
+    if(MP.rosterT <= 0){ MP.rosterT = 0.5; mpRoster(); }
   }
+  updateDowned(dt);
+  updateRevive(dt);
 
   for(const k in MP.otros){
     const o = MP.otros[k];
@@ -9772,19 +10365,32 @@ function updateGhosts(dt){
       continue;
     }
     if(o.x === undefined) continue;
-    const atlas = SPRITES["char_"+o.ch] || SPRITES["char_"+CHARACTERS[0].id];
+    // al cambiar de nivel se tira el mundo entero: hay que volver a crear el sprite
+    if(o.mesh && (o.mesh.parent !== world || o.cambio)){ if(o.mesh.parent) o.mesh.parent.remove(o.mesh); o.mesh = null; }
+    if(o.tag && o.tag.parent !== world){ o.tag = null; }
+    o.cambio = false;
+    const aqui = !o.muerto && (!o.lv || o.lv === G.levelId+"@"+G.levelSeed);
     if(!o.mesh){
-      o.mesh = makeSprite(atlas, 0.94, 1.42);
+      o.mesh = makeSprite(skinAtlas(o.ch, o.sk), 0.94, 1.42);
       o.mesh.material.opacity = 0.92;
       o.mesh.material.transparent = true;
       o.vx = o.x; o.vz = o.z;
       world.add(o.mesh);
     }
+    if(!o.tag || o.tagDn !== (o.dn ? 1 : 0)){
+      if(o.tag) world.remove(o.tag);
+      o.tag = nameTag(o.nombre || "?", !!o.dn); o.tagDn = o.dn ? 1 : 0;
+      world.add(o.tag);
+    }
+    o.mesh.visible = aqui; o.tag.visible = aqui;
     o.vx = lerp(o.vx, o.x, 1-Math.pow(0.002, dt));
     o.vz = lerp(o.vz, o.z, 1-Math.pow(0.002, dt));
-    o.mesh.position.set(o.vx, 0.71, o.vz);
+    o.mesh.position.set(o.vx, o.dn ? 0.34 : 0.71, o.vz);
+    o.mesh.scale.y = o.dn ? 0.45 : 1;
     setFrame(o.mesh, o.frame % 4, (o.row||0) % 4);
     billboard(o.mesh, camera.position);
+    o.tag.position.set(o.vx, o.dn ? 0.95 : 1.62, o.vz);
+    billboard(o.tag, camera.position);
   }
 }
 
@@ -9792,8 +10398,10 @@ function mpSalir(){
   Object.keys(MP.otros).forEach(k=>{
     const o = MP.otros[k];
     if(o.mesh) world.remove(o.mesh);
+    if(o.tag) world.remove(o.tag);
   });
   MP.otros = {};
+  MP.modo = "normal";
   MP.conexiones.forEach(c=>{ try{ c.close(); }catch(e){} });
   MP.conexiones = [];
   if(MP.peer){ try{ MP.peer.destroy(); }catch(e){} MP.peer = null; }
@@ -9804,6 +10412,7 @@ function mpSalir(){
 function startRun(charId){
   Audio_.init(); Audio_.resume();
   resetRun(charId);
+  if(MP.activo) addItem("medkit", 1);          // con amigos, cada uno baja con un botiquín
   if(wantRandom){
     G.randomMode = true;
     G.levelId = randomLevelId(Math.random, "0");
@@ -9914,6 +10523,9 @@ function toTitle(){
 
 function die(why){
   if(G.dead) return;
+  if(G.downed && !dieForce) return;
+  if(MP.activo && !dieForce && mpAlguienVivo()){ goDown(why); return; }
+  if(MP.activo) mpEnviar({t:"muerto"});
   G.dead = true; G.running = false;
   if(G.grab){ G.grab.ent.grabbed = false; G.grab = null; }
   $("qte").hidden = true; $("qte").classList.remove("on");
@@ -9945,6 +10557,144 @@ function die(why){
   show("deadScreen");
 }
 
+/* ═══════════════ MANDO ═══════════════
+   API Gamepad del navegador, sondeada cada fotograma. En partida el stick
+   izquierdo mueve, el derecho mira y los botones disparan las mismas acciones
+   que las teclas (doKeyAction). En los menús la cruceta mueve el foco entre
+   botones, A pulsa y B vuelve. Si no hay mando, no hace nada. */
+const PAD = {move:{x:0,y:0}, run:false, use:false, prev:[], nav:0, id:"", sel:0};
+// Botón del mando que hace cada acción (lo que se enseña en pantalla con mando)
+const PAD_BTN = {use:"A", pack:"B", torch:"X", heal:"Y", ability:"RT", run:"LT", drink:"↑", bandage:"↓",
+  flare:"←", crowbar:"→", drop:"VIEW", fwd:"L", back:"L", left:"L", right:"L", chat:"—"};
+function padConnected(){
+  const gps = navigator.getGamepads ? navigator.getGamepads() : [];
+  for(let i=0;i<gps.length;i++) if(gps[i] && gps[i].connected) return gps[i];
+  return null;
+}
+function padStatus(){
+  const el = document.getElementById("padState");
+  if(!el) return;
+  const gp = padConnected();
+  el.textContent = !G.opts.pad ? tx("desactivado","off") : (gp ? tx("conectado: ","connected: ")+gp.id.replace(/\(.*?\)/g,"").slice(0,32) : tx("no detectado: conéctalo y pulsa un botón","not detected: plug it in and press a button"));
+  el.classList.toggle("on", !!(gp && G.opts.pad));
+}
+window.addEventListener("gamepadconnected", (e)=>{ toast(tx("Mando conectado","Controller connected"), 2.2); padStatus(); });
+window.addEventListener("gamepaddisconnected", ()=>{ PAD.move.x = PAD.move.y = 0; PAD.run = PAD.use = false; padStatus(); });
+const PAD_QTE = ["t","z","q","x"];                     // A B X Y durante un agarre
+function visibleScreen(){ return SCREENS.find(id=> !$(id).hidden) || null; }
+function padMenu(gp, down, dt){
+  const scr = visibleScreen();
+  if(!scr) return;
+  const root = $(scr);
+  const focusables = [...root.querySelectorAll("button:not([disabled]), input[type=range]")].filter(el=> el.offsetParent !== null);
+  if(!focusables.length) return;
+  let i = focusables.findIndex(el=> el.classList.contains("padfocus"));
+  const ay = gp.axes[1] || 0, ax = gp.axes[0] || 0;
+  PAD.nav -= dt;
+  let move = 0;
+  if(down(12) || (ay < -0.6 && PAD.nav <= 0)) move = -1;
+  if(down(13) || (ay >  0.6 && PAD.nav <= 0)) move = 1;
+  if(move){
+    PAD.nav = 0.22;
+    i = i < 0 ? 0 : (i + move + focusables.length) % focusables.length;
+    focusables.forEach(el=> el.classList.remove("padfocus"));
+    focusables[i].classList.add("padfocus");
+    focusables[i].focus({preventScroll:false});
+    if(focusables[i].scrollIntoView) focusables[i].scrollIntoView({block:"nearest"});
+  }
+  const cur = i >= 0 ? focusables[i] : null;
+  let lr = 0;
+  if(down(14) || (ax < -0.6 && PAD.nav <= 0)) lr = -1;
+  if(down(15) || (ax >  0.6 && PAD.nav <= 0)) lr = 1;
+  if(lr){
+    PAD.nav = 0.18;
+    if(cur && cur.type === "range"){
+      cur.value = +cur.value + lr*(+cur.step || 1);
+      cur.dispatchEvent(new Event("input"));
+    } else if(scr === "charScreen") charStep(lr);
+    else if(scr === "settingsScreen") setOptTab(optTab + lr);
+  }
+  if(down(0) && cur && cur.type !== "range") cur.click();
+  if(down(1) || (down(9) && scr === "pauseScreen")){
+    const back = {settingsScreen:"optsBack", codexScreen:"codexBack", dmapScreen:"dmapBack", charScreen:"charBack", mpScreen:"mpBack", pauseScreen:"resumeBtn"}[scr];
+    if(back) $(back).click();
+  }
+}
+// mochila y panel de curar con el mando
+function padPanel(gp, down, dt){
+  const ay = gp.axes[1] || 0;
+  PAD.nav -= dt;
+  let mv = 0;
+  if(down(12) || (ay < -0.6 && PAD.nav <= 0)) mv = -1;
+  if(down(13) || (ay >  0.6 && PAD.nav <= 0)) mv = 1;
+  if(mv) PAD.nav = 0.2;
+  if(healOpen){
+    PAD.sel = clamp((PAD.sel||0) + mv, 0, PARTS.length-1);
+    if(mv) renderHeal();
+    if(down(0)){ healBodyPart(PARTS[PAD.sel].id); renderHeal(); }
+    if(down(1) || down(3)){ closeHeal(); grabPointer(); }
+    return;
+  }
+  const rows = [...document.querySelectorAll("#bpGrid .bp-it")];
+  if(!rows.length){ if(down(1)) toggleBackpack(); return; }
+  PAD.sel = clamp((PAD.sel||0) + mv, 0, rows.length-1);
+  rows.forEach((r,i)=> r.classList.toggle("padfocus", i === PAD.sel));
+  const row = rows[PAD.sel];
+  const acts = row.querySelectorAll(".bp-act");
+  if(down(0)) row.click();
+  else if(down(2) && acts[0]) acts[0].click();
+  else if(down(3) && acts[1]) acts[1].click();
+  if(down(1)) toggleBackpack();
+  if(mv || down(0) || down(2) || down(3)){
+    const again = [...document.querySelectorAll("#bpGrid .bp-it")];
+    PAD.sel = clamp(PAD.sel, 0, Math.max(0, again.length-1));
+    again.forEach((r,i)=> r.classList.toggle("padfocus", i === PAD.sel));
+  }
+}
+function pollPad(dt){
+  const gp = G.opts && G.opts.pad ? padConnected() : null;
+  if(!gp){ PAD.move.x = PAD.move.y = 0; PAD.run = PAD.use = false; return; }
+  const b = i=> !!(gp.buttons[i] && gp.buttons[i].pressed);
+  const down = i=> b(i) && !PAD.prev[i];
+  const dz = v=> Math.abs(v) < 0.18 ? 0 : v;
+  if(gp.buttons.some((x,i)=> x.pressed && !PAD.prev[i]) || gp.axes.some(v=> Math.abs(v) > 0.45)) setInput("pad");
+  const jugando = G.running && !G.paused && !G.dead;
+  if(jugando && (healOpen || bpOpen)){
+    // con un panel abierto la cruceta elige y los botones actúan sobre la fila
+    PAD.move.x = PAD.move.y = 0; PAD.run = PAD.use = false;
+    padPanel(gp, down, dt);
+  }
+  else if(jugando){
+    PAD.move.x = dz(gp.axes[0] || 0);
+    PAD.move.y = -dz(gp.axes[1] || 0);
+    PAD.run = b(6) || b(10);
+    PAD.use = b(0);
+    const s = 2.8*dt*((G.opts && G.opts.padSens) || 1);
+    player.yaw -= dz(gp.axes[2] || 0)*s;
+    player.pitch = clamp(player.pitch - dz(gp.axes[3] || 0)*s*0.7*(G.opts.padInvert ? -1 : 1), -0.6, 0.45);
+    if(G.grab){ for(let i=0;i<4;i++) if(down(i)) qteKey(PAD_QTE[i]); }
+    else {
+      if(down(0)) doKeyAction(kb("use"));
+      if(down(1)) doKeyAction(kb("pack"));
+      if(down(2)) doKeyAction(kb("torch"));
+      if(down(3)) doKeyAction(kb("heal"));
+      if(down(4)) swingHand("L");
+      if(down(5)) swingHand("R");
+      if(down(7)) doKeyAction(kb("ability"));
+      if(down(8) && G.held) dropItem(G.held, null, false);
+      if(down(12)) doKeyAction(kb("drink"));
+      if(down(13)) doKeyAction(kb("bandage"));
+      if(down(14)) doKeyAction(kb("flare"));
+      if(down(15)) doKeyAction(kb("crowbar"));
+    }
+    if(down(9)) pauseGame();
+  } else {
+    PAD.move.x = PAD.move.y = 0; PAD.run = PAD.use = false;
+    padMenu(gp, down, dt);
+  }
+  PAD.prev = gp.buttons.map(x=> x.pressed);
+}
+
 /* ═══════════════ BUCLE ═══════════════ */
 
 const clock = new THREE.Clock();
@@ -9953,6 +10703,7 @@ let frames=0, fpsAcc=0, lowFps=0;
 function frame(){
   requestAnimationFrame(frame);
   const dt = Math.min(clock.getDelta(), 0.05);
+  pollPad(dt);
 
   if(G.running && !G.paused && !G.dead){
     G.t += dt;
@@ -10037,7 +10788,14 @@ $("mpBtn").addEventListener("click", mpAbrir);
 $("mpCreate").addEventListener("click", ()=> mpEmpezar(true));
 $("mpJoin").addEventListener("click", ()=> mpEmpezar(false));
 $("mpBack").addEventListener("click", ()=>{ mpSalir(); renderChars(); show("titleScreen"); });
-$("mpGo").addEventListener("click", ()=>{ wantRandom = false; openChars(); });
+$("mpGo").addEventListener("click", ()=>{ wantRandom = MP.modo === "random"; openChars(); });
+document.querySelectorAll(".mp-mode").forEach(b=> b.addEventListener("click", ()=> mpElegirModo(b.getAttribute("data-modo"))));
+$("mpChatIn").addEventListener("keydown", (e)=>{ if(e.key === "Enter"){ sendChat(e.target); } e.stopPropagation(); });
+$("chatIn").addEventListener("keydown", (e)=>{
+  e.stopPropagation();
+  if(e.key === "Enter"){ sendChat(e.target); closeChat(); }
+  else if(e.key === "Escape"){ e.preventDefault(); closeChat(); }
+});
 $("charPrev").addEventListener("click", ()=> charStep(-1));
 $("charNext").addEventListener("click", ()=> charStep(1));
 $("charBack").addEventListener("click", ()=>{ renderChars(); show("titleScreen"); });
@@ -10074,6 +10832,7 @@ $("pauseOptsBtn").addEventListener("click", ()=> openOpts("pauseScreen"));
 $("optsBack").addEventListener("click", closeOpts);
 $("optsReset").addEventListener("click", resetOpts);
 $("optsWipe").addEventListener("click", wipeProgress);
+$("kbReset").addEventListener("click", resetKeys);
 $("abandonBtn").addEventListener("click", toTitle);
 
 // el Lobby girando despacio detrás de la pantalla de título

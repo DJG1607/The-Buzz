@@ -51,8 +51,18 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 - **Fauna con techo**: por mucha que tenga un nivel, sólo unas pocas entidades te persiguen a la
   vez (el resto ronda esperando), y los ataques especiales nunca se encadenan.
 - **Multijugador con amigos**: sala con nombre, la partida va directa entre vuestros ordenadores
-  por WebRTC. Camináis el mismo laberinto y os veis moveros; cada uno tiene sus enemigos y su
-  botín. No hace falta instalar nada.
+  por WebRTC. Quien crea la sala elige el **modo** (Descenso o Aleatorio); hay **chat** (en la
+  sala y con [Enter] en partida), **nombres** encima de cada uno y una lista con la vida de todos.
+  Si mueres con amigos, **caes**: tienes 40 s para que alguien te **reanime con un botiquín**.
+  Cada uno tiene sus enemigos y su botín. No hace falta instalar nada.
+- **Aspectos** para cualquier personaje, difíciles de conseguir: uniforme del M.E.G., traje de
+  contención, papel pintado del Level 0 y «el vacío» (10, 30, 60 y 120 niveles superados en el
+  modo aleatorio), sanitario (reanimar a 5 compañeros) y expedición conjunta (25 niveles con
+  amigos). Se eligen en la ficha del personaje.
+- **Botiquín**: cura un poco todas las zonas y corta las hemorragias; con amigos, reanima.
+- **Teclas a gusto y mando**: en Ajustes → Controles se cambia cualquier tecla, y se puede jugar
+  con un mando de Xbox, PlayStation o genérico (también en los menús, la mochila y el panel de
+  curar). Los avisos en pantalla dicen el botón del mando o la tecla según lo último que toques.
 - **La palanca**: si algo te tiene agarrado, **[V]** te suelta de golpe y lo deja tonto. Se gasta
   al usarla.
 - **Dos manos a la vista** con **tres armas reutilizables** — tubería, varilla y bate —, una en
@@ -92,7 +102,7 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 - **Variaciones del Level 0** talladas en el laberinto: arcos, pilares, fosos, zonas sin luz, salas
   rojas y la Manila Room.
 - **Cuatro personajes**, dos de ellos desbloqueables —entre ellos **el Entrenador**, el Faceling
-  del Level 31, al que los suyos no atacan—, y **71 logros**. Se eligen en un carrusel al darle a
+  del Level 31, al que los suyos no atacan—, y **73 logros**. Se eligen en un carrusel al darle a
   Jugar.
 
 ## Idiomas
@@ -101,6 +111,9 @@ El juego está en **español e inglés**. Se cambia en Ajustes → Idioma, sobre
 la partida. En inglés el juego se llama *The Buzz*.
 
 ## Controles
+
+Son las teclas por defecto: todas se pueden cambiar en **Ajustes → Controles**, donde también
+está el esquema del mando.
 
 | Tecla | Acción |
 |---|---|
@@ -117,6 +130,7 @@ la partida. En inglés el juego se llama *The Buzz*.
 | `T Z Q X` | Soltarse de un agarre forcejeando |
 | Clic izq. / clic der. | Golpear con el arma de la mano izquierda / derecha |
 | `C` | Habilidad especial del personaje |
+| `Enter` | Chat (jugando con amigos) |
 | `B` | Abrir / cerrar la mochila |
 | `ESC` | Pausa y ajustes |
 

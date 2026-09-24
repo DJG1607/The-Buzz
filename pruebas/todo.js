@@ -17,7 +17,8 @@ const PRUEBAS = [
   ["tanda2", "armas de mano, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"],
   ["tanda3", "curación por zona, códice que se reinicia y se ve mejor, música y ambiente"],
   ["tanda4", "casilleros, especiales, fauna de la wiki, brújula, salidas, reordenamiento, manos, mapa, música y sprites"],
-  ["tanda5", "fauna con techo, especiales sin encadenar, inventario por huecos, soltar/desechar, uso rápido, ajustes"]
+  ["tanda5", "fauna con techo, especiales sin encadenar, inventario por huecos, soltar/desechar, uso rápido, ajustes"],
+  ["tanda6", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando"]
 ];
 
 const pedida = process.argv[2];

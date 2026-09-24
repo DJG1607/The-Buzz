@@ -93,6 +93,14 @@ con la dificultad; soltar, recoger y desechar; el uso de una pulsación; los aju
 repartidos en pestañas; y en el código, que el brillo de las salidas no tape al jugador,
 que no haya baliza y que las paredes de clipping arranquen casi invisibles.
 
+### `tanda6.js` — unos segundos
+El multijugador sin PeerJS: carga **tres copias del juego** (anfitrión y dos invitados) y las
+conecta con una red de mentira en estrella, como la de verdad. Comprueba que los invitados se
+ven entre sí gracias al reenvío, que el modo de sala lo elige sólo el anfitrión, que morir con
+amigos te deja caído, que reanimar gasta un botiquín, y que se acaba si nadie llega o no queda
+nadie en pie. También el botiquín en solitario, los aspectos y lo que cuesta desbloquearlos,
+cambiar e intercambiar teclas y un mando simulado.
+
 ---
 
 ## `banco.js`
