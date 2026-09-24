@@ -475,6 +475,29 @@
   .bp-it .bp-n{font-size:9.5px; text-align:center; line-height:1.25; color:var(--ink);}
   .bp-it .bp-q{font-size:8.5px; color:var(--ink-faint);}
   .bp-hint{margin-top:9px; font-size:9.5px; color:var(--ink-faint); text-align:center;}
+  #megBoard{
+    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:min(620px, 92vw); max-height:78vh; overflow:auto; background:rgba(10,10,12,.94); border:1px solid var(--line2);
+    border-radius:3px; padding:14px 16px; z-index:40;
+  }
+  .mq-sec{font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--amber); margin:12px 0 6px;}
+  .mq-sec:first-child{margin-top:0;}
+  .mq{border:1px solid var(--line2); background:rgba(221,214,189,.03); padding:8px 10px; margin-bottom:6px; border-radius:2px;}
+  .mq.done{border-color:var(--sane);}
+  .mq-h{display:flex; justify-content:space-between; gap:10px; font-size:12px;}
+  .mq-h b{color:var(--fluor); font-weight:500;} .mq-h span{color:var(--ink-faint); font-size:10.5px;}
+  .mq p{margin:4px 0; font-size:11px; line-height:1.4; color:var(--ink-dim);}
+  .mq-r{font-size:10px; color:var(--ink-faint);}
+  .mq-a{display:flex; gap:4px; justify-content:flex-end; margin-top:5px;}
+  .mq-shop{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:5px;}
+  .mq-it{display:flex; align-items:center; gap:7px; border:1px solid var(--line2); padding:4px 6px; font-size:10.5px; color:var(--ink);}
+  .mq-it canvas{width:20px; height:20px; image-rendering:pixelated;} .mq-it .bp-act{margin-left:auto;}
+  .mq-suit{display:flex; justify-content:space-between; gap:10px; font-size:10.5px; padding:4px 2px; border-bottom:1px solid var(--line2); color:var(--ink-faint);}
+  .mq-suit b{font-weight:500; color:var(--ink-dim);} .mq-suit.on b{color:var(--sane);}
+  .bp-act:disabled{opacity:.35; cursor:default;}
+  #slate .megq{margin-top:6px; font-size:9.5px; letter-spacing:.06em; color:var(--amber); max-width:260px;}
+  #slate .megq.done{color:var(--sane);}
+  .mcard.wide{grid-column:1 / -1;}
   #codexProgress{
     height:4px; background:rgba(221,214,189,.08); border-radius:2px; overflow:hidden; margin-top:10px;
   }
@@ -620,6 +643,7 @@
   .hslot > i{position:absolute; left:0; bottom:0; height:2px; width:100%; background:var(--blood2);
     transform-origin:left; transform:scaleX(0);}
   .hslot.cd{border-color:var(--blood2);}
+  .hslot.worn b{color:#e08a5a;}
   #hand{bottom:74px !important;}
   @media (max-width:620px){ .hslot{min-width:0;} .hslot .hs-t{display:none;} }
   #abilityChip{
@@ -627,6 +651,14 @@
     font-size:10.5px; letter-spacing:.05em; color:var(--ink-faint); pointer-events:none;
   }
   #abilityChip.ready{color:var(--sane);}
+  #gestos{position:fixed; left:50%; bottom:150px; transform:translateX(-50%); display:flex; flex-wrap:wrap; justify-content:center; gap:5px;
+    width:min(640px, 94vw); z-index:30;}
+  .gesto{display:flex; align-items:center; gap:5px; font:inherit; font-size:11px; padding:5px 8px; color:var(--ink);
+    background:rgba(10,10,12,.88); border:1px solid var(--line2); cursor:pointer;}
+  .gesto:hover{border-color:var(--amber);}
+  .gesto i{font-style:normal; font-size:15px;} .gesto kbd{font-size:9px; color:var(--ink-faint);}
+  #vozChip{position:fixed; right:12px; bottom:14px; font-size:10.5px; letter-spacing:.05em; color:var(--ink-faint); pointer-events:none;}
+  #vozChip.on{color:var(--sane);}
   #mpRoster{
     position:fixed; right:12px; top:78px; display:grid; gap:3px;
     font-size:10.5px; letter-spacing:.06em; text-align:right; pointer-events:none;
@@ -720,10 +752,13 @@
     <div class="hslot" id="handR"><canvas width="32" height="32"></canvas><div class="hs-t"><span class="hk" data-en="RIGHT &#183; R-CLICK">DERECHA &#183; CLIC DER</span><b></b></div><i></i></div>
   </div>
   <div id="abilityChip"></div>
+  <div id="gestos" hidden></div>
+  <div id="vozChip" hidden></div>
   <div class="panel" id="slate">
     <div class="lvl" id="lvlName">Level 0</div>
     <div class="depth" id="lvlDepth">PROFUNDIDAD 1</div>
     <div class="exitline" id="exitLine"></div>
+    <div class="megq" id="megChip" hidden></div>
   </div>
 
   <div id="vitals">
@@ -773,6 +808,12 @@
     <div class="bp-hint" id="bpHint"></div>
   </div>
 
+  <div id="megBoard" hidden>
+    <div class="bp-head"><span data-en="M.E.G. board">Tablón del M.E.G.</span><b id="megFichas"></b></div>
+    <div id="megBody"></div>
+    <div class="bp-hint" id="megHint"></div>
+  </div>
+
   <div id="hand" hidden>
     <canvas id="handIcon" width="32" height="32"></canvas>
     <div class="hand-txt">
@@ -815,6 +856,7 @@
         <b data-en="Play">Jugar</b><span data-en="Descent from Level 0, in the wiki's order">Descenso desde el Level 0, en el orden de la wiki</span>
       </button>
       <div class="menu-grid">
+        <button class="mcard wide" id="megBtn" type="button"><i>&#9733;</i><b data-en="M.E.G. agent">Agente del M.E.G.</b><span data-en="Jobs from the base board: chips, gear and exclusive suits">Encargos del tablón de la base: fichas, equipo y trajes exclusivos</span></button>
         <button class="mcard" id="randBtn" type="button"><i>&#9860;</i><b data-en="Random mode">Modo aleatorio</b><span data-en="Random start, random exits">Nivel y salidas al azar</span></button>
         <button class="mcard" id="mpBtn" type="button"><i>&#9775;</i><b data-en="Play with friends">Jugar con amigos</b><span data-en="Room, chat and revives">Sala, chat y reanimar</span></button>
         <button class="mcard" id="codexBtn" type="button"><i>&#9636;</i><b data-en="Codex">C&#243;dice</b><span data-en="Everything you have seen">Todo lo que has visto</span></button>
@@ -1134,7 +1176,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "2.0.0";
+const VERSION = "3.0.0";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1895,7 +1937,16 @@ const SKINS = [
   {id:"medic", es:"Sanitario de campaña", en:"Field medic", need:{rev:5},
    pal:{shirt:"#e8e4dc", shirtShade:"#c4c0b6", pants:"#d8d4ca", pantsShade:"#b4b0a6", collar:"#b4402f", belt:"#b4402f"}, opts:{cap:"#e8e4dc", cross:true}},
   {id:"crew", es:"Expedición conjunta", en:"Joint expedition", need:{mp:25},
-   pal:{shirt:"#6a4a2a", shirtShade:"#4e361e", pants:"#3a3e2e", pantsShade:"#2a2e20", collar:"#c86a2a", belt:"#2a2016"}, opts:{cap:"#c86a2a", scarf:"#c86a2a", strap:"#2a2016", vest:"#4e361e"}}
+   pal:{shirt:"#6a4a2a", shirtShade:"#4e361e", pants:"#3a3e2e", pantsShade:"#2a2e20", collar:"#c86a2a", belt:"#2a2016"}, opts:{cap:"#c86a2a", scarf:"#c86a2a", strap:"#2a2016", vest:"#4e361e"}},
+  // sólo en el modo Agente del M.E.G.
+  {id:"meg_agent", es:"Agente de campo", en:"Field agent", need:{meg:2},
+   pal:{shirt:"#3a4450", shirtShade:"#2a323c", pants:"#23262e", pantsShade:"#191b21", collar:"#c8a03a", belt:"#15171c", shoe:"#101114", shoeShade:"#0a0b0d"}, opts:{cap:"#2a3440", jacket:"#2e3a48", jacketShade:"#222c38", badge:true, strap:"#15171c"}},
+  {id:"meg_recon", es:"Reconocimiento", en:"Reconnaissance", need:{meg:5},
+   pal:{shirt:"#56603e", shirtShade:"#434b30", pants:"#3a4030", pantsShade:"#2b3024", collar:"#6a7a4a", belt:"#2a2a1e"}, opts:{cap:"#3e4a2e", vest:"#4a5a34", goggles:true, scarf:"#5a6a3a"}},
+  {id:"meg_omicron", es:"Parka de Omicron", en:"Omicron parka", need:{meg:9},
+   pal:{shirt:"#d8dcd8", shirtShade:"#b0b4b0", pants:"#4a5058", pantsShade:"#383c44", collar:"#c86a2a", belt:"#2a3440", shoe:"#2a2a2e"}, opts:{hood:"#e8e8e4", jacket:"#c86a2a", jacketShade:"#a8521e", scarf:"#2a3440"}},
+  {id:"meg_elite", es:"Élite del M.E.G.", en:"M.E.G. elite", need:{meg:15},
+   pal:{shirt:"#15171c", shirtShade:"#0e0f12", pants:"#1a1c22", pantsShade:"#121318", collar:"#c8a03a", belt:"#c8a03a", shoe:"#0a0a0c", shoeShade:"#050506"}, opts:{visor:true, hood:"#1a1c22", vest:"#2a2d34", badge:true, stripe:"#c8a03a", strap:"#c8a03a"}}
 ];
 const SKIN_BY = {}; SKINS.forEach(s=> SKIN_BY[s.id] = s);
 function skinNeedText(s){
@@ -1904,12 +1955,13 @@ function skinNeedText(s){
   if(n.rand) return tx("Supera "+n.rand+" niveles en el modo aleatorio","Clear "+n.rand+" levels in random mode")+" ("+Math.min(p.rand||0,n.rand)+"/"+n.rand+")";
   if(n.rev)  return tx("Reanima a "+n.rev+" compañeros con un botiquín","Revive "+n.rev+" teammates with a first-aid kit")+" ("+Math.min(p.rev||0,n.rev)+"/"+n.rev+")";
   if(n.mp)   return tx("Supera "+n.mp+" niveles jugando con amigos","Clear "+n.mp+" levels playing with friends")+" ("+Math.min(p.mp||0,n.mp)+"/"+n.mp+")";
+  if(n.meg)  return tx("Cumple "+n.meg+" misiones como agente del M.E.G.","Complete "+n.meg+" missions as an M.E.G. agent")+" ("+Math.min(p.meg||0,n.meg)+"/"+n.meg+")";
   return "";
 }
 function skinUnlocked(s){
   const n = s && s.need; if(!n) return true;
   const p = G.prog || {};
-  return (!n.rand || (p.rand||0) >= n.rand) && (!n.rev || (p.rev||0) >= n.rev) && (!n.mp || (p.mp||0) >= n.mp);
+  return (!n.rand || (p.rand||0) >= n.rand) && (!n.rev || (p.rev||0) >= n.rev) && (!n.mp || (p.mp||0) >= n.mp) && (!n.meg || (p.meg||0) >= n.meg);
 }
 function skinOf(chId){ const id = (G.skins || {})[chId]; return SKIN_BY[id] && skinUnlocked(SKIN_BY[id]) ? id : "base"; }
 const ROPA = ["vest","jacket","jacketShade","patches","strap","scarf","pendant","whistle","badge","tie","cross",
@@ -2033,6 +2085,47 @@ const ICON_DRAW = {
     P(x,3,3,10,11,"#4d4437"); P(x,5,1,6,3,"#3b3429");
     P(x,3,7,10,2,"#332c24"); P(x,5,9,6,3,"#5d5344");
     P(x,7,10,2,1,"#c8a03a");
+  },
+  firesalt(x){
+    P(x,3,8,3,6,"#c84a22"); P(x,6,4,4,10,"#f08a3a"); P(x,10,7,3,7,"#d85a2a");
+    P(x,7,4,1,5,"#ffd08a"); P(x,4,9,1,2,"#ffb070"); P(x,11,8,1,2,"#ffb070");
+    P(x,2,14,12,1,"#6a2a14");
+  },
+  repellent(x){
+    P(x,6,1,4,2,"#8a9096"); P(x,5,3,6,11,"#cfe6ee"); P(x,5,3,6,1,"#eef8fb");
+    P(x,6,7,4,6,"#a8d8e8"); P(x,6,5,4,2,"#f4f8f8"); P(x,7,5,2,1,"#2a3a40");
+  },
+  rations(x){
+    P(x,2,6,12,7,"#d8b060"); P(x,2,6,12,1,"#f0d08a"); P(x,2,12,12,1,"#a07a38");
+    P(x,5,8,6,2,"#8a5a1a"); P(x,6,7,1,1,"#8a5a1a"); P(x,9,7,1,1,"#8a5a1a");
+  },
+  soles(x){
+    P(x,2,9,12,4,"#2a2a2e"); P(x,2,9,12,1,"#4a4a52"); P(x,3,6,6,3,"#34343a");
+    P(x,4,11,1,1,"#16161a"); P(x,7,11,1,1,"#16161a"); P(x,10,11,1,1,"#16161a");
+  },
+  luckymilk(x){
+    P(x,4,3,8,11,"#f0c8d0"); P(x,5,1,6,2,"#e0a8b4"); P(x,4,3,8,1,"#fae0e6");
+    P(x,6,7,4,4,"#d84a5a"); P(x,7,6,2,1,"#4a8a3a"); P(x,7,8,1,1,"#f0e0a0");
+  },
+  marshmallow(x){
+    P(x,2,8,5,5,"#f0ece0"); P(x,8,7,5,5,"#e8e2d0"); P(x,5,3,5,5,"#f6f2e8");
+    P(x,6,4,2,1,"#fffbe8"); P(x,3,9,2,1,"#fffbe8"); P(x,9,11,3,1,"#d8c890"); P(x,6,7,3,1,"#d8c890");
+  },
+  ducttape(x){
+    P(x,3,3,10,10,"#8a8e92"); P(x,2,5,12,6,"#8a8e92"); P(x,6,6,4,4,"#3a3a3e");
+    P(x,4,4,3,1,"#b4b8bc"); P(x,12,9,3,5,"#7a7e82");
+  },
+  megradio(x){
+    P(x,5,4,6,11,"#3a4a3a"); P(x,5,4,6,1,"#526452"); P(x,6,0,1,4,"#2a2a2a");
+    P(x,6,6,4,3,"#1e261e"); P(x,6,7,4,1,"#34403a"); P(x,9,10,1,1,"#7ce06a"); P(x,6,12,2,1,"#c8a03a");
+  },
+  megcamera(x){
+    P(x,1,5,14,8,"#2e3236"); P(x,1,5,14,1,"#4a5056"); P(x,6,6,5,5,"#15181a");
+    P(x,7,7,3,3,"#5a8aa8"); P(x,7,7,1,1,"#bfe0f0"); P(x,11,3,3,2,"#e8e8e0"); P(x,2,4,3,1,"#4a3a28");
+  },
+  megbeacon(x){
+    P(x,7,5,2,9,"#5a6268"); P(x,5,13,6,2,"#3a4046");
+    P(x,6,2,4,4,"#7ce06a"); P(x,7,2,2,1,"#c8ffb8"); P(x,5,3,1,2,"#4a9a3a"); P(x,10,3,1,2,"#4a9a3a");
   }
 };
 
@@ -2518,7 +2611,8 @@ const CAT = [
       {to:"4", kind:"door",   note:"puerta de mantenimiento"},
       {to:"2", kind:"hatch",  note:"volver a las tuberías"},
       {to:"6", kind:"vent",   note:"conducto a oscuras"},
-      {to:"92", kind:"hatch",  note:"escotilla blindada"}
+      {to:"92", kind:"hatch",  note:"escotilla blindada"},
+      {to:"3.5", kind:"door", note:"una puerta que sólo aparece a veces"}
     ],
     lore:"Una subestación eléctrica interminable que zumba a 50 Hz. Los cuadros siguen dando corriente a algo, aunque nadie ha encontrado a qué.",
     lore_en:"An endless electrical substation humming at 50 Hz. The panels still feed power to something, though nobody has found what.",
@@ -2542,7 +2636,10 @@ const CAT = [
       {to:"9",  kind:"firedoor", note:"salida de incendios"},
       {to:"11", kind:"stairs",   note:"escalera"},
       {to:"37", kind:"drain",    note:"desagüe del baño"},
-      {to:"3",  kind:"door",     note:"volver a la subestación"}
+      {to:"3",  kind:"door",     note:"volver a la subestación"},
+      {to:"6.1", kind:"noclip", note:"el botón de una máquina expendedora"},
+      {to:"25", kind:"door", note:"una puerta de cuarto de limpieza"},
+      {to:"71", kind:"stairs", note:"la escalera del sótano"}
     ],
     lore:"Oficinas vacías con moqueta gris, mesas sin papeles y ventanas que dan a más oficinas. Uno de los pocos niveles donde se duerme sin turnos de guardia.",
     lore_en:"Empty offices with grey carpet, bare desks and windows that look onto more offices. One of the few levels where people sleep without setting a watch.",
@@ -2565,7 +2662,10 @@ const CAT = [
       {to:"4", kind:"elevator", note:"ascensor de servicio"},
       {to:"9", kind:"door",     note:"puerta de servicio"},
       {to:"21", kind:"door",     note:"pasillo de puertas numeradas"},
-      {to:"98", kind:"stage",    note:"salida trasera a una calle"}
+      {to:"98", kind:"stage",    note:"salida trasera a una calle"},
+      {to:"5.1", kind:"door", note:"las puertas del casino, en la sala Beverly"},
+      {to:"40", kind:"noclip", note:"una recreativa en un pasillo"},
+      {to:"57", kind:"noclip", note:"un cuadro que parece moverse"}
     ],
     lore:"Un hotel de lujo apagado: alfombra roja, apliques de latón y cientos de puertas cerradas. Lo que hay dentro de las habitaciones a veces sale a los pasillos.",
     lore_en:"A luxury hotel with the lights off: red carpet, brass sconces and hundreds of closed doors. What is inside the rooms sometimes comes out into the corridors.",
@@ -2588,7 +2688,8 @@ const CAT = [
       {to:"8", kind:"crack", note:"grieta"},
       {to:"5", kind:"door",  note:"volver al hotel"},
       {to:"92", kind:"stairs",note:"escalera al búnker"},
-      {to:"64", kind:"door",  note:"una puerta de casa"}
+      {to:"64", kind:"door",  note:"una puerta de casa"},
+      {to:"6.1", kind:"noclip", note:"un cable tendido a ras del suelo"}
     ],
     lore:"Oscuridad total y kilómetros de pasillo. Todo lo que vive aquí lleva generaciones sin necesitar ojos, y te oye antes de que enciendas nada.",
     lore_en:"Total darkness and miles of corridor. Everything living down here stopped needing eyes generations ago, and it hears you before you switch anything on.",
@@ -2666,7 +2767,10 @@ const CAT = [
       {to:"31", kind:"door",     note:"pista de patinaje"},
       {to:"53", kind:"door",     note:"una casa que no tenías fichada"},
       {to:"90", kind:"door",     note:"una casa recién pintada"},
-      {to:"43", kind:"door",     note:"los arbustos del parque"}
+      {to:"43", kind:"door",     note:"los arbustos del parque"},
+      {to:"9.2", kind:"door", note:"un túnel de lavado"},
+      {to:"61", kind:"noclip", note:"un cartel del club de campo que va a la deriva"},
+      {to:"58", kind:"noclip", note:"un folleto de Water Wonder"}
     ],
     lore:"Un barrio residencial en una noche que no avanza. Las casas están abiertas, las luces encendidas y las mesas puestas para gente que no llega.",
     lore_en:"A residential neighbourhood on a night that never moves on. The houses are open, the lights are on and the tables are set for people who never arrive.",
@@ -2689,7 +2793,8 @@ const CAT = [
       {to:"9",  kind:"hatch", note:"volver al barrio"},
       {to:"14", kind:"hole",   note:"un claro entre la maleza"},
       {to:"32", kind:"noclip", note:"te pierdes entre las espigas"},
-      {to:"65", kind:"crack",  note:"la tierra huele a óxido"}
+      {to:"65", kind:"crack",  note:"la tierra huele a óxido"},
+      {to:"15", kind:"door", note:"una pared que no estaba ayer"}
     ],
     lore:"Un campo de trigo bajo un cielo naranja permanente, con un granero al fondo que siempre está a la misma distancia. Es de los pocos sitios donde se puede comer.",
     lore_en:"A wheat field under a permanent orange sky, with a barn in the distance that stays at the same distance. It is one of the few places where you can eat.",
@@ -2714,7 +2819,10 @@ const CAT = [
       {to:"37",   kind:"drain",  note:"alcantarilla"},
       {to:"Fun",  kind:"stage",  note:"puerta de servicio"},
       {to:"deep", kind:"hole",   note:"noclip a lo desconocido"},
-      {to:"27",   kind:"stairs", note:"una ducha que no deja de correr"}
+      {to:"27",   kind:"stairs", note:"una ducha que no deja de correr"},
+      {to:"6.1", kind:"door", note:"un restaurante"},
+      {to:"11.2", kind:"stairs", note:"876 km al noreste"},
+      {to:"68", kind:"door", note:"un cine"}
     ],
     lore:"Una ciudad de edificios idénticos que se extiende hasta donde llega la vista, sin coches, sin viento y sin una sola luz encendida en las ventanas.",
     lore_en:"A city of identical buildings stretching as far as you can see, with no cars, no wind and not one lit window.",
@@ -2735,7 +2843,8 @@ const CAT = [
     exitsTo:[
       {to:"11",   kind:"door",  note:"puerta de vestuarios"},
       {to:"9",    kind:"hatch", note:"trampilla"},
-      {to:"deep", kind:"drain", note:"desagüe profundo"}
+      {to:"deep", kind:"drain", note:"desagüe profundo"},
+      {to:"58", kind:"vent", note:"una tubería de plástico roja"}
     ],
     lore:"Habitaciones de azulejo blanco con agua tibia hasta la rodilla y una luz que no viene de ninguna lámpara. Casi todos los informes lo describen como el sitio más tranquilo de los Backrooms.",
     lore_en:"White tiled rooms with warm water up to your knees and a light that comes from no lamp. Almost every report calls it the calmest place in the Backrooms.",
@@ -2776,7 +2885,8 @@ const CAT = [
     exitsTo:[
       {to:"11",   kind:"stage", note:"puerta de atrás"},
       {to:"!",    kind:"door",  note:"pasillo rojo"},
-      {to:"deep", kind:"vent",  note:"conducto"}
+      {to:"deep", kind:"vent",  note:"conducto"},
+      {to:"26", kind:"noclip", note:"globos y confeti en el suelo"}
     ],
     lore:"Guirnaldas, confeti y una fiesta de cumpleaños que lleva décadas montada. Todo el mundo aquí sonríe, y todo el mundo aquí quiere que te quedes a celebrarlo.",
     lore_en:"Streamers, confetti and a birthday party that has been set up for decades. Everyone here is smiling, and everyone here wants you to stay for it.",
@@ -2798,7 +2908,8 @@ const CAT = [
       {to:"11", kind:"door",  note:"puerta blanca"},
       {to:"1",  kind:"hatch", note:"trampilla"},
       {to:"19", kind:"stairs",note:"escalera estrecha"},
-      {to:"21", kind:"noclip",note:"una puerta sin número"}
+      {to:"21", kind:"noclip",note:"una puerta sin número"},
+      {to:"25", kind:"door", note:"la vía de escape"}
     ],
     lore:"Habitaciones pequeñas de un blanco sin sombras, iluminadas por todas partes a la vez. Lo raro no es lo que hay: es que ninguna cámara ni grabadora consigue registrar este sitio tal y como es.",
     lore_en:"Small rooms of a white with no shadows, lit from everywhere at once. The strange part is not what is there: it is that no camera or recorder ever captures this place as it really is.",
@@ -2820,7 +2931,8 @@ const CAT = [
       {to:"9",  kind:"hatch", note:"trampilla del techo"},
       {to:"12", kind:"crack", note:"resplandor naranja bajo los tablones"},
       {to:"33", kind:"stairs",note:"escalera de servicio"},
-      {to:"24", kind:"noclip", note:"un cuadro de una luna llena"}
+      {to:"24", kind:"noclip", note:"un cuadro de una luna llena"},
+      {to:"40", kind:"noclip", note:"una recreativa estropeada"}
     ],
     lore:"Un ático interminable de muebles tapados, cajas y polvo en el aire. Entre algunos tablones se cuela un resplandor naranja que no viene de ninguna bombilla y que cuesta dejar de mirar.",
     lore_en:"An endless attic of sheeted furniture, boxes and dust in the air. An orange glow leaks between some of the floorboards that comes from no bulb and is hard to look away from.",
@@ -3503,6 +3615,297 @@ const CAT = [
     tip_en:"The further in, the worse it gets. Grab what you need near the entrance."
   },
   {
+    id:"3.5", num:"3.5", title:"Electropolis", risk:3,
+    grid:31, cell:6.0, wallH:7.5, braid:0.30,
+    fog:0.05, fogColor:0x0c0e14, amb:0x1c2230, ambI:0.22,
+    lampColor:0xc8d8ff, lampI:1.6, lampDist:15, lampEvery:4, lampStyle:"street", lampOff:0.45,
+    floor:["concrete",{base:"#34363a",dark:"rgba(12,12,14,.55)",light:"rgba(80,84,92,.2)"}],
+    wall:["concrete",{base:"#55585e",dark:"rgba(20,20,24,.55)",light:"rgba(110,114,124,.2)"}],
+    ceil:null,
+    drain:2.2, boxes:8, outpost:0.1, deco:"city",
+    special:["blackout","pillar"],
+    ents:{},
+    exitsTo:[
+      {to:"3", kind:"noclip", note:"una descarga eléctrica activa"},
+      {to:"3", kind:"crack",  note:"el suelo quemado por un rayo"}
+    ],
+    lore:"Una metrópoli brutalista en blanco y negro bajo una tormenta eléctrica que no termina: rascacielos de hormigón, torres de alta tensión y rayos que caen del vacío sin aviso, con ondas que aturden y dejan sordo un rato. Hubo bases del M.E.G. aquí; hoy están todas apagadas.",
+    lore_en:"A black-and-white brutalist metropolis under an electrical storm that never ends: concrete skyscrapers, high-voltage pylons and lightning falling from the void without warning, with shockwaves that stun and deafen for a while. The M.E.G. had bases here; all of them are dark now.",
+    tip:"La única salida conocida es meterse en una descarga activa: te devuelve al Level 3.",
+    tip_en:"The only known way out is to step into an active discharge: it throws you back to Level 3."
+  },
+  {
+    id:"5.1", num:"5.1", title:"Grand Opening of the Terror Hotel Casino", risk:1,
+    grid:27, cell:5.2, wallH:4.2, braid:0.50,
+    fog:0.04, fogColor:0x1e1008, amb:0x3a2412, ambI:0.36,
+    lampColor:0xffc860, lampI:1.6, lampDist:15, lampEvery:2, lampStyle:"bulb",
+    floor:["carpet",{base:"#6a1a26",dark:"rgba(40,8,14,.5)",light:"rgba(190,150,60,.35)",stain:"rgba(24,6,8,.3)"}],
+    wall:["wallpaper",{base:"#4a1a1e",stripe:8,dark:"rgba(34,10,12,.6)",light:"rgba(200,160,70,.45)",skirt:"rgba(40,24,10,.7)"}],
+    ceil:["wood",{base:"#2e1a10",dark:"rgba(18,10,6,.55)",light:"rgba(120,90,40,.3)"}],
+    drain:1.0, boxes:13, outpost:0.2, deco:"hotel",
+    special:["arch","pillar"],
+    ents:{},
+    exitsTo:[
+      {to:"5", kind:"door",  note:"las puertas principales del casino"},
+      {to:"5", kind:"stage", note:"la puerta del personal, junto a la barra"}
+    ],
+    lore:"Un casino al estilo de Las Vegas dentro de la sala Beverly del Terror Hotel: luces que parpadean, música a todo volumen y máquinas tragaperras que no callan. Abre dieciséis horas y cierra ocho. Todo se paga con fichas, y quien gana acaba jugando a las cartas con el dueño, que no pierde nunca.",
+    lore_en:"A Vegas-style casino inside the Beverly Room of the Terror Hotel: flashing lights, blaring music and slot machines that never stop. It opens sixteen hours and closes eight. Everything is paid in chips, and whoever wins ends up playing cards with the owner, who never loses.",
+    tip:"Se entra y se sale por el mismo sitio: las puertas del casino, que dan al Level 5.",
+    tip_en:"You enter and leave the same way: through the casino doors, back into Level 5."
+  },
+  {
+    id:"6.1", num:"6.1", title:"The Snackrooms", risk:0,
+    grid:29, cell:5.6, wallH:4.4, braid:0.46,
+    fog:0.024, fogColor:0x1c1e26, amb:0x4a4e5e, ambI:0.5,
+    lampColor:0xfff4dc, lampI:1.6, lampDist:18, lampEvery:2, lampStyle:"fluor",
+    floor:["tile",{base:"#c8c2b0",alt:"#2a3a5e",grout:"#8e897c",tiles:6,stain:"rgba(60,56,44,.2)"}],
+    wall:["wallpaper",{base:"#d8ceb4",stripe:18,dark:"rgba(150,140,116,.45)",light:"rgba(240,232,210,.35)",skirt:"rgba(42,58,94,.7)"}],
+    ceil:["ceilTile",{base:"#e0dccc"}],
+    drain:0.3, boxes:15, outpost:0.65, deco:"mall",
+    special:["pillar","arch"],
+    ents:{partygoer:1},
+    exitsTo:[
+      {to:"11", kind:"door",  note:"puertas correderas de cristal"},
+      {to:"6",  kind:"door",  note:"una puerta de acero oxidado, vigilada"},
+      {to:"3",  kind:"vent",  note:"las rejillas de ventilación"}
+    ],
+    lore:"Una cafetería de centro comercial sin final, con pasillos de los años 80, mobiliario azul marino, máquinas expendedoras y restaurantes de todas las épocas. La luz entra por claraboyas que dan a la oscuridad. La comida se repone sola cada semana, y los Facelings de aquí cocinan y limpian sin molestar a nadie.",
+    lore_en:"An endless mall food court with 1980s corridors, navy blue furniture, vending machines and restaurants from every era. Light comes through skylights that open onto darkness. The food restocks itself every week, and the Facelings here cook and clean without bothering anyone.",
+    tip:"Nivel seguro. El M.E.G. tiene un puesto junto a la salida al Level 6.",
+    tip_en:"A safe level. The M.E.G. keeps an outpost by the exit to Level 6."
+  },
+  {
+    id:"9.2", num:"9.2", title:"Black Market", risk:1,
+    grid:31, cell:6.4, wallH:6.0, braid:0.42,
+    fog:0.05, fogColor:0x0e1016, amb:0x1a1e28, ambI:0.2,
+    lampColor:0xffc47a, lampI:1.6, lampDist:18, lampEvery:3, lampStyle:"street", lampOff:0.5,
+    floor:["concrete",{base:"#34363a",dark:"rgba(14,14,16,.5)",light:"rgba(76,78,82,.2)"}],
+    wall:["brick",{base:"#4e4640",dark:"#38322d",mortar:"#5e5750"}],
+    ceil:null,
+    drain:1.1, boxes:15, outpost:0.45, deco:"city",
+    special:["blackout","manila"],
+    ents:{faceling:1, hound:1, stealer:1},
+    exitsTo:[
+      {to:"9", kind:"door",  note:"un túnel de lavado"},
+      {to:"9", kind:"stage", note:"otro túnel de lavado, más al norte"},
+      {to:"4", kind:"hatch", note:"la ruta de los contrabandistas (sin confirmar)"}
+    ],
+    lore:"Un barrio de oficinas de las afueras en noche eterna, con niebla fría, tiendas, bares y aparcamientos. Hay luz eléctrica, pero casi todos los edificios están a oscuras. En los almacenes aparece comida sosa pero segura, y en el aparcamiento se monta un bazar donde se compra lo que no se vende en ningún otro sitio.",
+    lore_en:"A suburban business district in eternal night, with cold fog, shops, bars and parking decks. There is electricity, but almost every building is dark. Bland but safe food turns up in the stockrooms, and a bazaar in the parking deck sells what nobody sells anywhere else.",
+    tip:"Las entidades atacan sobre todo a quien va solo y a oscuras. No te apartes de las zonas con luz.",
+    tip_en:"Entities mostly attack people who are alone and in the dark. Stay where the lights are."
+  },
+  {
+    id:"15", num:"15", title:"Futuristic Halls", risk:0,
+    grid:29, cell:4.6, wallH:4.0, braid:0.30,
+    fog:0.028, fogColor:0x1e2226, amb:0x5a6068, ambI:0.44,
+    lampColor:0xeef4ff, lampI:1.6, lampDist:16, lampEvery:3, lampStyle:"fluor",
+    floor:["concrete",{base:"#a8aaa8",dark:"rgba(60,62,64,.35)",light:"rgba(210,212,214,.3)"}],
+    wall:["concrete",{base:"#cfd1d0",dark:"rgba(90,92,94,.3)",light:"rgba(236,238,240,.3)"}],
+    ceil:["metal",{base:"#dcdedf",dark:"rgba(110,112,114,.35)",light:"rgba(250,250,250,.3)"}],
+    drain:0.7, boxes:13, outpost:0.2, deco:"white",
+    special:["blackout","pillar"],
+    ents:{},
+    exitsTo:[
+      {to:"10", kind:"door",   note:"la puerta que dejó la colisión con el Level 10"},
+      {to:"10", kind:"noclip", note:"la pared que apareció de la nada"}
+    ],
+    lore:"Un complejo industrial futurista de hormigón blanco y gris con vigas de acero blanco y focos enormes. Hay salas de motores selladas tras cristal grueso, laboratorios, dormitorios y salas de control. En algunas zonas la luz no funciona, y por los pasillos quedan cadáveres con bata de laboratorio. No hay Almond Water.",
+    lore_en:"A futuristic industrial complex of white and grey concrete with white steel beams and huge lights. There are engine rooms sealed behind thick glass, laboratories, dormitories and control rooms. In some zones the lights are dead, and bodies in lab coats lie in the corridors. There is no Almond Water.",
+    tip:"Sólo se ha entrado una vez, por una colisión con el Level 10. Lo único vivo que se ha visto son montones de Hounds muertos.",
+    tip_en:"It has been entered only once, through a collision with Level 10. The only thing seen here that once lived: piles of dead Hounds."
+  },
+  {
+    id:"25", num:"25", title:"The Quarter Hub", risk:0,
+    grid:29, cell:5.8, wallH:4.4, braid:0.44,
+    fog:0.04, fogColor:0x1a0e10, amb:0x3a2224, ambI:0.34,
+    lampColor:0xffb0a0, lampI:1.3, lampDist:14, lampEvery:3, lampStyle:"bulb",
+    floor:["carpet",{base:"#2e2436",dark:"rgba(16,10,20,.5)",light:"rgba(90,70,110,.3)",stain:"rgba(10,8,12,.3)"}],
+    wall:["wallpaper",{base:"#5e1e24",stripe:12,dark:"rgba(40,12,16,.6)",light:"rgba(140,70,70,.3)",skirt:"rgba(30,10,12,.7)"}],
+    ceil:["ceilTile",{base:"#5a4e48"}],
+    drain:0.6, boxes:14, outpost:0.2, deco:"party",
+    special:["pillar","hole"],
+    ents:{},
+    exitsTo:[
+      {to:"40", kind:"hole",   note:"una ventana rota"},
+      {to:"0",  kind:"noclip", note:"una recreativa que aún funciona"},
+      {to:"5",  kind:"noclip", note:"otra recreativa"},
+      {to:"9",  kind:"noclip", note:"una recreativa de carreras"},
+      {to:"11", kind:"noclip", note:"una recreativa de la ciudad"},
+      {to:"37", kind:"noclip", note:"una recreativa azul"},
+      {to:"19", kind:"noclip", note:"una recreativa con la pantalla quemada"}
+    ],
+    lore:"Unos recreativos abandonados de kilómetros, con salas enormes llenas de máquinas de los años 80 cubiertas de polvo, paredes granates con moho, tuberías que gotean y enchufes que chisporrotean. En los cuartos de calderas del fondo hay cajas con suministros y Almond Water.",
+    lore_en:"An abandoned arcade miles across, with huge rooms full of dust-covered 1980s cabinets, maroon walls with mould, dripping pipes and sparking outlets. The boiler rooms at the back hold crates of supplies and Almond Water.",
+    tip:"Las recreativas que funcionan llevan a otros niveles. Una ventana rota da al Level 40.",
+    tip_en:"The cabinets that still work lead to other levels. A broken window opens onto Level 40."
+  },
+  {
+    id:"26", num:"26", title:"The SS Fun =)", risk:3,
+    grid:31, cell:4.0, wallH:3.0, braid:0.20,
+    fog:0.05, fogColor:0x1e0c14, amb:0x3a1a26, ambI:0.3,
+    lampColor:0xff9ad0, lampI:1.4, lampDist:12, lampEvery:3, lampStyle:"bulb",
+    floor:["wood",{base:"#6a3a2a",dark:"rgba(40,16,10,.55)",light:"rgba(150,90,60,.3)"}],
+    wall:["wallpaper",{base:"#6a2440",stripe:8,dark:"rgba(40,10,22,.6)",light:"rgba(220,120,170,.35)",skirt:"rgba(60,12,20,.7)"}],
+    ceil:["wood",{base:"#3a1c1c",dark:"rgba(20,8,8,.6)",light:"rgba(90,50,40,.25)"}],
+    drain:1.9, boxes:10, outpost:0.0, deco:"party",
+    special:["red","hole"],
+    ents:{partygoer:4, faceling:1},
+    exitsTo:[
+      {to:"4",    kind:"stage",  note:"la huida documentada, por una bodega"},
+      {to:"deep", kind:"noclip", note:"un cartel de fiesta desenfocado y del revés"}
+    ],
+    lore:"Un crucero de 150 metros. Las cubiertas de arriba están destrozadas y salpicadas de sangre, con una piscina carmesí y bares en ruinas. Las de abajo no siguen ninguna lógica: salas de fiesta infinitas con adornos que son trampas. Aquí mandan los Partygoers, y los humanos son la comida.",
+    lore_en:"A 500-foot cruise liner. The upper decks are wrecked and spattered with blood, with a crimson pool and ruined bars. The lower decks follow no logic: endless party rooms with decorations that are traps. The Partygoers run things here, and humans are the food.",
+    tip:"No hay bases ni puestos. Tocar un cartel de fiesta del revés te saca del barco.",
+    tip_en:"There are no bases or outposts. Touching a reversed party poster gets you off the ship."
+  },
+  {
+    id:"40", num:"40", title:"Roller Rockin' Pizza!", risk:0,
+    grid:29, cell:5.4, wallH:4.0, braid:0.46,
+    fog:0.03, fogColor:0x0c0c22, amb:0x2a2a5a, ambI:0.42,
+    lampColor:0x9ab0ff, lampI:1.5, lampDist:16, lampEvery:2, lampStyle:"bulb",
+    floor:["carpet",{base:"#1a2250",dark:"rgba(8,10,30,.5)",light:"rgba(120,140,255,.3)",stain:"rgba(200,200,80,.15)"}],
+    wall:["concrete",{base:"#3a3e6a",dark:"rgba(18,20,40,.5)",light:"rgba(140,150,220,.25)"}],
+    ceil:["ceilTile",{base:"#2a2c4a"}],
+    drain:0.5, boxes:14, outpost:0.4, deco:"party",
+    special:["arch","pillar"],
+    ents:{faceling:1},
+    exitsTo:[
+      {to:"9",  kind:"door",   note:"la puerta giratoria"},
+      {to:"11", kind:"door",   note:"la puerta giratoria, otra vuelta"},
+      {to:"0",  kind:"stage",  note:"la zona de empleados"},
+      {to:"98", kind:"hatch",  note:"un cubo de basura"},
+      {to:"5",  kind:"stairs", note:"la escalera a las calderas"},
+      {to:"1",  kind:"door",   note:"una puerta metálica"}
+    ],
+    lore:"Unos recreativos de los años 80 sin final, «Roller Rockin' Pizza!»: moqueta azul con planetas y naves, boleras, oficinas y cientos de máquinas que funcionan. La recepcionista, Pat, es alta, tiene cuatro brazos y le gusta charlar. Los Facelings juegan a las máquinas y no molestan si no los molestas.",
+    lore_en:"An endless 1980s arcade, «Roller Rockin' Pizza!»: blue carpet with planets and spaceships, bowling alleys, offices and hundreds of working cabinets. The receptionist, Pat, is tall, has four arms and likes to chat. The Facelings play the machines and leave you alone if you leave them alone.",
+    tip:"Hay máquinas de comida por todas partes. La puerta giratoria lleva a los niveles 9, 10 u 11.",
+    tip_en:"There are food machines everywhere. The revolving door leads to Levels 9, 10 or 11."
+  },
+  {
+    id:"57", num:"57", title:"Diurnal Art Gallery", risk:0,
+    grid:25, cell:5.0, wallH:4.2, braid:0.50,
+    fog:0.02, fogColor:0x2a2620, amb:0x5a5040, ambI:0.52,
+    lampColor:0xffe4b8, lampI:1.4, lampDist:16, lampEvery:2, lampStyle:"sconce",
+    floor:["wood",{base:"#8a6a44",dark:"rgba(60,42,24,.45)",light:"rgba(190,160,110,.35)"}],
+    wall:["wallpaper",{base:"#e4dccb",stripe:24,dark:"rgba(170,160,140,.4)",light:"rgba(250,246,236,.35)",skirt:"rgba(100,80,56,.6)"}],
+    ceil:["wood",{base:"#6a5438",dark:"rgba(40,30,18,.5)",light:"rgba(150,120,80,.3)"}],
+    drain:0.2, boxes:9, outpost:0.3, deco:"hotel",
+    special:["arch"],
+    ents:{},
+    exitsTo:[
+      {to:"21", kind:"door",   note:"la puerta que hace aparecer la Pintora"},
+      {to:"40", kind:"noclip", note:"un cuadro de unos recreativos"}
+    ],
+    lore:"Una galería de arte que no se acaba: una recepción con barra y una sola ventana de luz suave, y salas de cuadros imposibles que cambian de sitio y se decoran según la estación. La anfitriona es la Pintora, una chica en pijama azul que charla con quien entra. El Muralista, alto y tapado con cortinas, mira los cuadros con unos anteojos.",
+    lore_en:"An art gallery that never ends: a front desk with a bar and a single window of soft light, and rooms of impossible paintings that move around and are decorated by season. The host is the Painter, a girl in blue pyjamas who chats with whoever comes in. The Muralist, tall and draped in curtains, studies the paintings through opera glasses.",
+    tip:"Si le pides el camino a la Pintora, aparece una puerta al Level 21. No te acerques al cuadro del fondo de la recepción.",
+    tip_en:"Ask the Painter for directions and a door to Level 21 appears. Stay away from the painting at the back of the front desk."
+  },
+  {
+    id:"58", num:"58", title:"Water Wonder", risk:1,
+    grid:31, cell:5.0, wallH:4.4, braid:0.34,
+    fog:0.032, fogColor:0x10222a, amb:0x2a4a56, ambI:0.36,
+    lampColor:0xcff0ff, lampI:1.2, lampDist:13, lampEvery:4, lampStyle:"fluor",
+    floor:["grate",{base:"#4a5258",dark:"#262c30"}],
+    wall:["tile",{base:"#4a86a0",alt:"#3a6e86",grout:"#22404e",tiles:5,stain:"rgba(20,40,40,.3)"}],
+    ceil:["metal",{base:"#2e3a40",dark:"rgba(12,16,18,.55)",light:"rgba(70,90,100,.25)"}],
+    drain:1.2, boxes:13, outpost:0.3, deco:"pool",
+    special:["hole","blackout"],
+    ents:{smiler:2, duller:1, wretch:1},
+    exitsTo:[
+      {to:"1",    kind:"hatch", note:"una caja de suministros con un «1» rojo"},
+      {to:"deep", kind:"vent",  note:"las tuberías al aire de los pasillos"}
+    ],
+    lore:"Un parque acuático cubierto y abandonado: toboganes de plástico que se caen a trozos, piscinas de hormigón poco hondas, soportes oxidados y pasillos con suelo de chapa. Hay césped azul de plástico, árboles marrones y ventanas blancas que dan al vacío. Una tribu vive en la zona reformada y cultiva la fruta tegan.",
+    lore_en:"An abandoned indoor water park: plastic slides falling to pieces, shallow concrete pools, rusted supports and corridors with metal plate floors. There is blue plastic grass, dark brown trees and white windows onto the void. A tribe lives in the refurbished area and grows tegan fruit.",
+    tip:"Abrir la caja de suministros marcada con un «1» rojo te lleva al Level 1.",
+    tip_en:"Opening the supply crate marked with a red «1» takes you to Level 1."
+  },
+  {
+    id:"61", num:"61", title:"The Backrooms Country Club", risk:0,
+    grid:31, cell:6.2, wallH:2.8, braid:0.52,
+    fog:0.016, fogColor:0x9ac0d8, amb:0xb8d8e8, ambI:0.72,
+    lampColor:0xfff4d0, lampI:1.1, lampDist:18, lampEvery:6, lampStyle:"none",
+    floor:["wheat",{base:"#4a7a34",dark:"#36602a",light:"#6a9a48"}],
+    wall:["wheat",{base:"#3e6e2e",dark:"#2c5222",light:"#5a8e40"}],
+    ceil:null,
+    drain:0.3, boxes:11, outpost:0.3, deco:"field",
+    special:["arch"],
+    ents:{},
+    exitsTo:[
+      {to:"deep", kind:"noclip", note:"el quiosco del recorrido sólo para socios"},
+      {to:"deep", kind:"crack",  note:"el green del último hoyo"}
+    ],
+    lore:"Un campo de golf infinito con césped perfecto, sol radiante y un club de lujo con adornos dorados. Junto a un lago enorme hay un pueblo de cabañas, los Asentados, con tiendas y una iglesia. Unos pequeños caddies te roban de los bolsillos. Parece un paraíso, pero es una cárcel: no se conoce una salida de verdad.",
+    lore_en:"An endless golf course with perfect grass, brilliant sunshine and a luxury clubhouse with gold trim. Beside a huge lake lies a village of cabins, the Settled, with shops and a church. Little caddies pick your pockets. It looks like paradise, but it is a prison: no real way out is known.",
+    tip:"Decir «sí» en los quioscos del recorrido para socios te hunde en el suelo. Nadie ha vuelto para contar adónde.",
+    tip_en:"Saying «yes» at the members-only course kiosks sinks you through the ground. Nobody has come back to say where."
+  },
+  {
+    id:"68", num:"68", title:"Theater The Eater", risk:2,
+    grid:31, cell:4.0, wallH:3.4, braid:0.18,
+    fog:0.07, fogColor:0x140606, amb:0x2a0e0e, ambI:0.16,
+    lampColor:0xffa070, lampI:1.0, lampDist:10, lampEvery:5, lampStyle:"sconce",
+    floor:["carpet",{base:"#4a1216",dark:"rgba(24,4,6,.6)",light:"rgba(120,50,40,.25)",stain:"rgba(60,70,20,.3)"}],
+    wall:["wallpaper",{base:"#3a1418",stripe:10,dark:"rgba(20,6,8,.65)",light:"rgba(110,50,40,.25)",skirt:"rgba(20,8,6,.75)"}],
+    ceil:["concrete",{base:"#1e1212",dark:"rgba(8,4,4,.6)",light:"rgba(60,40,36,.15)"}],
+    drain:1.8, boxes:9, outpost:0.0, deco:"hotel",
+    special:["red","blackout"],
+    ents:{},
+    exitsTo:[
+      {to:"74",   kind:"door",   note:"unas puertas rojas en un pasillo"},
+      {to:"deep", kind:"noclip", note:"la pantalla de la sala"}
+    ],
+    lore:"Un cine enorme, con pasillos larguísimos llenos de puertas y cada puerta una sala. Las butacas cambian de número y de forma, pero siempre son rojas y están cubiertas de una sustancia como moco. Crecen hongos por todas partes. No se ha encontrado ninguna base, aunque hay dibujos que hacen pensar que alguien vive en alguna parte sin explorar.",
+    lore_en:"A huge cinema, with endless corridors lined with doors and a screen behind every door. The seats change in number and shape, but they are always red and coated in a mucus-like substance. Fungus grows everywhere. No base has been found, though drawings suggest someone lives in some unexplored part.",
+    tip:"Las puertas rojas llevan al Level 74. La pantalla, a un sitio sin catalogar.",
+    tip_en:"The red doors lead to Level 74. The screen, somewhere uncatalogued."
+  },
+  {
+    id:"71", num:"71", title:"Void Basement", risk:2,
+    grid:31, cell:3.8, wallH:2.6, braid:0.12,
+    fog:0.14, fogColor:0x050506, amb:0x0c0c10, ambI:0.08,
+    lampColor:0x8090a8, lampI:0.6, lampDist:6, lampEvery:11, lampStyle:"bulb",
+    floor:["concrete",{base:"#2a2a2c",dark:"rgba(8,8,10,.6)",light:"rgba(60,60,64,.15)"}],
+    wall:["brick",{base:"#34302c",dark:"#24211e",mortar:"#403c38"}],
+    ceil:["concrete",{base:"#1c1c1e",dark:"rgba(6,6,8,.6)",light:"rgba(40,40,44,.15)"}],
+    drain:2.3, boxes:8, outpost:0.0, deco:"dark",
+    special:["blackout"],
+    ents:{},
+    exitsTo:[
+      {to:"deep", kind:"crack", note:"un sitio donde el suelo deja de sentirse"},
+      {to:"deep", kind:"hole",  note:"una pared que ya no está"}
+    ],
+    lore:"Un sótano infinito, oscuro y frío, donde los sentidos se van apagando poco a poco. La documentación del M.E.G. sobre este nivel está corrupta: lo que queda habla de cuerpos que se desvanecen y no de cómo salir. La puerta del sótano del Level 4 se cierra en cuanto la cruzas.",
+    lore_en:"An infinite basement, dark and cold, where the senses fade out little by little. The M.E.G.'s documentation of this level is corrupted: what is left talks about bodies fading away, not about how to get out. The basement door in Level 4 shuts the moment you step through.",
+    tip:"No hay vuelta atrás al Level 4. Busca cualquier sitio donde el suelo parezca no estar.",
+    tip_en:"There is no way back to Level 4. Look for anywhere the floor seems not to be there."
+  },
+  {
+    id:"74", num:"74", title:"Stage Fright", risk:2,
+    grid:29, cell:4.2, wallH:3.6, braid:0.36,
+    fog:0.05, fogColor:0x1a100a, amb:0x34201a, ambI:0.26,
+    lampColor:0xffd49a, lampI:1.3, lampDist:13, lampEvery:3, lampStyle:"bulb",
+    floor:["tile",{base:"#8a7a66",alt:"#6a5a4a",grout:"#4a3e32",tiles:6,stain:"rgba(40,30,20,.3)"}],
+    wall:["brick",{base:"#6a3a2a",dark:"#4a281c",mortar:"#7a5a48"}],
+    ceil:["wood",{base:"#2e1e14",dark:"rgba(16,10,6,.55)",light:"rgba(80,56,36,.25)"}],
+    drain:2.0, boxes:10, outpost:0.0, deco:"hotel",
+    special:["red","pillar"],
+    ents:{},
+    exitsTo:[
+      {to:"deep", kind:"hatch", note:"las trampillas del escenario"},
+      {to:"deep", kind:"hatch", note:"otra trampilla, tras el telón"}
+    ],
+    lore:"Un escenario de teatro con veinte filas de butacas y ocho puertas de salida. Los pasillos son de ladrillo con suelo de baldosa, con máquinas de palomitas, carteles de feria, escaleras y ascensores, y todos acaban volviendo al escenario. Unas figuras con máscaras blancas actúan como en un sueño, y cuanto más te quedas, más cosas ves por el rabillo del ojo.",
+    lore_en:"A theatre stage with twenty rows of seats and eight exit doors. The corridors are brick with tiled floors, with popcorn machines, carnival posters, stairs and lifts, and all of them lead back to the stage. Figures in white masks perform as if in a dream, and the longer you stay, the more you see from the corner of your eye.",
+    tip:"Peligro mental: la cordura cae deprisa. Las trampillas del escenario son la única salida.",
+    tip_en:"Mental hazard: sanity drops fast. The stage trapdoors are the only way out."
+  },
+  {
     id:"beta", num:"β", title:"M.E.G. Base Beta", risk:0, settlement:true,
     grid:25, cell:5.4, wallH:4.0, braid:0.58,
     fog:0.024, fogColor:0x22201a, amb:0x4a4436, ambI:0.5,
@@ -3545,6 +3948,27 @@ const CAT = [
     lore_en:"The camp where the M.E.G. teaches the basics to anyone who has just noclipped in: how to ration Almond Water, how to recognise an exit and what to do when something smiles. Tents, floodlights and a board covered in notices.",
     tip:"Punto de guardado seguro. Aquí nadie te va a perseguir.",
     tip_en:"A safe save point. Nothing is going to chase you here."
+  },
+  {
+    id:"11.2", num:"11.2", title:"The Refuge", risk:0, settlement:true,
+    grid:25, cell:6.0, wallH:6.5, braid:0.56,
+    fog:0.03, fogColor:0x10141c, amb:0x3a4250, ambI:0.44,
+    lampColor:0xffd070, lampI:1.6, lampDist:19, lampEvery:2, lampStyle:"street",
+    floor:["concrete",{base:"#c8ccd0",dark:"rgba(120,126,134,.35)",light:"rgba(236,240,244,.4)"}],
+    wall:["brick",{base:"#b8683e",dark:"#8a4a2a",mortar:"#e8e0d6"}],
+    ceil:null,
+    drain:0.0, boxes:10, outpost:1, deco:"camp",
+    special:["manila"],
+    ents:{},
+    exitsTo:[
+      {to:"11", kind:"door",  note:"alejarse de los bloques, de vuelta a la ciudad"},
+      {to:"36", kind:"door",  note:"una puerta numerada de un apartamento"},
+      {to:"78", kind:"door",  note:"otra puerta de apartamento"}
+    ],
+    lore:"Bloques de apartamentos naranjas y blancos en un paisaje helado, a once bajo cero y con nevadas constantes, bajo un cielo siempre oscuro y farolas amarillas. Aquí está la Base Omicron, la séptima base del M.E.G., con unas 250 personas: pisos convertidos en dormitorios, aulas, salas comunes y enfermerías, y neveras que se rellenan solas.",
+    lore_en:"Orange and white apartment blocks in a frozen landscape, eleven below zero with constant snowfall, under an always-dark sky and yellow streetlights. This is Base Omicron, the seventh M.E.G. base, with some 250 people: flats turned into dormitories, classrooms, lounges and infirmaries, and fridges that refill themselves.",
+    tip:"Base del M.E.G.: sin entidades, se guarda y se reponen fuerzas. Varias puertas de apartamento llevan a otros niveles.",
+    tip_en:"M.E.G. base: no entities, you can save and recover. Several flat doors lead to other levels."
   },
 ];
 
@@ -3775,21 +4199,33 @@ const ITEMS = {
   battery:    {name:"Pilas",           icon:"battery",    stack:true, blurb:"Recarga la linterna al 100%.", name_en:"Batteries", blurb_en:"Recharges the flashlight to 100%."},
   flare:      {name:"Bengala",         icon:"flare",      stack:true, key:"G", blurb:"Se enciende y se deja en el suelo: luz amplia un buen rato.", name_en:"Flare", blurb_en:"Light it and drop it: wide light for a good while."},
   crowbar:    {name:"Palanca",         icon:"crowbar",    stack:true, key:"V", blurb:"Hierro del M.E.G. Si algo te agarra, <b>{crowbar}</b> te suelta de golpe. Se gasta al usarla.", name_en:"Crowbar", blurb_en:"M.E.G. iron. If something grabs you, <b>{crowbar}</b> gets you loose at once. It is used up."},
-  pipe:       {name:"Tubería de acero", icon:"pipe",  weapon:true, reach:2.4, stun:3.4, cd:1.1,
-              blurb:"Se equipa en una mano (clic izquierdo o derecho) y golpea a lo que tengas cerca. No se gasta.", name_en:"Steel pipe", blurb_en:"Equips in a hand (left or right click) and hits whatever is close. Does not run out."},
-  rebar:      {name:"Varilla oxidada",   icon:"rebar", weapon:true, reach:2.0, stun:4.4, cd:1.6,
-              blurb:"Pega más fuerte que la tubería, pero tarda más entre golpe y golpe. No se gasta.", name_en:"Rusted rebar", blurb_en:"Hits harder than the pipe, but is slower between swings. Does not run out."},
-  bat:        {name:"Bate de madera",    icon:"bat",   weapon:true, reach:2.6, stun:2.6, cd:0.8,
-              blurb:"Rápido y de más alcance, pero deja menos aturdida a la entidad. No se gasta.", name_en:"Wooden bat", blurb_en:"Fast with good reach, but leaves the entity dazed for less time. Does not run out."},
+  pipe:       {name:"Tubería de acero", icon:"pipe",  weapon:true, reach:2.4, stun:3.4, cd:1.1, uses:40,
+              blurb:"Se equipa en una mano (clic izquierdo o derecho) y golpea a lo que tengas cerca. Aguanta unos 40 golpes antes de romperse.", name_en:"Steel pipe", blurb_en:"Equips in a hand (left or right click) and hits whatever is close. Takes about 40 hits before it breaks."},
+  rebar:      {name:"Varilla oxidada",   icon:"rebar", weapon:true, reach:2.0, stun:4.4, cd:1.6, uses:30,
+              blurb:"Pega más fuerte que la tubería, pero tarda más entre golpe y golpe. El óxido la parte a los 30 golpes.", name_en:"Rusted rebar", blurb_en:"Hits harder than the pipe, but is slower between swings. The rust snaps it after 30 hits."},
+  bat:        {name:"Bate de madera",    icon:"bat",   weapon:true, reach:2.6, stun:2.6, cd:0.8, uses:24,
+              blurb:"Rápido y de más alcance, pero deja menos aturdida a la entidad. La madera se astilla: unos 24 golpes.", name_en:"Wooden bat", blurb_en:"Fast with good reach, but leaves the entity dazed for less time. The wood splinters: about 24 hits."},
   recorder:   {name:"Grabadora",       icon:"recorder",   stack:true, blurb:"Cinta del M.E.G.: al escucharla te sitúa una salida del nivel.", name_en:"Tape recorder", blurb_en:"A M.E.G. tape: playing it pinpoints one exit of the level."},
-  medkit:     {name:"Botiquín",        icon:"medkit",     stack:true, blurb:"Cura un poco todas las zonas y corta las hemorragias. Con amigos, sirve para reanimar a un compañero caído.", name_en:"First-aid kit", blurb_en:"Heals every body part a little and stops bleeding. With friends, it revives a downed teammate."}
+  medkit:     {name:"Botiquín",        icon:"medkit",     stack:true, blurb:"Cura un poco todas las zonas y corta las hemorragias. Con amigos, sirve para reanimar a un compañero caído.", name_en:"First-aid kit", blurb_en:"Heals every body part a little and stops bleeding. With friends, it revives a downed teammate."},
+  // 3.0.0: de la lista de objetos de la wiki (Object 3, 15, 16, 17, 28 y 30), más la cinta
+  firesalt:   {name:"Firesalt", icon:"firesalt", stack:true, blurb:"Cristales volátiles que crecen en las esquinas de los primeros niveles. Se lanzan hacia delante: estallan en calor y chispas y aturden 5 s a lo que pille cerca.", name_en:"Firesalt", blurb_en:"Volatile crystals that grow in the corners of the first levels. Thrown ahead of you, they burst into heat and sparks and stun whatever is close for 5 s."},
+  repellent:  {name:"Smiler Repellent", icon:"repellent", stack:true, blurb:"Un líquido transparente rarísimo, parecido al Almond Water. Rociado, los Smilers a menos de 20 m desaparecen y no vuelven.", name_en:"Smiler Repellent", blurb_en:"A very rare clear liquid, a lot like Almond Water. Sprayed, it makes every Smiler within 20 m vanish for good."},
+  rations:    {name:"Royal Rations", icon:"rations", stack:true, blurb:"Un bocado ceroso que alimenta como una comida entera: +20 en todas las zonas, el aliento al máximo y +10 de cordura. Sabe tan bien que da miedo.", name_en:"Royal Rations", blurb_en:"A waxy bite that feeds like a whole meal: +20 on every body part, full breath and +10 sanity. It tastes so good it is frightening."},
+  soles:      {name:"Suelas de goma silenciosa", icon:"soles", equip:true, blurb:"Goma hecha con Liquid Silence, que se traga el sonido. Mientras las lleves haces un 40% menos de ruido.", name_en:"Silent rubber soles", blurb_en:"Rubber made with Liquid Silence, which swallows sound. While you wear them you make 40% less noise."},
+  luckymilk:  {name:"Lucky O' Milk de fresa", icon:"luckymilk", stack:true, blurb:"Leche de soja de las máquinas del Level 4. La de fresa espabila como el café: 25 s corriendo sin cansarte.", name_en:"Strawberry Lucky O' Milk", blurb_en:"Soy milk from the Level 4 machines. The strawberry one perks you up like coffee: 25 s of running without tiring."},
+  marshmallow:{name:"Greasy Marshmallows", icon:"marshmallow", stack:true, blurb:"Derretidas dan fuerza: aliento al máximo y 12 s sin cansarte. Tres seguidas y el cuerpo te pesa un buen rato.", name_en:"Greasy Marshmallows", blurb_en:"Melted, they give you strength: full breath and 12 s without tiring. Three in a row and your body feels heavy for a good while."},
+  ducttape:   {name:"Cinta americana", icon:"ducttape", stack:true, blurb:"Arregla el arma más gastada que lleves en la mano: le devuelve la mitad del aguante.", name_en:"Duct tape", blurb_en:"Fixes the most worn weapon in your hands: gives it back half its toughness."},
+  megradio:   {name:"Radio de extracción", icon:"megradio", stack:true, meg:true, blurb:"Del M.E.G. Pide que te saquen del nivel: aguanta 12 s y apareces en la Base Beta. Si algo te agarra, la cuenta se retrasa.", name_en:"Extraction radio", blurb_en:"M.E.G. issue. Call for extraction: hold on for 12 s and you turn up at Base Beta. If something grabs you, the countdown slips."},
+  megcamera:  {name:"Cámara del M.E.G.", icon:"megcamera", equip:true, meg:true, blurb:"Apunta a una entidad a menos de 14 m y pulsa {gadget}: queda documentada y el flash la aturde 2 s. Tarda 8 s en recargar.", name_en:"M.E.G. camera", blurb_en:"Aim at an entity within 14 m and press {gadget}: it gets documented and the flash stuns it for 2 s. Takes 8 s to recharge."},
+  megbeacon:  {name:"Baliza del M.E.G.", icon:"megbeacon", stack:true, meg:true, blurb:"Se clava en el suelo: da luz verde y localiza las salidas que haya a menos de 30 m.", name_en:"M.E.G. beacon", blurb_en:"Stake it in the ground: it gives off green light and pinpoints every exit within 30 m."}
 };
+const EQUIP_IDS = Object.keys(ITEMS).filter(k=> ITEMS[k].equip);
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
-  comun: ["almond","almond","almond","bandage","bandage","battery","bat"],
-  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage","medkit"],
-  raro:  ["compass","backpack","crowbar","rebar","map","flashlight","medkit"]
+  comun: ["almond","almond","almond","bandage","bandage","battery","bat","marshmallow","luckymilk","ducttape"],
+  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage","medkit","firesalt","ducttape","luckymilk"],
+  raro:  ["compass","backpack","crowbar","rebar","map","flashlight","medkit","rations","repellent","soles"]
 };
 
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
@@ -3848,7 +4284,7 @@ const G = {
   sanity:100, stamina:100,
   body:{}, bleeding:{},
   inv:[], equip:{}, cap:4,
-  weapons:{L:null,R:null}, weaponCd:{L:0,R:0},
+  weapons:{L:null,R:null}, weaponCd:{L:0,R:0}, wear:{}, boostT:0, bloatT:0, mallows:[], extract:null, camCd:0, blasts:[], beacons:[],
   codex:{ent:{}, item:{}},
   abilityCd:0, shield:0, pulseExit:0, lootBonus:0, ambTimer:3,
   crossing:null, spWarn:null, spGate:0, drops:[], downed:false, downT:0, reviving:null, prog:{rand:0, mp:0, rev:0, seen:{}}, skins:{}, shiftT:90, shiftWarned:false, shifts:0, wallMesh:null, wallInst:null, wallFree:[],
@@ -3911,7 +4347,8 @@ function resetRun(charId){
   G.char = CHARACTERS.filter(c=>c.id===charId)[0] || CHARACTERS[0];
   G.depth = 0; G.sanity = 100;
   G.inv = []; G.equip = {}; G.cap = 4;
-  G.weapons = {L:null, R:null}; G.weaponCd = {L:0, R:0};
+  G.weapons = {L:null, R:null}; G.weaponCd = {L:0, R:0}; G.wear = {};
+  G.boostT = 0; G.bloatT = 0; G.mallows = []; G.extract = null; G.camCd = 0;
   G.abilityCd = 0; G.shield = 0; G.pulseExit = 0; G.lootBonus = 0;
   G.ambTimer = 2 + Math.random()*3;
   G.torchOn = false; G.torchFuel = 0;
@@ -3919,7 +4356,7 @@ function resetRun(charId){
   PARTS.forEach(p=>{ G.body[p.id] = 100; G.bleeding[p.id] = 0; });
   G.char.startEquip.forEach(id=> addItem(id,1));
   G.stamina = staminaMax();
-  G.randomMode = false;
+  G.randomMode = false; G.megMode = false; G.meg = {q:null, ofertas:[]}; G.megObj = null; G.megBoard = null;
   G.levelId = "0";
   G.levelSeed = rollSeed();
 }
@@ -3931,7 +4368,7 @@ function saveGame(){
     charId:G.char.id, depth:G.depth, levelId:G.levelId, levelSeed:G.levelSeed,
     sanity:G.sanity, body:G.body, bleeding:G.bleeding,
     inv:G.inv, equip:G.equip, cap:G.cap, torchFuel:G.torchFuel,
-    weapons:G.weapons, randomMode:!!G.randomMode,
+    weapons:G.weapons, wear:G.wear, randomMode:!!G.randomMode, megMode:!!G.megMode, meg:G.meg,
     when:Date.now()
   };
   try{
@@ -3963,7 +4400,9 @@ function applySave(d){
   G.cap = d.cap || 4;
   G.weapons = d.weapons ? {L:d.weapons.L||null, R:d.weapons.R||null} : {L:null, R:null};
   G.randomMode = !!d.randomMode;
-  G.weaponCd = {L:0, R:0};
+  G.megMode = !!d.megMode; G.meg = d.meg || {q:null, ofertas:[]}; G.megObj = null; G.megBoard = null;
+  G.weaponCd = {L:0, R:0}; G.wear = d.wear || {};
+  G.boostT = 0; G.bloatT = 0; G.mallows = []; G.extract = null; G.camCd = 0;
   G.torchFuel = d.torchFuel || 0;
   G.torchOn = false;
   G.stamina = staminaMax();
@@ -4004,6 +4443,7 @@ function addItem(id, qty){
   if(def.weapon){
     codexSeeItem(id);
     if(G.weapons.L === id || G.weapons.R === id) return false;   // ya la llevas
+    if(G.wear[id] === undefined) G.wear[id] = 0.55 + Math.random()*0.45;   // de un casillero nunca sale nueva
     if(!G.weapons.L){ G.weapons.L = id; toast(tx("Equipada en la mano izquierda: ","Equipped in your left hand: ")+txf(def,"name"),3); return true; }
     if(!G.weapons.R){ G.weapons.R = id; toast(tx("Equipada en la mano derecha: ","Equipped in your right hand: ")+txf(def,"name"),3); return true; }
     // con las dos manos ocupadas va a la mochila: desde ahí se cambia de mano [B]
@@ -4844,6 +5284,18 @@ const RIG_POSE = {
     } else if(pz === "chase" && T.reach){           // el Wretch va con los brazos por delante
       R.rot.armL = [-1.4 + sp*0.2, 0, -0.12]; R.rot.armR = [-1.4 - sp*0.2, 0, 0.12];
       R.rot.foreL = [-0.2, 0, 0]; R.rot.foreR = [-0.2, 0, 0];
+    } else if(pz === "wave"){                        // saluda con la derecha
+      const f = Math.sin(t*9);
+      R.rot.armR = [-2.7, 0, -0.35 + f*0.35]; R.rot.foreR = [-0.5 + f*0.3, 0, 0]; R.rot.head = [-0.1, 0, f*0.05];
+    } else if(pz === "point"){                       // señala al frente
+      R.rot.armR = [-1.5, 0, -0.05]; R.rot.foreR = [0, 0, 0]; R.rot.torso[1] -= 0.15;
+    } else if(pz === "stop"){                        // la palma por delante
+      R.rot.armR = [-1.3, 0, -0.1]; R.rot.foreR = [-1.3, 0, 0];
+    } else if(pz === "bow"){                         // reverencia
+      R.rot.torso = [0.5, 0, 0]; R.rot.head = [0.2, 0, 0]; R.rot.armL = [0.2, 0, 0.05]; R.rot.armR = [0.2, 0, -0.05];
+    } else if(pz === "cheer"){                       // los dos brazos arriba
+      const f = Math.sin(t*10)*0.15;
+      R.rot.armL = [-2.9 + f, 0, 0.4]; R.rot.armR = [-2.9 - f, 0, -0.4]; R.rot.foreL = [-0.2, 0, 0]; R.rot.foreR = [-0.2, 0, 0];
     } else if(pz === "down"){
       R.rot.armL = [0, 0, 1.2]; R.rot.armR = [0, 0, -1.2];
       R.rot.foreL = [-0.3, 0, 0]; R.rot.foreR = [-0.3, 0, 0];
@@ -6826,7 +7278,7 @@ function buildLevel(levelId, seed){
   G.containers.length = 0; G.entities.length = 0;
   (G.noclips || (G.noclips = [])).length = 0;
   G.lamps.length = 0; G.flickers.length = 0; G.exits.length = 0;
-  G.tapes.length = 0; G.flares.length = 0; G.drops = [];
+  G.tapes.length = 0; G.flares.length = 0; G.drops = []; G.blasts = []; G.beacons = []; G.megObj = null; G.megBoard = null;
   G.obs = {};
   G.outpost = null; G.blackout = 0; G.scareTimer = 24;
   exitGroups = [];
@@ -7178,8 +7630,10 @@ function buildLevel(levelId, seed){
   if(typeof mpAnunciarNivel === "function") mpAnunciarNivel();
 
   $("lvlName").textContent = levelTitle(cfg);
-  $("lvlDepth").textContent = (G.randomMode ? tx("ALEATORIO · ","RANDOM · ") : "")+tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
+  $("lvlDepth").textContent = modePrefix()+tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
+  if(G.megMode) megEnterLevel(cfg); else paintMegChip();
 }
+function modePrefix(){ return G.megMode ? tx("AGENTE DEL M.E.G. · ","M.E.G. AGENT · ") : (G.randomMode ? tx("ALEATORIO · ","RANDOM · ") : ""); }
 
 /* ── puesto avanzado abandonado del M.E.G. ── */
 function buildOutpost(cell, cfg, rand){
@@ -7245,6 +7699,7 @@ function buildOutpost(cell, cfg, rand){
   world.add(deskG);
 
   G.outpost = { cell, x:wx + G.cell*0.22, z:wz, glow, used:false };
+  if(G.megMode && cfg.settlement) buildMegBoard(wx, wz);
 
   // provisiones garantizadas del puesto
   const spots = wallSpot(cx,cy);
@@ -7550,7 +8005,11 @@ const ACTIONS = [
   {id:"crowbar", def:"v",     es:"Palanca",                 en:"Crowbar"},
   {id:"pack",    def:"b",     es:"Mochila",                 en:"Backpack"},
   {id:"ability", def:"c",     es:"Habilidad",               en:"Ability"},
-  {id:"chat",    def:"enter", es:"Chat (con amigos)",       en:"Chat (with friends)"}
+  {id:"chat",    def:"enter", es:"Chat (con amigos)",       en:"Chat (with friends)"},
+  {id:"gadget",  def:"k",     es:"Cámara del M.E.G.",       en:"M.E.G. camera"},
+  {id:"quests",  def:"j",     es:"Misión (modo M.E.G.)",    en:"Quest (M.E.G. mode)"},
+  {id:"gesture", def:"h",     es:"Gestos",                  en:"Gestures"},
+  {id:"talk",    def:"y",     es:"Hablar (voz, con amigos)", en:"Talk (voice, with friends)"}
 ];
 const ACTION_BY = {};
 ACTIONS.forEach(a=> ACTION_BY[a.id] = a);
@@ -7635,6 +8094,7 @@ window.addEventListener("keydown",(e)=>{
 });
 // lo que hace cada tecla en partida; también lo usa el mando
 function doKeyAction(k){
+  if(k===kb("talk")){ vozHablar(true); return; }
   if(k===kb("crowbar")){ useItem("crowbar"); return; }        // antes del QTE: si no, se la come
   if(k===kb("pack")){ closeHeal(); toggleBackpack(); return; }
   if(k===kb("heal")){ toggleHeal(); return; }
@@ -7642,6 +8102,10 @@ function doKeyAction(k){
   if(k===kb("ability")){ useAbility(); return; }
   if(G.grab){ qteKey(k); if(k!=="escape") return; }
   if(k===kb("chat") && MP.activo){ openChat(); return; }
+  if(k===kb("gadget")){ useCamera(); return; }
+  if(k===kb("quests") && typeof toggleMegBoard === "function"){ toggleMegBoard(); return; }
+  if(k===kb("gesture") && typeof toggleGestos === "function"){ toggleGestos(); return; }
+  if(gestosOpen && k>="1" && k<="8"){ hacerGesto(parseInt(k,10)-1); return; }
   if(k===kb("use")) interact();
   if(k===kb("torch")) toggleTorch();
   if(k===kb("flare")) useItem("flare");
@@ -7651,13 +8115,14 @@ function doKeyAction(k){
   if(k>="0" && k<="9"){
     slotKey(k==="0" ? 9 : parseInt(k,10)-1);
   }
-  if(k==="escape") pauseGame();
+  if(k==="escape"){ if(megOpen){ closeMegBoard(); return; } if(gestosOpen){ toggleGestos(); return; } pauseGame(); }
 }
-window.addEventListener("keyup",(e)=>{ keys[e.key.toLowerCase()] = false; });
+window.addEventListener("keyup",(e)=>{ const k = e.key.toLowerCase(); keys[k] = false; if(k === kb("talk")) vozHablar(false); });
 window.addEventListener("blur",()=>{ for(const k in keys) keys[k]=false; });
 canvas.addEventListener("click",()=>{
   if(bpOpen){ closeBackpack(); return; }
   if(healOpen){ closeHeal(); grabPointer(); return; }
+  if(megOpen){ closeMegBoard(); return; }
   if(!pointerLocked) grabPointer();
 });
 canvas.addEventListener("mousedown",(e)=>{
@@ -7668,7 +8133,7 @@ canvas.addEventListener("mousedown",(e)=>{
 canvas.addEventListener("contextmenu",(e)=>{ if(pointerLocked) e.preventDefault(); });
 document.addEventListener("pointerlockchange",()=>{
   pointerLocked = document.pointerLockElement === canvas;
-  if(!pointerLocked && G.running && !G.paused && !bpOpen && !healOpen) pauseGame();
+  if(!pointerLocked && G.running && !G.paused && !bpOpen && !healOpen && !megOpen && !gestosOpen) pauseGame();
 });
 document.addEventListener("mousemove",(e)=>{
   if(!pointerLocked) return;
@@ -7703,7 +8168,7 @@ function updatePlayer(dt){
   const running = moving && wantsRun;
 
   const stamMax = staminaMax();
-  if(running) G.stamina = Math.max(0, G.stamina - dt*15);
+  if(running && !(G.boostT > 0)) G.stamina = Math.max(0, G.stamina - dt*15);   // Lucky O' Milk y Marshmallows
   else        G.stamina = Math.min(stamMax, G.stamina + dt*(moving?7.5:15));
 
   const fwdX=Math.sin(player.yaw), fwdZ=Math.cos(player.yaw);
@@ -7713,7 +8178,7 @@ function updatePlayer(dt){
   if(len>0){ dx/=len; dz/=len; }
 
   const drunk = G.sanity<30 ? (1-(30-G.sanity)/110) : 1;
-  const target = moving ? (running?RUN:WALK)*legPenalty()*drunk : 0;
+  const target = moving ? (running?RUN:WALK)*legPenalty()*drunk*(G.bloatT > 0 ? 0.8 : 1) : 0;
   player.speed = lerp(player.speed, target, 1-Math.pow(0.0001,dt));
 
   const step = player.speed*dt;
@@ -7721,7 +8186,7 @@ function updatePlayer(dt){
   if(!blockedCircle(nx, player.pos.z, RADIUS)) player.pos.x = nx;
   if(!blockedCircle(player.pos.x, nz, RADIUS)) player.pos.z = nz;
 
-  const noiseWant = (running?1:(moving?0.34:0.02)) * G.char.noise;
+  const noiseWant = (running?1:(moving?0.34:0.02)) * G.char.noise * (G.equip.soles ? 0.6 : 1);
   G.noise = lerp(G.noise, noiseWant, 1-Math.pow(0.05,dt));
 
   // el cuerpo encara hacia donde mira la cámara, como en cualquier tercera persona
@@ -7748,7 +8213,7 @@ function updatePlayer(dt){
   player.animFrame = frame; player.animRow = row;   // los amigos lo necesitan
   player.mesh.scale.x = flip;
   player.mesh.userData.yaw = player.facing;          // la figura 3D mira hacia delante
-  player.mesh.userData.pose = "";
+  player.mesh.userData.pose = G.gesto && G.gesto.t > 0 ? G.gesto.pose : "";
   const W = G.weapons || {};
   player.mesh.userData.gearL = W.L || (G.torchOn ? "torch" : null);   // lo que se ve en sus manos
   player.mesh.userData.gearR = W.R || null;
@@ -8069,7 +8534,64 @@ function useItem(id){
     Audio_.wrap();
     logLine(tx("Botiquín: <b>+30</b> en todas las zonas y sin hemorragias.","First-aid kit: <b>+30</b> on every part and no bleeding."));
   }
-  else if(id === "map" || id === "compass" || id === "backpack"){
+  else if(id === "firesalt"){
+    if(!hasItem("firesalt")){ toast(tx("No te queda Firesalt.","No Firesalt left.")); return; }
+    removeItem("firesalt");
+    throwFiresalt();
+  }
+  else if(id === "repellent"){
+    if(!hasItem("repellent")){ toast(tx("No te queda repelente.","No repellent left.")); return; }
+    removeItem("repellent");
+    let n = 0;
+    for(let i=G.entities.length-1;i>=0;i--){
+      const e = G.entities[i];
+      if(e.type !== "smiler" || Math.hypot(e.x-player.pos.x, e.z-player.pos.z) > 20) continue;
+      if(e.spWind > 0) cancelSpecial(e);
+      world.remove(e.mesh); if(e.shadow) world.remove(e.shadow);
+      G.entities.splice(i, 1); n++;
+    }
+    Audio_.sip();
+    logLine(n ? tx("Rocías el repelente. <b>"+n+"</b> Smiler"+(n>1?"s desaparecen":" desaparece")+" y no vuelve"+(n>1?"n":"")+".","You spray the repellent. <b>"+n+"</b> Smiler"+(n>1?"s vanish":" vanishes")+" for good.")
+              : tx("Rocías el repelente. No había ningún Smiler cerca: se ha perdido.","You spray the repellent. There was no Smiler nearby: it is wasted."));
+  }
+  else if(id === "rations"){
+    if(!hasItem("rations")){ toast(tx("No te quedan Royal Rations.","No Royal Rations left.")); return; }
+    removeItem("rations");
+    PARTS.forEach(p=>{ G.body[p.id] = Math.min(100, G.body[p.id] + 20); });
+    G.stamina = staminaMax(); G.sanity = Math.min(100, G.sanity + 10);
+    Audio_.sip();
+    logLine(tx("Royal Rations: <b>+20</b> en todo el cuerpo, aliento lleno y <b>+10</b> de cordura. Ya estás pensando en el siguiente bocado.","Royal Rations: <b>+20</b> all over, full breath and <b>+10</b> sanity. You are already thinking about the next bite."));
+  }
+  else if(id === "luckymilk" || id === "marshmallow"){
+    if(!hasItem(id)){ toast(tx("No te queda.","None left.")); return; }
+    removeItem(id);
+    G.stamina = staminaMax();
+    G.boostT = Math.max(G.boostT || 0, id === "luckymilk" ? 25 : 12);
+    Audio_.sip();
+    if(id === "marshmallow"){
+      G.mallows = (G.mallows || []).filter(t=> G.t - t < 60).concat([G.t]);
+      if(G.mallows.length >= 3){ G.bloatT = 40; G.mallows = []; logLine(tx("Demasiadas <b>Greasy Marshmallows</b>: te duele la cabeza y el cuerpo te pesa.","Too many <b>Greasy Marshmallows</b>: your head aches and your body feels heavy.")); }
+      else logLine(tx("Greasy Marshmallows derretidas: <b>12 s</b> sin cansarte.","Melted Greasy Marshmallows: <b>12 s</b> without tiring."));
+    } else logLine(tx("Lucky O' Milk de fresa: <b>25 s</b> corriendo sin cansarte.","Strawberry Lucky O' Milk: <b>25 s</b> of running without tiring."));
+  }
+  else if(id === "ducttape"){
+    if(!hasItem("ducttape")){ toast(tx("No te queda cinta.","No tape left.")); return; }
+    const arma = ["L","R"].map(h=> G.weapons[h]).filter(Boolean).sort((a,b)=> (G.wear[a]||1) - (G.wear[b]||1))[0];
+    if(!arma){ toast(tx("No llevas ningún arma en la mano.","You have no weapon in hand.")); return; }
+    if((G.wear[arma]||1) >= 0.97){ toast(tx("Está como nueva.","It is as good as new.")); return; }
+    removeItem("ducttape");
+    G.wear[arma] = Math.min(1, (G.wear[arma]||1) + 0.5);
+    Audio_.wrap();
+    logLine(tx("Le das unas vueltas de cinta a la "+txf(ITEMS[arma],"name").toLowerCase()+": <b>"+Math.round(G.wear[arma]*100)+"%</b>.","You wrap tape round the "+txf(ITEMS[arma],"name").toLowerCase()+": <b>"+Math.round(G.wear[arma]*100)+"%</b>."));
+  }
+  else if(id === "megradio"){ startExtraction(); return; }
+  else if(id === "megcamera"){ useCamera(); return; }
+  else if(id === "megbeacon"){
+    if(!hasItem("megbeacon")){ toast(tx("No te quedan balizas.","No beacons left.")); return; }
+    removeItem("megbeacon");
+    placeBeacon();
+  }
+  else if(ITEMS[id] && ITEMS[id].equip && id !== "flashlight"){
     // equipo permanente: un segundo clic no hacía nada y parecía roto
     toast(tx("Ya la llevas puesta. Se usa sola mientras la tengas encima.","You are already wearing it. It works on its own while you have it."));
   }
@@ -8221,6 +8743,14 @@ function nearestFocus(){
     const d = Math.hypot(player.pos.x-G.outpost.x, player.pos.z-G.outpost.z);
     if(d < bd){ bd = d; best = {kind:"save", ref:G.outpost, d}; }
   }
+  if(G.megBoard){
+    const d = Math.hypot(player.pos.x-G.megBoard.x, player.pos.z-G.megBoard.z);
+    if(d < bd){ bd = d; best = {kind:"board", ref:G.megBoard, d}; }
+  }
+  if(G.megObj){
+    const d = Math.hypot(player.pos.x-G.megObj.x, player.pos.z-G.megObj.z);
+    if(d < bd){ bd = d; best = {kind:"megobj", ref:G.megObj, d}; }
+  }
   if(MP.activo) for(const k in MP.otros){
     const o = MP.otros[k];
     if(!o.dn || o.muerto || o.vx === undefined) continue;
@@ -8248,6 +8778,8 @@ function interact(){
   else if(f.kind === "save") useOutpost(f.ref);
   else if(f.kind === "drop") pickDrop(f.ref);
   else if(f.kind === "revive") startRevive(f.ref);
+  else if(f.kind === "board") openMegBoard(true);
+  else if(f.kind === "megobj") megPick(f.ref);
   else startCrossing(f.ref);
 }
 
@@ -8374,8 +8906,9 @@ function swingHand(hand){
   }
   Audio_.hurt();
   G.shake = Math.min(0.4, G.shake + 0.16);
-  if(!cerca) return;
+  if(!cerca){ wearWeapon(hand, id, 0.25); return; }                // al aire también se gasta, menos
   cerca.stun = Math.max(cerca.stun, def.stun);
+  if(typeof megEvent === "function") megEvent("stun");
   const dx = cerca.x - player.pos.x, dz = cerca.z - player.pos.z;
   const len = Math.hypot(dx,dz) || 1;
   for(let k=0;k<14;k++){
@@ -8385,6 +8918,29 @@ function swingHand(hand){
   }
   logLine(tx("Golpeas con ","You hit with the ")+txf(def,"name").toLowerCase()+".");
   unlockAch("weapon");
+  wearWeapon(hand, id, 1);
+}
+// Cada golpe gasta el arma; a cero se parte y la mano se queda vacía.
+function wearWeapon(hand, id, k){
+  const def = ITEMS[id];
+  if(!def || !def.uses) return;
+  const antes = G.wear[id] === undefined ? 1 : G.wear[id];
+  const w = antes - k/def.uses;
+  if(w > 1e-6){                                   // sin el margen, 24 golpes de 1/24 dejaban 1e-16 y salía uno más
+    G.wear[id] = w;
+    if(w < 0.2 && antes >= 0.2) toast(tx(txf(def,"name")+" está a punto de romperse.",txf(def,"name")+" is about to break."), 3);
+    paintHands();
+    return;
+  }
+  if(G.weapons[hand] === id) G.weapons[hand] = null;
+  delete G.wear[id];
+  if(G.held === id) G.held = null;
+  Audio_.noise(0.35, 1400, 3, 0.12);
+  G.shake = Math.min(0.5, G.shake + 0.2);
+  logLine(tx("<b>"+txf(def,"name")+"</b> se rompe en el golpe.","<b>"+txf(def,"name")+"</b> breaks on the hit."));
+  toast(tx("Se te ha roto: ","It broke: ")+txf(def,"name"), 3);
+  unlockAch("broke");
+  refreshSlots();
 }
 /* ── paredes que no son paredes: caminas hacia una y sales por su pareja ── */
 function updateNoclips(dt){
@@ -8413,6 +8969,114 @@ function updateNoclips(dt){
 function updateWeapons(dt){
   if(G.weaponCd.L > 0) G.weaponCd.L -= dt;
   if(G.weaponCd.R > 0) G.weaponCd.R -= dt;
+  if(G.boostT > 0) G.boostT -= dt;
+  if(G.bloatT > 0) G.bloatT -= dt;
+  if(G.camCd > 0) G.camCd -= dt;
+  for(let i=(G.blasts||[]).length-1;i>=0;i--){                   // el fogonazo del Firesalt se apaga
+    const b = G.blasts[i];
+    b.t -= dt; b.light.intensity = Math.max(0, b.t)*6;
+    if(b.t <= 0){ if(b.light.parent) b.light.parent.remove(b.light); G.blasts.splice(i, 1); }
+  }
+  for(const b of (G.beacons||[])){ b.t += dt; b.light.intensity = 0.9 + (Math.sin(b.t*5) > 0.6 ? 0.9 : 0); }
+  updateExtraction(dt);
+  if(G.megMode) megTick(dt);
+  updateGestos(dt);
+}
+
+// Firesalt: se lanza unos metros hacia delante (o hasta la pared) y revienta
+function throwFiresalt(){
+  const fx = Math.sin(player.facing), fz = Math.cos(player.facing);
+  let px = player.pos.x, pz = player.pos.z;
+  for(let i=0;i<14;i++){ const nx = px + fx*0.25, nz = pz + fz*0.25; if(blockedCircle(nx, nz, 0.12)) break; px = nx; pz = nz; }
+  let n = 0;
+  for(const e of G.entities){
+    if(e.def.kind !== "walker" || e.grabbed || Math.hypot(e.x-px, e.z-pz) > 3.8) continue;
+    e.stun = Math.max(e.stun, 5); n++;
+    if(e.spWind > 0) cancelSpecial(e);
+  }
+  const L = new THREE.PointLight(0xff7a2a, 3.6, 12, 2);
+  L.position.set(px, 1, pz); world.add(L);
+  G.blasts.push({light:L, t:0.6});
+  Audio_.noise(0.9, 700, 1.1, 0.2);
+  G.shake = Math.min(0.6, G.shake + 0.35); G.noise = 1;
+  if(n && typeof megEvent === "function") for(let i=0;i<n;i++) megEvent("stun");
+  logLine(n ? tx("El Firesalt revienta en chispas: <b>"+n+"</b> aturdida"+(n>1?"s":"")+" 5 s.","The Firesalt bursts into sparks: <b>"+n+"</b> stunned for 5 s.")
+            : tx("El Firesalt revienta en chispas. No pilla a nada.","The Firesalt bursts into sparks. It catches nothing."));
+}
+
+// Cámara del M.E.G.: documenta lo que tienes delante y el flash lo aturde
+function useCamera(){
+  if(!G.equip.megcamera){ toast(tx("No llevas la cámara del M.E.G.","You are not carrying the M.E.G. camera.")); return; }
+  if(G.dead || !G.running || G.paused) return;
+  if(G.camCd > 0){ toast(tx("La cámara se está cargando: ","The camera is charging: ")+Math.ceil(G.camCd)+" s", 1.5); return; }
+  const fx = Math.sin(player.yaw), fz = Math.cos(player.yaw);
+  let best = null, bd = 14;
+  for(const e of G.entities){
+    const dx = e.x-player.pos.x, dz = e.z-player.pos.z, d = Math.hypot(dx, dz);
+    if(d >= bd || d < 0.2 || (dx*fx + dz*fz)/d < 0.55) continue;
+    if(e.mesh && e.mesh.visible === false) continue;
+    if(!canSee(player.pos.x, player.pos.z, e.x, e.z)) continue;
+    best = e; bd = d;
+  }
+  G.camCd = 8;
+  flash(140);
+  Audio_.click();
+  if(!best){ logLine(tx("El flash ilumina el pasillo. No había nada que fotografiar.","The flash lights up the corridor. There was nothing to photograph.")); return; }
+  codexSeeEnt(best.type);
+  if(best.def.kind === "walker") best.stun = Math.max(best.stun, 2);
+  logLine(tx("Foto: <b>","Photo: <b>")+ENT_NAMES[best.type]+tx("</b> documentado para el M.E.G.","</b> documented for the M.E.G."));
+  if(typeof megEvent === "function") megEvent("photo", best.type);
+}
+
+// Baliza: luz verde en el suelo y las salidas cercanas quedan localizadas
+function placeBeacon(){
+  const g = new THREE.Group();
+  g.position.set(player.pos.x, 0, player.pos.z);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 0.9, 6), new THREE.MeshStandardMaterial({color:0x5a6268, roughness:.6, metalness:.4}));
+  pole.position.y = 0.45; g.add(pole);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshBasicMaterial({color:0x7ce06a, fog:false}));
+  bulb.position.y = 0.95; g.add(bulb);
+  const L = new THREE.PointLight(0x7ce06a, 1.2, 9, 2);
+  L.position.y = 1.1; g.add(L);
+  world.add(g);
+  G.beacons.push({x:player.pos.x, z:player.pos.z, mesh:g, light:L, t:0});
+  let n = 0;
+  for(const e of G.exits){ if(!e.known && Math.hypot(e.mx-player.pos.x, e.mz-player.pos.z) < 30){ e.known = true; n++; } }
+  if(n){ computeReveal(true); updateNearestExit(); }
+  Audio_.tone(880, 0.12, 0.05, "square");
+  logLine(n ? tx("Baliza clavada. Ha localizado <b>"+n+"</b> salida"+(n>1?"s":"")+" cerca.","Beacon planted. It has pinpointed <b>"+n+"</b> exit"+(n>1?"s":"")+" nearby.")
+            : tx("Baliza clavada. No hay ninguna salida a menos de 30 m.","Beacon planted. There is no exit within 30 m."));
+  if(typeof megEvent === "function") megEvent("beacon");
+}
+
+// Radio de extracción: 12 s aguantando y te sacan a la Base Beta
+function startExtraction(){
+  if(!hasItem("megradio")){ toast(tx("No te queda ninguna radio.","No radio left.")); return; }
+  if(G.cfg && G.cfg.settlement){ toast(tx("Ya estás en una base del M.E.G.","You are already at a M.E.G. base.")); return; }
+  if(G.extract){ toast(tx("Ya vienen a por ti.","They are already on their way.")); return; }
+  removeItem("megradio");
+  G.extract = {t:12};
+  Audio_.tone(620, 0.2, 0.05, "square", 480);
+  logLine(tx("Radio: «Recibido, agente. Aguanta ahí: <b>12 s</b>.»","Radio: «Copy that, agent. Hold on: <b>12 s</b>.»"));
+  refreshSlots();
+}
+function updateExtraction(dt){
+  const x = G.extract;
+  if(!x || transitioning) return;
+  if(G.grab) x.t = Math.max(x.t, 6);                                // con algo encima no pueden sacarte
+  x.t -= dt;
+  const s = Math.ceil(x.t);
+  if(s !== x.shown && s > 0){ x.shown = s; toast(tx("Extracción en ","Extraction in ")+s+" s", 1.1); }
+  if(x.t > 0) return;
+  G.extract = null;
+  transitioning = true;
+  flash(900);
+  Audio_.clip();
+  setTimeout(()=>{
+    transitioning = false;
+    logLine(tx("Un equipo del M.E.G. te saca del nivel.","An M.E.G. team pulls you out of the level."));
+    descendTo("beta", rollSeed());
+  }, 900);
 }
 
 /* ── el dado ── */
@@ -9518,7 +10182,9 @@ function paintHands(){
     cx.imageSmoothingEnabled = false;
     cx.clearRect(0,0,cv.width,cv.height);
     if(id) cx.drawImage(ICON_TEX[ITEMS[id].icon], 0, 0, cv.width, cv.height);
-    box.querySelector("b").textContent = id ? txf(ITEMS[id],"name") : tx("vacía","empty");
+    const w = id && G.wear[id] !== undefined ? G.wear[id] : 1;
+    box.querySelector("b").textContent = id ? txf(ITEMS[id],"name")+" · "+Math.max(1, Math.round(w*100))+"%" : tx("vacía","empty");
+    box.classList.toggle("worn", !!id && w < 0.2);
     const hk = box.querySelector(".hk");
     if(hk) hk.textContent = (h === "L" ? tx("IZQUIERDA · ","LEFT · ") : tx("DERECHA · ","RIGHT · ")) +
       (INPUT === "pad" ? (h === "L" ? "LB" : "RB") : (h === "L" ? tx("CLIC IZQ","L-CLICK") : tx("CLIC DER","R-CLICK")));
@@ -9530,7 +10196,7 @@ function refreshSlots(){
   paintHands();
   const eq = $("equip");
   eq.textContent = "";
-  const equipIds = ["map","compass","flashlight","backpack"];
+  const equipIds = EQUIP_IDS;
   let anyEquip = false;
   equipIds.forEach(id=>{
     if(!G.equip[id]) return;
@@ -9660,6 +10326,8 @@ function updateHud(dt){
     }
     else if(f.kind==="drop") pr.innerHTML = E+tx("Recoger ","Pick up ")+txf(ITEMS[f.ref.id],"name")+(f.ref.qty>1?" ×"+f.ref.qty:"");
     else if(f.kind==="save") pr.innerHTML = E+tx("Anotar el progreso en el registro <i>(guardar)</i>","Write progress into the log <i>(save)</i>");
+    else if(f.kind==="board") pr.innerHTML = E+tx("Tablón de misiones del M.E.G.","M.E.G. mission board");
+    else if(f.kind==="megobj") pr.innerHTML = E+(f.ref.tipo === "fetch" ? tx("Recoger el maletín del M.E.G.","Pick up the M.E.G. briefcase") : tx("Hablar con el explorador","Talk to the explorer"));
     else{
       const k = EXIT_KINDS[f.ref.kind];
       const dest = (hasItem("map")||f.ref.known) ? " → "+f.ref.destName : tx(" → destino desconocido"," → unknown destination");
@@ -9740,7 +10408,10 @@ const ACHIEVEMENTS = [
   {id:"nomap",      name:"De memoria",           desc:"Supera un nivel sin mapa ni brújula.", name_en:"From memory", desc_en:"Clear a level with no map and no compass."},
   {id:"intact",     name:"Ni un rasguño",        desc:"Supera un nivel sin recibir daño.", name_en:"Not a scratch", desc_en:"Clear a level without taking damage."},
   {id:"catalog",    name:"Cartógrafo",           desc:"Supera 10 niveles distintos del catálogo.", name_en:"Cartographer", desc_en:"Clear 10 different levels from the catalogue."},
-  {id:"lazarus",    name:"Salió uno",            desc:"Desbloquea a Lázaro.", name_en:"One made it out", desc_en:"Unlock Lazarus."}
+  {id:"lazarus",    name:"Salió uno",            desc:"Desbloquea a Lázaro.", name_en:"One made it out", desc_en:"Unlock Lazarus."},
+  {id:"meg1",       name:"Al servicio del M.E.G.", desc:"Cumple y cobra tu primera misión como agente.", name_en:"In the M.E.G.'s service", desc_en:"Complete and collect your first mission as an agent."},
+  {id:"meg10",      name:"Agente veterano",      desc:"Cumple 10 misiones del M.E.G.", name_en:"Veteran agent", desc_en:"Complete 10 M.E.G. missions."},
+  {id:"broke",      name:"Hasta que se rompió",  desc:"Usa un arma hasta partirla.", name_en:"Until it broke", desc_en:"Use a weapon until it snaps."}
 ];
 const ACH_BY_ID = {};
 ACHIEVEMENTS.forEach(a=> ACH_BY_ID[a.id] = a);
@@ -9904,7 +10575,8 @@ function paintHand(){
   const slot = invFind(id);
   const key = ITEMS[id].key;
   let hint;
-  if(id === "map" || id === "compass" || id === "backpack") hint = tx("Se usa solo mientras lo lleves encima.","It works on its own while you carry it.");
+  if(id === "megcamera") hint = tx("Se usa con "+tag("gadget")+".","Use it with "+tag("gadget")+".");
+  else if(ITEMS[id].equip && id !== "flashlight") hint = tx("Se usa solo mientras lo lleves encima.","It works on its own while you carry it.");
   else if(id === "flashlight") hint = tx("Se enciende y se apaga con "+tag("torch")+".","Switch it on and off with "+tag("torch")+".");
   else {
     const accion = {F:"torch", Q:"drink", R:"bandage", G:"flare", V:"crowbar"}[key];
@@ -9951,7 +10623,7 @@ function updateHand(){
 
 // 1..0: con «uso rápido» (por defecto) el primer toque ya lo usa; si no,
 // el primero lo saca y el segundo lo usa, como antes.
-const QUICK_USE = {almond:1, bandage:1, battery:1, flare:1, recorder:1, medkit:1};
+const QUICK_USE = {almond:1, bandage:1, battery:1, flare:1, recorder:1, medkit:1, rations:1, luckymilk:1, marshmallow:1, ducttape:1, repellent:1, megbeacon:1};
 function slotKey(idx){
   const slot = G.inv[idx];
   if(!slot){ holdItem(null); return; }
@@ -10033,27 +10705,30 @@ function takeOut(id, hand, all){
   return n;
 }
 function dropItem(id, hand, destroy){
+  const wear = G.wear[id];
   const n = takeOut(id, hand, !destroy);
   if(!n) return;
+  if(ITEMS[id].weapon && !hasItem(id)) delete G.wear[id];
   if(G.held === id && !hasItem(id)) G.held = null;
   if(destroy){
     Audio_.noise(0.25, 500, 1.2, 0.06);
     logLine(tx("Desechas: ","Discarded: ")+"<b>"+txf(ITEMS[id],"name")+"</b>"+(n>1?" ×"+n:"")+".");
   } else {
-    spawnDrop(id, n, player.pos.x, player.pos.z);
+    spawnDrop(id, n, player.pos.x, player.pos.z, wear);
     Audio_.noise(0.18, 300, 1.4, 0.08);
     logLine(tx("Dejas en el suelo: ","Dropped: ")+"<b>"+txf(ITEMS[id],"name")+"</b>"+(n>1?" ×"+n:"")+tx(". "+tag("use")+" para recogerlo.",". "+tag("use")+" to pick it up."));
   }
   refreshSlots();
 }
-function spawnDrop(id, qty, x, z){
+function spawnDrop(id, qty, x, z, wear){
   const m = new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.42),
     new THREE.MeshBasicMaterial({map:iconTexture(ITEMS[id].icon), transparent:true, alphaTest:0.4, side:THREE.DoubleSide}));
   m.position.set(x, 0.3, z);
   world.add(m);
-  G.drops.push({id, qty, x, z, mesh:m, t:Math.random()*6});
+  G.drops.push({id, qty, x, z, mesh:m, t:Math.random()*6, wear});
 }
 function pickDrop(d){
+  if(d.wear !== undefined && ITEMS[d.id].weapon && !hasItem(d.id)) G.wear[d.id] = d.wear;
   let got = 0;
   while(got < d.qty && addItem(d.id, 1)) got++;
   d.qty -= got;
@@ -10098,7 +10773,7 @@ function renderBackpack(){
   grid.textContent = "";
   panelHints();
   G.inv.forEach(slot=> grid.appendChild(bpRow(slot.id, slot.qty, G.held === slot.id)));
-  ["map","compass","flashlight","backpack"].forEach(id=>{
+  EQUIP_IDS.forEach(id=>{
     if(G.equip[id]) grid.appendChild(bpRow(id, 1, G.held === id));
   });
   ["L","R"].forEach(hand=>{
@@ -10130,7 +10805,7 @@ function closeBackpack(){
 
 const OPTS_KEY = "zumbido.opts.v1";
 const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es",
-  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, pad:1, padSens:1.0, padInvert:0, keys:{} };
+  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, voz:1, pad:1, padSens:1.0, padInvert:0, keys:{} };
 
 function loadOpts(){
   G.opts = Object.assign({}, OPTS_DEF, {keys:{}});
@@ -10156,6 +10831,7 @@ function loadOpts(){
       if(typeof o.quickUse === "number") G.opts.quickUse = o.quickUse ? 1 : 0;
       if(typeof o.pad === "number") G.opts.pad = o.pad ? 1 : 0;
       if(typeof o.figs === "number") G.opts.figs = o.figs ? 1 : 0;
+      if(typeof o.voz === "number") G.opts.voz = clamp(Math.round(o.voz), 0, 2);
       if(typeof o.padSens === "number") G.opts.padSens = clamp(o.padSens, 0.4, 3);
       if(typeof o.padInvert === "number") G.opts.padInvert = o.padInvert ? 1 : 0;
       if(o.keys && typeof o.keys === "object"){
@@ -10173,7 +10849,7 @@ function applyLanguage(){
   applyLangDom();
   if(G.cfg){
     $("lvlName").textContent = levelTitle(G.cfg);
-    $("lvlDepth").textContent = (G.randomMode ? tx("ALEATORIO · ","RANDOM · ") : "")+tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
+    $("lvlDepth").textContent = modePrefix()+tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
     $("lvlObj") && ($("lvlObj").innerHTML = "");
   }
   refreshSlots();
@@ -10258,6 +10934,12 @@ const OPT_ROWS = [
     get:()=> G.opts.musicVol*100,
     set:(v)=>{ G.opts.musicVol = v/100; Audio_.setBusVols(); },
     fmt:(v)=> v<=0 ? tx("apagada","off") : Math.round(v)+"%"
+  },
+  {
+    id:"voz", key:"voz", label:"Voz con amigos", min:0, max:2, step:1, note:"",
+    get:()=> vozModo(),
+    set:(v)=>{ G.opts.voz = clamp(Math.round(v), 0, 2); vozAjuste(); },
+    fmt:(v)=> v <= 0 ? tx("apagada","off") : (v >= 2 ? tx("micro abierto","open mic") : tx("pulsar ","push ")+tag("talk"))
   },
   {
     id:"ambVol", key:"ambVol", label:"Volumen del ambiente", min:0, max:100, step:1, note:"",
@@ -10354,6 +11036,7 @@ const OPT_LABELS = {
   musicSrc:["Música","Music"],
   musicVol:["Volumen de la música","Music volume"],
   ambVol: ["Volumen del ambiente","Ambience volume"],
+  voz:    ["Voz con amigos","Voice with friends"],
   quality:["Calidad gráfica","Graphics quality"],
   view:   ["Distancia de visión","View distance"],
   fx:     ["Filtro de pantalla","Screen filter"],
@@ -10384,6 +11067,8 @@ const OPT_NOTES = {
            "The game's generated music, songs you upload yourself (below) or nothing."],
   musicVol:["El acorde de fondo y la melodía, o tus canciones. Aparte del volumen general.",
            "The background chord and melody, or your songs. Separate from the master volume."],
+  voz:    ["Chat de voz por proximidad: oyes a cada compañero según lo cerca que esté, y nada si está en otro nivel. Pulsar para hablar o micro siempre abierto; el navegador pide permiso la primera vez.",
+           "Proximity voice chat: you hear each teammate by how close they are, and not at all if they are on another level. Push to talk or always-open mic; the browser asks for permission the first time."],
   ambVol: ["El zumbido de los fluorescentes, el goteo, el viento y los chispazos.",
            "The fluorescent hum, the dripping, the wind and the sparks."],
   quality:["Resolución interna y relieve de las texturas. Baja si el juego va a tirones; Ultra en pantallas de alta densidad. El relieve se nota al cambiar de nivel.",
@@ -10418,7 +11103,7 @@ const OPT_TABS = [
    intro:["Brillo, calidad, niebla y filtros de pantalla.","Brightness, quality, fog and screen filters."]}
 ];
 const OPT_TAB_OF = {figs:"gfx", lang:"game", diff:"game", qte:"game", fov:"ctrl", sens:"ctrl", quickUse:"ctrl", pad:"ctrl", padSens:"ctrl", padInvert:"ctrl",
-  vol:"sound", musicSrc:"sound", musicVol:"sound", ambVol:"sound",
+  vol:"sound", musicSrc:"sound", musicVol:"sound", ambVol:"sound", voz:"sound",
   bright:"gfx", quality:"gfx", view:"gfx", fx:"gfx", shake:"gfx", fps:"gfx"};
 let optTab = 0;
 function optFit(){
@@ -10556,7 +11241,7 @@ function resetOpts(){
   G.opts.bright = OPTS_DEF.bright;
   G.opts.qte = OPTS_DEF.qte;
   G.opts.diff = OPTS_DEF.diff;
-  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","quickUse","figs","pad","padSens","padInvert"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
+  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","quickUse","figs","voz","pad","padSens","padInvert"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
   G.opts.keys = {}; renderKeyBox();
   applyVolume();
   applyBrightness();
@@ -10727,7 +11412,7 @@ function specsHtml(cfg){
             G.specials.map(sp=> txf(sp.def,"name")).join(" · ")+'</span></div>' : '');
 }
 function invSummary(){
-  const eq = ["map","compass","flashlight","backpack"].filter(id=> G.equip[id]).map(id=> txf(ITEMS[id],"name"));
+  const eq = EQUIP_IDS.filter(id=> G.equip[id]).map(id=> txf(ITEMS[id],"name"));
   const bag = G.inv.map(s=> txf(ITEMS[s.id],"name") + (s.qty>1 ? " ×"+s.qty : ""));
   const all = eq.concat(bag);
   return all.length ? all.join(", ") : tx("sin nada encima","nothing on you");
@@ -11002,6 +11687,362 @@ function openChars(){
 }
 
 
+/* ═══════════════ MODO AGENTE DEL M.E.G. ═══════════════
+   Eres del M.E.G.: empiezas en la Base Beta y en el tablón de cualquier
+   base (Beta, Camp Amber, Omicron) coges encargos. Cumplirlos da fichas y
+   un objeto, y al ir sumando misiones se ganan trajes que sólo salen aquí.
+   Tres objetos son del modo: la radio de extracción (te devuelve a la Base
+   Beta), la cámara (documenta entidades) y las balizas (localizan salidas).
+   Las fichas y la cuenta de misiones se guardan entre partidas, en
+   G.prog.fichas y G.prog.meg; el encargo en curso, con la partida. */
+let wantMeg = false;
+const MEG_TIPOS = {
+  explore:{es:"Reconocimiento", en:"Reconnaissance", fichas:40},
+  catalog:{es:"Documentación",  en:"Documentation",  fichas:45},
+  fetch:  {es:"Recuperación",   en:"Recovery",       fichas:55},
+  supply: {es:"Suministros",    en:"Supplies",       fichas:35},
+  beacons:{es:"Balizamiento",   en:"Beacon run",     fichas:50},
+  stun:   {es:"Contención",     en:"Containment",    fichas:45},
+  rescue: {es:"Rescate",        en:"Rescue",         fichas:60},
+  reach:  {es:"Expedición",     en:"Expedition",     fichas:70}
+};
+// lo que puede caer además de las fichas
+const MEG_PREMIOS = ["megbeacon","megbeacon","megradio","megradio","megcamera","ducttape","rations","firesalt","repellent","soles","medkit","luckymilk"];
+// intendencia: lo que se compra con fichas en el tablón
+const MEG_TIENDA = [
+  {id:"megradio", precio:40}, {id:"megbeacon", precio:25}, {id:"megcamera", precio:70},
+  {id:"almond", precio:12}, {id:"bandage", precio:12}, {id:"battery", precio:12},
+  {id:"ducttape", precio:20}, {id:"medkit", precio:30}, {id:"flashlight", precio:45}
+];
+const MEG_BASES = CAT.filter(c=> c.settlement).map(c=> c.id);
+
+function megFichas(){ return (G.prog && G.prog.fichas) || 0; }
+function megHechas(){ return (G.prog && G.prog.meg) || 0; }
+function megTitulo(q){ return tx(MEG_TIPOS[q.tipo].es, MEG_TIPOS[q.tipo].en); }
+function megProgreso(q){
+  if(q.done) return tx("cumplida: cóbrala en una base","done: collect at a base");
+  return q.need > 1 ? q.have+"/"+q.need : tx("en curso","in progress");
+}
+// niveles del catálogo a uno o dos saltos de una base: los destinos de «Expedición»
+function megCercanos(){
+  const out = new Set();
+  MEG_BASES.forEach(b=>{
+    (CAT_BY_ID[b].exitsTo || []).forEach(r=>{
+      const c1 = CAT_BY_ID[r.to];
+      if(!c1 || c1.settlement) return;
+      out.add(c1.id);
+      (c1.exitsTo || []).forEach(r2=>{ const c2 = CAT_BY_ID[r2.to]; if(c2 && !c2.settlement) out.add(c2.id); });
+    });
+  });
+  return [...out];
+}
+// dónde se ha visto una entidad, según la ficha de cada nivel
+function megDonde(ent){ return CAT.filter(c=> c.ents && c.ents[ent]).map(c=> "Level "+c.num); }
+
+function megNueva(tipo, rand){
+  rand = rand || Math.random;
+  const q = {tipo, have:0, need:1, done:false, fichas:MEG_TIPOS[tipo].fichas, premio:pick(MEG_PREMIOS, rand), seen:[]};
+  if(tipo === "explore") q.need = rand() < 0.5 ? 2 : 3;
+  if(tipo === "catalog") q.target = pick(Object.keys(ENT_DEF).filter(k=> megDonde(k).length), rand);
+  if(tipo === "supply"){ q.item = rand() < 0.5 ? "almond" : "bandage"; q.need = rand() < 0.5 ? 2 : 3; }
+  if(tipo === "beacons") q.need = 2;
+  if(tipo === "stun") q.need = 2 + ((rand()*3)|0);
+  if(tipo === "reach") q.target = pick(megCercanos(), rand);
+  if(q.need >= 3) q.fichas += 10;
+  return q;
+}
+function megOfertas(){
+  G.meg.ofertas = shuffle(Object.keys(MEG_TIPOS), Math.random).slice(0, 3).map(t=> megNueva(t));
+}
+function megTexto(q){
+  switch(q.tipo){
+    case "explore": return tx("Cruza salidas a "+q.need+" niveles distintos que no sean bases del M.E.G.","Cross exits into "+q.need+" different levels that are not M.E.G. bases.");
+    case "catalog": return tx("Documenta a los "+ENT_NAMES[q.target]+" con la cámara del M.E.G. Se han visto en: ","Document the "+ENT_NAMES[q.target]+" with the M.E.G. camera. They have been seen in: ")+megDonde(q.target).slice(0,5).join(", ")+".";
+    case "fetch":   return tx("Una expedición perdió un maletín con informes. Estará en el siguiente nivel que pises: recógelo.","An expedition lost a briefcase of reports. It will be in the next level you set foot in: pick it up.");
+    case "supply":  return tx("Trae "+q.need+" × "+txf(ITEMS[q.item],"name")+" al tablón.","Bring "+q.need+" × "+txf(ITEMS[q.item],"name")+" to the board.");
+    case "beacons": return tx("Planta 2 balizas en un mismo nivel, a más de 25 m una de otra. Las balizas te las damos.","Plant 2 beacons in the same level, more than 25 m apart. We supply the beacons.");
+    case "stun":    return tx("Aturde a "+q.need+" entidades, con un arma de mano o con Firesalt.","Stun "+q.need+" entities, with a hand weapon or with Firesalt.");
+    case "rescue":  return tx("Un explorador del M.E.G. no ha vuelto. Estará en el siguiente nivel que pises: encuéntralo.","An M.E.G. explorer has not come back. They will be in the next level you set foot in: find them.");
+    case "reach": {
+      const lv = CAT_BY_ID[q.target];
+      const desde = CAT.filter(c=> (c.exitsTo || []).some(r=> r.to === q.target)).map(c=> "Level "+c.num).slice(0,4).join(", ");
+      return tx("Llega al Level "+lv.num+" («"+lv.title+"»). Se entra desde: ","Reach Level "+lv.num+" («"+lv.title+"»). You get in from: ")+desde+".";
+    }
+  }
+  return "";
+}
+
+// ── lo que hace avanzar un encargo ──
+function megEvent(kind, data){
+  if(!G.megMode || !G.meg || !G.meg.q || G.meg.q.done) return;
+  const q = G.meg.q;
+  if(kind === "stun" && q.tipo === "stun") q.have++;
+  else if(kind === "photo" && q.tipo === "catalog" && data === q.target) q.have = 1;
+  else if(kind === "beacon" && q.tipo === "beacons"){
+    const b = G.beacons || [];
+    let lejos = false;
+    for(let i=0;i<b.length;i++) for(let j=i+1;j<b.length;j++) if(Math.hypot(b[i].x-b[j].x, b[i].z-b[j].z) > 25) lejos = true;
+    q.have = lejos ? 2 : Math.min(1, b.length);
+    if(!lejos && b.length >= 2) toast(tx("Las balizas están demasiado juntas: sepáralas más de 25 m.","The beacons are too close: space them more than 25 m apart."), 3);
+  }
+  else if(kind === "pick" && (q.tipo === "fetch" || q.tipo === "rescue")) q.have = 1;
+  else return;
+  megCheck();
+}
+function megCheck(){
+  const q = G.meg && G.meg.q;
+  if(q && !q.done && q.have >= q.need && q.tipo !== "supply"){
+    q.done = true;
+    Audio_.save();
+    toast(tx("Misión cumplida. Vuelve a una base del M.E.G. para cobrarla.","Mission complete. Head back to an M.E.G. base to collect."), 4);
+    logLine(tx("<b>Misión cumplida</b>: ","<b>Mission complete</b>: ")+megTitulo(q)+tx(". Se cobra en el tablón de una base.",". Collect it at a base board."));
+  }
+  paintMegChip();
+}
+// al llegar a un nivel (desde buildLevel)
+function megEnterLevel(cfg){
+  const q = G.meg && G.meg.q;
+  if(q && !q.done){
+    if(q.tipo === "explore" && !cfg.settlement && q.seen.indexOf(cfg.id) < 0){ q.seen.push(cfg.id); q.have++; }
+    if(q.tipo === "reach" && cfg.id === q.target) q.have = 1;
+    if(q.tipo === "beacons") q.have = 0;                          // las balizas cuentan dentro de un mismo nivel
+    if((q.tipo === "fetch" || q.tipo === "rescue") && !cfg.settlement) megPlaceObj(q.tipo);
+    megCheck();
+  }
+  paintMegChip();
+}
+
+// el maletín o el explorador perdido: lejos del sitio donde apareces
+function megPlaceObj(tipo){
+  const sx = clamp(w2c(player.pos.x), 0, G.n-1), sy = clamp(w2c(player.pos.z), 0, G.n-1);
+  const dist = bfs(G.grid, G.n, sx, sy).dist;
+  let max = 0;
+  for(let i=0;i<dist.length;i++) if(dist[i] > max) max = dist[i];
+  const pool = [];
+  for(let i=0;i<dist.length;i++) if(dist[i] >= max*0.55 && dist[i] <= max*0.9 && !G.obs[i]) pool.push(i);
+  if(!pool.length) return;
+  const k = pool[(Math.random()*pool.length)|0];
+  const x = c2w(k % G.n), z = c2w((k / G.n)|0);
+  const o = {tipo, x, z, mesh:null, tag:null, t:0};
+  if(tipo === "fetch"){
+    const g = new THREE.Group();
+    g.position.set(x, 0, z);
+    const cuero = new THREE.MeshStandardMaterial({color:0x5a3a22, roughness:.7});
+    const caja = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.34, 0.14), cuero);
+    caja.position.y = 0.17; g.add(caja);
+    const asa = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, 0.04), new THREE.MeshStandardMaterial({color:0x2a2a2a}));
+    asa.position.y = 0.37; g.add(asa);
+    const aro = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.52, 18),
+      new THREE.MeshBasicMaterial({color:0x7ce06a, transparent:true, opacity:.5, side:THREE.DoubleSide, fog:false}));
+    aro.rotation.x = -Math.PI/2; aro.position.y = 0.03; g.add(aro);
+    o.mesh = g; o.aro = aro;
+  } else {
+    o.mesh = makeActor(skinAtlas("scout", "meg"), 0.94, 1.42);
+    o.mesh.position.set(x, 0.71, z);
+    o.tag = nameTag(tx("Explorador del M.E.G.","M.E.G. explorer"), false);
+    o.tag.position.set(x, 1.62, z);
+    world.add(o.tag);
+  }
+  world.add(o.mesh);
+  G.megObj = o;
+  logLine(o.tipo === "fetch" ? tx("La radio pita: el maletín del M.E.G. está en algún sitio de este nivel.","The radio beeps: the M.E.G. briefcase is somewhere on this level.")
+                             : tx("La radio pita: el explorador perdido está en algún sitio de este nivel.","The radio beeps: the lost explorer is somewhere on this level."));
+}
+function megTick(dt){
+  const o = G.megObj;
+  if(!o) return;
+  o.t += dt;
+  if(o.aro) o.aro.material.opacity = 0.3 + Math.abs(Math.sin(o.t*2.4))*0.4;
+  if(o.tipo === "rescue" && o.mesh){
+    o.mesh.userData.yaw = Math.atan2(player.pos.x - o.x, player.pos.z - o.z);
+    o.mesh.userData.pose = Math.hypot(player.pos.x - o.x, player.pos.z - o.z) < 9 ? "wave" : "";
+    setFrame(o.mesh, 0, 0);
+    billboard(o.mesh, camera.position);
+    if(o.tag) billboard(o.tag, camera.position);
+  }
+}
+function megPick(o){
+  if(o.mesh && o.mesh.parent) o.mesh.parent.remove(o.mesh);
+  if(o.tag && o.tag.parent) o.tag.parent.remove(o.tag);
+  G.megObj = null;
+  Audio_.click();
+  logLine(o.tipo === "fetch" ? tx("Recoges el maletín del M.E.G. Pesa más de lo que parece.","You pick up the M.E.G. briefcase. It is heavier than it looks.")
+                             : tx("«¡Por fin alguien! Vuelvo a la base por mi cuenta. Diles que estoy bien.»","«Someone, at last! I will make my own way back to base. Tell them I am fine.»"));
+  megEvent("pick");
+}
+
+// ── el tablón (sólo en las bases) ──
+function buildMegBoard(wx, wz){
+  const x = wx + G.cell*0.08, z = wz + G.cell*0.34;
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+  const madera = new THREE.MeshStandardMaterial({color:0x5a4733, roughness:.95});
+  for(const s of [-1, 1]){
+    const pata = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.7, 0.06), madera);
+    pata.position.set(s*0.62, 0.85, 0); g.add(pata);
+  }
+  const corcho = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.9, 0.05), new THREE.MeshStandardMaterial({color:0x9a7a4a, roughness:1}));
+  corcho.position.y = 1.25; g.add(corcho);
+  const papel = new THREE.MeshStandardMaterial({color:0xe8e0c8, roughness:1});
+  [[-0.38,1.4],[0.02,1.34],[0.36,1.44],[-0.2,1.08],[0.3,1.1]].forEach(([px,py],i)=>{
+    const p = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.3), i === 2 ? new THREE.MeshStandardMaterial({color:0xd86a4a, roughness:1}) : papel);
+    p.position.set(px, py, -0.03); p.rotation.y = Math.PI; p.rotation.z = (i%2 ? 0.08 : -0.06); g.add(p);
+  });
+  const aro = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.66, 18),
+    new THREE.MeshBasicMaterial({color:0xe0c050, transparent:true, opacity:.45, side:THREE.DoubleSide, fog:false}));
+  aro.rotation.x = -Math.PI/2; aro.position.set(0, 0.03, -0.5); g.add(aro);
+  world.add(g);
+  addObstacle(x, z, 0.3);
+  G.megBoard = {x, z:z - 0.5};
+}
+
+let megOpen = false, megEnTablon = false;
+function toggleMegBoard(){
+  if(!G.megMode){ toast(tx("Las misiones son del modo Agente del M.E.G.","Missions belong to M.E.G. Agent mode.")); return; }
+  if(megOpen) closeMegBoard(); else openMegBoard(false);
+}
+function openMegBoard(tablon){
+  if(!G.running || G.paused || G.grab) return;
+  if(typeof closeBackpack === "function") closeBackpack();
+  closeHeal();
+  megOpen = true; megEnTablon = !!tablon;
+  if(megEnTablon && G.meg && !G.meg.ofertas.length) megOfertas();
+  $("megBoard").hidden = false;
+  renderMegBoard();
+  if(document.pointerLockElement) document.exitPointerLock();
+}
+function closeMegBoard(){
+  if(!megOpen) return;
+  megOpen = false;
+  $("megBoard").hidden = true;
+  grabPointer();
+}
+function megBoton(texto, fn, off){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "bp-act"; b.textContent = texto; b.disabled = !!off;
+  b.addEventListener("click", (e)=>{ e.stopPropagation(); fn(); });
+  return b;
+}
+function megTarjeta(q, extra, oferta){
+  const d = document.createElement("div");
+  d.className = "mq" + (q && q.done ? " done" : "");
+  if(!q){ d.innerHTML = "<p>"+tx("Sin misión. Coge una en el tablón de una base del M.E.G.","No mission. Take one from the board at an M.E.G. base.")+"</p>"; return d; }
+  const premio = ITEMS[q.premio];
+  const estado = oferta ? (q.need > 1 ? "× "+q.need : "") : megProgreso(q);          // un encargo sin aceptar no está «en curso»
+  d.innerHTML = "<div class=\"mq-h\"><b>"+megTitulo(q)+"</b><span>"+estado+"</span></div><p>"+megTexto(q)+"</p>"+
+    "<div class=\"mq-r\">"+tx("Paga ","Pays ")+q.fichas+tx(" fichas + "," chips + ")+txf(premio,"name")+"</div>";
+  if(extra){ const acts = document.createElement("div"); acts.className = "mq-a"; extra.forEach(b=> acts.appendChild(b)); d.appendChild(acts); }
+  return d;
+}
+function megSeccion(host, titulo){
+  const h = document.createElement("div"); h.className = "mq-sec"; h.textContent = titulo; host.appendChild(h);
+}
+function renderMegBoard(){
+  const body = $("megBody");
+  body.textContent = "";
+  $("megFichas").textContent = megFichas()+tx(" fichas · "," chips · ")+megHechas()+tx(" misiones"," missions");
+  const q = G.meg.q;
+  megSeccion(body, tx("Misión actual","Current mission"));
+  const acts = [];
+  if(q && megEnTablon){
+    if(q.done) acts.push(megBoton(tx("Cobrar","Collect"), megCobrar));
+    else if(q.tipo === "supply"){ const s = invFind(q.item); acts.push(megBoton(tx("Entregar","Hand over"), megEntregar, !s || s.qty < q.need)); }
+  }
+  if(q) acts.push(megBoton(tx("Abandonar","Drop it"), megAbandonar));
+  body.appendChild(megTarjeta(q, acts));
+  if(megEnTablon){
+    megSeccion(body, tx("Encargos","Jobs"));
+    G.meg.ofertas.forEach((o,i)=> body.appendChild(megTarjeta(o, [megBoton(tx("Aceptar","Accept"), ()=> megAceptar(i), !!q)], true)));
+    megSeccion(body, tx("Intendencia","Quartermaster"));
+    const tienda = document.createElement("div"); tienda.className = "mq-shop";
+    MEG_TIENDA.forEach(it=>{
+      const row = document.createElement("div"); row.className = "mq-it";
+      row.appendChild(iconNode(ITEMS[it.id].icon));
+      const n = document.createElement("span"); n.textContent = txf(ITEMS[it.id],"name"); row.appendChild(n);
+      row.appendChild(megBoton(it.precio+tx(" fichas"," chips"), ()=> megComprar(it), megFichas() < it.precio));
+      tienda.appendChild(row);
+    });
+    body.appendChild(tienda);
+    megSeccion(body, tx("Trajes del M.E.G.","M.E.G. suits"));
+    SKINS.filter(s=> s.need && s.need.meg).forEach(s=>{
+      const d = document.createElement("div"); d.className = "mq-suit" + (skinUnlocked(s) ? " on" : "");
+      d.innerHTML = "<b>"+tx(s.es, s.en)+"</b><span>"+(skinUnlocked(s) ? tx("conseguido · se elige en la ficha del personaje","unlocked · pick it on the character card") : skinNeedText(s))+"</span>";
+      body.appendChild(d);
+    });
+  }
+  $("megHint").textContent = megEnTablon ? tx("Clic fuera del tablón o ","Click off the board or ")+tag("quests")+tx(" para cerrar"," to close")
+                                        : tx("El tablón está en las bases del M.E.G.: Base Beta, Camp Amber y Base Omicron. ","The board is at the M.E.G. bases: Base Beta, Camp Amber and Base Omicron. ")+tag("quests")+tx(" cierra"," closes");
+}
+function megAceptar(i){
+  if(G.meg.q) return;
+  const q = G.meg.ofertas.splice(i, 1)[0];
+  if(!q) return;
+  G.meg.q = q;
+  if(q.tipo === "beacons") addItem("megbeacon", 2);
+  if(q.tipo === "catalog" && !G.equip.megcamera) addItem("megcamera", 1);
+  Audio_.click();
+  logLine(tx("Encargo aceptado: <b>","Job accepted: <b>")+megTitulo(q)+"</b>.");
+  refreshSlots(); renderMegBoard(); paintMegChip();
+}
+function megCobrar(){
+  const q = G.meg.q;
+  if(!q || !q.done) return;
+  G.prog = G.prog || {rand:0, mp:0, rev:0, seen:{}};
+  G.prog.fichas = megFichas() + q.fichas;
+  G.prog.meg = megHechas() + 1;
+  const def = ITEMS[q.premio];
+  if(def.equip && G.equip[q.premio]){ G.prog.fichas += 15; logLine(tx("Ya tenías ","You already had ")+txf(def,"name")+tx(": te lo pagan en fichas (+15).",": they pay you in chips instead (+15)."));}
+  else if(!addItem(q.premio, 1)) spawnDrop(q.premio, 1, player.pos.x, player.pos.z);
+  G.meg.q = null;
+  megOfertas();
+  Audio_.save();
+  toast(tx("Cobrado: ","Collected: ")+q.fichas+tx(" fichas y "," chips and ")+txf(def,"name"), 4);
+  unlockAch("meg1");
+  if(G.prog.meg >= 10) unlockAch("meg10");
+  checkSkins();
+  saveMeta();
+  refreshSlots(); renderMegBoard(); paintMegChip();
+}
+function megEntregar(){
+  const q = G.meg.q;
+  if(!q || q.tipo !== "supply") return;
+  const s = invFind(q.item);
+  if(!s || s.qty < q.need){ toast(tx("No llevas suficiente.","You do not carry enough.")); return; }
+  removeItem(q.item, q.need);
+  q.have = q.need; q.done = true;
+  megCobrar();
+}
+function megAbandonar(){
+  const o = G.megObj;
+  if(o){
+    if(o.mesh && o.mesh.parent) o.mesh.parent.remove(o.mesh);
+    if(o.tag && o.tag.parent) o.tag.parent.remove(o.tag);
+    G.megObj = null;
+  }
+  G.meg.q = null;
+  logLine(tx("Dejas el encargo. En el tablón habrá otros.","You drop the job. There will be others on the board."));
+  renderMegBoard(); paintMegChip();
+}
+function megComprar(it){
+  const def = ITEMS[it.id];
+  if(megFichas() < it.precio) return;
+  if(def.equip && G.equip[it.id]){ toast(tx("Ya lo llevas.","You already have it.")); return; }
+  if(!addItem(it.id, 1)){ toast(tx("No te cabe.","It does not fit.")); return; }
+  G.prog.fichas = megFichas() - it.precio;
+  saveMeta();
+  Audio_.click();
+  refreshSlots(); renderMegBoard();
+}
+function paintMegChip(){
+  const el = $("megChip");
+  if(!el) return;
+  el.hidden = !G.megMode;
+  if(!G.megMode) return;
+  const q = G.meg && G.meg.q;
+  el.textContent = q ? "M.E.G. · "+megTitulo(q)+" · "+megProgreso(q) : tx("M.E.G. · sin misión · ","M.E.G. · no mission · ")+tag("quests");
+  el.classList.toggle("done", !!(q && q.done));
+}
+
 /* ═══════════════ MULTIJUGADOR ═══════════════
    WebRTC entre navegadores: la partida va directa de un ordenador a otro, sin
    pasar por ningún servidor. Lo único que necesita un intermediario es el
@@ -11025,7 +12066,7 @@ const MP = {
 };
 // Qué reenvía el anfitrión: la red es una estrella (cada invitado sólo está
 // conectado al anfitrión), así que sin esto los invitados no se veían entre sí.
-const MP_REENVIA = {hola:1, pos:1, chat:1, caido:1, muerto:1, revivir:1};
+const MP_REENVIA = {hola:1, pos:1, chat:1, caido:1, muerto:1, revivir:1, gesto:1, voz:1};
 function mpEsc(t){ return String(t).replace(/[&<>"]/g, c=> ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function mpYo(){ return MP.peer && MP.peer.id; }
 
@@ -11252,6 +12293,7 @@ function mpEmpezar(anfitrion){
     });
 
     MP.peer.on("connection", (c)=> mpAtarConexion(c));
+    MP.peer.on("call", vozEntrante);
 
     MP.peer.on("error", (err)=>{
       const t = String(err && err.type || err);
@@ -11315,6 +12357,18 @@ function mpRecibir(c, m){
   }
   if(m.t === "sala" && !MP.anfitrion){ MP.modo = m.modo === "random" ? "random" : "normal"; mpPintarModo(); return; }
   if(m.t === "chat"){ addChat(String(m.n||"?").slice(0,14), String(m.txt||"").slice(0,120), false); return; }
+  if(m.t === "gesto"){
+    const o = MP.otros[from], g = GESTO_BY[m.g];
+    if(o && g){ mostrarGesto(o, m.g); addChat(o.nombre || "?", g.ic+" "+tx(g.es, g.en), false); }
+    return;
+  }
+  if(m.t === "voz"){
+    const o = MP.otros[from] = MP.otros[from] || {nombre:"?", ch:"scout"};
+    o.voz = !!m.on;
+    if(m.on && VOZ.listo) vozLlamar(from);
+    if(!m.on && VOZ.calls[from]){ try{ VOZ.calls[from].close(); }catch(e){} vozQuitar(from); }
+    return;
+  }
   if(m.t === "caido"){ const o = MP.otros[from]; if(o){ o.dn = m.on ? 1 : 0; o.tagDn = -1; } mpRoster(); if(o && m.on) addChat("", (o.nombre||"?")+tx(" ha caído: llévale un botiquín."," is down: bring a first-aid kit."), false, true); return; }
   if(m.t === "muerto"){
     const o = MP.otros[from];
@@ -11334,6 +12388,7 @@ function mpRecibir(c, m){
     o.sk = m.sk || "base";
     o.visto = 0;
     if(nuevo) addChat("", o.nombre+tx(" ha entrado en la sala."," joined the room."), false, true);
+    if(nuevo && VOZ.listo) mpEnviar({t:"voz", on:1});               // que el nuevo sepa que tenemos voz
     mpPintarGente(); mpRoster();
     // el anfitrión contesta diciendo en qué nivel está la expedición
     if(MP.anfitrion && G.cfg && !m.from){
@@ -11408,9 +12463,9 @@ function updateGhosts(dt){
       o.vx = o.x; o.vz = o.z;
       world.add(o.mesh);
     }
-    if(!o.tag || o.tagDn !== (o.dn ? 1 : 0)){
+    if(!o.tag || o.tagDn !== (o.dn ? 1 : 0) || o.tagHabla !== !!o.habla){
       if(o.tag) world.remove(o.tag);
-      o.tag = nameTag(o.nombre || "?", !!o.dn); o.tagDn = o.dn ? 1 : 0;
+      o.tag = nameTag((o.habla ? "🔊 " : "")+(o.nombre || "?"), !!o.dn); o.tagDn = o.dn ? 1 : 0; o.tagHabla = !!o.habla;
       world.add(o.tag);
     }
     o.mesh.visible = aqui; o.tag.visible = aqui;
@@ -11418,6 +12473,8 @@ function updateGhosts(dt){
     o.vz = lerp(o.vz, o.z, 1-Math.pow(0.002, dt));
     o.mesh.position.set(o.vx, o.dn ? 0.34 : 0.71, o.vz);
     actorDown(o.mesh, !!o.dn);
+    if(o.gesto && o.gesto.t > 0){ o.gesto.t -= dt; if(!o.dn && isRig(o.mesh)) o.mesh.userData.pose = o.gesto.pose; }
+    vozCompanero(o, aqui);
     setFrame(o.mesh, o.frame % 8, (o.row||0) % 4);
     o.mesh.userData.yaw = o.yaw;
     billboard(o.mesh, camera.position);
@@ -11426,7 +12483,218 @@ function updateGhosts(dt){
   }
 }
 
+/* ── voz por proximidad ──
+   Audio por WebRTC de navegador a navegador, con el mismo PeerJS de la sala.
+   Cada uno manda siempre el mismo flujo: una salida de WebAudio a la que se
+   engancha el micrófono sólo mientras hablas ({talk}) o siempre, con el micro
+   abierto (Ajustes → Sonido → Voz). Así la llamada se monta una vez y no hay
+   que renegociarla cada vez que alguien abre o cierra el micro.
+   Entre cada pareja llama el de id menor, para que no haya dos llamadas
+   cruzadas. La voz de cada compañero entra con su volumen y su panorama según
+   dónde esté: entera a 2 m, nada a 18 m, amortiguada tras una pared y muda si
+   está en otro nivel. Sin permiso de micro, igualmente oyes a los demás. */
+const VOZ = {listo:false, dest:null, mic:null, micSrc:null, micGain:null, calls:{}, nodes:{}, hablo:false, pidiendo:false};
+const VOZ_CERCA = 2, VOZ_LEJOS = 18;
+function vozModo(){ return G.opts && typeof G.opts.voz === "number" ? G.opts.voz : 1; }   // 0 apagada · 1 pulsar · 2 abierto
+function vozPreparar(){
+  if(VOZ.listo || !MP.activo || vozModo() === 0) return VOZ.listo;
+  Audio_.init();
+  const ctx = Audio_.ctx;
+  if(!ctx || typeof ctx.createMediaStreamDestination !== "function") return false;
+  VOZ.dest = ctx.createMediaStreamDestination();
+  VOZ.micGain = ctx.createGain(); VOZ.micGain.gain.value = 0;
+  VOZ.micGain.connect(VOZ.dest);
+  VOZ.listo = true;
+  mpEnviar({t:"voz", on:1});
+  for(const k in MP.otros) if(MP.otros[k].voz) vozLlamar(k);
+  if(vozModo() === 2) vozPedirMicro();
+  return true;
+}
+// el micro se pide la primera vez que hace falta (el navegador pregunta)
+function vozPedirMicro(){
+  if(VOZ.mic || VOZ.pidiendo || !VOZ.listo) return;
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ toast(tx("Este navegador no deja usar el micrófono.","This browser will not let the game use the microphone.")); return; }
+  VOZ.pidiendo = true;
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}}).then(st=>{
+    VOZ.pidiendo = false;
+    VOZ.mic = st;
+    VOZ.micSrc = Audio_.ctx.createMediaStreamSource(st);
+    VOZ.micSrc.connect(VOZ.micGain);
+    vozMicro();
+  }).catch(()=>{
+    VOZ.pidiendo = false;
+    toast(tx("Sin permiso para el micrófono: oyes a los demás, pero no te oyen.","No microphone permission: you hear the others, but they cannot hear you."), 4);
+  });
+}
+function vozMicro(){
+  if(!VOZ.micGain) return;
+  const abierto = vozModo() === 2 || (vozModo() === 1 && VOZ.hablo);
+  VOZ.micGain.gain.value = abierto ? 1 : 0;
+  const el = $("vozChip");
+  if(el){ el.hidden = !MP.activo || vozModo() === 0; el.classList.toggle("on", abierto && !!VOZ.mic); el.textContent = abierto && VOZ.mic ? tx("🎙 hablando","🎙 talking") : (vozModo() === 1 ? tx("🎙 ","🎙 ")+tag("talk")+tx(" para hablar"," to talk") : tx("🎙 micro abierto","🎙 open mic")); }
+}
+function vozHablar(on){
+  if(!MP.activo || vozModo() !== 1) return;
+  if(on && !vozPreparar()) return;
+  VOZ.hablo = on;
+  if(on) vozPedirMicro();
+  vozMicro();
+}
+function vozLlamar(id){
+  if(!VOZ.listo || !MP.peer || typeof MP.peer.call !== "function" || VOZ.calls[id]) return;
+  if(String(mpYo()) > String(id)) return;                     // llama el de id menor
+  try { vozAtar(MP.peer.call(id, VOZ.dest.stream)); } catch(e){}
+}
+function vozEntrante(call){
+  if(!VOZ.listo && !vozPreparar()){ try{ call.close(); }catch(e){} return; }
+  if(VOZ.calls[call.peer]){ try{ VOZ.calls[call.peer].close(); }catch(e){} }
+  call.answer(VOZ.dest.stream);
+  vozAtar(call);
+}
+function vozAtar(call){
+  if(!call) return;
+  VOZ.calls[call.peer] = call;
+  call.on("stream", st=> vozEscuchar(call.peer, st));
+  call.on("close", ()=> vozQuitar(call.peer));
+  call.on("error", ()=> vozQuitar(call.peer));
+}
+function vozEscuchar(id, st){
+  vozQuitar(id, true);
+  const ctx = Audio_.ctx;
+  // Chrome no pasa el audio de WebRTC a WebAudio si el flujo no está en un <audio>
+  const el = new Audio(); el.muted = true; el.srcObject = st; try{ el.play(); }catch(e){}
+  const src = ctx.createMediaStreamSource(st);
+  const gain = ctx.createGain(); gain.gain.value = 0;
+  const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  const an = ctx.createAnalyser(); an.fftSize = 256;
+  src.connect(an); src.connect(gain);
+  if(pan){ gain.connect(pan); pan.connect(Audio_.master); } else gain.connect(Audio_.master);
+  VOZ.nodes[id] = {el, src, gain, pan, an, buf:new Uint8Array(an.fftSize), nivel:0};
+}
+function vozQuitar(id, soloNodos){
+  const n = VOZ.nodes[id];
+  if(n){ try{ n.src.disconnect(); n.gain.disconnect(); if(n.pan) n.pan.disconnect(); n.el.srcObject = null; }catch(e){} delete VOZ.nodes[id]; }
+  if(!soloNodos) delete VOZ.calls[id];
+}
+function vozApagar(){
+  Object.keys(VOZ.calls).forEach(k=>{ try{ VOZ.calls[k].close(); }catch(e){} });
+  Object.keys(VOZ.nodes).forEach(k=> vozQuitar(k));
+  if(VOZ.mic) VOZ.mic.getTracks().forEach(t=> t.stop());
+  VOZ.calls = {}; VOZ.nodes = {}; VOZ.mic = null; VOZ.micSrc = null; VOZ.listo = false; VOZ.hablo = false;
+  vozMicro();
+}
+function vozAjuste(){                                           // al cambiar el ajuste
+  if(vozModo() === 0){ vozApagar(); mpEnviar({t:"voz", on:0}); }
+  else if(MP.activo){ vozPreparar(); if(vozModo() === 2) vozPedirMicro(); }
+  vozMicro();
+}
+// volumen y panorama de un compañero según dónde está
+function vozDistancia(d, veo){
+  const g = clamp(1 - (d - VOZ_CERCA)/(VOZ_LEJOS - VOZ_CERCA), 0, 1);
+  return Math.pow(g, 1.4) * (veo ? 1 : 0.45);
+}
+function vozCompanero(o, aqui){
+  const n = VOZ.nodes[o.id];
+  if(!n) { o.habla = false; return; }
+  const dx = o.vx - player.pos.x, dz = o.vz - player.pos.z, d = Math.hypot(dx, dz);
+  const v = aqui ? vozDistancia(d, canSee(player.pos.x, player.pos.z, o.vx, o.vz)) : 0;
+  n.gain.gain.value = lerp(n.gain.gain.value, v, 0.3);
+  if(n.pan) n.pan.pan.value = clamp(Math.sin(Math.atan2(dx, dz) - player.yaw) * -0.8, -1, 1);
+  n.an.getByteTimeDomainData(n.buf);
+  let pico = 0; for(let i=0;i<n.buf.length;i+=4) pico = Math.max(pico, Math.abs(n.buf[i] - 128));
+  n.nivel = lerp(n.nivel, pico, 0.3);
+  o.habla = aqui && n.nivel > 6;
+}
+
+/* ── gestos ──
+   {gesture} abre la barra y del 1 al 8 eliges. Sale un bocadillo encima de
+   la cabeza (tuya y, con amigos, la de quien lo hace) y, con los muñecos 3D,
+   el personaje lo hace: saluda, señala, se para, hace una reverencia… */
+const GESTOS = [
+  {id:"wave",   ic:"👋", es:"Saludar",   en:"Wave",       pose:"wave"},
+  {id:"here",   ic:"📍", es:"¡Aquí!",    en:"Over here!", pose:"cheer"},
+  {id:"follow", ic:"➜",  es:"Sígueme",   en:"Follow me",  pose:"point"},
+  {id:"wait",   ic:"✋", es:"Espera",    en:"Wait",       pose:"stop"},
+  {id:"danger", ic:"⚠",  es:"¡Peligro!", en:"Danger!",    pose:"cheer"},
+  {id:"exit",   ic:"🚪", es:"Salida",    en:"Exit",       pose:"point"},
+  {id:"thanks", ic:"🙏", es:"Gracias",   en:"Thanks",     pose:"bow"},
+  {id:"yes",    ic:"👍", es:"Vale",      en:"OK",         pose:"stop"}
+];
+const GESTO_BY = {}; GESTOS.forEach(g=> GESTO_BY[g.id] = g);
+let gestosOpen = false;
+function toggleGestos(){
+  if(!G.running || G.paused || G.dead) return;
+  gestosOpen = !gestosOpen;
+  $("gestos").hidden = !gestosOpen;
+  if(gestosOpen) renderGestos();
+}
+function renderGestos(){
+  const host = $("gestos");
+  host.textContent = "";
+  GESTOS.forEach((g,i)=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "gesto";
+    b.innerHTML = "<kbd>"+(i+1)+"</kbd><i>"+g.ic+"</i><span>"+tx(g.es, g.en)+"</span>";
+    b.addEventListener("click", (e)=>{ e.stopPropagation(); hacerGesto(i); });
+    host.appendChild(b);
+  });
+}
+function hacerGesto(i){
+  const g = GESTOS[i];
+  gestosOpen = false;
+  $("gestos").hidden = true;
+  if(!g) return;
+  G.gesto = {id:g.id, pose:g.pose, t:2.4};
+  mostrarGesto(null, g.id);
+  if(MP.activo){ mpEnviar({t:"gesto", g:g.id}); addChat(MP.nombre, g.ic+" "+tx(g.es, g.en), true); }
+}
+// bocadillo con el icono y la palabra, encima de la cabeza
+function burbujaGesto(g){
+  const c = document.createElement("canvas"); c.width = 256; c.height = 64;
+  const x = c.getContext("2d");
+  x.font = "bold 24px monospace"; x.textAlign = "center"; x.textBaseline = "middle";
+  const txt = g.ic+" "+tx(g.es, g.en), w = Math.min(250, x.measureText(txt).width + 28);
+  x.fillStyle = "rgba(236,228,196,.94)"; x.fillRect(128-w/2, 6, w, 42);
+  x.fillStyle = "rgba(236,228,196,.94)"; x.fillRect(120, 48, 16, 8);
+  x.fillStyle = "#1a1612"; x.fillText(txt, 128, 28);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.33),
+    new THREE.MeshBasicMaterial({map:t, transparent:true, depthWrite:false, depthTest:false}));
+  m.renderOrder = 11;
+  return m;
+}
+function mostrarGesto(o, id){
+  const g = GESTO_BY[id];
+  if(!g) return;
+  const who = o || null;
+  if(who){ who.gesto = {pose:g.pose, t:2.4}; }
+  G.burbujas = (G.burbujas || []).filter(b=>{ if(b.who === who){ if(b.mesh.parent) b.mesh.parent.remove(b.mesh); return false; } return true; });
+  const m = burbujaGesto(g);
+  world.add(m);
+  G.burbujas.push({mesh:m, who, t:3});
+  if(who) Audio_.tone(700, 0.08, 0.04, "sine");
+}
+function updateGestos(dt){
+  if(G.gesto && G.gesto.t > 0) G.gesto.t -= dt;
+  const bs = G.burbujas || [];
+  for(let i=bs.length-1;i>=0;i--){
+    const b = bs[i];
+    b.t -= dt;
+    const o = b.who;
+    if(b.t <= 0 || b.mesh.parent !== world || (o && (o.vx === undefined || !o.mesh))){
+      if(b.mesh.parent) b.mesh.parent.remove(b.mesh);
+      bs.splice(i, 1); continue;
+    }
+    const x = o ? o.vx : player.pos.x, z = o ? o.vz : player.pos.z;
+    b.mesh.position.set(x, (o ? 1.95 : 1.9) + (3 - b.t)*0.05, z);
+    b.mesh.material.opacity = Math.min(1, b.t*2);
+    billboard(b.mesh, camera.position);
+    if(o && o.mesh) b.mesh.visible = o.mesh.visible;
+  }
+}
+
 function mpSalir(){
+  vozApagar();
   Object.keys(MP.otros).forEach(k=>{
     const o = MP.otros[k];
     if(o.mesh) world.remove(o.mesh);
@@ -11445,6 +12713,12 @@ function startRun(charId){
   Audio_.init(); Audio_.resume();
   resetRun(charId);
   if(MP.activo) addItem("medkit", 1);          // con amigos, cada uno baja con un botiquín
+  if(wantMeg && !MP.activo){
+    // agente del M.E.G.: sale de la Base Beta con una radio y una baliza
+    G.megMode = true;
+    G.levelId = "beta";
+    addItem("megradio", 1); addItem("megbeacon", 1);
+  }
   if(wantRandom){
     G.randomMode = true;
     G.levelId = randomLevelId(Math.random, "0");
@@ -11470,7 +12744,7 @@ function continueRun(){
 
 function renderBrief(){
   const cfg = G.cfg;
-  $("brEyebrow").textContent = (G.randomMode ? tx("MODO ALEATORIO · ","RANDOM MODE · ") : "") + (cfg.procedural
+  $("brEyebrow").textContent = (G.megMode ? tx("AGENTE DEL M.E.G. · ","M.E.G. AGENT · ") : "") + (G.randomMode ? tx("MODO ALEATORIO · ","RANDOM MODE · ") : "") + (cfg.procedural
     ? tx("M.E.G. · Nivel sin catalogar · ","M.E.G. · Uncatalogued level · ")
     : tx("M.E.G. · Informe de nivel · ","M.E.G. · Level report · ")) + tx("Descenso ","Depth ")+(G.depth+1)+" · "+G.char.name;
   $("brTitle").textContent = levelTitle(cfg);
@@ -11513,6 +12787,7 @@ function beginPlay(){
   }
   G.running = true; G.paused = false; G.dead = false;
   Audio_.init(); Audio_.resume();
+  if(MP.activo){ vozPreparar(); vozMicro(); }
   applyLevelAudio();
   grabPointer();
   refreshSlots();
@@ -11814,13 +13089,14 @@ $("retryBtn").addEventListener("click", ()=>{ renderChars(); show("titleScreen")
 $("loadBtn").addEventListener("click", continueRun);
 $("quitBtn").addEventListener("click", toTitle);
 $("resumeBtn").addEventListener("click", resumeGame);
-$("playBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; openChars(); });
-$("randBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = true; openChars(); });
+$("playBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; wantMeg = false; openChars(); });
+$("randBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = true; wantMeg = false; openChars(); });
+$("megBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; wantMeg = true; openChars(); });
 $("mpBtn").addEventListener("click", mpAbrir);
 $("mpCreate").addEventListener("click", ()=> mpEmpezar(true));
 $("mpJoin").addEventListener("click", ()=> mpEmpezar(false));
 $("mpBack").addEventListener("click", ()=>{ mpSalir(); renderChars(); show("titleScreen"); });
-$("mpGo").addEventListener("click", ()=>{ wantRandom = MP.modo === "random"; openChars(); });
+$("mpGo").addEventListener("click", ()=>{ wantRandom = MP.modo === "random"; wantMeg = false; openChars(); });
 document.querySelectorAll(".mp-mode").forEach(b=> b.addEventListener("click", ()=> mpElegirModo(b.getAttribute("data-modo"))));
 $("mpChatIn").addEventListener("keydown", (e)=>{ if(e.key === "Enter"){ sendChat(e.target); } e.stopPropagation(); });
 $("chatIn").addEventListener("keydown", (e)=>{

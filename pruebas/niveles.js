@@ -142,4 +142,19 @@ medias.forEach((m, r) => console.log("  riesgo " + r + ": amenaza media " + m.to
 for (let r = 1; r < 4; r++)
   c.ok(medias[r] > medias[r - 1], "el riesgo " + r + " pega más que el " + (r - 1));
 
+
+/* ── los quince niveles de la 3.0.0, sacados de la wiki ── */
+console.log("\n── LOS NIVELES DE LA 3.0 ──");
+const nuevos3 = ["3.5","5.1","6.1","9.2","11.2","15","25","26","40","57","58","61","68","71","74"];
+const porId = {}; CAT.forEach(l => porId[l.id] = l);
+c.ok(nuevos3.every(id => porId[id]), "están los 15 niveles nuevos: " + nuevos3.join(", "));
+nuevos3.forEach(id => {
+  const l = porId[id];
+  // se entra desde donde dice su página de la wiki (el 74, desde el 68, que también es nuevo)
+  const entra = CAT.filter(a => a.id !== id && (a.exitsTo || []).some(r => r.to === id)).map(a => a.num);
+  c.ok(l.lore && l.lore_en && l.tip && l.tip_en && entra.length > 0,
+    ("Level " + l.num).padEnd(10) + l.title.slice(0, 34).padEnd(35) + "se entra desde " + entra.join(", "));
+});
+c.ok(porId["11.2"].settlement, "el Level 11.2 es la Base Omicron del M.E.G.: un asentamiento seguro");
+
 process.exit(c.resumen("los niveles") ? 1 : 0);

@@ -55,7 +55,10 @@ través de la pared.
 ### `objetos.js` — unos segundos
 El botín (que un 6 nunca salga muerto), el dado de la dificultad, que el plano y la
 grabadora caduquen al bajar de nivel pero la brújula no, la luz de las bengalas medida a
-varias distancias, y que todos los objetos estén en español y en inglés.
+varias distancias, y que todos los objetos estén en español y en inglés. Desde la 3.0, los
+diez objetos nuevos: que existan con su icono, que los tres del modo Agente no salgan en los
+casilleros, y el efecto de cada uno (Firesalt, repelente, raciones, leche, marshmallows, suelas,
+baliza, radio y cámara).
 
 ### `armas.js` — unos segundos
 Lo añadido en la versión 1.5.0: que las armas de mano se repartan entre las
@@ -63,7 +66,9 @@ dos manos y golpeen con su propio cooldown; que las cuatro habilidades activas h
 exactamente lo que dicen (Marcos localiza la salida, Vera se garantiza un buen casillero,
 Lázaro reduce el daño a la mitad, el Entrenador aturde en área); que Sin retorno no deje
 guardar; y que las paredes atravesables salgan en pares, no toquen el laberinto y
-teleporten de verdad.
+teleporten de verdad. Desde la 3.0, que las armas se
+gasten y se rompan (el bate, justo a los 24 golpes), que la cinta americana las arregle y que
+soltarlas no les devuelva el aguante.
 
 ### `curacion.js` — unos segundos
 Tres arreglos y un añadido de la versión 1.5.1. El más sutil: **`wipeProgress()` borraba
@@ -105,7 +110,17 @@ conecta con una red de mentira en estrella, como la de verdad. Comprueba que los
 ven entre sí gracias al reenvío, que el modo de sala lo elige sólo el anfitrión, que morir con
 amigos te deja caído, que reanimar gasta un botiquín, y que se acaba si nadie llega o no queda
 nadie en pie. También el botiquín en solitario, los aspectos y lo que cuesta desbloquearlos,
-cambiar e intercambiar teclas y un mando simulado.
+cambiar e intercambiar teclas y un mando simulado. Desde la 3.0, los gestos (que lleguen a los
+demás por la centralita, con su bocadillo), el volumen de la voz según la distancia y las
+paredes, y que el aviso de «tengo voz» se reenvíe.
+
+### `agente.js` — unos segundos
+El modo Agente del M.E.G. de principio a fin: que haya tablón en las bases (también en la
+Base Omicron, nueva) y no fuera de ellas, que ofrezca tres encargos distintos, y cada uno de
+los ocho tipos cumplido con la lógica real (reconocimiento sin contar dos veces el mismo nivel,
+documentar la entidad correcta, balizas separadas más de 25 m, el maletín y el explorador
+lejos de donde apareces…). También cobrar, la intendencia, los cuatro trajes y que el encargo a
+medias se guarde con la partida.
 
 ### `figuras.js` — unos segundos
 Los sprites: el tamaño de cada atlas (8 fotogramas, andar y correr), que el ciclo sea neutro,

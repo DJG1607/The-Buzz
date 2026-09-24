@@ -150,4 +150,24 @@ c.ok(literales.length === 0, "ningún texto con una tecla escrita a mano" + (lit
 solo.G.opts.pad = 0; solo.pollPad(0.1);
 c.ok(solo.PAD.move.x === 0 && solo.PAD.move.y === 0, "con el mando desactivado en Ajustes, no hace nada");
 
+
+/* ── gestos y voz por proximidad (desde 3.0.0) ── */
+console.log("\n── GESTOS Y VOZ ──");
+A.hacerGesto(0);
+const anaEnBea = B.MP.otros[ids.get(A)];
+c.ok(anaEnBea && anaEnBea.gesto && anaEnBea.gesto.pose === "wave", "Ana saluda y Bea lo ve (pasa por la centralita del anfitrión)");
+c.ok((B.G.burbujas || []).some(b => b.who === anaEnBea), "con un bocadillo encima de su cabeza");
+c.ok(A.G.gesto && A.G.gesto.pose === "wave" && (A.G.burbujas || []).some(b => b.who === null), "y Ana ve su propio bocadillo");
+c.ok(A.GESTOS.length === 8, "hay 8 gestos: saludar, aquí, sígueme, espera, peligro, salida, gracias y vale");
+const vd = A.vozDistancia;
+c.ok(vd(1, true) === 1 && vd(18, true) === 0 && vd(5, true) > vd(10, true) && vd(5, false) < vd(5, true),
+  "voz por proximidad: entera a 2 m, nada a 18 m, baja con la distancia y tras una pared");
+A.mpEnviar({ t: "voz", on: 1 });
+c.ok(B.MP.otros[ids.get(A)].voz === true && H.MP.otros[ids.get(A)].voz === true, "cuando Ana activa la voz, los demás se enteran");
+c.ok(A.vozModo() === 1, "por defecto se habla manteniendo una tecla (Y)");
+c.ok(/MP\.peer\.on\("call", vozEntrante\)/.test(fuente) && /String\(mpYo\(\)\) > String\(id\)/.test(fuente),
+  "entre cada pareja llama sólo el de id menor: nada de llamadas cruzadas");
+c.ok(/createMediaStreamDestination/.test(fuente) && /VOZ\.micGain\.gain\.value = abierto \? 1 : 0/.test(fuente),
+  "la llamada lleva siempre el mismo flujo y el micro sólo se abre al hablar");
+
 process.exit(c.resumen("el multijugador") ? 1 : 0);

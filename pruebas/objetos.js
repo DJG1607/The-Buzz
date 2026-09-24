@@ -133,4 +133,58 @@ for (const [id, it] of Object.entries(ITEMS))
   c.ok(!!it.name && !!it.name_en && !!it.blurb && !!it.blurb_en,
     id.padEnd(12) + it.name.padEnd(18) + (it.name_en || "← FALTA EL INGLÉS"));
 
+
+/* ── los diez objetos de la 3.0.0 ── */
+console.log("\n── LOS OBJETOS DE LA 3.0 ──");
+const nuevos = ["firesalt","repellent","rations","soles","luckymilk","marshmallow","ducttape","megradio","megcamera","megbeacon"];
+c.ok(nuevos.every(k => ITEMS[k] && j.ICON_TEX[ITEMS[k].icon]), "los 10 objetos nuevos existen y tienen su icono");
+const delModo = nuevos.filter(k => ITEMS[k].meg), todos = Object.values(TIERS).flat();
+c.ok(delModo.length === 3 && delModo.every(k => !todos.includes(k)), "tres son del modo Agente del M.E.G. y no salen en los casilleros");
+c.ok(nuevos.filter(k => !ITEMS[k].meg).every(k => todos.includes(k)), "los otros siete sí salen en los casilleros");
+const en = (lv, s) => { buildLevel(lv, s); G.running = true; G.paused = false; G.dead = false; G.grab = null; G.inv = []; G.equip = {}; G.cap = 10; };
+
+en("1", 5);
+const cerca = G.entities.find(e => e.def.kind === "walker");
+if (cerca) {
+  player.facing = 0; cerca.x = player.pos.x; cerca.z = player.pos.z + 1.2; cerca.stun = 0;
+  j.addItem("firesalt", 1); j.useItem("firesalt");
+  c.ok(cerca.stun >= 5, "Firesalt: estalla delante y aturde 5 s a lo que pille");
+  cerca.stun = 0; player.yaw = 0; cerca.x = player.pos.x; cerca.z = player.pos.z + 0.8;
+  j.addItem("megcamera", 1); G.camCd = 0; G.codex.ent[cerca.type] = false;
+  j.useCamera();
+  c.ok(G.codex.ent[cerca.type] && cerca.stun >= 2 && G.camCd === 8, "cámara del M.E.G.: documenta la entidad, el flash la aturde y se recarga en 8 s");
+}
+const PARTS_ = j.PARTS; PARTS_.forEach(p => G.body[p.id] = 50); G.stamina = 1;
+j.addItem("rations", 1); j.useItem("rations");
+c.ok(PARTS_.every(p => G.body[p.id] === 70) && G.stamina > 50, "Royal Rations: +20 en todas las zonas y el aliento al máximo");
+j.addItem("luckymilk", 1); j.useItem("luckymilk");
+c.ok(G.boostT === 25, "Lucky O' Milk de fresa: 25 s corriendo sin cansarte");
+G.mallows = []; G.bloatT = 0; j.addItem("marshmallow", 3); j.useItem("marshmallow"); j.useItem("marshmallow");
+c.ok(G.bloatT === 0, "dos Greasy Marshmallows todavía sientan bien");
+j.useItem("marshmallow");
+c.ok(G.bloatT > 0, "la tercera seguida y el cuerpo pesa (te mueves más despacio un rato)");
+j.addItem("soles", 1);
+c.ok(G.equip.soles && /G\.char\.noise \* \(G\.equip\.soles \? 0\.6 : 1\)/.test(src), "las suelas de goma silenciosa se llevan puestas y bajan el ruido un 40%");
+c.ok(/if\(running && !\(G\.boostT > 0\)\)/.test(src) && /\(G\.bloatT > 0 \? 0\.8 : 1\)/.test(src), "el aliento no baja con el efecto activo, y la pesadez frena");
+
+const salida = G.exits[0];
+G.exits.forEach(e => e.known = false);
+player.pos.x = salida.mx + 2; player.pos.z = salida.mz;
+j.addItem("megbeacon", 1); j.useItem("megbeacon");
+c.ok(salida.known && G.beacons.length === 1, "baliza del M.E.G.: se clava y localiza las salidas a menos de 30 m");
+j.addItem("megradio", 1); j.useItem("megradio");
+c.ok(G.extract && G.extract.t === 12 && !j.hasItem("megradio"), "radio de extracción: se gasta y empieza la cuenta de 12 s");
+j.updateExtraction(13);
+c.ok(G.extract === null, "a los 12 s llega la extracción (a la Base Beta)");
+en("beta", 2);
+j.addItem("megradio", 1); j.useItem("megradio");
+c.ok(!G.extract && j.hasItem("megradio"), "en una base no hace falta: no se gasta");
+
+en("2", 3);
+const smilers = () => G.entities.filter(e => e.type === "smiler");
+const antes = smilers().length;
+smilers().forEach(e => { e.x = player.pos.x + 4; e.z = player.pos.z; });
+j.addItem("repellent", 1); j.useItem("repellent");
+c.ok(antes > 0 && smilers().length === 0, "Smiler Repellent: los " + antes + " Smilers a menos de 20 m desaparecen");
+
 process.exit(c.resumen("los objetos") ? 1 : 0);

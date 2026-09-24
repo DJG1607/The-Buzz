@@ -28,9 +28,23 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 
 ## Lo que hay dentro
 
-- **49 niveles del catálogo de la wiki** (más los asentamientos **Base Beta** y **Camp Amber**, y
+- **64 niveles del catálogo de la wiki** (más los asentamientos **Base Beta**, **Camp Amber** y **Base
+  Omicron**, y
   niveles sin catalogar generados por semilla cuando te sales del mapa conocido). El catálogo entero
-  está listado en [mapa-descenso.html](mapa-descenso.html).
+  está listado en [mapa-descenso.html](mapa-descenso.html). En la 3.0 entraron quince, leídos de sus
+  páginas de la wiki y enlazados desde donde la wiki dice que se llega: 3.5 *Electropolis*,
+  5.1 *Grand Opening of the Terror Hotel Casino*, 6.1 *The Snackrooms*, 9.2 *Black Market*,
+  11.2 *The Refuge* (Base Omicron), 15 *Futuristic Halls*, 25 *The Quarter Hub*, 26 *The SS Fun =)*,
+  40 *Roller Rockin' Pizza!*, 57 *Diurnal Art Gallery*, 58 *Water Wonder*, 61 *The Backrooms
+  Country Club*, 68 *Theater The Eater*, 71 *Void Basement* y 74 *Stage Fright*.
+- **Modo Agente del M.E.G.** (botón propio en el título): empiezas en la Base Beta y en el
+  **tablón** de cualquier base coges encargos —reconocimiento, documentar una entidad, recuperar un
+  maletín, rescatar a un explorador, llevar suministros, plantar balizas, contención y
+  expediciones a un nivel concreto—. Se cobran en una base: **fichas**, que se gastan en la
+  intendencia, y un objeto. Al acumular misiones se ganan **cuatro trajes exclusivos** (Agente de
+  campo, Reconocimiento, Parka de Omicron y Élite del M.E.G.). Tres objetos son del modo: la
+  **radio de extracción** (te saca a la Base Beta), la **cámara** (documenta y deslumbra) y las
+  **balizas** (localizan salidas).
 - **Diez entidades** con su número oficial: Facelings (9), Smilers (3), Hounds (8), Skin-Stealers
   (10), Deathmoths (4), Dullers (6), Clumps (5), Crawlers (17), Wretches (15) y Partygoers.
   Persiguen por los pasillos con un campo de distancias, no en línea recta.
@@ -79,9 +93,18 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   curar). Los avisos en pantalla dicen el botón del mando o la tecla según lo último que toques.
 - **La palanca**: si algo te tiene agarrado, **[V]** te suelta de golpe y lo deja tonto. Se gasta
   al usarla.
-- **Dos manos a la vista** con **tres armas reutilizables** — tubería, varilla y bate —, una en
-  cada mano: golpean con el **clic izquierdo y el clic derecho**. Si llevas las dos ocupadas, la
-  tercera va a la mochila y desde ahí se cambia de mano.
+- **Dos manos a la vista** con **tres armas** — tubería, varilla y bate —, una en cada mano:
+  golpean con el **clic izquierdo y el clic derecho**. Si llevas las dos ocupadas, la tercera va a
+  la mochila y desde ahí se cambia de mano. **Se desgastan y se rompen** (tubería unos 40 golpes,
+  varilla 30, bate 24; al aire gastan menos), nunca salen nuevas de un casillero y la **cinta
+  americana** les devuelve la mitad del aguante.
+- **Diez objetos nuevos** en la 3.0: de la wiki, **Firesalt** (se lanza y aturde), **Smiler
+  Repellent**, **Royal Rations**, **suelas de goma silenciosa** (hechas con Liquid Silence), **Lucky
+  O' Milk** de fresa y **Greasy Marshmallows**; la **cinta americana**; y los tres del modo Agente.
+- **Voz por proximidad y gestos** con amigos: oyes a cada uno según lo cerca que esté (y nada si
+  está en otro nivel), hablando con **[Y]** o con el micro abierto; y **[H]** abre ocho gestos
+  (saludar, aquí, sígueme, espera, peligro, salida, gracias, vale) que salen en un bocadillo y,
+  con los muñecos 3D, el personaje los hace.
 - **Una habilidad activa por personaje** (tecla **[C]**), con su propio tiempo de recarga: Marcos
   localiza la salida sin brújula, Vera se garantiza un buen casillero, Lázaro aguanta la mitad de
   daño un rato, y el Entrenador aturde todo lo que tenga cerca.
@@ -144,6 +167,9 @@ está el esquema del mando.
 | `T Z Q X` | Soltarse de un agarre forcejeando |
 | Clic izq. / clic der. | Golpear con el arma de la mano izquierda / derecha |
 | `C` | Habilidad especial del personaje |
+| `K` / `J` | Cámara del M.E.G. · misión actual (modo Agente) |
+| `H` | Gestos (del 1 al 8) |
+| `Y` | Hablar por voz (mantener, jugando con amigos) |
 | `Enter` | Chat (jugando con amigos) |
 | `B` | Abrir / cerrar la mochila |
 | `ESC` | Pausa y ajustes |

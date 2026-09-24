@@ -1,6 +1,6 @@
 /* Lanza todas las pruebas de una vez.
    ────────────────────────────────────────────────────────────────────────────
-   Uso:  node pruebas/todo.js                 todas, completas (7-8 minutos)
+   Uso:  node pruebas/todo.js                 todas, completas (~11 minutos)
          node pruebas/todo.js rapido          todas, en versión corta (~1 minuto)
          node pruebas/todo.js niveles         sólo una
          node pruebas/todo.js rapido mundo    sólo una, en versión corta
@@ -16,15 +16,16 @@ const path = require("path");
 
 const PRUEBAS = [
   ["sintaxis", "que el archivo no tenga errores de JavaScript ni definiciones repetidas"],
-  ["niveles", "que los 51 niveles se puedan jugar y el grafo de saltos esté sano"],
+  ["niveles", "que los 66 niveles se puedan jugar y el grafo de saltos esté sano"],
   ["combate", "velocidades, aliento y los ataques especiales de las entidades"],
   ["objetos", "botín, dado, plano y cinta, bengalas y traducciones"],
-  ["armas", "armas de mano, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"],
+  ["armas", "armas de mano y su desgaste, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"],
   ["curacion", "curación por zona, códice que se reinicia y se ve mejor, música y ambiente"],
   ["mundo", "casilleros, especiales, fauna de la wiki, brújula, salidas, reordenamiento, modo aleatorio, idiomas"],
   ["inventario", "fauna con techo, especiales sin encadenar, inventario por huecos, soltar/desechar, uso rápido, ajustes"],
-  ["multijugador", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando"],
-  ["figuras", "ropa de cada personaje y aspecto, figuras de 8 bits en 3D (vóxeles)"]
+  ["multijugador", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando, gestos y voz"],
+  ["figuras", "ropa de cada personaje y aspecto, figuras de 8 bits en 3D (vóxeles)"],
+  ["agente", "modo Agente del M.E.G.: tablón, los 8 tipos de encargo, intendencia, trajes y guardado"]
 ];
 
 const args = process.argv.slice(2);

@@ -127,4 +127,36 @@ if (G.noclips && G.noclips.length) {
   console.log("  (esta semilla no generó ningún par; probado en otras semillas arriba)");
 }
 
+
+/* ── 5. las armas se gastan y se rompen (desde 3.0.0) ── */
+console.log("\n── LAS ARMAS SE GASTAN Y SE ROMPEN ──");
+buildLevel("1", 4);
+G.running = true; G.paused = false; G.dead = false; G.grab = null;
+G.weapons = { L: null, R: null }; G.weaponCd = { L: 0, R: 0 }; G.wear = {}; G.inv = [];
+addItem("bat", 1);
+c.ok(G.wear.bat >= 0.55 && G.wear.bat <= 1, "un arma de un casillero nunca sale nueva (" + Math.round(G.wear.bat * 100) + "%)");
+const blanco = G.entities.find(e => e.def.kind === "walker");
+if (blanco) {
+  G.wear.bat = 1;
+  let golpes = 0;
+  for (let i = 0; i < 40 && G.weapons.L === "bat"; i++) {
+    blanco.x = player.pos.x + 1; blanco.z = player.pos.z; blanco.stun = 0; blanco.grabbed = false;
+    G.weaponCd.L = 0; swingHand("L"); golpes++;
+  }
+  c.ok(G.weapons.L === null && golpes === ITEMS.bat.uses, "un bate nuevo aguanta " + ITEMS.bat.uses + " golpes y se parte (" + golpes + ")");
+  c.ok(!("bat" in G.wear) && !hasItem("bat"), "roto, desaparece: la mano queda vacía");
+  addItem("pipe", 1); G.wear.pipe = 1;
+  blanco.x = player.pos.x + 30;
+  G.weaponCd.L = 0; swingHand("L");
+  c.ok(Math.abs(G.wear.pipe - (1 - 0.25 / ITEMS.pipe.uses)) < 1e-9, "un golpe al aire también gasta, pero una cuarta parte");
+  G.wear.pipe = 0.3; addItem("ducttape", 1); j.useItem("ducttape");
+  c.ok(Math.abs(G.wear.pipe - 0.8) < 1e-9, "la cinta americana le devuelve la mitad del aguante (30% → 80%)");
+  j.dropItem("pipe", "L", false);
+  const suelo = G.drops[G.drops.length - 1];
+  c.ok(suelo && suelo.id === "pipe" && Math.abs(suelo.wear - 0.8) < 1e-9 && !("pipe" in G.wear), "soltada en el suelo, se queda con su desgaste");
+  j.pickDrop(suelo);
+  c.ok(Math.abs(G.wear.pipe - 0.8) < 1e-9, "y al recogerla vuelve igual de gastada (no sale nueva)");
+} else c.fallar("no hay ninguna entidad en el Level 1 para probar los golpes");
+c.ok(Object.values(ITEMS).filter(it => it.weapon).every(it => it.uses >= 20), "las tres armas tienen su aguante (tubería 40, varilla 30, bate 24)");
+
 process.exit(c.resumen("las armas y habilidades") ? 1 : 0);

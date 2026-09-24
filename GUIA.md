@@ -131,6 +131,9 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 | La ropa de un personaje | `PERSONAJES` | Las prendas de su `opts` (`vest`, `jacket`, `scarf`, `whistle`…); se dibujan en `drawHumanoid()` |
 | Los sprites de personas y entidades | `PIXEL ART` | `drawPerson()` (personas, con `gaitPose()` para el paso), `drawHoundHD()`… (animales), `finishHD()` (contorno y luz) |
 | Las figuras de 8 bits en 3D | `8 BITS EN 3D` | `rigHuman()` y `rigHound()`… (los modelos), `RIG_POSE` (las animaciones), `GEAR` (lo que llevan en la mano) |
+| El modo Agente del M.E.G. | `MODO AGENTE DEL M.E.G.` | `MEG_TIPOS` (los encargos y lo que pagan), `megNueva()`, `megEvent()` (qué los hace avanzar), `MEG_TIENDA`, `MEG_PREMIOS`; los trajes, en `SKINS` con `need:{meg:N}` |
+| Cuánto aguanta un arma | `OBJETOS` | `ITEMS.xxx.uses`; el desgaste está en `G.wear[id]` y lo gasta `wearWeapon()` |
+| La voz y los gestos | `MULTIJUGADOR` | `VOZ_CERCA`/`VOZ_LEJOS`, `vozDistancia()`, `GESTOS` y sus posturas en `RIG_POSE` |
 | El multijugador | `MULTIJUGADOR` | `MP_REENVIA` (qué reenvía el anfitrión), `mpRecibir()`, caer/reanimar en `goDown()`/`reviveMe()` |
 
 ### Añadir un nivel, paso a paso
@@ -348,6 +351,34 @@ muy despacio de una nota a otra con `setTargetAtTime` — nunca salta, nunca hay
     `chase`, `down`), el golpe con `userData.swing` y lo que lleva en las manos con
     `userData.gearL/gearR`. `setFrame()` no hace nada con una figura: se anima sola.
   - `actorDown()` tumba la figura (o aplasta el sprite) al caer en multijugador.
+
+## 6¹². La versión 3.0.0: niveles, modo Agente, objetos, voz y gestos
+
+- **Quince niveles** con su lore leído de la wiki y enlazados desde donde la wiki dice que se
+  entra (el 74, desde el 68, que también es nuevo). Los que en la wiki salen a niveles que el
+  juego no tiene van a `"deep"`. El 11.2 es un asentamiento (`settlement:true`): la Base Omicron.
+  `herramientas/anexo.js` regenera el mapa del descenso con ellos.
+- **Armas que se rompen.** El desgaste va por id en `G.wear` (sólo se puede llevar una de cada),
+  se guarda con la partida, viaja al suelo con `spawnDrop(…, wear)` y vuelve con `pickDrop()`.
+  `wearWeapon()` compara con `1e-6` y no con 0: veinticuatro restas de 1/24 dejan 1e-16 y el bate
+  aguantaba un golpe de más.
+- **Objetos.** `EQUIP_IDS` sale de `ITEMS` (los que llevan `equip`): antes la lista de equipo
+  estaba escrita a mano en cinco sitios. `meg:true` marca los tres del modo, que no entran en
+  `TIERS`. Los efectos con tiempo (`G.boostT`, `G.bloatT`, `G.camCd`, la extracción, los
+  fogonazos del Firesalt) los descuenta `updateWeapons()`, que corre cada fotograma.
+- **Modo Agente.** `G.megMode` y `G.meg = {q, ofertas}` van con la partida; las fichas y la cuenta
+  de misiones, en `G.prog` (entre partidas). El tablón se monta junto al puesto de cada base
+  (`buildMegBoard()`, desde `buildOutpost()`), y `megEnterLevel()` se llama al final de
+  `buildLevel()`. El maletín y el explorador perdido se colocan con un BFS desde donde apareces,
+  entre el 55 y el 90 % de la distancia máxima.
+- **Voz.** Cada jugador manda siempre el mismo flujo (`createMediaStreamDestination()`) y el micro
+  se engancha a él con una ganancia de 0 o 1: así la llamada no hay que renegociarla. Entre cada
+  pareja llama el de id menor. Chrome sólo deja pasar a WebAudio el audio de WebRTC si el flujo
+  está también en un `<audio>` (aunque esté en silencio). Nada de esto se puede probar en el banco:
+  allí `MP.peer.call` no existe y las funciones lo comprueban antes de usarlo.
+- **Gestos.** `hacerGesto()` manda `{t:"gesto"}` (el anfitrión lo reenvía) y `mostrarGesto()`
+  pone el bocadillo; con los muñecos 3D, la postura va en `userData.pose` (`wave`, `point`,
+  `stop`, `bow`, `cheer`).
 
 ## 7. Trampas que ya han mordido
 
