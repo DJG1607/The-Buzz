@@ -39,7 +39,7 @@ const EXPORTA = [
   "stackMax", "invCount", "dropItem", "pickDrop", "slotKey", "OPT_ROWS", "OPT_TAB_OF", "OPT_TABS",
   "MP", "mpRecibir", "mpEnviar", "updateGhosts", "goDown", "reviveMe", "startRevive", "updateRevive", "updateDowned",
   "mpAlguienVivo", "mpElegirModo", "SKINS", "skinUnlocked", "skinAtlas", "skinOf", "checkSkins", "kb", "setKey",
-  "doKeyAction", "ACTIONS", "PAD", "pollPad", "startRun", "btn", "tag", "setInput", "keyify"
+  "doKeyAction", "ACTIONS", "PAD", "pollPad", "startRun", "btn", "tag", "setInput", "keyify", "skinLook", "voxMeshData", "vgrid", "rigSpec", "rigTemplate", "rigPose", "rigAnimate", "makeActor", "setFrame", "billboard", "RIG_KIND", "ROPA", "SPRITES", "voxOn", "isRig", "actorDown", "GEAR", "ENT_LOOK", "gaitPose", "finishHD", "drawPerson"
 ].join(", ");
 
 /* Stub genérico: devuelve otro stub para cualquier propiedad, y se puede

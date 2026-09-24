@@ -55,7 +55,21 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   sala y con [Enter] en partida), **nombres** encima de cada uno y una lista con la vida de todos.
   Si mueres con amigos, **caes**: tienes 40 s para que alguien te **reanime con un botiquín**.
   Cada uno tiene sus enemigos y su botín. No hace falta instalar nada.
-- **Aspectos** para cualquier personaje, difíciles de conseguir: uniforme del M.E.G., traje de
+- **Sprites de pixel art al estilo de [Backrooms No-Clip](https://github.com/AgenteMaxo/backrooms-noclip)**:
+  nítidos, con contorno oscuro, luz desde arriba y proporciones de persona, con **ciclo de andar
+  y de correr** de frente, de perfil y de espaldas (y los animales, al trote y al galope).
+- **Opcional, muñecos en 3D** (Ajustes → Gráficos → Personajes): muñecos articulados de cubitos (cabeza,
+  torso, brazos con codo, piernas con rodilla; los animales con sus patas, cola, alas o
+  tentáculos) con **animaciones de estar quieto, andar y correr** que salen de cómo se mueven:
+  respiran, bracean, doblan rodillas y codos al correr, andan de lado y hacia atrás, forcejean
+  cuando los agarran, se tambalean aturdidos y levantan los brazos al cargar el especial. Las
+  armas equipadas y la linterna se ven en sus manos.
+- **Cada personaje con su ropa**: Marcos con chaleco de topógrafo, correa y brújula al cuello;
+  Vera con chaqueta de cuero con parches, bufanda y gafas; Lázaro con vendas y el pantalón roto;
+  el Entrenador con silbato, chándal, dorsal y patines. Los Skin-Stealers llevan corbata y los
+  Partygoers, gorro de fiesta.
+- **Aspectos** para cualquier personaje, difíciles de conseguir, cada uno con su ropa (máscara del
+  hazmat, placa del M.E.G., cruz del sanitario…): uniforme del M.E.G., traje de
   contención, papel pintado del Level 0 y «el vacío» (10, 30, 60 y 120 niveles superados en el
   modo aleatorio), sanitario (reanimar a 5 compañeros) y expedición conjunta (25 niveles con
   amigos). Se eligen en la ficha del personaje.
@@ -143,8 +157,10 @@ el juego normal sigue funcionando igual:
 - El laberinto sale de un *recursive backtracker* con *braiding* para abrir salas.
 - Las texturas del entorno se pintan en canvas de 384 px (moqueta con fibras, papel pintado con
   costuras y humedades, hormigón con grietas ramificadas, madera con nudos…).
-- Los personajes son sprites de 24×36 dibujados píxel a píxel, sombreados dentro de su silueta y
-  refinados al doble de resolución con Scale2x, contorno y luz de borde.
+- Los personajes son sprites de 48×72 dibujados por código a 1 píxel: un esqueleto 2D (cadera,
+  rodilla, hombro, codo) del que salen los fotogramas de andar y correr en cada dirección, y un
+  último pase que pone el contorno y la luz. Los muñecos 3D opcionales son vóxeles pintados con
+  la misma paleta y ropa, animados por procedimiento.
 - El audio es WebAudio puro: el zumbido de los fluorescentes son tres osciladores filtrados.
 - Las entidades comparten un *flow field* recalculado desde el jugador cada 0,35 s.
 

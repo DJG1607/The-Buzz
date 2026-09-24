@@ -107,6 +107,17 @@ amigos te deja caído, que reanimar gasta un botiquín, y que se acaba si nadie 
 nadie en pie. También el botiquín en solitario, los aspectos y lo que cuesta desbloquearlos,
 cambiar e intercambiar teclas y un mando simulado.
 
+### `figuras.js` — unos segundos
+Los sprites: el tamaño de cada atlas (8 fotogramas, andar y correr), que el ciclo sea neutro,
+zancada, neutro, zancada y que correr abra más la zancada, que `finishHD()` ponga el contorno y
+la luz, que el plano no deforme los píxeles y que por defecto se jueguen los sprites.
+La ropa: que cada personaje lleve al menos tres prendas y no haya dos iguales, y que un
+aspecto cambie la ropa entera sin quitar la coleta. Los muñecos: que la rejilla sólo genere
+las caras de fuera, que cada personaje tenga sus piezas articuladas y su ropa en 3D (chaleco,
+patines, mochila, coleta), que cada animal tenga las suyas, y las animaciones: quieto, andando
+y corriendo (piernas, rodillas, codos, inclinación), las posturas especiales y que la
+velocidad se mida por el movimiento, sin contar los teletransportes.
+
 ---
 
 ## `banco.js`

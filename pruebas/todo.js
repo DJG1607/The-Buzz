@@ -23,7 +23,8 @@ const PRUEBAS = [
   ["curacion", "curación por zona, códice que se reinicia y se ve mejor, música y ambiente"],
   ["mundo", "casilleros, especiales, fauna de la wiki, brújula, salidas, reordenamiento, modo aleatorio, idiomas"],
   ["inventario", "fauna con techo, especiales sin encadenar, inventario por huecos, soltar/desechar, uso rápido, ajustes"],
-  ["multijugador", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando"]
+  ["multijugador", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando"],
+  ["figuras", "ropa de cada personaje y aspecto, figuras de 8 bits en 3D (vóxeles)"]
 ];
 
 const args = process.argv.slice(2);

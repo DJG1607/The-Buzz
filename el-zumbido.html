@@ -1134,7 +1134,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "1.8.0";
+const VERSION = "2.0.0";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1186,9 +1186,9 @@ function shuffle(arr, rand){
 }
 
 /* ═══════════════ PIXEL ART ═══════════════
-   Sprites de 24×36 dibujados píxel a píxel y subidos a texturas con
-   filtro Nearest: personajes y entidades quedan en pixel art nítido
-   dentro de un entorno 3D con luz real. */
+   Sprites dibujados píxel a píxel y subidos a texturas con filtro Nearest:
+   personajes y entidades quedan en pixel art nítido dentro de un entorno 3D
+   con luz real. SW×SH es la medida de los iconos refinados (24×36 ×2). */
 
 const SW = 24, SH = 36;
 
@@ -1201,246 +1201,466 @@ function newCanvas(w,h){
 }
 function P(x,px,py,w,h,col){ if(!col) return; x.fillStyle = col; x.fillRect(px,py,w,h); }
 
-// ── humanoide: jugador, Facelings, Skin-Stealers, Dullers, Wretches ──
-// dir: 0 frente · 1 perfil · 2 espalda · 3 perfil espejado
-function drawHumanoid(x, ox, oy, dir, frame, p, o){
+/* ── sprites de pixel art (2.0.0) ──
+   Estilo de los sprites de Backrooms No-Clip: pixel art nítido a 1 píxel,
+   proporciones de persona (no cabezones), contorno oscuro de 1 px y luz
+   desde arriba. Celdas de 48×72 para las personas, 64×48 para los animales
+   que se ven de perfil y 48×48 para el Smiler y la Deathmoth.
+   Cada persona es un esqueleto 2D: cadera, rodilla, hombro y codo tienen
+   ángulo, así que de un mismo dibujo salen el ciclo de andar (columnas
+   0-3: neutro, zancada, neutro, zancada) y el de correr (4-7), de frente
+   (fila 0), de perfil mirando a la derecha (1), de espaldas (2) y de perfil
+   espejado (3). finishHD() pone al final el contorno y la luz. */
+const HW = 48, HH = 72;
+
+// rectángulo en píxeles enteros (nada de medios píxeles emborronados)
+function RX(x, px, py, w, h, c){
+  if(!c) return;
+  const x0 = Math.round(px), y0 = Math.round(py), x1 = Math.round(px + w), y1 = Math.round(py + h);
+  if(x1 <= x0 || y1 <= y0) return;
+  x.fillStyle = c; x.fillRect(x0, y0, x1 - x0, y1 - y0);
+}
+// trazo grueso de a a b (brazos, piernas, patas)
+function seg(x, ax, ay, bx, by, w, c){
+  const n = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay)*2));
+  for(let i=0;i<=n;i++){ const t = i/n; RX(x, ax + (bx - ax)*t - w/2, ay + (by - ay)*t - w/2, w, w, c); }
+}
+function ell(x, cx, cy, rx, ry, c){
+  for(let yy = Math.floor(cy - ry); yy <= Math.ceil(cy + ry); yy++){
+    const d = (yy + 0.5 - cy)/ry;
+    if(Math.abs(d) >= 1) continue;
+    const hw = rx*Math.sqrt(1 - d*d);
+    RX(x, cx - hw, yy, hw*2, 1, c);
+  }
+}
+
+// ángulos de un fotograma: zancada con los brazos al revés que las piernas
+function gaitPose(col){
+  const run = col >= 4, ph = (col % 4)*Math.PI/2, s = Math.sin(ph), c = Math.cos(ph);
+  const A = run ? 0.78 : 0.42, K = run ? 1.3 : 0.5, Aa = run ? 0.85 : 0.38, E = run ? 1.5 : 0.18;
+  return { run, s,
+    thL: s*A, thR: -s*A,                                          // muslo: + hacia delante
+    knL: K*Math.max(0, c) + (run ? 0.3 : 0.05), knR: K*Math.max(0, -c) + (run ? 0.3 : 0.05),
+    arL: -s*Aa, arR: s*Aa,                                        // brazo: + hacia delante
+    elL: E, elR: E, lean: run ? 0.2 : 0.03 };
+}
+
+function drawPerson(x, ox, oy, dir, col, p, o){
   o = o || {};
-  const swing = [0,2,0,-2][frame];
-  const lift  = [0,1,0,1][frame];
-  const y = oy - lift;
-  const side = (dir===1 || dir===3);
-  const back = (dir===2);
-  const tall = o.tall || 0;
-  const hunch = o.hunch || 0;
+  if(dir === 3){                                                  // perfil espejado
+    x.save(); x.translate(2*ox + HW, 0); x.scale(-1, 1);
+    drawPerson(x, ox, oy, 1, col, p, o);
+    x.restore(); return;
+  }
+  const g = gaitPose(col), side = dir === 1, back = dir === 2;
+  const cx = ox + 24, G = oy + 69;
+  const skin = p.skin || "#c49a6e", skinSh = p.skinShade || dk(skin, 0.82);
+  const face = o.hood ? dk(skin, 0.5) : skin, faceSh = o.hood ? dk(skinSh, 0.5) : skinSh;
+  const shirt = p.shirt || "#6a6a6a", shirtSh = p.shirtShade || dk(shirt, 0.8);
+  const pants = p.pants || "#34343a", pantsSh = p.pantsShade || dk(pants, 0.8);
+  const shoe = p.shoe || "#222222", shoeSh = p.shoeShade || dk(shoe, 0.7);
+  const sleeve = o.jacket || shirt, sleeveSh = o.jacketShade || shirtSh;
+  const hunch = o.hunch || 0, reach = o.reach ? 5 : 0;
+  const Lt = 12, Ls = 11, Lu = 10, Lf = 8 + reach, footH = o.skates ? 5 : 3;
+  const faceless = !!o.faceless || !p.eye || p.eye === p.skin;
 
-  P(x, ox+7, oy+33, 10, 2, "rgba(0,0,0,.42)");
-  P(x, ox+6, oy+34, 12, 1, "rgba(0,0,0,.28)");
+  // dónde cae cada tobillo con la cadera en 0: el pie más bajo toca el suelo
+  const leg = (a, k)=>{ const kx = Math.sin(a)*Lt, ky = Math.cos(a)*Lt, b = a - k; return {kx, ky, ax: kx + Math.sin(b)*Ls, ay: ky + Math.cos(b)*Ls}; };
+  const LL = leg(g.thL, g.knL), LR = leg(g.thR, g.knR);
+  const hipY = Math.round(G - footH - Math.max(LL.ay, LR.ay));
+  const lean = g.lean + hunch*0.14;
+  const shY = hipY - 19, shX = side ? cx + Math.round(lean*19) : cx;
+  const hw = (o.headW || 9) + 2, hh = o.headShape === "long" ? 16 : 13;
+  const hy0 = shY - 2 - hh + (side ? hunch : hunch*2);
+  const base = hy0 + hh - 13;                                     // fila de referencia de la cara
 
-  const legTop = 22 - tall;
-  if(side){
-    P(x, ox+9,        y+legTop,   6, 9, p.pantsShade);
-    P(x, ox+9+swing,  y+legTop,   6, 9, p.pants);
-    P(x, ox+8+swing,  y+31,       8, 3, p.shoe);
-    P(x, ox+8-swing,  y+31,       7, 3, p.shoeShade||p.shoe);
-  } else {
-    P(x, ox+8,  y+legTop, 4, 10-Math.abs(swing), p.pants);
-    P(x, ox+12, y+legTop, 4, 10-Math.abs(swing), p.pants);
-    P(x, ox+8,  y+legTop, 2, 10-Math.abs(swing), p.pantsShade);
-    P(x, ox+12, y+legTop, 1, 10-Math.abs(swing), p.pantsShade);
-    P(x, ox+8,  y+31-Math.abs(swing), 4, 3, p.shoe);
-    P(x, ox+12, y+31-Math.abs(swing), 4, 3, p.shoe);
-    P(x, ox+8,  y+33-Math.abs(swing), 4, 1, p.shoeShade||p.shoe);
-    P(x, ox+12, y+33-Math.abs(swing), 4, 1, p.shoeShade||p.shoe);
-  }
+  ell(x, cx, G + 1, 11, 2, "rgba(0,0,0,.35)");
 
-  const tw = side ? 7 : 10;
-  const tx = ox + (24-tw)/2;
-  const torsoTop = 12 - tall + hunch;
-  P(x, tx, y+torsoTop, tw, 11-hunch, p.shirt);
-  P(x, tx, y+torsoTop, 2, 11-hunch, p.shirtShade);
-  P(x, tx+tw-2, y+torsoTop+2, 2, 9-hunch, p.shirtShade);
-  if(p.belt) P(x, tx, y+torsoTop+9-hunch, tw, 2, p.belt);
-  if(!back && !side && p.collar){
-    P(x, tx+3, y+torsoTop, 4, 2, p.collar);
-    P(x, tx+2, y+torsoTop, 1, 3, p.collar);
-    P(x, tx+tw-3, y+torsoTop, 1, 3, p.collar);
-  }
-  if(o.pack && back){
-    P(x, tx+1, y+torsoTop+1, tw-2, 8, o.pack);
-    P(x, tx+1, y+torsoTop+4, tw-2, 2, "rgba(0,0,0,.35)");
-  }
-  if(o.ribs && !back){
-    for(let i=0;i<3;i++) P(x, tx+2, y+torsoTop+3+i*2, tw-4, 1, "rgba(0,0,0,.28)");
-  }
+  // ── piezas comunes ──
+  const shoeAt = (fx, fy, fw, far)=>{
+    RX(x, fx, fy - 2, fw, 3, far ? dk(shoe, 0.8) : shoe); RX(x, fx, fy, fw, 1, shoeSh);
+    if(o.skates){ RX(x, fx, fy + 1, fw, 1, "#d8d0c0"); RX(x, fx, fy + 2, 2, 1, "#e0503a"); RX(x, fx + fw - 2, fy + 2, 2, 1, "#e0503a"); }
+  };
+  const hairC = p.hair, hairS = p.hairShade || (p.hair && dk(p.hair, 0.72)), hairL = p.hair && dk(p.hair, 1.45);
 
   if(side){
-    P(x, ox+11, y+torsoTop-swing, 4, 9, p.shirt);
-    P(x, ox+11, y+torsoTop+9-swing, 4, 3, p.skin);
-  } else {
-    const reach = o.reach ? 3 : 0;
-    const aL = y+torsoTop+(swing>0?1:0), aR = y+torsoTop+(swing<0?1:0);
-    P(x, tx-3, aL, 3, 9+reach, p.shirt);
-    P(x, tx+tw, aR, 3, 9+reach, p.shirt);
-    P(x, tx-3, aL, 1, 9+reach, p.shirtShade);
-    P(x, tx+tw+2, aR, 1, 9+reach, p.shirtShade);
-    P(x, tx-3, aL+9+reach, 3, 3, p.skin);
-    P(x, tx+tw, aR+9+reach, 3, 3, p.skin);
-  }
-
-  const headW = o.headW || 9;
-  const hx = ox + (24-headW)/2;
-  const hy = y + (3 - tall) + hunch;
-  P(x, ox+11, y+10-tall+hunch, 3, 2, p.skinShade);
-  P(x, hx, hy, headW, 9, p.skin);
-  P(x, hx, hy, 2, 9, p.skinShade);
-  if(o.headShape === "long") P(x, hx+1, hy-2, headW-2, 3, p.skin);
-
-  if(p.hair){
-    P(x, hx-1, hy-1, headW+2, 3, p.hair);
-    P(x, hx-1, hy-1, headW+2, 1, p.hairShade||p.hair);
-    if(back) P(x, hx-1, hy-1, headW+2, 8, p.hair);
-    if(side) P(x, hx-1, hy-1, headW-1, 6, p.hair);
-    if(o.ponytail && !side) P(x, back?hx+headW-1:hx-2, hy+2, 3, 7, p.hair);
-    if(o.ponytail && side)  P(x, hx-3, hy+2, 3, 8, p.hair);
-    if(o.cap){
-      P(x, hx-1, hy-2, headW+2, 4, o.cap);
-      P(x, hx-1, hy-2, headW+2, 1, "rgba(0,0,0,.3)");
-      if(!back) P(x, hx-2, hy+2, headW+3, 1, o.cap);
+    const hx = cx - 1;
+    const drawLeg = (L, far)=>{
+      const c1 = far ? pantsSh : pants;
+      const kx = hx + L.kx, ky = hipY + L.ky, ax = hx + L.ax, ay = hipY + L.ay;
+      seg(x, hx, hipY + 1, kx, ky, 5, c1);
+      seg(x, kx, ky, ax, ay - 1, 4, c1);
+      if(o.stripe && !far){ seg(x, hx, hipY + 1, kx, ky, 1, o.stripe); seg(x, kx, ky, ax, ay - 2, 1, o.stripe); }
+      if(o.torn && !far) RX(x, kx - 1, ky - 3, 2, 2, skinSh);
+      shoeAt(ax - 2, ay + 1, 7, far);
+    };
+    const arm = (q, e, far)=>{
+      const sx = shX - 1, sy = shY + 2;
+      const ex = sx + Math.sin(q)*Lu, ey = sy + Math.cos(q)*Lu, r = q + e;
+      const hx2 = ex + Math.sin(r)*Lf, hy2 = ey + Math.cos(r)*Lf;
+      const c1 = far ? sleeveSh : sleeve;
+      seg(x, sx, sy, ex, ey, 4, c1);
+      seg(x, ex, ey, hx2, hy2, 4, c1);
+      if(o.bandages){ RX(x, (sx + ex)/2 - 2, (sy + ey)/2, 4, 1, "#e8e0cc"); RX(x, (ex + hx2)/2 - 2, (ey + hy2)/2, 4, 1, "#e8e0cc"); }
+      if(o.cross && !far) RX(x, sx - 2, sy + 2, 4, 2, "#c0392b");
+      RX(x, hx2 + Math.sin(r)*1.5 - 2, hy2 + Math.cos(r)*1.5 - 1.5, 4, 3, far ? skinSh : skin);
+    };
+    arm(g.arR, g.elR, true);
+    drawLeg(LR, true);
+    // torso de perfil: 9 de fondo, de la cadera al hombro (inclinado si corre)
+    const tx = t=> lerp(shX, hx, t);
+    if(o.pack) RX(x, tx(0.3) - 10, shY + 2, 6, 14, o.pack), RX(x, tx(0.3) - 10, shY + 2, 6, 4, dk(o.pack, 0.72));
+    for(let yy = shY; yy <= hipY; yy++){
+      const t = (yy - shY)/(hipY - shY), c0 = tx(t);
+      RX(x, c0 - 4, yy, 9, 1, o.jacket || (o.vest && yy > shY + 1 && yy < hipY - 1 ? o.vest : shirt));
+      RX(x, c0 - 5, yy, 1, 1, yy > shY + 1 ? dk(o.jacket || shirt, 0.82) : null);
     }
-    if(o.hood){
-      P(x, hx-2, hy-2, headW+4, 6, o.hood);
-      P(x, hx-2, hy-2, headW+4, 1, "rgba(0,0,0,.28)");
-      if(!back) P(x, hx, hy+2, headW-2, 5, "rgba(0,0,0,.55)");
+    if(p.belt) RX(x, tx(1) - 4, hipY - 2, 9, 2, p.belt);
+    if(o.vest){ RX(x, tx(0.45) - 4, shY + 8, 9, 1, "#e8d070"); RX(x, tx(0.55) + 1, shY + 10, 3, 3, dk(o.vest, 0.72)); }
+    if(o.pattern) for(let yy = shY + 2; yy < hipY - 2; yy += 3) RX(x, tx((yy - shY)/19) - 3, yy, 7, 1, dk(shirt, 0.82));
+    if(o.strap) seg(x, tx(0) - 3, shY + 1, tx(0.9) + 3, hipY - 2, 2, o.strap);
+    if(o.tie) RX(x, tx(0.2) + 4, shY + 1, 1, 10, "#6a1a1a");
+    if(o.pendant){ RX(x, tx(0.3) + 4, shY + 5, 2, 3, "#c8a03a"); }
+    if(o.whistle){ RX(x, tx(0.3) + 4, shY + 6, 2, 2, "#c0c4c8"); }
+    if(o.badge) RX(x, tx(0.3) + 3, shY + 5, 2, 2, "#e0c050");
+    if(o.ribs) for(let i=0;i<3;i++) RX(x, tx(0.3) + 1, shY + 5 + i*3, 3, 1, dk(shirt, 0.68));
+    drawLeg(LL, false);
+    arm(g.arL, g.elL, false);
+    if(o.scarf){ RX(x, shX - 5, shY - 1, 10, 3, o.scarf); RX(x, shX + 3, shY + 2, 2, 7, dk(o.scarf, 0.85)); }
+    RX(x, shX - 1, shY - 2, 3, 3, skinSh);                          // cuello
+    // cabeza de perfil, la cara a la derecha
+    const hc = shX + 1 + hunch;
+    if(o.hood) RX(x, hc - 7, hy0 - 3, 13, hh + 5, o.hood);
+    RX(x, hc - 5, hy0 + 1, 11, hh - 2, face); RX(x, hc - 4, hy0, 9, hh, face);
+    RX(x, hc - 4, hy0 + hh - 1, 8, 1, faceSh);
+    if(!faceless){
+      RX(x, hc + 6, base + 7, 1, 2, face);                          // nariz
+      RX(x, hc + 2, base + 6, 2, 2, "#e8e4d8"); RX(x, hc + 3, base + 6, 1, 2, p.eye);
+      if(!o.hood) RX(x, hc + 2, base + 4, 3, 1, hairC || skinSh);   // ceja
+      if(o.grin){ RX(x, hc + 1, base + 10, 5, 2, "#b8342a"); RX(x, hc + 2, base + 10, 1, 1, "#efe7cf"); RX(x, hc + 4, base + 10, 1, 1, "#efe7cf"); }
+      else if(p.mouth) RX(x, hc + 3, base + 10, 3, 1, p.mouth);
+    }
+    if(!o.hood) RX(x, hc - 1, base + 6, 2, 3, skinSh);              // oreja
+    if(hairC && !o.hood){
+      RX(x, hc - 6, hy0 - 2, 12, 4, hairC); RX(x, hc - 5, hy0 - 3, 10, 1, hairC);
+      RX(x, hc - 6, hy0 + 2, 5, o.ponytail ? hh - 4 : hh - 7, hairC);
+      RX(x, hc + 3, hy0 + 2, 3, 2, hairC);                           // flequillo
+      RX(x, hc - 4, hy0 - 3, 4, 1, hairL); RX(x, hc - 5, hy0 - 2, 2, 1, hairL);
+      if(o.ponytail){ const sw = g.run ? 5 : 2; seg(x, hc - 7, hy0 + 5, hc - 8 - sw, hy0 + 17, 3, hairC); RX(x, hc - 8, hy0 + 5, 3, 2, "#8a6a3a"); }
+    }
+    if(o.hood) RX(x, hc + 5, hy0 - 2, 2, hh + 2, dk(o.hood, 0.78));  // borde de la capucha
+    if(o.cap){ RX(x, hc - 6, hy0 - 3, 12, 5, o.cap); RX(x, hc - 5, hy0 - 4, 9, 1, o.cap); RX(x, hc + 4, hy0 + 1, 5, 2, dk(o.cap, 0.8)); }
+    if(o.goggles){ RX(x, hc - 6, hy0 + 2, 12, 2, "#2e2a26"); RX(x, hc + 3, hy0 + 1, 3, 3, "#8fc0c8"); RX(x, hc + 3, hy0 + 1, 1, 1, "#c8e8ec"); }
+    if(o.visor){ RX(x, hc + 1, base + 4, 6, 7, "#1c2a2e"); RX(x, hc + 3, base + 5, 2, 1, "#8fd0d8"); RX(x, hc + 4, base + 10, 4, 3, "#4a4a44"); }
+    if(o.partyhat) for(let i=0;i<10;i++){ const w = Math.max(1, Math.round(7*(1 - i/10))); RX(x, hc - 3 - i*0.3 - w/2 + 3, hy0 - 3 - i, w, 1, (i >> 1) % 2 ? "#e0c04a" : "#b4527e"); }
+    if(o.partyhat) RX(x, hc - 4, hy0 - 15, 3, 2, "#f0e8d0");
+    return;
+  }
+
+  // ── de frente y de espaldas ──
+  // la izquierda del personaje cae a la derecha de la imagen si mira de frente
+  const sgL = back ? -1 : 1;
+  const legF = (L, sg)=>{
+    const lx = sg > 0 ? cx + 1 : cx - 6;
+    const kneeY = hipY + L.ky, ankY = hipY + L.ay;
+    RX(x, lx, hipY, 5, ankY - hipY, pants);
+    RX(x, sg > 0 ? lx : lx + 4, hipY + 2, 1, ankY - hipY - 2, pantsSh);  // sombra por dentro
+    RX(x, lx, kneeY, 5, 1, dk(pants, 0.9));
+    if(o.stripe) RX(x, sg > 0 ? lx + 4 : lx, hipY, 1, ankY - hipY, o.stripe);
+    if(o.torn && !back){ RX(x, lx + 1, kneeY - 3, 2, 2, skinSh); RX(x, lx + 3, ankY - 4, 1, 1, skinSh); }
+    shoeAt(lx - 0.5, ankY + 1 + (L.kx > 3 ? 1 : 0), 6, false);
+  };
+  const armF = (q, e, sg)=>{
+    const ax0 = sg > 0 ? cx + 8 : cx - 12, sy = shY + 1;
+    const ey = sy + Math.cos(q)*Lu, r = q + e, hy = ey + Math.cos(r)*Lf;
+    const inward = e > 0.8 ? (sg > 0 ? -3 : 3) : 0;               // doblado: la mano va por delante del pecho
+    RX(x, ax0, sy, 4, ey - sy + 1, sleeve);
+    RX(x, ax0 + (sg > 0 ? 3 : 0), sy + 1, 1, ey - sy, sleeveSh);
+    if(hy >= ey) RX(x, ax0 + inward, ey, 4, hy - ey, sleeve);
+    else RX(x, ax0 + inward, hy, 4, ey - hy + 1, sleeve);
+    if(o.bandages){ RX(x, ax0, sy + 4, 4, 1, "#e8e0cc"); RX(x, ax0 + inward, (ey + hy)/2, 4, 1, "#e8e0cc"); }
+    if(o.cross && sg === sgL) RX(x, ax0, sy + 3, 4, 2, "#c0392b");
+    RX(x, ax0 + inward, hy - (hy < ey ? 3 : 0), 4, 3, skin);
+  };
+  const torso = ()=>{
+    for(let yy = shY; yy <= hipY; yy++){
+      const t = (yy - shY)/(hipY - shY), w = Math.round(lerp(16, 13, t)) - (yy === shY ? 2 : 0);
+      RX(x, cx - w/2, yy, w, 1, shirt);
+    }
+    const wAt = yy=> Math.round(lerp(16, 13, (yy - shY)/(hipY - shY)));
+    if(o.pattern) for(let i=-6;i<=6;i+=3) RX(x, cx + i, shY + 2, 1, hipY - shY - 4, dk(shirt, 0.82));
+    if(p.belt){ RX(x, cx - 6.5, hipY - 2, 13, 2, p.belt); if(!back) RX(x, cx - 1, hipY - 2, 2, 2, "#b8a060"); }
+    if(o.jacket){
+      const J = o.jacket, JS = o.jacketShade || dk(J, 0.8);
+      for(let yy = shY; yy < hipY; yy++){
+        const w = wAt(yy) - (yy === shY ? 2 : 0);
+        if(back) RX(x, cx - w/2, yy, w, 1, J);
+        else { RX(x, cx - w/2, yy, 5, 1, J); RX(x, cx + w/2 - 5, yy, 5, 1, J); }
+      }
+      if(!back){ RX(x, cx - 4, shY, 2, 5, JS); RX(x, cx + 2, shY, 2, 5, JS); }
+      RX(x, cx - 6.5, hipY - 2, 13, 1, JS);
+      if(o.patches){ if(back) RX(x, cx - 5, shY + 5, 3, 3, o.patches[1]); else RX(x, cx + 3, shY + 9, 3, 3, o.patches[0]); }
+    }
+    if(o.vest){
+      const V = o.vest, pk = dk(V, 0.7);
+      if(back){ RX(x, cx - 7, shY + 1, 14, hipY - shY - 3, V); RX(x, cx - 7, shY + 8, 14, 1, "#e8d070"); }
+      else {
+        for(let yy = shY + 1; yy < hipY - 2; yy++){ const w = wAt(yy); RX(x, cx - w/2, yy, 5, 1, V); RX(x, cx + w/2 - 5, yy, 5, 1, V); }
+        RX(x, cx - 7, shY + 10, 4, 3, pk); RX(x, cx + 3, shY + 10, 4, 3, pk);
+        RX(x, cx - 7.5, shY + 7, 5, 1, "#e8d070"); RX(x, cx + 2.5, shY + 7, 5, 1, "#e8d070");
+      }
+    }
+    if(o.ribs && !back) for(let i=0;i<3;i++) RX(x, cx - 4, shY + 6 + i*3, 8, 1, dk(shirt, 0.68));
+    if(o.strap){ if(back) seg(x, cx - 7, shY + 1, cx + 6, hipY - 2, 2, o.strap); else seg(x, cx + 7, shY + 1, cx - 6, hipY - 2, 2, o.strap); }
+    if(o.pack){
+      const K = o.pack, KS = dk(K, 0.72);
+      if(back){ RX(x, cx - 7, shY + 2, 14, 15, K); RX(x, cx - 7, shY + 2, 14, 5, KS); RX(x, cx - 4, shY + 10, 8, 5, dk(K, 0.88)); RX(x, cx - 1, shY + 6, 2, 2, "#b8a060"); }
+      else { RX(x, cx - 6, shY, 2, 12, KS); RX(x, cx + 4, shY, 2, 12, KS); }
+    }
+    if(o.cross){ RX(x, cx - 1.5, shY + 4, 3, 9, "#c0392b"); RX(x, cx - 4.5, shY + 7, 9, 3, "#c0392b"); }
+    if(o.number && back){ RX(x, cx - 3, shY + 4, 7, 2, "#e8e0c8"); seg(x, cx + 2.5, shY + 6.5, cx - 0.5, shY + 14, 2, "#e8e0c8"); }
+    if(!back){
+      if(p.collar && !o.hood && !o.scarf){ RX(x, cx - 4, shY, 3, 2, p.collar); RX(x, cx + 1, shY, 3, 2, p.collar); }
+      if(o.tie){ RX(x, cx - 1, shY + 1, 2, 12, "#6a1a1a"); RX(x, cx - 1, shY + 1, 2, 2, "#8a2a2a"); }
+      if(o.pendant){ seg(x, cx - 3, shY, cx, shY + 6, 1, "#3a3024"); seg(x, cx + 3, shY, cx, shY + 6, 1, "#3a3024"); ell(x, cx, shY + 8, 2.2, 2.2, "#c8a03a"); RX(x, cx - 0.5, shY + 7.5, 1, 1, "#b4402f"); }
+      if(o.whistle){ seg(x, cx - 3, shY, cx - 1, shY + 6, 1, "#e8e0c8"); seg(x, cx + 3, shY, cx + 1, shY + 6, 1, "#e8e0c8"); RX(x, cx - 1.5, shY + 6, 3, 2, "#c0c4c8"); }
+      if(o.badge){ RX(x, cx - 6, shY + 5, 3, 3, "#e0c050"); RX(x, cx - 6, shY + 5, 3, 1, "#fff0a0"); }
+    }
+    if(o.scarf){ RX(x, cx - 6, shY - 1, 12, 3, o.scarf); if(!back) RX(x, cx + 2, shY + 2, 3, 8, dk(o.scarf, 0.88)); }
+  };
+
+  if(back){ legF(LL, sgL); legF(LR, -sgL); armF(g.arL, g.elL, sgL); armF(g.arR, g.elR, -sgL); torso(); }
+  else { legF(LL, sgL); legF(LR, -sgL); torso(); armF(g.arL, g.elL, sgL); armF(g.arR, g.elR, -sgL); }
+  if(!o.scarf) RX(x, cx - 2, shY - 2, 4, 3, skinSh);               // cuello
+
+  // ── cabeza ──
+  const hx0 = cx - Math.floor(hw/2);
+  if(o.hood){ RX(x, hx0 - 2, hy0 - 2, hw + 4, hh + 4, o.hood); RX(x, hx0 - 1, hy0 - 3, hw + 2, 1, o.hood); }
+  if(back){
+    RX(x, hx0, hy0 + 1, hw, hh - 2, skin); RX(x, hx0 + 1, hy0, hw - 2, hh, skin);
+    RX(x, hx0 - 1, hy0 + 5, 1, 3, skinSh); RX(x, hx0 + hw, hy0 + 5, 1, 3, skinSh);
+    if(o.hood){ RX(x, hx0 - 2, hy0 - 2, hw + 4, hh + 4, o.hood); RX(x, cx - 1, hy0, 2, hh, dk(o.hood, 0.82)); }
+    else if(hairC){
+      RX(x, hx0 - 1, hy0 - 2, hw + 2, hh - 1, hairC); RX(x, hx0, hy0 - 3, hw, 1, hairC);
+      RX(x, hx0, hy0 + hh - 3, hw, 1, hairS);
+      RX(x, hx0 + 1, hy0 - 3, 4, 1, hairL); RX(x, hx0, hy0 - 2, 2, 1, hairL);
+      if(o.ponytail){ RX(x, cx - 1.5, hy0 + 5, 3, 14, hairC); RX(x, cx - 1.5, hy0 + 5, 3, 2, "#8a6a3a"); RX(x, cx - 0.5, hy0 + 17, 1, 2, hairS); }
+    }
+    if(o.cap){ RX(x, hx0 - 1, hy0 - 3, hw + 2, 5, o.cap); RX(x, cx - 1, hy0 + 1, 2, 1, dk(o.cap, 0.7)); }
+    if(o.goggles) RX(x, hx0 - 1, hy0 + 2, hw + 2, 2, "#2e2a26");
+    if(o.partyhat) for(let i=0;i<10;i++){ const w = Math.max(1, Math.round(7*(1 - i/10))); RX(x, cx - w/2, hy0 - 3 - i, w, 1, (i >> 1) % 2 ? "#e0c04a" : "#b4527e"); }
+    return;
+  }
+  RX(x, hx0, hy0 + 1, hw, hh - 2, face); RX(x, hx0 + 1, hy0, hw - 2, hh, face);
+  RX(x, hx0 + 1, hy0 + hh - 1, hw - 2, 1, faceSh);
+  if(!o.hood && !(hairC && o.ponytail)){ RX(x, hx0 - 1, base + 6, 1, 3, skinSh); RX(x, hx0 + hw, base + 6, 1, 3, skinSh); }
+  if(!faceless){
+    const eL = hx0 + 2, eR = hx0 + hw - 4;
+    if(o.glowEyes){ RX(x, eL, base + 6, 2, 2, p.eye); RX(x, eR, base + 6, 2, 2, p.eye); }
+    else {
+      RX(x, eL, base + 6, 2, 2, "#e8e4d8"); RX(x, eR, base + 6, 2, 2, "#e8e4d8");
+      RX(x, eL + 1, base + 6, 1, 2, p.eye); RX(x, eR, base + 6, 1, 2, p.eye);
+    }
+    if(!o.hood){ RX(x, eL, base + 4, 2, 1, hairC || skinSh); RX(x, eR, base + 4, 2, 1, hairC || skinSh); }
+    RX(x, cx - (hw % 2 ? 0.5 : 1), base + 8, hw % 2 ? 1 : 2, 2, faceSh);   // nariz
+    if(o.grin){
+      RX(x, hx0 + 2, base + 10, hw - 4, 2, "#b8342a");
+      for(let i = hx0 + 3; i < hx0 + hw - 3; i += 2) RX(x, i, base + 10, 1, 1, "#efe7cf");
+      RX(x, hx0 + 1, base + 9, 1, 2, "#b8342a"); RX(x, hx0 + hw - 2, base + 9, 1, 2, "#b8342a");
+    } else if(p.mouth) RX(x, cx - 1.5, base + 11, 3, 1, p.mouth);
+  }
+  if(hairC && !o.hood){
+    RX(x, hx0 - 1, hy0 - 2, hw + 2, 5, hairC); RX(x, hx0, hy0 - 3, hw, 1, hairC);
+    const lock = o.ponytail ? 11 : 5;
+    RX(x, hx0 - 1, hy0 + 3, 2, lock, hairC); RX(x, hx0 + hw - 1, hy0 + 3, 2, lock, hairC);
+    for(let i=0;i<hw;i++) if(i % 3 !== 1) RX(x, hx0 + i, hy0 + 3, 1, 1, hairC);   // flequillo
+    RX(x, hx0 + 1, hy0 - 3, 4, 1, hairL); RX(x, hx0, hy0 - 2, 2, 1, hairL); RX(x, hx0 + 3, hy0 - 1, 1, 1, hairL);
+    RX(x, hx0 - 1, hy0 + 2 + lock, 2, 1, hairS); RX(x, hx0 + hw - 1, hy0 + 2 + lock, 2, 1, hairS);
+  }
+  if(o.hood){ RX(x, hx0 - 2, hy0 - 2, 2, hh + 3, dk(o.hood, 0.8)); RX(x, hx0 + hw, hy0 - 2, 2, hh + 3, dk(o.hood, 0.8)); }
+  if(o.cap){ RX(x, hx0 - 1, hy0 - 3, hw + 2, 5, o.cap); RX(x, hx0, hy0 - 4, hw, 1, o.cap); RX(x, hx0 - 2, hy0 + 2, hw + 4, 1, dk(o.cap, 0.78)); }
+  if(o.goggles){
+    RX(x, hx0 - 1, hy0 + 2, hw + 2, 2, "#2e2a26");
+    RX(x, hx0 + 1, hy0 + 1, 3, 3, "#8fc0c8"); RX(x, hx0 + hw - 4, hy0 + 1, 3, 3, "#8fc0c8");
+    RX(x, hx0 + 1, hy0 + 1, 1, 1, "#c8e8ec"); RX(x, hx0 + hw - 4, hy0 + 1, 1, 1, "#c8e8ec");
+  }
+  if(o.visor){
+    RX(x, hx0 + 1, base + 4, hw - 2, 7, "#1c2a2e"); RX(x, hx0 + 2, base + 5, 3, 1, "#8fd0d8"); RX(x, hx0 + 2, base + 6, 1, 1, "#5a9aa4");
+    RX(x, cx - 2, base + 11, 4, 3, "#4a4a44"); RX(x, cx - 1, base + 12, 2, 1, "#2a2a26");
+  }
+  if(o.partyhat){
+    for(let i=0;i<10;i++){ const w = Math.max(1, Math.round(7*(1 - i/10))); RX(x, cx - w/2, hy0 - 3 - i, w, 1, (i >> 1) % 2 ? "#e0c04a" : "#b4527e"); }
+    RX(x, cx - 1.5, hy0 - 15, 3, 2, "#f0e8d0");
+  }
+}
+
+// ── animales de perfil (celda 64×48, miran a la derecha) ──
+function drawHoundHD(x, ox, oy, col){
+  const run = col >= 4, ph = (col % 4)*Math.PI/2;
+  const hide = "#4e3b2c", shade = "#382a1f", dark = "#251b14";
+  const G = oy + 46, A = run ? 0.75 : 0.4, K = run ? 1.0 : 0.45;
+  const offs = run ? [0, 0.6, Math.PI, Math.PI + 0.6] : [0, Math.PI, Math.PI, 0];
+  // [cadera x, desfase, lejos]: delante lejos, delante cerca, detrás lejos, detrás cerca
+  const L = [[42, offs[0], 1], [42, offs[1], 0], [21, offs[2], 1], [21, offs[3], 0]].map(([hx, off, far], i)=>{
+    const a = Math.sin(ph + off)*A, k = K*Math.max(0, Math.cos(ph + off)), front = i < 2;
+    const kx = Math.sin(a)*9, ky = Math.cos(a)*9, b = front ? a - k : a + k;
+    return {hx, far, kx, ky, ax: kx + Math.sin(b)*9, ay: ky + Math.cos(b)*9};
+  });
+  const hy = Math.round(G - 2 - Math.max(...L.map(l=> l.ay))), by = hy - 4;
+  ell(x, ox + 32, G + 1, 17, 2, "rgba(0,0,0,.35)");
+  const legs = far=> L.forEach(l=>{
+    if(l.far !== far) return;
+    const c = far ? shade : hide, X = ox + l.hx;
+    seg(x, X, hy, X + l.kx, hy + l.ky, 4, c);
+    seg(x, X + l.kx, hy + l.ky, X + l.ax, hy + l.ay, 3, c);
+    RX(x, X + l.ax - 2, hy + l.ay - 1, 5, 2, dark);
+  });
+  legs(1);
+  const wag = [0, 2, 0, -2][col % 4];
+  seg(x, ox + 17, by - 3, ox + 9, by + 5 + wag, 2, shade);        // cola
+  ell(x, ox + 30, by, 14, 7, hide);                                // cuerpo
+  ell(x, ox + 40, by + 1, 7, 7, hide);                             // pecho hondo
+  ell(x, ox + 29, by + 4, 11, 3, shade);                           // vientre
+  for(let i=0;i<4;i++) RX(x, ox + 29 + i*3, by - 2, 1, 5, shade);   // costillas
+  for(let i=0;i<7;i++) RX(x, ox + 18 + i*3, by - 7 - (i % 2), 1, 2, dark);   // cerdas
+  seg(x, ox + 42, by - 2, ox + 48, by - 8, 6, hide);               // cuello
+  ell(x, ox + 50, by - 10, 5, 4, hide);
+  RX(x, ox + 53, by - 11, 7, 4, dark);                              // hocico
+  RX(x, ox + 59, by - 11, 2, 2, "#0e0a08");
+  RX(x, ox + 53, by - 7 + (run ? 1 : 0), 6, 2, dark);               // mandíbula
+  RX(x, ox + 55, by - 8, 1, 2, "#e8e0cf"); RX(x, ox + 58, by - 8, 1, 2, "#e8e0cf");
+  RX(x, ox + 50, by - 13, 2, 1, "#ff4a2a");                         // ojo
+  RX(x, ox + 46, by - 17, 2, 4, dark); RX(x, ox + 49, by - 18, 2, 4, dark);   // orejas
+  legs(0);
+}
+
+function drawCrawlerHD(x, ox, oy, col){
+  const run = col >= 4, ph = (col % 4)*Math.PI/2;
+  const sk = "#b9a894", sh = "#8e7f6d", dark = "#5d5245";
+  const G = oy + 46, by = G - 9 - (run ? Math.abs(Math.sin(ph)) : 0), A = run ? 6 : 3;
+  ell(x, ox + 32, G + 1, 18, 2, "rgba(0,0,0,.35)");
+  // patas de araña: el codo muy por encima del lomo y la mano lejos, en el suelo
+  const limbs = [[40, 1, 0, 1], [40, 1, Math.PI, 0], [21, -1, Math.PI, 1], [21, -1, 0, 0]];
+  const limb = far=> limbs.forEach(([hx, dir, off, f])=>{
+    if(f !== far) return;
+    const c = far ? sh : sk, X = ox + hx, lift = Math.max(0, Math.cos(ph + off))*(run ? 4 : 2);
+    const fx = X + dir*9 + Math.sin(ph + off)*A, ex = X + dir*4 + Math.sin(ph + off)*A*0.5, ey = by - 11 - lift*0.5;
+    seg(x, X, by - 1, ex, ey, 2, c); seg(x, ex, ey, fx, G - 2 - lift, 2, c);
+    RX(x, fx - 1, G - 2 - lift, 3, 2, dark);
+  });
+  limb(1);
+  ell(x, ox + 30, by, 13, 4, sk);
+  ell(x, ox + 30, by + 2, 11, 2, sh);
+  for(let i=0;i<7;i++) RX(x, ox + 20 + i*3, by - 4, 2, 1, sh);   // espinazo
+  for(let i=0;i<3;i++) RX(x, ox + 27 + i*3, by - 1, 1, 3, sh);   // costillas
+  seg(x, ox + 42, by, ox + 47, by + 2, 3, sk);                    // cuello caído
+  ell(x, ox + 49, by + 3, 4, 4, sk);
+  RX(x, ox + 50, by + 1, 3, 2, dark); RX(x, ox + 51, by + 1, 1, 1, "#f0ead8");   // cuenca y pupila
+  RX(x, ox + 50, by + 5, 3, 2 + (run ? 1 : 0), "#2a211a");        // boca abierta
+  limb(0);
+}
+
+function drawClumpHD(x, ox, oy, col){
+  const f = col % 4, run = col >= 4;
+  const m1 = "#7a4a44", m2 = "#5e3733", m3 = "#96605a", vein = "#42221f";
+  const G = oy + 46, cx = ox + 32, cy = G - 12 - (f % 2);
+  ell(x, cx, G + 1, 20, 2, "rgba(0,0,0,.35)");
+  for(let i=0;i<5;i++){                                           // tentáculos
+    const a = (i - 2)*0.55 + Math.sin(f*1.6 + i*1.3)*(run ? 0.35 : 0.2);
+    const bx = cx + (i - 2)*8, ex = bx + Math.sin(a)*9, ey = G - 1;
+    seg(x, bx, cy + 6, ex, ey, 3, m2); RX(x, ex - 1, ey - 1, 3, 2, vein);
+  }
+  for(let yy = -11; yy <= 11; yy++) for(let xx = -19; xx <= 19; xx++){
+    const n = hash3(xx, yy, f + 7), lump = Math.sin(xx*0.45 + f)*0.08 + Math.sin(yy*0.7 + xx*0.3 + f*0.8)*0.07;
+    const d = (xx*xx)/361 + (yy*yy)/121 + lump;
+    if(d > 1 || (d > 0.85 && n < 0.35)) continue;
+    const c = n < 0.05 ? vein : (yy < -4 ? m3 : (yy > 5 ? m2 : m1));
+    RX(x, cx + xx, cy + yy, 1, 1, n > 0.93 ? dk(c, 1.15) : c);
+  }
+  [[-9, -4, 3], [5, -6, 3], [12, 1, 2]].forEach(([ex, ey, n])=>{   // ojos sueltos
+    RX(x, cx + ex, cy + ey, n, n, "#e8dccb"); RX(x, cx + ex + n - 1, cy + ey + (f === 3 ? 0 : 1), 1, 1, "#1a1010");
+  });
+  RX(x, cx - 5, cy + 2, 10, 3 + (run ? 1 : 0), "#33110f");           // boca
+  for(let i=0;i<5;i++) RX(x, cx - 4 + i*2, cy + 2, 1, 1, "#d8ccb0");
+}
+
+// ── Smiler y Deathmoth (celda 48×48, de frente) ──
+function drawSmilerHD(x, ox, oy, col){
+  const f = col % 4, cx = ox + 24, cy = oy + 24;
+  for(let yy = -17; yy <= 17; yy++) for(let xx = -19; xx <= 19; xx++){   // la nube
+    const d = (xx*xx)/361 + (yy*yy)/289, n = hash3(xx, yy, f);
+    if(d > 1 || (d > 0.7 && n < (d - 0.7)*2.6)) continue;
+    RX(x, cx + xx, cy + yy, 1, 1, n < 0.1 ? "#141018" : (n < 0.55 ? "#0a080d" : "#060508"));
+  }
+  const W = "#f4f1df", blink = f === 3;
+  [[-9, 1], [9, -1]].forEach(([ex, s])=>{                           // ojos rasgados, con el borde rojo y azul
+    if(blink){ RX(x, cx + ex - 4, cy - 7, 9, 1, W); return; }
+    ell(x, cx + ex, cy - 7, 4.5, 2, W);
+    RX(x, cx + ex - 5*s - (s > 0 ? 0 : 0), cy - 8, 1, 2, s > 0 ? "#c83a2a" : "#3a6ac8");
+    RX(x, cx + ex + 4*s, cy - 8, 1, 2, s > 0 ? "#3a6ac8" : "#c83a2a");
+    RX(x, cx + ex - 1, cy - 8, 2, 1, "#ffffff");
+  });
+  const wid = 15 + (f === 1 ? 1 : 0);
+  for(let xx = -wid; xx <= wid; xx++){                              // la sonrisa, de oreja a oreja
+    const t = xx/wid, top = Math.round(cy + 3 - 6*t*t), toothH = Math.round(4*(1 - t*t)) + 1;
+    RX(x, cx + xx, top, 1, 1, W);
+    if(xx % 2 === 0) RX(x, cx + xx, top + 1, 1, toothH, "#e6e0cc");
+    RX(x, cx + xx, top + toothH + 1, 1, 1, Math.abs(xx) % 5 === 2 ? "#b8342a" : W);
+  }
+  [[-6, 3], [4, 2], [9, 4]].forEach(([dx, h])=>{                    // gotas rojas
+    const t = dx/wid, y0 = Math.round(cy + 3 - 6*t*t) + Math.round(4*(1 - t*t)) + 3;
+    RX(x, cx + dx, y0, 1, h + (f % 2), "#9a2a22");
+  });
+}
+
+function drawMothHD(x, ox, oy, col){
+  const f = col % 4, cx = ox + 24, top = oy + 8;
+  const w1 = "#6f5d47", w2 = "#4a3d2e", body = "#2b231b", dust = "#d8cba4", ojo = "#c9b27a", dark = "#191410";
+  const spread = [1, 0.75, 0.4, 0.75][f], lift = [0, 3, 6, 3][f];
+  [-1, 1].forEach(s=>{
+    ell(x, cx + s*(4 + 8*spread), top + 14 - lift, 3 + 8*spread, 8, w1);          // ala de arriba
+    ell(x, cx + s*(3 + 5*spread), top + 24 - lift/2, 2 + 5*spread, 5, w2);         // ala de abajo
+    RX(x, cx + s*(4 + 14*spread) - (s < 0 ? 2 : 0), top + 10 - lift, 2, 7, dust);   // polvo del borde
+    if(spread > 0.6){ ell(x, cx + s*(5 + 8*spread), top + 13 - lift, 2.5, 2.5, ojo); RX(x, cx + s*(5 + 8*spread) - 0.5, top + 12.5 - lift, 1, 1, dark); }
+  });
+  RX(x, cx - 2, top + 6, 4, 22, body);                               // cuerpo con anillos
+  for(let i=0;i<4;i++) RX(x, cx - 2, top + 12 + i*4, 4, 1, "#46382a");
+  RX(x, cx - 2, top + 2, 4, 5, dark);
+  RX(x, cx - 2, top + 3, 1, 1, "#ff5a2a"); RX(x, cx + 1, top + 3, 1, 1, "#ff5a2a");
+  seg(x, cx - 1, top + 2, cx - 5, top - 4, 1, dark); seg(x, cx + 1, top + 2, cx + 5, top - 4, 1, dark);   // antenas
+  RX(x, cx - 6, top - 5, 2, 1, dust); RX(x, cx + 4, top - 5, 2, 1, dust);
+}
+
+// Contorno oscuro de 1 px y luz desde arriba, celda a celda (como en No-Clip).
+// Lo semitransparente (la sombra del suelo) no cuenta como cuerpo.
+function finishHD(c, cw, ch, cols, rows, flat){
+  const x = c.getContext("2d");
+  const W = cw*cols, H = ch*rows;
+  const img = x.getImageData(0, 0, W, H);
+  if(!img || !img.data || img.data.length < W*H*4) return;
+  const d = img.data, solid = new Uint8Array(W*H);
+  for(let i=0;i<W*H;i++) solid[i] = d[i*4+3] > 100 ? 1 : 0;
+  for(let r=0;r<rows;r++) for(let q=0;q<cols;q++){
+    const x0 = q*cw, y0 = r*ch;
+    let minY = ch, maxY = 0;
+    for(let yy=0;yy<ch;yy++) for(let xx=0;xx<cw;xx++) if(solid[(y0+yy)*W + x0+xx]){ if(yy < minY) minY = yy; if(yy > maxY) maxY = yy; }
+    const span = Math.max(1, maxY - minY);
+    for(let yy=0;yy<ch;yy++) for(let xx=0;xx<cw;xx++){
+      const k = (y0+yy)*W + x0+xx, p = k*4;
+      const S = (dx, dy)=>{ const X = xx+dx, Y = yy+dy; return X >= 0 && Y >= 0 && X < cw && Y < ch && solid[k + dy*W + dx]; };
+      if(!solid[k]){
+        if(S(-1,0) || S(1,0) || S(0,-1) || S(0,1)){ d[p] = 12; d[p+1] = 10; d[p+2] = 8; d[p+3] = 235; }
+        continue;
+      }
+      if(flat) continue;
+      let f = 1.08 - 0.3*((yy - minY)/span);
+      if(!S(0,-1) || !S(-1,0)) f *= 1.15;                           // borde iluminado
+      else if(!S(1,0)) f *= 0.86;                                   // borde en sombra
+      f *= 0.97 + 0.06*hash3(xx, yy, r*31 + q);                     // grano
+      d[p] = Math.min(255, d[p]*f); d[p+1] = Math.min(255, d[p+1]*f); d[p+2] = Math.min(255, d[p+2]*f);
     }
   }
-
-  if(!back && !o.faceless){
-    if(side){
-      P(x, hx+6, hy+4, 2, 2, p.eye);
-      if(o.grin) P(x, hx+5, hy+7, 3, 1, "#b8342a");
-    } else {
-      P(x, hx+2, hy+4, 2, 2, p.eye);
-      P(x, hx+headW-4, hy+4, 2, 2, p.eye);
-      if(o.grin){
-        P(x, hx+2, hy+7, headW-4, 2, "#b8342a");
-        P(x, hx+1, hy+6, 1, 2, "#b8342a");
-        P(x, hx+headW-2, hy+6, 1, 2, "#b8342a");
-        for(let i=0;i<3;i++) P(x, hx+3+i*2, hy+7, 1, 2, "#efe7cf");
-      } else if(p.mouth) P(x, hx+3, hy+7, 3, 1, p.mouth);
-    }
-  }
-  if(o.torchGlow && !back){
-    P(x, side?ox+15:ox+18, y+22-tall, 2, 3, "#3a3d42");
-    P(x, side?ox+15:ox+18, y+25-tall, 2, 1, "#ffeaa8");
-  }
-}
-
-// ── Smiler (Entity 3) ──
-function drawSmiler(x, ox, oy, frame){
-  const b = [0,1,2,1][frame];
-  const y = oy + 5 + b, cx = ox + 12;
-  // una mancha redonda de oscuridad, más densa en el centro
-  [6,10,14,16,18,18,20,20,20,20,20,18,18,16,14,10,6].forEach((w,i)=>
-    P(x, cx - w/2, y+i, w, 1, "rgba(6,5,8,.95)"));
-  [4,6,8,10,10,10,8,6].forEach((w,i)=> P(x, cx - w/2, y+4+i, w, 1, "rgba(0,0,0,.5)"));
-  const w = "#f4f1df", sombra = "rgba(120,110,90,.55)";
-  // ojos: rasgados hacia arriba, con un brillo
-  P(x, cx-8, y+5, 5, 2, w); P(x, cx+3, y+5, 5, 2, w);
-  P(x, cx-7, y+4, 3, 1, w); P(x, cx+4, y+4, 3, 1, w);
-  P(x, cx-8, y+7, 5, 1, sombra); P(x, cx+3, y+7, 5, 1, sombra);
-  P(x, cx-6, y+5, 1, 1, "#ffffff"); P(x, cx+5, y+5, 1, 1, "#ffffff");
-  // la sonrisa: un arco de dientes de lado a lado
-  P(x, cx-9, y+9, 1, 2, w); P(x, cx+8, y+9, 1, 2, w);
-  P(x, cx-8, y+10, 16, 1, w);
-  for(let i=0;i<8;i++) P(x, cx-8+i*2, y+11, 1, 2 + (i%2), w);
-  for(let i=0;i<7;i++) P(x, cx-7+i*2, y+11, 1, 1, sombra);
-  P(x, cx-7, y+13, 14, 1, w);
-  P(x, cx-6, y+14, 12, 1, sombra);
-}
-
-// ── Hound (Entity 8) ──
-function drawHound(x, ox, oy, frame){
-  const s = [0,2,0,-2][frame];
-  const y = oy + 12;
-  const hide="#4e3b2c", shade="#382a1f", dark="#251b14";
-  P(x, ox+4, y+21, 16, 2, "rgba(0,0,0,.4)");
-  P(x, ox+4,  y+6, 13, 8, hide);
-  P(x, ox+4,  y+11, 13, 3, shade);
-  P(x, ox+16, y+3, 6, 7, hide);
-  P(x, ox+16, y+8, 6, 2, shade);
-  P(x, ox+21, y+6, 3, 3, dark);
-  P(x, ox+16, y+1, 2, 3, dark);
-  P(x, ox+19, y+1, 2, 3, dark);
-  P(x, ox+19, y+5, 2, 2, "#ff4a2a");
-  P(x, ox+1,  y+5, 4, 3, shade);
-  P(x, ox+0,  y+3, 2, 3, dark);
-  P(x, ox+6+s,  y+14, 3, 7, hide);
-  P(x, ox+13-s, y+14, 3, 7, hide);
-  P(x, ox+6-s,  y+14, 3, 7, shade);
-  P(x, ox+13+s, y+14, 3, 7, shade);
-  P(x, ox+6+s,  y+20, 3, 2, dark);
-  P(x, ox+13-s, y+20, 3, 2, dark);
-}
-
-// ── Deathmoth (Entity 4) ──
-function drawMoth(x, ox, oy, frame){
-  const f = [0,1,2,1][frame];
-  const y = oy + 8;
-  const w1="#6f5d47", w2="#4a3d2e", body="#2b231b", dust="#d8cba4", ojo="#c9b27a", dark="#191410";
-  // las alas salen del cuerpo (antes quedaban sueltas en el fotograma abierto)
-  const ww = [9,7,4][f], wh = [11,9,12][f], wy = y + 5 - (f === 2 ? 2 : 0);
-  P(x, ox+11-ww, wy, ww, wh, w1);               // alas de arriba
-  P(x, ox+14,    wy, ww, wh, w1);
-  P(x, ox+13-ww, wy+wh-1, ww-2, 4, w2);         // alas de abajo, más pequeñas
-  P(x, ox+14,    wy+wh-1, ww-2, 4, w2);
-  P(x, ox+11-ww, wy, ww, 1, dust);              // polvo del borde
-  P(x, ox+14,    wy, ww, 1, dust);
-  if(ww >= 6){                                  // los "ojos" de las alas
-    P(x, ox+13-ww, wy+3, 3, 3, ojo); P(x, ox+14+ww-5, wy+3, 3, 3, ojo);
-    P(x, ox+14-ww, wy+4, 1, 1, dark); P(x, ox+14+ww-4, wy+4, 1, 1, dark);
-  }
-  P(x, ox+11, y+4, 3, 15, body);                // cuerpo con anillos
-  P(x, ox+11, y+9, 3, 1, "#46382a"); P(x, ox+11, y+12, 3, 1, "#46382a"); P(x, ox+11, y+15, 3, 1, "#46382a");
-  P(x, ox+11, y+2, 3, 3, dark);                 // cabeza
-  P(x, ox+11, y+3, 1, 1, "#ff5a2a"); P(x, ox+13, y+3, 1, 1, "#ff5a2a");
-  P(x, ox+9,  y,   2, 3, dark); P(x, ox+14, y, 2, 3, dark);   // antenas
-}
-
-// ── Clump (Entity 5): masa de carne que se arrastra ──
-function drawClump(x, ox, oy, frame){
-  const b = [0,1,2,1][frame];
-  const y = oy + 20 - b;
-  const m1="#7a4a44", m2="#5e3733", m3="#96605a";
-  P(x, ox+3, y+13, 18, 2, "rgba(0,0,0,.4)");
-  P(x, ox+4, y+4, 16, 10, m1);
-  P(x, ox+2, y+7, 20, 6, m1);
-  P(x, ox+6, y+2, 12, 4, m3);
-  P(x, ox+4, y+10, 16, 4, m2);
-  for(let i=0;i<4;i++){
-    const tx = ox+3+i*5, h = 3+((i+frame)%3);
-    P(x, tx, y+12, 2, h, m2);
-    P(x, tx, y+12+h, 2, 1, "#42221f");
-  }
-  P(x, ox+7, y+5, 2, 2, "#e8dccb");
-  P(x, ox+14, y+6, 2, 2, "#e8dccb");
-  P(x, ox+10, y+9, 5, 2, "#33110f");
-}
-
-// ── Crawler (Entity 17): cuadrúpedo pálido y rápido ──
-function drawCrawler(x, ox, oy, frame){
-  const s = [0,2,0,-2][frame];
-  const y = oy + 18;
-  const skin="#b9a894", shade="#8e7f6d", dark="#5d5245";
-  P(x, ox+5, y+15, 14, 2, "rgba(0,0,0,.38)");
-  P(x, ox+6, y+4, 10, 6, skin);
-  P(x, ox+6, y+8, 10, 2, shade);
-  P(x, ox+15, y+2, 5, 6, skin);
-  P(x, ox+18, y+5, 3, 2, dark);
-  P(x, ox+17, y+4, 1, 1, "#e8e0cf");
-  P(x, ox+2, y+5, 4, 2, shade);
-  P(x, ox+7+s,  y+10, 2, 5, skin);
-  P(x, ox+13-s, y+10, 2, 5, skin);
-  P(x, ox+7-s,  y+10, 2, 5, shade);
-  P(x, ox+13+s, y+10, 2, 5, shade);
-  P(x, ox+6, y+3, 3, 1, dark);
-}
-
-// Pinta sólo donde ya hay sprite: da volumen y suciedad sin desbordar la silueta.
-function shadeCell(x, ox, oy, seed){
-  const rand = makeRand(seed);
-  x.save();
-  x.beginPath(); x.rect(ox,oy,SW,SH); x.clip();
-  x.globalCompositeOperation = "source-atop";
-  x.fillStyle = "rgba(0,0,0,.22)";       x.fillRect(ox, oy, 6, SH);
-  x.fillStyle = "rgba(0,0,0,.12)";       x.fillRect(ox+6, oy, 3, SH);
-  x.fillStyle = "rgba(255,255,255,.10)"; x.fillRect(ox+SW-5, oy, 5, SH);
-  x.fillStyle = "rgba(0,0,0,.16)";       x.fillRect(ox, oy+SH-6, SW, 6);
-  for(let i=0;i<30;i++){
-    const w = 1+((rand()*2)|0), h = 1+((rand()*2)|0);
-    x.fillStyle = rand()<0.58 ? "rgba(26,20,14,.30)" : "rgba(226,218,196,.12)";
-    x.fillRect(ox+((rand()*SW)|0), oy+((rand()*SH)|0), w, h);
-  }
-  x.restore();
+  x.putImageData(img, 0, 0);
 }
 
 /* ── refinado de sprites ──
@@ -1448,7 +1668,7 @@ function shadeCell(x, ox, oy, seed){
      1. Scale2x: dobla la resolución suavizando las diagonales sin emborronar
         (sólo copia colores vecinos, nunca inventa uno nuevo).
      2. A doble resolución: contorno oscuro del color de al lado, luz de borde
-        arriba y a la derecha (la misma dirección que shadeCell), sombra abajo
+        arriba y a la derecha, sombra abajo
         y a la izquierda, y oclusión en el último tercio (pies, suelo).
    Se trabaja celda a celda para que un fotograma no manche al de al lado. */
 const REFINE = 2;
@@ -1521,20 +1741,18 @@ function refineSprite(src, cw, ch, cols, rows, o){
   return c;
 }
 
-function buildAtlas(cols, rows, drawCell, shadeSeed){
-  const {c,x} = newCanvas(SW*cols, SH*rows);
-  for(let r=0;r<rows;r++) for(let col=0;col<cols;col++){
-    drawCell(x, col*SW, r*SH, col, r);
-    if(shadeSeed) shadeCell(x, col*SW, r*SH, shadeSeed + r*977);
-  }
-  const fin = refineSprite(c, SW, SH, cols, rows);
-  const t = new THREE.CanvasTexture(fin);
+function buildAtlas(cols, rows, drawCell, cw, ch, flat){
+  cw = cw || HW; ch = ch || HH;
+  const {c,x} = newCanvas(cw*cols, ch*rows);
+  for(let r=0;r<rows;r++) for(let col=0;col<cols;col++) drawCell(x, col*cw, r*ch, col, r);
+  finishHD(c, cw, ch, cols, rows, flat);
+  const t = new THREE.CanvasTexture(c);
   t.magFilter = THREE.NearestFilter;
   t.minFilter = THREE.NearestFilter;
   t.generateMipmaps = false;
   t.encoding = THREE.sRGBEncoding;
   t.repeat.set(1/cols, 1/rows);
-  return {tex:t, cols, rows};
+  return {tex:t, cols, rows, cw, ch};
 }
 
 /* ═══════════════ PERSONAJES ═══════════════ */
@@ -1555,7 +1773,7 @@ const CHARACTERS = [
     pal:{ skin:"#c49a6e", skinShade:"#a67c55", hair:"#332419", hairShade:"#241a12",
           shirt:"#4e5b46", shirtShade:"#3a4435", pants:"#2e3440", pantsShade:"#232833",
           shoe:"#20211f", shoeShade:"#141513", belt:"#2a231a", collar:"#5d6b53", eye:"#15110c", mouth:"#8a5f4a" },
-    opts:{ cap:"#3d4a38" }
+    opts:{ cap:"#3d4a38", vest:"#8a7a4e", pendant:true, strap:"#4a3a22" }
   },
   {
     id:"scav", name:"Vera", role:"Carroñera", name_en:"Vera", role_en:"Scavenger",
@@ -1572,7 +1790,7 @@ const CHARACTERS = [
     pal:{ skin:"#d0a883", skinShade:"#b08965", hair:"#5a2f22", hairShade:"#3f2018",
           shirt:"#6d3a3f", shirtShade:"#532c30", pants:"#3a3a34", pantsShade:"#2b2b26",
           shoe:"#2a2420", shoeShade:"#191512", belt:"#8a6a3a", collar:null, eye:"#14100c", mouth:"#95604c" },
-    opts:{ ponytail:true }
+    opts:{ ponytail:true, jacket:"#5a3f2a", jacketShade:"#442e1e", patches:["#8a6a3a","#6a7a4a"], goggles:true, scarf:"#8a3a2a" }
   },
   {
     id:"lazarus", name:"Lázaro", role:"Superviviente del Level 6", name_en:"Lazarus", role_en:"Level 6 survivor",
@@ -1591,7 +1809,7 @@ const CHARACTERS = [
     pal:{ skin:"#b09a86", skinShade:"#8e7a68", hair:"#2a2622", hairShade:"#1b1815",
           shirt:"#3b4044", shirtShade:"#2b2f33", pants:"#33312c", pantsShade:"#262420",
           shoe:"#1c1a18", shoeShade:"#121110", belt:"#4a443a", collar:null, eye:"#d8d2c0", mouth:"#7a6456" },
-    opts:{ hood:"#33372f", ribs:true }
+    opts:{ hood:"#33372f", ribs:true, bandages:true, torn:true, glowEyes:true }
   },
   {
     id:"coach", name:"El Entrenador", role:"Faceling del Level 31", name_en:"The Coach", role_en:"Level 31 Faceling",
@@ -1611,7 +1829,7 @@ const CHARACTERS = [
           shirt:"#6b4a7a", shirtShade:"#503859", pants:"#3a3a42", pantsShade:"#2b2b31",
           shoe:"#8a6a3a", shoeShade:"#5e4826", belt:"#2e2a26", collar:"#7f5a90",
           eye:"#cbc2ae", mouth:"#cbc2ae" },
-    opts:{ cap:"#6b4a7a" }
+    opts:{ cap:"#6b4a7a", whistle:true, stripe:"#e8e0c8", skates:true, number:true }
   }
 ];
 
@@ -1632,22 +1850,31 @@ const PALETTES = {
               shoe:"#241a28", belt:"#e0c04a", collar:"#e8d9c0", eye:"#14100c" }
 };
 
+// las entidades con cuerpo de persona: paleta y rasgos
+const ENT_LOOK = {
+  faceling:  {pal:PALETTES.faceling,  opts:{faceless:true, headShape:"long", headW:8, tall:-2}},
+  stealer:   {pal:PALETTES.stealer,   opts:{grin:true, tie:true}},
+  duller:    {pal:PALETTES.duller,    opts:{faceless:true, headW:9, hunch:1}},
+  wretch:    {pal:PALETTES.wretch,    opts:{grin:true, hunch:2, reach:true, ribs:true, headW:8, glowEyes:true}},
+  partygoer: {pal:PALETTES.partygoer, opts:{grin:true, partyhat:true}}
+};
 const SPRITES = {};
 function buildSprites(){
   CHARACTERS.forEach(ch=>{
-    SPRITES["char_"+ch.id] = buildAtlas(4,4,(x,ox,oy,col,row)=>
-      drawHumanoid(x,ox,oy,row,col,ch.pal, Object.assign({pack:ch.id==="scav"?"#4d4437":null}, ch.opts)), 4100+ch.id.length*31);
+    const look = skinLook(ch, "base");
+    SPRITES["char_"+ch.id] = buildAtlas(8,4,(x,ox,oy,col,row)=> drawPerson(x,ox,oy,row,col,look.pal,look.opts));
+    SPRITES["char_"+ch.id].look = look;
   });
-  SPRITES.faceling  = buildAtlas(4,4,(x,ox,oy,c,r)=> drawHumanoid(x,ox,oy,r,c,PALETTES.faceling,{faceless:true, headShape:"long", headW:8, tall:-2}), 7101);
-  SPRITES.stealer   = buildAtlas(4,4,(x,ox,oy,c,r)=> drawHumanoid(x,ox,oy,r,c,PALETTES.stealer,{grin:true}), 7203);
-  SPRITES.duller    = buildAtlas(4,4,(x,ox,oy,c,r)=> drawHumanoid(x,ox,oy,r,c,PALETTES.duller,{faceless:true, headW:9, hunch:1}), 7307);
-  SPRITES.wretch    = buildAtlas(4,4,(x,ox,oy,c,r)=> drawHumanoid(x,ox,oy,r,c,PALETTES.wretch,{grin:true, hunch:2, reach:true, ribs:true, headW:8}), 7411);
-  SPRITES.partygoer = buildAtlas(4,4,(x,ox,oy,c,r)=> drawHumanoid(x,ox,oy,r,c,PALETTES.partygoer,{grin:true}), 7513);
-  SPRITES.smiler    = buildAtlas(4,1,(x,ox,oy,c)=> drawSmiler(x,ox,oy,c), 7617);
-  SPRITES.hound     = buildAtlas(4,1,(x,ox,oy,c)=> drawHound(x,ox,oy,c), 7719);
-  SPRITES.deathmoth = buildAtlas(4,1,(x,ox,oy,c)=> drawMoth(x,ox,oy,c), 7823);
-  SPRITES.clump     = buildAtlas(4,1,(x,ox,oy,c)=> drawClump(x,ox,oy,c), 7927);
-  SPRITES.crawler   = buildAtlas(4,1,(x,ox,oy,c)=> drawCrawler(x,ox,oy,c), 8029);
+  for(const k in ENT_LOOK){
+    const L = ENT_LOOK[k];
+    SPRITES[k] = buildAtlas(8,4,(x,ox,oy,c,r)=> drawPerson(x,ox,oy,r,c,L.pal,L.opts));
+    SPRITES[k].look = L;
+  }
+  SPRITES.smiler    = buildAtlas(4,1,(x,ox,oy,c)=> drawSmilerHD(x,ox,oy,c), 48, 48, true);   // brilla: sin sombreado
+  SPRITES.hound     = buildAtlas(8,1,(x,ox,oy,c)=> drawHoundHD(x,ox,oy,c), 64, 48);
+  SPRITES.deathmoth = buildAtlas(4,1,(x,ox,oy,c)=> drawMothHD(x,ox,oy,c), 48, 48);
+  SPRITES.clump     = buildAtlas(8,1,(x,ox,oy,c)=> drawClumpHD(x,ox,oy,c), 64, 48);
+  SPRITES.crawler   = buildAtlas(8,1,(x,ox,oy,c)=> drawCrawlerHD(x,ox,oy,c), 64, 48);
 }
 
 /* ── aspectos ──
@@ -1657,18 +1884,18 @@ function buildSprites(){
 const SKINS = [
   {id:"base", es:"Ropa de siempre", en:"Usual clothes"},
   {id:"meg", es:"Uniforme del M.E.G.", en:"M.E.G. uniform", need:{rand:10},
-   pal:{shirt:"#2c3a52", shirtShade:"#1f2a3c", pants:"#23262e", pantsShade:"#191b21", collar:"#c8a03a", belt:"#15171c", shoe:"#101114", shoeShade:"#0a0b0d"}, opts:{cap:"#2c3a52"}},
+   pal:{shirt:"#2c3a52", shirtShade:"#1f2a3c", pants:"#23262e", pantsShade:"#191b21", collar:"#c8a03a", belt:"#15171c", shoe:"#101114", shoeShade:"#0a0b0d"}, opts:{cap:"#2c3a52", vest:"#23303f", badge:true, strap:"#15171c"}},
   {id:"hazmat", es:"Traje de contención", en:"Hazmat suit", need:{rand:30},
-   pal:{shirt:"#d8b23a", shirtShade:"#b08e26", pants:"#d0aa34", pantsShade:"#a88822", shoe:"#2a2a2a", shoeShade:"#1a1a1a", belt:"#3a3a3a", collar:"#e8c850"}, opts:{hood:"#c8a430"}},
+   pal:{shirt:"#d8b23a", shirtShade:"#b08e26", pants:"#d0aa34", pantsShade:"#a88822", shoe:"#2a2a2a", shoeShade:"#1a1a1a", belt:"#3a3a3a", collar:"#e8c850"}, opts:{hood:"#c8a430", visor:true}},
   {id:"lobby", es:"Papel pintado del Level 0", en:"Level 0 wallpaper", need:{rand:60},
-   pal:{shirt:"#c8b972", shirtShade:"#a8994f", pants:"#b5a35d", pantsShade:"#8e7f45", collar:"#e0d49a", belt:"#7e6f3a"}},
+   pal:{shirt:"#c8b972", shirtShade:"#a8994f", pants:"#b5a35d", pantsShade:"#8e7f45", collar:"#e0d49a", belt:"#7e6f3a"}, opts:{pattern:true}},
   {id:"void", es:"El vacío", en:"The void", need:{rand:120},
    pal:{skin:"#2a2436", skinShade:"#1c1826", shirt:"#140f1e", shirtShade:"#0c0914", pants:"#140f1e", pantsShade:"#0a0810",
         eye:"#b090ff", mouth:"#6a4ab8", hair:"#0a0810", hairShade:"#06050a", shoe:"#08060c", shoeShade:"#040305", belt:"#6a4ab8", collar:"#8f6bd6"}},
   {id:"medic", es:"Sanitario de campaña", en:"Field medic", need:{rev:5},
-   pal:{shirt:"#e8e4dc", shirtShade:"#c4c0b6", pants:"#d8d4ca", pantsShade:"#b4b0a6", collar:"#b4402f", belt:"#b4402f"}, opts:{cap:"#e8e4dc"}},
+   pal:{shirt:"#e8e4dc", shirtShade:"#c4c0b6", pants:"#d8d4ca", pantsShade:"#b4b0a6", collar:"#b4402f", belt:"#b4402f"}, opts:{cap:"#e8e4dc", cross:true}},
   {id:"crew", es:"Expedición conjunta", en:"Joint expedition", need:{mp:25},
-   pal:{shirt:"#6a4a2a", shirtShade:"#4e361e", pants:"#3a3e2e", pantsShade:"#2a2e20", collar:"#c86a2a", belt:"#2a2016"}, opts:{cap:"#c86a2a"}}
+   pal:{shirt:"#6a4a2a", shirtShade:"#4e361e", pants:"#3a3e2e", pantsShade:"#2a2e20", collar:"#c86a2a", belt:"#2a2016"}, opts:{cap:"#c86a2a", scarf:"#c86a2a", strap:"#2a2016", vest:"#4e361e"}}
 ];
 const SKIN_BY = {}; SKINS.forEach(s=> SKIN_BY[s.id] = s);
 function skinNeedText(s){
@@ -1685,11 +1912,16 @@ function skinUnlocked(s){
   return (!n.rand || (p.rand||0) >= n.rand) && (!n.rev || (p.rev||0) >= n.rev) && (!n.mp || (p.mp||0) >= n.mp);
 }
 function skinOf(chId){ const id = (G.skins || {})[chId]; return SKIN_BY[id] && skinUnlocked(SKIN_BY[id]) ? id : "base"; }
+const ROPA = ["vest","jacket","jacketShade","patches","strap","scarf","pendant","whistle","badge","tie","cross",
+  "number","stripe","torn","skates","goggles","visor","pattern","bandages","cap","hood"];
 function skinLook(ch, skinId){
   const s = SKIN_BY[skinId] || SKINS[0];
   const pal = Object.assign({}, ch.pal, s.pal || {});
   if(ch.id === "coach" && skinId !== "void"){ pal.eye = pal.skin; pal.mouth = pal.skin; }   // el Entrenador sigue sin cara
-  return {pal, opts: Object.assign({pack:ch.id==="scav"?"#4d4437":null}, ch.opts, s.opts || {})};
+  const base = Object.assign({pack:ch.id==="scav"?"#4d4437":null}, ch.opts);
+  // un aspecto trae su propia ropa: la del personaje se quita (menos el pelo y la silueta)
+  if(skinId && skinId !== "base") ROPA.forEach(k=> delete base[k]);
+  return {pal, opts: Object.assign(base, s.opts || {})};
 }
 function skinAtlas(chId, skinId){
   const ch = CHARACTERS.find(c=> c.id === chId) || CHARACTERS[0];
@@ -1697,7 +1929,8 @@ function skinAtlas(chId, skinId){
   const key = "char_"+ch.id+"_"+skinId;
   if(!SPRITES[key]){
     const look = skinLook(ch, skinId);
-    SPRITES[key] = buildAtlas(4,4,(x,ox,oy,col,row)=> drawHumanoid(x,ox,oy,row,col,look.pal,look.opts), 4100+ch.id.length*31);
+    SPRITES[key] = buildAtlas(8,4,(x,ox,oy,col,row)=> drawPerson(x,ox,oy,row,col,look.pal,look.opts));
+    SPRITES[key].look = look;
   }
   return SPRITES[key];
 }
@@ -1715,14 +1948,14 @@ function checkSkins(){
 
 // retrato grande para la pantalla de selección
 function charPortrait(ch, scale, frame, dir, skinId){
-  const {c,x} = newCanvas(SW,SH);
+  const {c,x} = newCanvas(HW,HH);
   const look = skinLook(ch, skinId || "base");
-  drawHumanoid(x,0,0,dir||0,frame||0,look.pal, look.opts);
-  shadeCell(x, 0, 0, 4100+ch.id.length*31);
-  const fin = refineSprite(c, SW, SH, 1, 1);
-  const {c:big, x:bx} = newCanvas(SW*scale, SH*scale);
+  drawPerson(x,0,0,dir||0,frame||0,look.pal, look.opts);
+  finishHD(c, HW, HH, 1, 1);
+  const k = scale/2;                               // «scale» cuenta en celdas de 24×36
+  const {c:big, x:bx} = newCanvas(HW*k, HH*k);
   bx.imageSmoothingEnabled = false;
-  bx.drawImage(fin,0,0,SW*scale,SH*scale);
+  bx.drawImage(c,0,0,HW*k,HH*k);
   return big;
 }
 
@@ -3950,7 +4183,748 @@ function bfs(grid, n, sx, sy){
 
 /* ═══════════════ SPRITES EN EL MUNDO ═══════════════ */
 
+/* ═══════════════ 8 BITS EN 3D ═══════════════
+   Personajes y entidades como muñecos articulados de cubitos (vóxeles), a la
+   misma densidad que su pixel art: un cubito mide lo que un píxel del sprite.
+   Cada figura es un árbol de piezas (torso, cabeza, brazo, antebrazo, muslo,
+   espinilla; o cuerpo, patas, cola, alas, tentáculos) y cada pieza es una
+   malla de cubitos pintada por código con la paleta y la ropa del personaje.
+   Las mallas se hacen una vez por aspecto y se comparten (userData.keep).
+
+   La animación es procedural (rigAnimate → rigPose): la figura mide cuánto
+   se ha movido desde el fotograma anterior y de ahí sale todo. Quieta
+   respira y mira alrededor; andando balancea brazos y piernas; corriendo
+   dobla rodillas y codos, se inclina y bracea. Andar de lado gira las
+   piernas y andar hacia atrás invierte el paso. Las posturas especiales van
+   en userData.pose: "held" (te agarran), "grab" (agarra), "stun", "wind"
+   (carga el especial), "chase" y "down" (caído); el golpe con arma, en
+   userData.swing. Ajustes → Gráficos → «Personajes» vuelve a los sprites. */
+const RIG_KIND = {hound:"hound", crawler:"crawler", clump:"clump", smiler:"smiler", deathmoth:"moth"};
+function voxOn(){ return !!G.opts && G.opts.figs === 1; }
+function isRig(m){ return !!(m && m.userData && m.userData.rig); }
+const wrapA = a=>{ while(a > Math.PI) a -= TAU; while(a < -Math.PI) a += TAU; return a; };
+
+// ── colores: "#rrggbb"; con "!" delante el cubito brilla (ojos, dientes, linterna) ──
+function hexRGB(c){ const n = parseInt(c.slice(1, 7), 16); return [n>>16 & 255, n>>8 & 255, n & 255]; }
+function dk(c, k){
+  if(!c) return c;
+  const glow = c.charAt(0) === "!";
+  const v = hexRGB(glow ? c.slice(1) : c).map(x=> Math.max(0, Math.min(255, Math.round(x*k))));
+  return (glow ? "!" : "") + "#" + v.map(x=> (x < 16 ? "0" : "") + x.toString(16)).join("");
+}
+function hash3(x, y, z){
+  let h = Math.imul(x|0, 73856093) ^ Math.imul(y|0, 19349663) ^ Math.imul(z|0, 83492791);
+  h = Math.imul(h ^ (h >>> 13), 0x5bd1e995);
+  return ((h ^ (h >>> 15)) >>> 0) / 4294967296;
+}
+
+// ── rejilla de cubitos: coordenadas enteras de -128 a 127 ──
+function vgrid(){
+  const m = new Map();
+  const K = (x,y,z)=> ((x+128)*256 + (y+128))*256 + (z+128);
+  const g = {
+    m,
+    set(x,y,z,c){ const k = K(x,y,z); if(c) m.set(k, c); else m.delete(k); return g; },
+    get(x,y,z){ return m.get(K(x,y,z)); },
+    has(x,y,z){ return m.has(K(x,y,z)); },
+    box(x0,y0,z0,w,h,d,c){
+      for(let x=x0;x<x0+w;x++) for(let y=y0;y<y0+h;y++) for(let z=z0;z<z0+d;z++)
+        g.set(x,y,z, typeof c === "function" ? c(x,y,z) : c);
+      return g;
+    },
+    // repinta sólo donde ya hay cubito (como el source-atop de los sprites)
+    paint(x0,y0,z0,w,h,d,c){
+      for(let x=x0;x<x0+w;x++) for(let y=y0;y<y0+h;y++) for(let z=z0;z<z0+d;z++){
+        const k = K(x,y,z);
+        if(m.has(k)) m.set(k, typeof c === "function" ? c(m.get(k), x, y, z) : c);
+      }
+      return g;
+    },
+    each(fn){ m.forEach((c,k)=> fn((k >> 16) - 128, ((k >> 8) & 255) - 128, (k & 255) - 128, c)); }
+  };
+  return g;
+}
+
+// normal, luz de la cara y sus 4 esquinas (en unidades de cubito)
+const VOX_FACES = [
+  [[0,0,1],  0.97, [[0,0,1],[1,0,1],[1,1,1],[0,1,1]]],
+  [[0,0,-1], 0.84, [[1,0,0],[0,0,0],[0,1,0],[1,1,0]]],
+  [[1,0,0],  0.88, [[1,0,1],[1,0,0],[1,1,0],[1,1,1]]],
+  [[-1,0,0], 0.88, [[0,0,0],[0,0,1],[0,1,1],[0,1,0]]],
+  [[0,1,0],  1.12, [[0,1,1],[1,1,1],[1,1,0],[0,1,0]]],
+  [[0,-1,0], 0.62, [[0,0,0],[1,0,0],[1,0,1],[0,0,1]]]
+];
+// De la rejilla a arrays de malla: sólo las caras que dan al aire. Función
+// pura (sin Three.js), así se puede probar en el banco.
+function voxMeshData(g, s, off){
+  const ox = off ? off[0] : 0, oy = off ? off[1] : 0, oz = off ? off[2] : 0;
+  const mk = ()=> ({pos:[], nor:[], col:[], idx:[]});
+  const out = {solid:mk(), glow:mk(), voxeles:0, caras:0};
+  const lin = {};
+  const rgb = c=> lin[c] || (lin[c] = hexRGB(c.charAt(0) === "!" ? c.slice(1) : c).map(v=> Math.pow(v/255, 2.2)));
+  g.each((x,y,z,c)=>{
+    out.voxeles++;
+    const glow = c.charAt(0) === "!", T = glow ? out.glow : out.solid;
+    const b = rgb(c), j = glow ? 1 : 0.92 + 0.16*hash3(x, y, z);   // grano de 8 bits
+    for(let f=0; f<6; f++){
+      const F = VOX_FACES[f], n = F[0];
+      if(g.has(x+n[0], y+n[1], z+n[2])) continue;
+      const k = glow ? 1 : F[1]*j, o = T.pos.length/3;
+      for(let v=0; v<4; v++){
+        const q = F[2][v];
+        T.pos.push((x+q[0]+ox)*s, (y+q[1]+oy)*s, (z+q[2]+oz)*s);
+        T.nor.push(n[0], n[1], n[2]);
+        T.col.push(b[0]*k, b[1]*k, b[2]*k);
+      }
+      T.idx.push(o, o+1, o+2, o, o+2, o+3);
+      out.caras++;
+    }
+  });
+  return out;
+}
+function voxGeo(g, s, off){
+  const d = voxMeshData(g, s, off);
+  const mk = t=>{
+    if(!t.idx.length) return null;
+    const b = new THREE.BufferGeometry();
+    b.setAttribute("position", new THREE.Float32BufferAttribute(t.pos, 3));
+    b.setAttribute("normal", new THREE.Float32BufferAttribute(t.nor, 3));
+    b.setAttribute("color", new THREE.Float32BufferAttribute(t.col, 3));
+    b.setIndex(t.idx);
+    b.userData.keep = true;                        // compartida: no se tira al cambiar de nivel
+    b.computeBoundingSphere();
+    return b;
+  };
+  return {solid: mk(d.solid), glow: mk(d.glow)};
+}
+
+/* ── los modelos ──
+   Cada uno devuelve sus piezas: n (nombre), p (pieza padre), at (articulación
+   en cubitos, dentro del padre), g (rejilla), off (desplazamiento de la malla
+   para centrar anchos impares) y rot (postura de reposo). */
+
+// Humanoide: jugador, compañeros, Facelings, Skin-Stealers, Dullers, Wretches,
+// Partygoers. Pies en y = 0, mira hacia +z; su izquierda es +x.
+function rigHuman(look){
+  const p = look.pal || {}, o = look.opts || {};
+  const skin = p.skin || "#c49a6e", skinSh = p.skinShade || dk(skin, 0.82);
+  const shirt = p.shirt || "#6a6a6a", shirtSh = p.shirtShade || dk(shirt, 0.8);
+  const pants = p.pants || "#34343a", pantsSh = p.pantsShade || dk(pants, 0.8);
+  const shoe = p.shoe || "#222222", shoeSh = p.shoeShade || dk(shoe, 0.7);
+  const sleeve = o.jacket || shirt, sleeveSh = o.jacketShade || shirtSh;
+  const reach = o.reach ? 3 : 0;
+  const faceless = !!o.faceless || !p.eye || p.eye === p.skin;
+  const parts = [];
+
+  // ── torso: x -5..4 · y 0..10 · z -3..2 (la cara de delante es z = 2) ──
+  const T = vgrid().box(-5,0,-3,10,11,6, shirt);
+  T.paint(-5,0,-3,10,1,6, shirtSh);                                   // faldón metido
+  if(p.belt){ T.paint(-5,1,-3,10,1,6, p.belt); T.set(-1,1,3,"#b8a060").set(0,1,3,"#b8a060"); }
+  const surf = (x,y,dir)=>{                        // el cubito más de fuera, delante o detrás
+    for(let z = dir > 0 ? 6 : -8; dir > 0 ? z >= -3 : z <= 2; z -= dir) if(T.has(x,y,z)) return z;
+    return dir > 0 ? 2 : -3;
+  };
+  if(p.collar && !o.hood){
+    T.paint(-2,10,2,4,1,1, p.collar);
+    T.set(-3,10,2,p.collar).set(2,10,2,p.collar).set(-3,9,2,p.collar).set(2,9,2,p.collar);
+  }
+  if(o.pattern) T.paint(-5,2,-3,10,8,6, (c,x,y,z)=> ((x+z)%3+3)%3 === 0 ? dk(c, 0.8) : c);   // papel pintado
+  if(o.ribs) [4,6,8].forEach(y=> T.paint(-3,y,2,6,1,1, c=> dk(c, 0.68)));
+  if(o.jacket){
+    const J = o.jacket, JS = o.jacketShade || dk(J, 0.8);
+    T.paint(-5,1,-3,10,10,6, (c,x,y,z)=> (z === 2 && x >= -2 && x <= 1) ? c : J);     // abierta por delante
+    T.paint(-5,1,-3,10,1,6, (c,x,y,z)=> (z === 2 && x >= -2 && x <= 1) ? c : JS);
+    T.set(-3,10,3,JS).set(-3,9,3,JS).set(2,10,3,JS).set(2,9,3,JS);                     // solapas
+    if(o.patches){ T.paint(2,4,2,2,2,1, o.patches[0]); T.paint(-3,6,-3,2,2,1, o.patches[1]); }
+  }
+  if(o.vest){
+    const V = o.vest, pk = dk(V, 0.7), band = "#e8d070";
+    T.paint(-5,2,-3,10,9,5, V);                                        // espalda y costados
+    T.box(-5,2,3,3,9,1, V); T.box(2,2,3,3,9,1, V);                    // paneles delanteros, abiertos
+    T.paint(-5,4,3,3,2,1, pk); T.paint(2,4,3,3,2,1, pk);              // bolsillos
+    T.paint(-5,7,3,3,1,1, band); T.paint(2,7,3,3,1,1, band);
+    T.paint(-5,6,-3,10,1,1, band);                                     // banda reflectante
+  }
+  if(o.pack){
+    const K = o.pack, KS = dk(K, 0.72);
+    T.box(-4,1,-6,8,9,3, K); T.paint(-4,7,-6,8,3,3, KS);             // mochila con solapa
+    T.box(-2,2,-7,4,3,1, dk(K, 0.88)); T.set(-1,7,-7,"#b8a060").set(0,7,-7,"#b8a060");
+    T.paint(-3,10,-3,1,1,6, KS); T.paint(2,10,-3,1,1,6, KS);          // correas por los hombros
+    T.paint(-3,5,2,1,5,1, KS); T.paint(2,5,2,1,5,1, KS);
+  }
+  if(o.strap){                                                         // bandolera de hombro a cadera
+    for(let i=0;i<10;i++){ const x = 4-i, y = 10-i; T.set(x, y, surf(x,y,1), o.strap); T.set(x, y, surf(x,y,-1), o.strap); }
+    T.paint(4,10,-3,1,1,6, o.strap);
+  }
+  if(o.scarf){
+    const S2 = dk(o.scarf, 0.82);
+    for(let x=-6;x<=5;x++) for(let z=-4;z<=3;z++) if(x === -6 || x === 5 || z === -4 || z === 3){ T.set(x,10,z,o.scarf); T.set(x,9,z,S2); }
+    T.box(-3,4,4,2,5,1, o.scarf); T.paint(-3,4,4,2,1,1, S2);          // la punta cuelga por delante
+  }
+  if(o.pendant){                                                       // la brújula al cuello
+    ["-2,10","1,10","-1,9","0,9"].forEach(k=>{ const [x,y] = k.split(",").map(Number); T.set(x,y,3,"#3a3024"); });
+    T.box(-1,5,3,2,3,1,"#c8a03a"); T.set(-1,6,4,"#b4402f");
+  }
+  if(o.whistle){
+    [[-3,10],[2,10],[-3,9],[2,9],[-2,8],[1,8]].forEach(([x,y])=> T.set(x,y,3,"#e8e0c8"));
+    T.box(-1,6,3,2,2,1,"#c0c4c8"); T.set(0,7,4,"#9aa0a6");
+  }
+  if(o.badge){ T.box(-4,6,surf(-4,6,1)+1,2,3,1,"#e0c050"); T.paint(-4,8,-3,2,1,9,(c)=> c === "#e0c050" ? "#fff0a0" : c); }
+  if(o.tie){ T.box(-1,3,3,2,7,1,"#6a1a1a"); T.paint(-1,9,3,2,1,1,"#8a2a2a"); T.set(0,3,3,null); }
+  if(o.cross) [2,-3].forEach(z=>{ T.paint(-1,3,z,2,6,1,"#c0392b"); T.paint(-3,5,z,6,2,1,"#c0392b"); });
+  if(o.number) [[-2,9],[-1,9],[0,9],[1,9],[2,9],[-2,8],[-1,7],[-1,6],[0,5],[0,4],[0,3]].forEach(([x,y])=> T.paint(x,y,-3,1,1,1,"#e8e0c8"));
+  parts.push({n:"torso", p:"root", at:[0,12,0], g:T});
+
+  // ── cabeza: cuello en y 0, cabeza de y 1 a hh; la cara es z = 3 ──
+  const hw = o.headW || 9, hh = o.headShape === "long" ? 11 : 9;
+  const x0 = -4, x1 = x0 + hw - 1, hoff = hw % 2 ? -0.5 : 0;
+  const mid = hw % 2 ? [0] : [-1, 0];
+  const H = vgrid();
+  H.box(-2,0,-2,4,1,4, skinSh);
+  H.box(x0,1,-4,hw,hh,8, skin);
+  H.paint(x0,1,-4,hw,1,8, skinSh);                                     // sombra de la mandíbula
+  if(!o.hood){ H.box(x0-1,hh-5,-1,1,2,2, skinSh); H.box(x1+1,hh-5,-1,1,2,2, skinSh); }   // orejas
+  const eyeY = hh - 5, eL = x0 + 2, eR = x1 - 3;
+  if(!faceless){
+    const ec = (o.glowEyes ? "!" : "") + p.eye;
+    [eL, eR].forEach(ex=>{                          // ojos hundidos un cubito
+      for(let dx=0;dx<2;dx++) for(let dy=0;dy<2;dy++){ H.set(ex+dx, eyeY+dy, 3, null); H.set(ex+dx, eyeY+dy, 2, ec); }
+    });
+    if(!o.glowEyes){ H.set(eL, eyeY+1, 2, "#e8e4d8"); H.set(eR+1, eyeY+1, 2, "#e8e4d8"); }  // brillo
+    mid.forEach(x=> H.set(x, eyeY-1, 4, skinSh));                    // nariz
+    if(o.grin){
+      for(let x=x0+2;x<=x1-2;x++){
+        const diente = (x - x0) % 2 === 1;
+        H.set(x, eyeY-2, 3, diente ? "#efe7cf" : null);
+        if(!diente) H.set(x, eyeY-2, 2, "#3a0e0a");
+        H.set(x, eyeY-3, 3, "#b8342a");
+      }
+      [x0+1, x1-1].forEach(x=>{ H.set(x, eyeY-1, 3, "#b8342a"); H.set(x, eyeY-2, 3, "#b8342a"); });
+    } else if(p.mouth){
+      for(let x=mid[0]-1; x<=mid[mid.length-1]+1; x++) H.set(x, eyeY-2, 3, p.mouth);
+    }
+  }
+  if(p.hair){
+    const hc = p.hair, hs = p.hairShade || dk(hc, 0.75);
+    H.box(x0-1, hh+1, -5, hw+2, 1, 9, hc);                            // coronilla
+    H.box(x0-1, hh-2, -5, 1, 3, 8, hc); H.box(x1+1, hh-2, -5, 1, 3, 8, hc);
+    const ny = o.ponytail ? 2 : hh-4;
+    H.box(x0, ny, -5, hw, hh+1-ny, 1, hc);                            // nuca
+    H.paint(x0, ny, -5, hw, 1, 1, hs);
+    H.paint(x0, hh, 3, hw, 1, 1, hc);                                  // flequillo
+    if(o.ponytail){
+      const PT = vgrid().box(-1,-7,-2,2,7,2, hc);
+      PT.paint(-1,-1,-2,2,1,2, "#8a6a3a"); PT.paint(-1,-7,-2,2,1,2, hs);
+      parts.push({n:"tail", p:"head", at:[0, hh-1, -5], g:PT, rot:[0.25,0,0]});
+    }
+  }
+  if(o.cap){
+    const cc = o.cap;
+    H.box(x0-1, hh+1, -5, hw+2, 1, 9, cc);
+    H.box(x0, hh+2, -4, hw, 1, 7, cc);
+    H.box(x0, hh+1, 4, hw, 1, 3, dk(cc, 0.8));                         // visera
+    mid.forEach(x=> H.set(x, hh+3, -1, dk(cc, 0.8)));                  // botón
+  }
+  if(o.hood){
+    const hd = o.hood, hds = dk(hd, 0.78);
+    for(let x=x0-1;x<=x1+1;x++) for(let y=0;y<=hh+1;y++) for(let z=-5;z<=3;z++){
+      if(x >= x0 && x <= x1 && y >= 1 && y <= hh && z >= -4) continue;
+      H.set(x, y, z, y === 0 ? hds : hd);
+    }
+    H.box(x0-1, hh+1, 4, hw+2, 1, 1, hds);                            // borde
+    H.box(x0-1, 1, 4, 1, hh, 1, hds); H.box(x1+1, 1, 4, 1, hh, 1, hds);
+    [3,2].forEach(z=> H.paint(x0, 1, z, hw, hh, 1, c=> c.charAt(0) === "!" ? c : dk(c, 0.5)));   // cara en sombra
+  }
+  if(o.goggles){
+    const gy = hh - 2;
+    for(let x=x0-1;x<=x1+1;x++) for(let z=-5;z<=4;z++) if(x === x0-1 || x === x1+1 || z === -5 || z === 4) H.set(x, gy, z, "#2e2a26");
+    [x0+1, x1-2].forEach(x=>{ H.box(x, gy, 4, 2, 2, 1, "#8fc0c8"); H.set(x, gy+1, 4, "#c8e8ec"); });
+  }
+  if(o.visor){
+    H.box(x0+1, hh-6, 4, hw-2, 6, 1, "#1c2a2e");
+    H.set(x0+2, hh-2, 4, "#8fd0d8").set(x0+3, hh-2, 4, "#8fd0d8").set(x0+2, hh-3, 4, "#5a9aa4");
+    H.box(mid[0]-1, hh-8, 4, mid.length+2, 2, 2, "#4a4a44");           // filtro
+  }
+  if(o.partyhat){
+    for(let i=0;i<5;i++){ const n = 5 - i, a = -Math.floor(n/2); H.box(a, hh+1+i, a, n, 1, n, i % 2 ? "#e0c04a" : "#b4527e"); }
+    H.box(0, hh+6, 0, 1, 2, 1, "#f0e8d0");
+  }
+  parts.push({n:"head", p:"torso", at:[0,11,0], g:H, off:[hoff,0,0]});
+
+  // ── brazos: hombro en el torso, codo, mano ──
+  [1, -1].forEach(sd=>{
+    const L = sd > 0 ? "L" : "R", fl = 3 + reach;
+    const U = vgrid().box(-1,-5,-1,3,6,3, sleeve);
+    if(o.bandages) U.paint(-1,-3,-1,3,1,3,"#e8e0cc");
+    if(o.cross && sd > 0) U.paint(-1,-2,-1,3,2,3,"#c0392b");            // brazalete
+    const F = vgrid().box(-1,-fl,-1,3,fl,3, sleeve);
+    F.paint(-1,-fl,-1,3,1,3, sleeveSh);                                 // puño
+    F.box(-1,-fl-3,-1,3,3,3, skin);
+    F.paint(-1,-fl-3,-1,3,1,3, o.reach ? dk(skin, 0.55) : skinSh);    // dedos (uñas, si alcanza)
+    if(o.bandages) F.paint(-1,-2,-1,3,1,3,"#e8e0cc");
+    parts.push({n:"arm"+L, p:"torso", at:[sd*6.5, 10, 0], g:U, off:[-0.5,0,-0.5]});
+    parts.push({n:"fore"+L, p:"arm"+L, at:[0,-5,0], g:F, off:[-0.5,0,-0.5]});
+    parts.push({n:"hand"+L, p:"fore"+L, at:[0,-fl-1.5,0]});
+  });
+
+  // ── piernas: cadera, rodilla, zapato ──
+  [1, -1].forEach(sd=>{
+    const L = sd > 0 ? "L" : "R", out = sd > 0 ? 1 : -2, inner = sd > 0 ? -2 : 1;
+    const TH = vgrid().box(-2,-6,-2,4,6,4, pants);
+    TH.paint(inner,-6,-2,1,6,4, pantsSh);
+    if(o.stripe) TH.paint(out,-6,-1,1,6,2, o.stripe);
+    if(o.torn) TH.paint(sd > 0 ? -1 : 0, -4, 1, 1, 2, 1, skinSh);
+    const SH = vgrid().box(-2,-6,-2,4,6,4, pants);
+    SH.paint(inner,-6,-2,1,6,4, pantsSh);
+    if(o.stripe) SH.paint(out,-4,-1,1,4,2, o.stripe);
+    if(o.torn){ SH.paint(sd > 0 ? 0 : -1, -3, 1, 1, 1, 1, skinSh); SH.set(sd > 0 ? 1 : -2, -1, 1, null); }
+    const sy = o.skates ? -5 : -6;
+    SH.box(-2, sy, -2, 4, 2, 5, shoe); SH.paint(-2, sy, -2, 4, 1, 5, shoeSh);
+    if(o.skates){ SH.box(-1,-6,-1,2,1,3,"#d8d0c0"); SH.box(-2,-6,-2,4,1,1,"#e0503a"); SH.box(-2,-6,2,4,1,1,"#e0503a"); }
+    parts.push({n:"thigh"+L, p:"root", at:[sd*2, 12, 0], g:TH});
+    parts.push({n:"shin"+L, p:"thigh"+L, at:[0,-6,0], g:SH});
+  });
+  return {parts, feet:true, hunch:o.hunch || 0, reach:!!o.reach};
+}
+
+// Hound (Entity 8): perro flaco con las costillas marcadas y ojos rojos.
+function rigHound(){
+  const hide = "#4e3b2c", shade = "#382a1f", dark = "#251b14", ojo = "!#ff4a2a";
+  const B = vgrid().box(-3,-3,-7,7,8,14, hide);
+  B.paint(-3,-3,-7,7,2,14, shade);                                     // vientre
+  B.box(-2,5,1,5,1,5, hide);                                           // cruz de los hombros
+  for(let z=-6; z<=5; z+=2) B.set(0, z > 0 ? 6 : 5, z, dark);          // cerdas del lomo
+  [-2,0,2].forEach(z=>{ B.paint(-3,-1,z,1,3,1, shade); B.paint(3,-1,z,1,3,1, shade); });
+  B.paint(-3,-3,-7,7,8,1, shade);
+  const Hd = vgrid().box(-3,-3,0,6,7,6, hide);
+  Hd.paint(-3,-3,0,6,1,6, shade);
+  Hd.box(-2,-3,6,4,3,4, dark);                                         // hocico
+  Hd.set(-1,-1,9,"#0e0a08").set(0,-1,9,"#0e0a08");
+  Hd.box(-2,-4,3,4,1,6, dark);                                         // mandíbula
+  Hd.set(-2,-3,9,"#e8e0cf").set(1,-3,9,"#e8e0cf");                     // colmillos
+  Hd.set(-2,1,5,ojo).set(1,1,5,ojo).set(-3,1,4,ojo).set(2,1,4,ojo);
+  Hd.box(-3,4,1,1,3,2,dark).box(2,4,1,1,3,2,dark); Hd.set(-3,6,2,null).set(2,6,2,null);   // orejas
+  const Tl = vgrid().box(-1,-1,-7,2,2,7, shade); Tl.paint(-1,-1,-7,2,2,2, dark);
+  const parts = [
+    {n:"body", p:"root", at:[0,11,0], g:B, off:[-0.5,0,0]},
+    {n:"head", p:"body", at:[0,3,7], g:Hd},
+    {n:"tail", p:"body", at:[0,3,-7], g:Tl, rot:[-0.5,0,0]}
+  ];
+  [["FL",1,4,0],["FR",-1,4,0],["BL",1,-5,1],["BR",-1,-5,1]].forEach(([k,sd,z,back])=>{
+    const U = vgrid().box(-1,-4,-1-back,2,5,2+back*2, back ? shade : hide);
+    const S = vgrid().box(-1,-4,-1,2,4,2, hide); S.box(-1,-4,-1,2,1,3, dark);
+    parts.push({n:"thigh"+k, p:"body", at:[sd*2.5,-3,z], g:U});
+    parts.push({n:"shin"+k, p:"thigh"+k, at:[0,-4,0], g:S});
+  });
+  return {parts, feet:true, run:[2.4,3.9], stride:[1.1,2.0]};
+}
+
+// Crawler (Entity 17): pálido, a cuatro patas, con los codos abiertos.
+function rigCrawler(){
+  const sk = "#b9a894", sh = "#8e7f6d", dark = "#5d5245";
+  const B = vgrid().box(-2,-2,-6,5,5,12, sk);
+  B.paint(-2,-2,-6,5,1,12, sh);
+  for(let z=-5; z<=4; z+=2) B.set(0,3,z, sh);                         // espinazo
+  [-3,-1,1].forEach(z=>{ B.paint(-2,0,z,1,2,1, sh); B.paint(2,0,z,1,2,1, sh); });
+  const Hd = vgrid().box(-2,-2,0,5,5,5, sk);
+  Hd.paint(-2,-2,0,5,1,5, sh);
+  [-2,-1,1,2].forEach(x=> Hd.set(x,1,4,null));
+  Hd.set(-2,1,3,dark).set(-1,1,3,"!#e8e0cf").set(1,1,3,"!#e8e0cf").set(2,1,3,dark);
+  [-1,0,1].forEach(x=> Hd.set(x,-1,4,"#2a211a"));                      // boca
+  Hd.box(-1,-3,2,3,1,3, sh);                                           // mandíbula caída
+  const parts = [
+    {n:"body", p:"root", at:[0,10.5,0], g:B, off:[-0.5,0,0]},
+    {n:"head", p:"body", at:[0,1,6], g:Hd, off:[-0.5,0,0]}
+  ];
+  [["FL",1,4],["FR",-1,4],["BL",1,-5],["BR",-1,-5]].forEach(([k,sd,z])=>{
+    const U = vgrid().box(-1,-5,-1,2,6,2, sk);
+    const S = vgrid().box(-1,-5,-1,2,5,2, sk); S.paint(-1,-5,-1,2,1,2, sh); S.set(-1,-5,1,dark).set(0,-5,1,dark);
+    parts.push({n:"thigh"+k, p:"body", at:[sd*2.5,-2,z], g:U, rot:[z > 0 ? -0.25 : 0.25, 0, sd*0.75]});
+    parts.push({n:"shin"+k, p:"thigh"+k, at:[0,-5,0], g:S, rot:[0, 0, -sd*1.05]});
+  });
+  return {parts, feet:true, run:[2.4,3.8], stride:[0.9,1.7]};
+}
+
+// Clump (Entity 5): masa de carne con ojos sueltos y tentáculos.
+function rigClump(){
+  const m1 = "#7a4a44", m2 = "#5e3733", m3 = "#96605a", vein = "#42221f";
+  const B = vgrid();
+  for(let x=-11;x<=11;x++) for(let y=-6;y<=8;y++) for(let z=-9;z<=9;z++){
+    const lump = Math.sin(x*0.8+1)*Math.sin(z*0.7)*0.12 + Math.sin(y*1.1+x*0.5)*0.08;
+    if(x*x/121 + y*y/64 + z*z/81 + lump > 1) continue;
+    const n = hash3(x,y,z), c = n < 0.06 ? vein : (y > 3 ? m3 : (y < -3 ? m2 : m1));
+    B.set(x,y,z, n > 0.9 ? dk(c, 1.12) : c);
+  }
+  const fz = (x,y)=>{ for(let z=12;z>=-12;z--) if(B.has(x,y,z)) return z; return 0; };
+  [[-5,3,2],[3,2,2],[6,-1,1]].forEach(([x,y,n])=>{                   // ojos de distinto tamaño
+    for(let i=0;i<n;i++) for(let j=0;j<n;j++) B.set(x+i, y+j, fz(x+i,y+j)+1, "#e8dccb");
+    B.set(x+n-1, y, fz(x+n-1,y), "#1a1010");
+  });
+  for(let x=-3;x<=2;x++) for(let y=-2;y<=-1;y++){                     // boca
+    const z = fz(x,y);
+    if(y === -1 && (x & 1)) { B.set(x,y,z,"#d8ccb0"); continue; }
+    B.set(x,y,z,null); B.set(x,y,z-1,"#33110f");
+  }
+  const parts = [{n:"body", p:"root", at:[0,7,0], g:B, off:[-0.5,0,-0.5]}];
+  for(let i=0;i<6;i++){
+    const a = i/6*TAU + 0.4, cx = Math.cos(a), cz = Math.sin(a);
+    const T1 = vgrid().box(-1,-5,-1,2,6,2, m2);
+    const T2 = vgrid().box(-1,-5,-1,2,5,2, m2); T2.paint(-1,-5,-1,2,1,2, vein);
+    parts.push({n:"t"+i, p:"body", at:[cx*8, -3, cz*6.5], g:T1, rot:[-cz*1.0, 0, cx*1.0]});
+    parts.push({n:"u"+i, p:"t"+i, at:[0,-5,0], g:T2, rot:[-cz*0.5, 0, cx*0.5]});
+  }
+  return {parts, feet:true, run:[9,10], stride:[0.8,0.8]};
+}
+
+// Smiler (Entity 3): una nube de oscuridad con ojos y sonrisa que brillan.
+function rigSmiler(){
+  const C = vgrid();
+  for(let x=-11;x<=11;x++) for(let y=-10;y<=10;y++) for(let z=-6;z<=6;z++){
+    const d = x*x/121 + y*y/100 + z*z/36;
+    if(d > 1) continue;
+    const n = hash3(x,y,z);
+    if(d > 0.62 && n < (d - 0.62)*1.9) continue;                        // borde deshilachado
+    C.set(x,y,z, n < 0.1 ? "#16101e" : (n < 0.5 ? "#0b080e" : "#060508"));
+  }
+  for(let i=0;i<40;i++){                                               // motas sueltas
+    const a = hash3(i,1,7)*TAU, b = (hash3(i,5,3) - 0.5)*Math.PI, r = 11 + hash3(i,9,2)*4;
+    C.set(Math.round(Math.cos(a)*Math.cos(b)*r), Math.round(Math.sin(b)*r*0.9), Math.round(Math.sin(a)*Math.cos(b)*r*0.5), "#0b080e");
+  }
+  const zf = (x,y)=> Math.round(6*Math.sqrt(Math.max(0, 1 - x*x/121 - y*y/100)));
+  const W = "!#f4f1df", W2 = "!#d8d2bc";
+  const E = vgrid(), put = (x,y,c)=> E.set(x, y, zf(x, y+4)+1, c);
+  for(let x=-8;x<=-4;x++) put(x,0,W); for(let x=-7;x<=-5;x++) put(x,1,W);
+  for(let x=4;x<=8;x++) put(x,0,W);   for(let x=5;x<=7;x++) put(x,1,W);
+  put(-6,0,"!#ffffff"); put(6,0,"!#ffffff");
+  const Gr = vgrid(), pg = (x,y,c)=> Gr.set(x, y, zf(x, y-2)+1, c);
+  for(let x=-8;x<=8;x++) pg(x,1,W);
+  [-9,9].forEach(x=>{ pg(x,2,W); pg(x,3,W); });
+  for(let x=-8;x<=8;x+=2){ pg(x,0,W2); pg(x,-1,W2); }                   // dientes
+  for(let x=-7;x<=7;x+=2) pg(x,0,W2);
+  for(let x=-7;x<=7;x++) pg(x,-2,W);
+  const off = [-0.5,-0.5,-0.5];
+  return {parts:[
+    {n:"cloud", p:"root", at:[0,0,0], g:C, off},
+    {n:"eyes", p:"root", at:[0,4,0], g:E, off},
+    {n:"grin", p:"root", at:[0,-2,0], g:Gr, off}
+  ], feet:false};
+}
+
+// Deathmoth (Entity 4): polilla con alas que baten y ojos de brasa.
+function rigMoth(){
+  const w1 = "#6f5d47", w2 = "#4a3d2e", body = "#2b231b", dust = "#d8cba4", ojo = "#c9b27a", dark = "#191410";
+  const B = vgrid().box(-1,-1,-6,3,3,12, body);
+  for(let z=-5; z<=4; z+=3) B.paint(-1,-1,z,3,3,1,"#46382a");          // anillos
+  B.paint(-1,1,1,3,1,5, dk(dust, 0.55));                               // pelusa del tórax
+  B.box(-1,-1,6,3,3,2, dark);
+  B.set(-1,0,8,"!#ff5a2a").set(1,0,8,"!#ff5a2a");
+  [[1,2,7],[2,3,8],[2,4,9],[3,5,9]].forEach(([x,y,z],i)=>{ B.set(x,y,z, i === 3 ? dust : dark); B.set(-x,y,z, i === 3 ? dust : dark); });
+  [-1,1,3].forEach(z=>{ B.set(-1,-2,z,dark); B.set(1,-2,z,dark); });   // patas
+  const wing = (sd, big)=>{
+    const W = vgrid(), L = big ? 10 : 7;
+    for(let i=0;i<L;i++){
+      const t = i/L;
+      const za = big ? Math.round(t*2) : -6 + Math.round(t*3), zb = big ? 7 - Math.round(t*t*4) : -1;
+      for(let z=za; z<=zb; z++){
+        const edge = i === L-1 || z === za || z === zb;
+        let c = edge ? (big ? dust : dk(w2, 0.8)) : (big ? (i % 3 === 2 ? dk(w1, 0.85) : w1) : w2);
+        if(big && i >= 5 && i <= 7 && z >= 3 && z <= 5) c = (i === 6 && z === 4) ? dark : ojo;   // el «ojo» del ala
+        W.set(sd > 0 ? i : -1-i, 0, z, c);
+      }
+    }
+    return W;
+  };
+  return {parts:[
+    {n:"body", p:"root", at:[0,0,0], g:B, off:[-0.5,-0.5,0]},
+    {n:"wingL", p:"body", at:[1.5,0.5,0], g:wing(1,true)},
+    {n:"wingR", p:"body", at:[-1.5,0.5,0], g:wing(-1,true)},
+    {n:"hindL", p:"body", at:[1.5,0,0], g:wing(1,false)},
+    {n:"hindR", p:"body", at:[-1.5,0,0], g:wing(-1,false)}
+  ], feet:false};
+}
+
+const RIG_BUILD = {hound:rigHound, crawler:rigCrawler, clump:rigClump, smiler:rigSmiler, moth:rigMoth};
+function rigSpec(kind, look){ return RIG_BUILD[kind] ? RIG_BUILD[kind]() : rigHuman(look || {}); }
+
+// El molde de una figura: sus mallas, hechas una vez por aspecto y tamaño.
+// Un humano mide 36 cubitos como su sprite; los animales, que en el sprite
+// salían estirados a lo ancho, usan la media de las dos escalas.
+function rigTemplate(atlas, key, w, h){
+  const kind = RIG_KIND[key] || "human";
+  atlas.rigT = atlas.rigT || {};
+  const ck = kind + "|" + w + "|" + h;
+  if(atlas.rigT[ck]) return atlas.rigT[ck];
+  const spec = rigSpec(kind, atlas.look);
+  const s = kind === "human" ? h/36 : (w/24 + h/36)/2;
+  const T = {kind, s, h, feet:spec.feet, hunch:spec.hunch || 0, reach:!!spec.reach,
+             run: spec.run || (key ? [2.3, 3.8] : [3.9, 5.7]),
+             stride: spec.stride || [h*1.4, h*2.6]};
+  T.parts = spec.parts.map(pt=> ({n:pt.n, p:pt.p, at:pt.at, rot:pt.rot || [0,0,0], geo: pt.g ? voxGeo(pt.g, s, pt.off) : null}));
+  return atlas.rigT[ck] = T;
+}
+
+function makeRig(atlas, w, h, key){
+  const T = rigTemplate(atlas, key, w, h);
+  const mat = new THREE.MeshLambertMaterial({vertexColors:true});
+  const glow = new THREE.MeshBasicMaterial({vertexColors:true});
+  const grp = new THREE.Group();
+  const root = new THREE.Group();
+  grp.add(root);
+  const P = {root};
+  T.parts.forEach(pt=>{
+    const o = pt.geo && pt.geo.solid ? new THREE.Mesh(pt.geo.solid, mat) : new THREE.Group();
+    if(pt.geo && pt.geo.glow) o.add(new THREE.Mesh(pt.geo.glow, glow));
+    o.position.set(pt.at[0]*T.s, pt.at[1]*T.s, pt.at[2]*T.s);
+    o.rotation.set(pt.rot[0], pt.rot[1], pt.rot[2]);
+    P[pt.n] = o;
+  });
+  T.parts.forEach(pt=> (P[pt.p] || root).add(P[pt.n]));   // en otra pasada: el padre puede venir después
+  grp.material = mat;                                // tinte del especial y opacidad: como una malla normal
+  grp.userData.atlas = atlas;
+  grp.userData.rig = {T, P, glow, ph:Math.random()*TAU, v:0, twist:0, back:false, lx:null, lz:null,
+                      last:0, yaw:null, swL:0, swR:0, seed:Math.random()*100, gear:{}};
+  rigAnimate(grp);
+  return grp;
+}
+
+// figura 3D o sprite plano, según el ajuste; misma interfaz para el resto del juego
+function makeActor(atlas, w, h, key){
+  return voxOn() ? makeRig(atlas, w, h, key) : makeSprite(atlas, w, h);
+}
+
+// ── animación ──
+function rigAnimate(m){
+  const ud = m.userData, r = ud && ud.rig;
+  if(!r || !r.T || !Array.isArray(r.T.parts)) return;
+  const T = r.T;
+  const now = performance.now()/1000;
+  const dt = r.last ? Math.min(0.25, Math.max(0, now - r.last)) : 0;
+  r.last = now;
+  // hacia dónde mira: suave, sin saltos al cambiar de rumbo
+  const want = ud.yawWant !== undefined ? ud.yawWant : m.rotation.y;
+  r.yaw = r.yaw === null ? want : r.yaw + wrapA(want - r.yaw)*(1 - Math.exp(-dt*12));
+  m.rotation.y = r.yaw;
+  // velocidad: lo que se ha movido desde el fotograma anterior
+  const px = m.position.x, pz = m.position.z;
+  let d = 0, mx = 0, mz = 0;
+  if(r.lx !== null){ mx = px - r.lx; mz = pz - r.lz; d = Math.hypot(mx, mz); if(d > 1.5) d = 0; }   // teletransporte: no cuenta
+  r.lx = px; r.lz = pz;
+  if(dt > 0){
+    r.v += (d/dt - r.v)*(1 - Math.exp(-dt*9));
+    if(d > 1e-4){
+      const rel = wrapA(Math.atan2(mx, mz) - r.yaw);
+      r.back = Math.abs(rel) > 2.0;                  // de espaldas: el paso va al revés
+      const tw = clamp(r.back ? wrapA(rel - Math.PI) : rel, -0.9, 0.9);
+      r.twist += (tw - r.twist)*(1 - Math.exp(-dt*8));
+    } else r.twist *= Math.exp(-dt*3);
+  }
+  const st = {
+    t: now + r.seed,
+    walk: clamp(r.v/0.9, 0, 1),
+    run: clamp((r.v - T.run[0])/(T.run[1] - T.run[0]), 0, 1),
+    pose: ud.pose || "", twist: r.twist,
+    gearL: !!ud.gearL, gearR: !!ud.gearR
+  };
+  r.ph += (r.back ? -1 : 1) * d / lerp(T.stride[0], T.stride[1], st.run) * TAU;
+  st.ph = r.ph;
+  if(ud.swing){ r["sw"+ud.swing] = 1; ud.swing = null; }
+  r.swL = Math.max(0, r.swL - dt/0.4); r.swR = Math.max(0, r.swR - dt/0.4);
+  st.swL = r.swL; st.swR = r.swR;
+  const R = rigPose(T, st);
+  const s = T.s;
+  T.parts.forEach(pt=>{
+    const o = r.P[pt.n]; if(!o) return;
+    const a = R.rot[pt.n] || [0,0,0], b = pt.rot, q = R.pos[pt.n] || [0,0,0], k = R.scl[pt.n];
+    o.rotation.set(b[0]+a[0], b[1]+a[1], b[2]+a[2]);
+    o.position.set((pt.at[0]+q[0])*s, (pt.at[1]+q[1])*s, (pt.at[2]+q[2])*s);
+    if(k) o.scale.set(k[0], k[1], k[2]); else o.scale.set(1, 1, 1);
+  });
+  const root = r.P.root;
+  if(st.pose === "down" && T.feet){                  // tumbado boca arriba en el suelo
+    root.rotation.set(-Math.PI/2, 0, 0);
+    root.position.set(0, -m.position.y + 3*s, T.h*0.45);
+  } else {
+    root.rotation.set(R.root.rx || 0, 0, R.root.rz || 0);
+    root.position.set(0, (T.feet ? -T.h/2 : 0) + (R.root.y || 0)*s, 0);
+  }
+  rigGear(m, r);
+}
+
+// Las posturas: cada una devuelve giros (rot), desplazamientos (pos, en
+// cubitos) y escalas (scl) por pieza, sumados a la postura de reposo.
+// Función pura: las pruebas la llaman con un estado inventado.
+function rigPose(T, st){
+  const R = {rot:{}, pos:{}, scl:{}, root:{y:0, rx:0, rz:0}};
+  (RIG_POSE[T.kind] || RIG_POSE.human)(T, st, R);
+  return R;
+}
+function poseQuad(T, st, R){
+  const t = st.t, w = st.walk, run = st.run, p = st.ph, idle = 1 - w;
+  const trote = [0, Math.PI, Math.PI, 0], galope = [0, 0.7, Math.PI + 0.2, Math.PI + 0.9];
+  const A = w*lerp(0.45, 0.95, run), K = w*lerp(0.45, 1.15, run);
+  ["FL","FR","BL","BR"].forEach((k,i)=>{
+    const ph = p + lerp(trote[i], galope[i], run);
+    R.rot["thigh"+k] = [-Math.sin(ph)*A, 0, 0];
+    R.rot["shin"+k] = [(i < 2 ? 1 : -1)*K*Math.max(0, Math.cos(ph)), 0, 0];
+  });
+  R.rot.body = [Math.sin(p)*0.1*run*w, 0, Math.sin(p*0.5)*0.03*w];
+  R.pos.body = [0, Math.abs(Math.cos(p))*w*lerp(0.3, 1.2, run) + Math.sin(t*3)*0.2*idle, 0];
+  R.rot.head = [-R.rot.body[0] + Math.sin(t*0.6)*0.1*idle + (st.pose === "chase" ? 0.15 : 0), Math.sin(t*0.4)*0.45*idle*idle, 0];
+  R.rot.tail = [0.25*run*w + Math.sin(t*9)*0.08, Math.sin(t*(3 + 9*w))*0.45, 0];
+  if(st.pose === "stun"){
+    R.pos.body = [0, -2.5, 0];
+    R.rot.head = [0.5, Math.sin(t*1.5)*0.3, 0];
+    ["FL","FR","BL","BR"].forEach(k=>{ const sd = k.charAt(1) === "L" ? 1 : -1; R.rot["thigh"+k] = [0,0,sd*0.6]; R.rot["shin"+k] = [0,0,-sd*0.4]; });
+  } else if(st.pose === "wind"){                     // se agacha para saltar
+    const f = Math.sin(t*28)*0.05;
+    R.rot.body = [0.22 + f, 0, 0]; R.pos.body = [0, -1.5, 0];
+    R.rot.head = [-0.4, f*3, 0]; R.rot.tail = [0.6, 0, 0];
+  } else if(st.pose === "grab"){                     // muerde y zarandea
+    R.rot.head = [0.25 + Math.sin(t*20)*0.2, Math.sin(t*11)*0.3, 0];
+    R.rot.body = [0.1, 0, Math.sin(t*16)*0.06];
+  }
+}
+const RIG_POSE = {
+  human(T, st, R){
+    const t = st.t, w = st.walk, run = st.run, p = st.ph, idle = 1 - w;
+    const sp = Math.sin(p), cp = Math.cos(p), br = Math.sin(t*2.2), tw = st.twist || 0;
+    const lean = T.hunch*0.14 + w*lerp(0.04, 0.3, run);
+    const A = w*lerp(0.5, 1.0, run), Aa = w*lerp(0.42, 1.1, run);
+    const K = w*lerp(0.5, 1.7, run), E = 0.12 + w*lerp(0.15, 1.5, run);
+    const twist = sp*0.16*w*(0.6 + run*0.7);
+    R.rot.thighL = [-sp*A - 0.12*run*w, tw, 0.03];
+    R.rot.thighR = [ sp*A - 0.12*run*w, tw, -0.03];
+    R.rot.shinL = [K*Math.max(0,  cp) + 0.05*w, 0, 0];
+    R.rot.shinR = [K*Math.max(0, -cp) + 0.05*w, 0, 0];
+    R.rot.armL = [ sp*Aa + br*0.04*idle, 0,  0.08 + 0.06*run*w + br*0.02*idle];
+    R.rot.armR = [-sp*Aa + br*0.04*idle, 0, -0.08 - 0.06*run*w - br*0.02*idle];
+    R.rot.foreL = [-E, 0, 0]; R.rot.foreR = [-E, 0, 0];
+    R.rot.torso = [lean, twist + tw*0.35, 0];
+    R.rot.head = [-lean*0.75 + Math.sin(t*0.37)*0.05*idle, -twist*0.8 - tw*0.3 + Math.sin(t*0.45)*0.35*idle*idle, 0];
+    R.rot.tail = [0.2*w + 0.7*run*w + Math.abs(cp)*0.25*w, 0, sp*0.18*w];
+    R.pos.torso = [0, br*0.2*idle, 0];
+    R.root.y = w*lerp(0.5, 1.6, run)*(Math.abs(cp) - 0.5) - run*w*0.8;
+    // con algo en la mano lo lleva por delante
+    if(st.gearL){ R.rot.armL[0] = R.rot.armL[0]*0.4 - 0.25; R.rot.foreL[0] = -1.0; }
+    if(st.gearR){ R.rot.armR[0] = R.rot.armR[0]*0.4 - 0.25; R.rot.foreR[0] = -1.0; }
+    // golpe con arma: arriba y abajo en 0,4 s
+    ["L","R"].forEach(sd=>{
+      const s = st["sw"+sd]; if(!(s > 0)) return;
+      const q = 1 - s, a = q < 0.3 ? -2.8*(q/0.3) : -2.8 + 2.5*((q - 0.3)/0.7);
+      R.rot["arm"+sd] = [a, 0, sd === "L" ? 0.25 : -0.25];
+      R.rot["fore"+sd] = [-0.35, 0, 0];
+      R.rot.torso[1] += (sd === "L" ? 1 : -1)*(q < 0.3 ? 0.25 : -0.35);
+    });
+    const pz = st.pose;
+    if(pz === "held"){                               // te tienen agarrado: forcejeas
+      const f = Math.sin(t*17), g = Math.sin(t*13 + 1);
+      R.rot.armL = [-2.0 + f*0.5, 0, 0.4]; R.rot.armR = [-2.0 - f*0.5, 0, -0.4];
+      R.rot.foreL = [-0.5, 0, 0]; R.rot.foreR = [-0.5, 0, 0];
+      R.rot.torso = [-0.2, g*0.25, g*0.08]; R.rot.head = [0.2, -g*0.3, 0];
+      R.rot.thighL = [-0.4 + f*0.3, 0, 0.1]; R.rot.thighR = [0.2 - f*0.3, 0, -0.1];
+      R.rot.shinL = [0.6, 0, 0]; R.rot.shinR = [0.3, 0, 0];
+    } else if(pz === "grab"){                        // agarra: brazos al frente y zarandea
+      const f = Math.sin(t*22);
+      R.rot.armL = [-1.5 + f*0.15, 0, -0.15]; R.rot.armR = [-1.5 - f*0.15, 0, 0.15];
+      R.rot.foreL = [-0.3, 0, 0]; R.rot.foreR = [-0.3, 0, 0];
+      R.rot.torso = [0.3, f*0.1, 0]; R.rot.head = [0.1, 0, 0];
+    } else if(pz === "stun"){                        // aturdida: cabizbaja y tambaleándose
+      const f = Math.sin(t*1.7);
+      R.rot.head = [0.55 + Math.sin(t*2.3)*0.1, 0, f*0.25]; R.rot.torso = [0.25, 0, f*0.1];
+      R.rot.armL = [0.15, 0, 0.05 + f*0.05]; R.rot.armR = [0.15, 0, -0.05 + f*0.05];
+      R.rot.foreL = [-0.1, 0, 0]; R.rot.foreR = [-0.1, 0, 0];
+      R.rot.thighL = [-0.45, 0, 0.05]; R.rot.thighR = [-0.45, 0, -0.05];
+      R.rot.shinL = [0.8, 0, 0]; R.rot.shinR = [0.8, 0, 0];
+      R.root.y = -1.5;
+    } else if(pz === "wind"){                        // carga el especial: brazos arriba, temblando
+      const f = Math.sin(t*26)*0.12;
+      R.rot.armL = [-2.9 + f, 0, 0.3]; R.rot.armR = [-2.9 - f, 0, -0.3];
+      R.rot.foreL = [-0.3, 0, 0]; R.rot.foreR = [-0.3, 0, 0];
+      R.rot.torso = [-0.22, 0, 0]; R.rot.head = [-0.35, 0, f];
+    } else if(pz === "chase" && T.reach){           // el Wretch va con los brazos por delante
+      R.rot.armL = [-1.4 + sp*0.2, 0, -0.12]; R.rot.armR = [-1.4 - sp*0.2, 0, 0.12];
+      R.rot.foreL = [-0.2, 0, 0]; R.rot.foreR = [-0.2, 0, 0];
+    } else if(pz === "down"){
+      R.rot.armL = [0, 0, 1.2]; R.rot.armR = [0, 0, -1.2];
+      R.rot.foreL = [-0.3, 0, 0]; R.rot.foreR = [-0.3, 0, 0];
+      R.rot.thighL = [0, 0, 0.15]; R.rot.thighR = [0, 0, -0.15];
+      R.rot.shinL = [0.1, 0, 0]; R.rot.shinR = [0.1, 0, 0];
+      R.rot.torso = [0, 0, 0]; R.rot.head = [0, 0.5, 0]; R.pos.torso = [0, 0, 0];
+    }
+  },
+  hound: poseQuad,
+  crawler: poseQuad,
+  clump(T, st, R){
+    const t = st.t, w = st.walk, p = st.ph, br = Math.sin(t*2.1), mv = w*Math.sin(p*2);
+    const wind = st.pose === "wind" ? 1 : 0, k = 1 + wind*0.12*Math.abs(Math.sin(t*14));
+    R.scl.body = [(1 + br*0.05 - mv*0.07)*k, (1 - br*0.05 + mv*0.09)*k, (1 + mv*0.1)*k];
+    const amp = 1 + wind*1.5, vel = 1 + wind*2;
+    for(let i=0;i<6;i++){
+      R.rot["t"+i] = [(Math.sin(t*2.6*vel + i*1.7)*0.35 + w*Math.sin(p + i)*0.5)*amp, 0, Math.cos(t*2.2*vel + i)*0.25*amp];
+      R.rot["u"+i] = [Math.sin(t*3.3*vel + i*2.1)*0.5*amp, 0, 0];
+    }
+  },
+  smiler(T, st, R){
+    const t = st.t, wind = st.pose === "wind" ? 1 : 0;
+    const blink = !wind && ((t*0.8) % 5.3) < 0.13;
+    R.scl.eyes = [1 + wind*0.15, blink ? 0.12 : 1 + wind*0.3, 1];
+    R.scl.grin = [1 + Math.sin(t*1.3)*0.04 + wind*0.25, 1 + Math.sin(t*1.3)*0.06 + wind*0.4, 1];
+    R.rot.cloud = [0, Math.sin(t*0.5)*0.08, Math.sin(t*0.7)*0.06];
+    R.scl.cloud = [1 + Math.sin(t*1.1)*0.035, 1 + Math.sin(t*1.1 + 1.3)*0.035, 1];
+    R.rot.eyes = [0, 0, Math.sin(t*0.7)*0.03];
+  },
+  moth(T, st, R){
+    const t = st.t, v = st.pose === "wind" ? 32 : 17;
+    const a = Math.sin(t*v), b = Math.sin(t*v - 0.6);
+    R.rot.wingL = [0, 0, 0.2 + a*0.8]; R.rot.wingR = [0, 0, -0.2 - a*0.8];
+    R.rot.hindL = [0, 0, 0.1 + b*0.6]; R.rot.hindR = [0, 0, -0.1 - b*0.6];
+    R.rot.body = [-0.85 + Math.sin(t*2.3)*0.08, 0, Math.sin(t*1.7)*0.1];   // sube de morro: se le ven las alas
+    R.pos.body = [0, -a*0.6, 0];
+  }
+};
+
+/* ── lo que lleva en las manos ──
+   Las armas equipadas y la linterna encendida se ven en la mano de la figura
+   (userData.gearL / gearR con el id). Cada una es su propia malla de cubitos,
+   a lo largo de +z desde el puño. */
+const GEAR = {
+  pipe:{rx:0.6, off:[-0.5,-0.5,0], build(){
+    const g = vgrid().box(0,0,-2,1,1,15,"#8a9096"); g.paint(0,0,-2,1,1,4,"#3a3a3a"); g.box(-1,-1,11,3,3,2,"#6a7076"); return g; }},
+  rebar:{rx:0.6, off:[-0.5,-0.5,0], build(){
+    const g = vgrid().box(0,0,-2,1,1,16,(x,y,z)=> z % 2 ? "#8a4a2a" : "#6a3a22"); g.set(0,1,14,"#6a3a22").set(0,2,15,"#8a4a2a"); return g; }},
+  bat:{rx:0.6, off:[-0.5,-0.5,0], build(){
+    const g = vgrid().box(0,0,-2,1,1,7,"#8a6a3a").box(-1,-1,-3,3,3,1,"#6a4a2a").box(-1,-1,5,3,3,9,"#b08850");
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([x,y])=> g.set(x,y,13,null));
+    return g; }},
+  torch:{rx:1.2, off:[-1,-1,0], build(){
+    return vgrid().box(0,0,-1,2,2,5,"#3a3d42").box(-1,-1,4,4,4,1,"#2a2d32").box(0,0,5,2,2,1,"!#ffeaa8"); }}
+};
+const GEAR_GEO = {};
+function rigGear(m, r){
+  ["L","R"].forEach(sd=>{
+    const want = m.userData["gear"+sd] || null, cur = r.gear[sd];
+    if((cur ? cur.id : null) === want) return;
+    if(cur){ if(cur.mesh.parent) cur.mesh.parent.remove(cur.mesh); r.gear[sd] = null; }
+    const hand = r.P["hand"+sd], G2 = want && GEAR[want];
+    if(!hand || !G2) return;
+    const k = want + "|" + r.T.s;
+    const geo = GEAR_GEO[k] || (GEAR_GEO[k] = voxGeo(G2.build(), r.T.s, G2.off));
+    const o = new THREE.Group();
+    if(geo.solid) o.add(new THREE.Mesh(geo.solid, m.material));
+    if(geo.glow) o.add(new THREE.Mesh(geo.glow, r.glow));
+    o.rotation.x = G2.rx;
+    hand.add(o);
+    r.gear[sd] = {id:want, mesh:o};
+  });
+}
+// caído en el suelo (multijugador): la figura se tumba; el sprite se aplasta
+function actorDown(m, on){
+  if(!m) return;
+  if(isRig(m)){ m.userData.pose = on ? "down" : ""; m.scale.y = 1; rigAnimate(m); }
+  else m.scale.y = on ? 0.45 : 1;
+}
 function makeSprite(atlas, w, h){
+  if(atlas.cw) w = h*atlas.cw/atlas.ch;           // píxeles cuadrados: el ancho sale del alto
   const tex = atlas.tex.clone();
   tex.needsUpdate = true;
   tex.repeat.set(1/atlas.cols, 1/atlas.rows);
@@ -3963,6 +4937,7 @@ function makeSprite(atlas, w, h){
   return m;
 }
 function setFrame(m, col, row){
+  if(isRig(m)) return;                             // la figura 3D se anima sola (rigAnimate)
   const a = m.userData.atlas;
   const key = row*16+col;
   if(m.userData.frame === key) return;
@@ -3970,6 +4945,13 @@ function setFrame(m, col, row){
   m.material.map.offset.set(col/a.cols, 1 - (row+1)/a.rows);
 }
 function billboard(m, camPos){
+  if(isRig(m)){
+    // la figura mira hacia donde va (si no se sabe, a la cámara) y se anima
+    m.userData.yawWant = m.userData.yaw !== undefined ? m.userData.yaw : Math.atan2(camPos.x - m.position.x, camPos.z - m.position.z);
+    if(m.scale.x < 0) m.scale.x = -m.scale.x;     // el espejo de los perfiles no hace falta en 3D
+    rigAnimate(m);
+    return;
+  }
   m.rotation.y = Math.atan2(camPos.x - m.position.x, camPos.z - m.position.z);
 }
 
@@ -5739,7 +6721,7 @@ const BOX_DEPTH = {locker:0.5, crate:0.72, cart:0.56, cabinet:0.52, duffel:0.55}
 
 function disposeGroup(grp){
   grp.traverse(o=>{
-    if(o.geometry) o.geometry.dispose();
+    if(o.geometry && !(o.geometry.userData && o.geometry.userData.keep)) o.geometry.dispose();
     if(o.material){
       const ms = Array.isArray(o.material)?o.material:[o.material];
       ms.forEach(m=>{ if(m.map) m.map.dispose(); m.dispose(); });
@@ -6154,8 +7136,16 @@ function buildLevel(levelId, seed){
 
   // ── jugador ──
   const atlas = skinAtlas(G.char.id, skinOf(G.char.id));
+  // al cambiar de personaje, de aspecto o de estilo (vóxeles/plano) se rehace la figura
+  if(player.mesh && (player.mesh.userData.atlas !== atlas || isRig(player.mesh) !== voxOn())){
+    scene.remove(player.mesh);
+    if(player.mesh.material.map) player.mesh.material.map.dispose();
+    player.mesh.material.dispose();
+    player.mesh = makeActor(atlas, 0.94, 1.42);
+    scene.add(player.mesh);
+  }
   if(!player.mesh){
-    player.mesh = makeSprite(atlas, 0.94, 1.42);
+    player.mesh = makeActor(atlas, 0.94, 1.42);
     scene.add(player.mesh);
     player.shadow = new THREE.Mesh(
       new THREE.CircleGeometry(0.34,14),
@@ -6410,7 +7400,7 @@ const ENT_DEF = {
 function makeEntity(type, cell, rand){
   const def = ENT_DEF[type];
   codexSeeEnt(type);
-  const m = makeSprite(SPRITES[def.atlas], def.w, def.h);
+  const m = makeActor(SPRITES[def.atlas], def.w, def.h, def.atlas);
   m.position.set(c2w(cell[0]), def.h/2 + (type==="smiler"?0.5:0), c2w(cell[1]));
   world.add(m);
   let shadow = null;
@@ -6694,6 +7684,7 @@ function updatePlayer(dt){
     if(player.mesh){
       setFrame(player.mesh, Math.floor(G.t*9)%4, 0);
       player.mesh.position.set(player.pos.x, 0.71, player.pos.z);
+      player.mesh.userData.pose = "held";
       billboard(player.mesh, camera.position);
       player.shadow.position.set(player.pos.x, 0.02, player.pos.z);
     }
@@ -6751,10 +7742,16 @@ function updatePlayer(dt){
   else if(!moving){ row = player.idleRow || 2; }
   if(moving){ player.idleRow = row; player.idleFlip = flip; }
   else flip = player.idleFlip || 1;
-  const frame = moving ? (Math.floor(player.bob*2.2)%4) : 0;
+  player.animT = (player.animT || 0) + (moving ? dt*(running ? 10 : 7) : 0);
+  const frame = moving ? (Math.floor(player.animT)%4) + (running ? 4 : 0) : 0;   // 0-3 andar, 4-7 correr
   setFrame(player.mesh, frame, row);
   player.animFrame = frame; player.animRow = row;   // los amigos lo necesitan
   player.mesh.scale.x = flip;
+  player.mesh.userData.yaw = player.facing;          // la figura 3D mira hacia delante
+  player.mesh.userData.pose = "";
+  const W = G.weapons || {};
+  player.mesh.userData.gearL = W.L || (G.torchOn ? "torch" : null);   // lo que se ve en sus manos
+  player.mesh.userData.gearR = W.R || null;
 
   player.mesh.position.set(player.pos.x, 0.71 + (moving?Math.abs(Math.sin(player.bob*2.2))*0.02:0), player.pos.z);
   billboard(player.mesh, camera.position);
@@ -7366,6 +8363,7 @@ function swingHand(hand){
   if(G.weaponCd[hand] > 0) return;
   const def = ITEMS[id];
   G.weaponCd[hand] = def.cd;
+  if(player.mesh) player.mesh.userData.swing = hand;
 
   let cerca = null, dm = def.reach;
   for(let i=0;i<G.entities.length;i++){
@@ -7679,6 +8677,9 @@ function updateGrab(dt){
   const wob = Math.sin(G.t*22)*0.05;
   e.mesh.position.set(e.x + wob, e.def.h/2 + Math.abs(Math.sin(G.t*11))*0.05, e.z);
   e.mesh.scale.x = (e.mesh.scale.x < 0 ? -1 : 1) * (1 + Math.sin(G.t*18)*0.04);
+  e.mesh.userData.yaw = Math.atan2(dx, dz);
+  e.mesh.userData.pose = "grab";
+  billboard(e.mesh, camera.position);
   if(e.shadow) e.shadow.position.set(e.x, 0.02, e.z);
 
   // el jugador forcejea
@@ -7790,6 +8791,8 @@ function updateEntities(dt){
         e.anim += dt*2.5;
         setFrame(e.mesh, Math.floor(e.anim)%4, 0);
         e.mesh.position.y = 1.15 + Math.sin(G.t*1.3+e.phase)*0.08;
+        e.mesh.userData.yaw = Math.atan2(px-e.x, pz-e.z);   // siempre te está mirando
+        e.mesh.userData.pose = e.spWind > 0 ? "wind" : "";
         billboard(e.mesh, cam);
         if(dist < 8 && canSee(px,pz,e.x,e.z)){
           const f = facingFactor(e.x,e.z);
@@ -7814,6 +8817,8 @@ function updateEntities(dt){
       e.anim += dt*6;
       setFrame(e.mesh, Math.floor(e.anim)%4, 0);
       e.mesh.position.set(e.x, 1.4+Math.sin(G.t*1.8+e.phase)*0.35, e.z);
+      e.mesh.userData.yaw = Math.atan2(e.dx, e.dz);
+      e.mesh.userData.pose = e.spWind > 0 ? "wind" : "";
       billboard(e.mesh, cam);
       if(dist < 1.0){
         hurtPlayer(def.dmg*dt*1.4, txf(def,"death"));
@@ -7827,6 +8832,7 @@ function updateEntities(dt){
       e.anim += dt*2;
       setFrame(e.mesh, Math.floor(e.anim)%4, 0);
       e.mesh.position.set(e.x, def.h/2, e.z);
+      e.mesh.userData.pose = "";
       billboard(e.mesh, cam);
       if(e.shadow) e.shadow.position.set(e.x, 0.02, e.z);
       continue;
@@ -7837,6 +8843,7 @@ function updateEntities(dt){
       e.anim += dt*2;
       setFrame(e.mesh, Math.floor(e.anim)%4, e.mesh.userData.atlas.rows>1 ? 0 : 0);
       e.mesh.position.set(e.x, def.h/2 + Math.abs(Math.sin(G.t*3))*0.02, e.z);
+      e.mesh.userData.pose = "stun";
       billboard(e.mesh, cam);
       if(e.shadow) e.shadow.position.set(e.x, 0.02, e.z);
       continue;
@@ -7911,7 +8918,7 @@ function updateEntities(dt){
     // sprite
     const speed = e.state==="chase" ? def.chase : def.speed;
     e.anim += dt*(speed*1.9 + 1);
-    const frame = Math.floor(e.anim)%4;
+    const frame = Math.floor(e.anim)%4 + (e.state === "chase" && e.mesh.userData.atlas.cols >= 8 ? 4 : 0);
     if(e.mesh.userData.atlas.rows > 1){
       const camYaw = Math.atan2(e.x-cam.x, e.z-cam.z);
       let rel = Math.atan2(e.dx,e.dz) - camYaw;
@@ -7929,6 +8936,9 @@ function updateEntities(dt){
     }
     e.mesh.position.set(e.x, def.h/2 + Math.abs(Math.sin(e.anim*1.6))*0.03, e.z);
     e.mesh.scale.y = e.spWind > 0 ? 1 + Math.sin(G.t*22)*0.07 : 1;
+    // quieta mira al jugador; andando, hacia donde va
+    e.mesh.userData.yaw = (e.state === "chase" && dist < 6) ? Math.atan2(px-e.x, pz-e.z) : Math.atan2(e.dx, e.dz);
+    e.mesh.userData.pose = e.spWind > 0 ? "wind" : (e.state === "chase" ? "chase" : "");
     billboard(e.mesh, cam);
     if(e.shadow) e.shadow.position.set(e.x, 0.02, e.z);
   }
@@ -8919,6 +9929,16 @@ function paintHand(){
 }
 function updateHand(){
   if(!player.handMesh || !player.handMesh.visible) return;
+  // con la figura 3D, en la mano que tenga libre
+  const r = isRig(player.mesh) && player.mesh.userData.rig;
+  const ud = player.mesh && player.mesh.userData;
+  const mano = r && r.P && r.P[ud.gearR && !ud.gearL ? "handL" : "handR"];
+  if(mano && mano.getWorldPosition){
+    mano.getWorldPosition(player.handMesh.position);
+    player.handMesh.position.y += 0.05;
+    billboard(player.handMesh, camera.position);
+    return;
+  }
   // a la derecha del cuerpo, a la altura de la cadera
   const rx = Math.cos(player.facing), rz = -Math.sin(player.facing);
   player.handMesh.position.set(
@@ -9110,7 +10130,7 @@ function closeBackpack(){
 
 const OPTS_KEY = "zumbido.opts.v1";
 const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es",
-  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, pad:1, padSens:1.0, padInvert:0, keys:{} };
+  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, pad:1, padSens:1.0, padInvert:0, keys:{} };
 
 function loadOpts(){
   G.opts = Object.assign({}, OPTS_DEF, {keys:{}});
@@ -9135,6 +10155,7 @@ function loadOpts(){
       if(typeof o.fps === "number") G.opts.fps = o.fps ? 1 : 0;
       if(typeof o.quickUse === "number") G.opts.quickUse = o.quickUse ? 1 : 0;
       if(typeof o.pad === "number") G.opts.pad = o.pad ? 1 : 0;
+      if(typeof o.figs === "number") G.opts.figs = o.figs ? 1 : 0;
       if(typeof o.padSens === "number") G.opts.padSens = clamp(o.padSens, 0.4, 3);
       if(typeof o.padInvert === "number") G.opts.padInvert = o.padInvert ? 1 : 0;
       if(o.keys && typeof o.keys === "object"){
@@ -9257,6 +10278,12 @@ const OPT_ROWS = [
     fmt:(v)=> Math.round(v)+"%"
   },
   {
+    id:"figs", key:"figs", label:"Personajes", min:0, max:1, step:1, note:"",
+    get:()=> G.opts.figs,
+    set:(v)=>{ G.opts.figs = v >= 1 ? 1 : 0; },
+    fmt:(v)=> v >= 1 ? tx("muñecos 3D","3D figures") : tx("pixel art","pixel art")
+  },
+  {
     id:"fx", key:"fx", label:"Filtro de pantalla", min:0, max:2, step:1, note:"",
     get:()=> G.opts.fx,
     set:(v)=>{ G.opts.fx = v; applyFx(); },
@@ -9333,6 +10360,7 @@ const OPT_LABELS = {
   shake:  ["Temblor de cámara","Camera shake"],
   fps:    ["Contador de FPS","FPS counter"],
   quickUse:["Usar objetos","Using items"],
+  figs:   ["Personajes","Characters"],
   pad:    ["Jugar con mando","Play with a controller"],
   padSens:["Sensibilidad del stick","Stick sensitivity"],
   padInvert:["Invertir eje vertical","Invert vertical axis"]
@@ -9370,6 +10398,8 @@ const OPT_NOTES = {
            "Shows frames per second in the corner."],
   quickUse:["Con las teclas 1-4 o un clic en la mochila: gastar el objeto al momento, o sacarlo primero y confirmar con otra pulsación.",
            "With keys 1-4 or a click in the backpack: use the item straight away, or take it out first and confirm with another press."],
+  figs:   ["Personajes y entidades en pixel art (sprites con ciclo de andar y de correr) o como muñecos de cubitos en 3D. Se aplica al entrar al siguiente nivel.",
+           "Characters and entities as pixel art (sprites with walk and run cycles) or as 3D little-cube figures. Applies from the next level."],
   pad:    ["Cualquier mando que el navegador reconozca (Xbox, PlayStation, genéricos). Conéctalo y pulsa un botón.",
            "Any controller the browser recognises (Xbox, PlayStation, generic). Plug it in and press a button."],
   padSens:["Lo rápido que gira la cámara con el stick derecho.","How fast the right stick turns the camera."],
@@ -9387,7 +10417,7 @@ const OPT_TABS = [
   {id:"gfx",   icon:"◐", es:"Gráficos",  en:"Graphics",
    intro:["Brillo, calidad, niebla y filtros de pantalla.","Brightness, quality, fog and screen filters."]}
 ];
-const OPT_TAB_OF = {lang:"game", diff:"game", qte:"game", fov:"ctrl", sens:"ctrl", quickUse:"ctrl", pad:"ctrl", padSens:"ctrl", padInvert:"ctrl",
+const OPT_TAB_OF = {figs:"gfx", lang:"game", diff:"game", qte:"game", fov:"ctrl", sens:"ctrl", quickUse:"ctrl", pad:"ctrl", padSens:"ctrl", padInvert:"ctrl",
   vol:"sound", musicSrc:"sound", musicVol:"sound", ambVol:"sound",
   bright:"gfx", quality:"gfx", view:"gfx", fx:"gfx", shake:"gfx", fps:"gfx"};
 let optTab = 0;
@@ -9526,7 +10556,7 @@ function resetOpts(){
   G.opts.bright = OPTS_DEF.bright;
   G.opts.qte = OPTS_DEF.qte;
   G.opts.diff = OPTS_DEF.diff;
-  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","quickUse","pad","padSens","padInvert"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
+  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","quickUse","figs","pad","padSens","padInvert"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
   G.opts.keys = {}; renderKeyBox();
   applyVolume();
   applyBrightness();
@@ -9722,9 +10752,10 @@ function entityIcon(type){
   cx.imageSmoothingEnabled = false;
   const atlas = SPRITES[def.atlas];
   if(atlas && atlas.tex && atlas.tex.image){
-    // el atlas ya viene refinado: su celda mide SW*k × SH*k
-    const img = atlas.tex.image, k = (img.width / atlas.cols) / SW || 1;
-    cx.drawImage(img, 0, 0, SW*k, SH*k, 0, 0, c.width, c.height);
+    // la primera celda, encajada sin deformar (los animales son más anchos que altos)
+    const img = atlas.tex.image, cw = atlas.cw || c.width, ch = atlas.ch || c.height;
+    const k = Math.min(c.width/cw, c.height/ch);
+    cx.drawImage(img, 0, 0, cw, ch, (c.width - cw*k)/2, c.height - ch*k, cw*k, ch*k);
   }
   return c;
 }
@@ -10131,7 +11162,7 @@ function goDown(why){
   G.entities.forEach(e=>{ e.state = "wander"; e.alert = 0; e.hunt = 0; if(e.spWind > 0) cancelSpecial(e); });
   Audio_.scream();
   $("downed").hidden = false;
-  if(player.mesh){ player.mesh.scale.y = 0.45; player.mesh.position.y = 0.34; }
+  if(player.mesh){ player.mesh.position.y = 0.34; actorDown(player.mesh, true); }
   mpEnviar({t:"caido", on:1});
   addChat("", MP.nombre+tx(" ha caído."," is down."), true, true);
 }
@@ -10141,14 +11172,14 @@ function updateDowned(dt){
   $("downedT").textContent = Math.max(0, Math.ceil(G.downT))+" s";
   if(G.downT <= 0 || !mpAlguienVivo()){
     G.downed = false; $("downed").hidden = true;
-    if(player.mesh) player.mesh.scale.y = 1;
+    actorDown(player.mesh, false);
     dieForce = true; die(G.downWhy || tx("Nadie llegó a tiempo.","Nobody got there in time.")); dieForce = false;
   }
 }
 function reviveMe(by){
   if(!G.downed) return;
   G.downed = false; $("downed").hidden = true;
-  if(player.mesh) player.mesh.scale.y = 1;
+  actorDown(player.mesh, false);
   PARTS.forEach(p=>{ G.body[p.id] = Math.max(G.body[p.id], 40); G.bleeding[p.id] = 0; });
   G.sanity = Math.max(G.sanity, 45);
   G.grabImmune = 5; G.grace = Math.max(G.grace, 3);
@@ -10371,7 +11402,7 @@ function updateGhosts(dt){
     o.cambio = false;
     const aqui = !o.muerto && (!o.lv || o.lv === G.levelId+"@"+G.levelSeed);
     if(!o.mesh){
-      o.mesh = makeSprite(skinAtlas(o.ch, o.sk), 0.94, 1.42);
+      o.mesh = makeActor(skinAtlas(o.ch, o.sk), 0.94, 1.42);
       o.mesh.material.opacity = 0.92;
       o.mesh.material.transparent = true;
       o.vx = o.x; o.vz = o.z;
@@ -10386,8 +11417,9 @@ function updateGhosts(dt){
     o.vx = lerp(o.vx, o.x, 1-Math.pow(0.002, dt));
     o.vz = lerp(o.vz, o.z, 1-Math.pow(0.002, dt));
     o.mesh.position.set(o.vx, o.dn ? 0.34 : 0.71, o.vz);
-    o.mesh.scale.y = o.dn ? 0.45 : 1;
-    setFrame(o.mesh, o.frame % 4, (o.row||0) % 4);
+    actorDown(o.mesh, !!o.dn);
+    setFrame(o.mesh, o.frame % 8, (o.row||0) % 4);
+    o.mesh.userData.yaw = o.yaw;
     billboard(o.mesh, camera.position);
     o.tag.position.set(o.vx, o.dn ? 0.95 : 1.62, o.vz);
     billboard(o.tag, camera.position);

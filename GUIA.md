@@ -128,6 +128,9 @@ Todo esto está en `el-zumbido.html`. Busca el nombre de la sección con `Ctrl+F
 | Una acción nueva con tecla | `JUGADOR` | Añadirla a `ACTIONS` y su rama en `doKeyAction()`; la tecla se lee siempre con `kb("id")` |
 | Qué hace cada botón del mando | `MANDO` | `pollPad()` (en partida) y `padMenu()` (menús) |
 | Un aspecto nuevo | `PERSONAJES` (cerca) | `SKINS`: `pal`/`opts` que se superponen a los del personaje, y `need` |
+| La ropa de un personaje | `PERSONAJES` | Las prendas de su `opts` (`vest`, `jacket`, `scarf`, `whistle`…); se dibujan en `drawHumanoid()` |
+| Los sprites de personas y entidades | `PIXEL ART` | `drawPerson()` (personas, con `gaitPose()` para el paso), `drawHoundHD()`… (animales), `finishHD()` (contorno y luz) |
+| Las figuras de 8 bits en 3D | `8 BITS EN 3D` | `rigHuman()` y `rigHound()`… (los modelos), `RIG_POSE` (las animaciones), `GEAR` (lo que llevan en la mano) |
 | El multijugador | `MULTIJUGADOR` | `MP_REENVIA` (qué reenvía el anfitrión), `mpRecibir()`, caer/reanimar en `goDown()`/`reviveMe()` |
 
 ### Añadir un nivel, paso a paso
@@ -306,6 +309,46 @@ muy despacio de una nota a otra con `setTargetAtTime` — nunca salta, nunca hay
 - **Teclas.** Todo lo que antes miraba `keys["e"]` mira `keys[kb("use")]`. El cambio de
   tecla se captura con un `keydown` en fase de captura, antes que el del juego.
 
+## 6¹¹. La versión 2.0.0: ropa, sprites nuevos y 8 bits en 3D
+
+- **Sprites.** David pidió que se parecieran a los de Backrooms No-Clip (pixel art plano, nítido,
+  contorno oscuro, luz cenital). `drawPerson()` dibuja a 1 píxel en celdas de 48×72: es un
+  esqueleto 2D y `gaitPose(col)` da los ángulos de cada fotograma (columnas 0-3 andar: neutro,
+  zancada, neutro, zancada; 4-7 correr); filas 0 frente, 1 perfil a la derecha, 2 espalda, 3
+  perfil espejado. Los animales (`drawHoundHD`, `drawCrawlerHD`, `drawClumpHD`) van en celdas de
+  64×48 y el Smiler y la Deathmoth en 48×48. `buildAtlas(cols, rows, dibujo, cw, ch, flat)`
+  guarda `cw`/`ch` y `makeSprite()` saca el ancho del plano de ahí, para que los píxeles sean
+  cuadrados (antes todo se estiraba al `w`×`h` de la entidad). `finishHD()` pone el contorno
+  de 1 px y la luz; lo semitransparente (la sombra del suelo) no cuenta. Ya no hay Scale2x en
+  los personajes: `refineSprite()` sólo lo usan los iconos.
+- **Ajuste «Personajes»** (`G.opts.figs`): 0 sprites (por defecto), 1 muñecos 3D. Se cambió la
+  clave (antes `voxel`) para que quien ya tuviera guardado el 3D vea los sprites nuevos.
+- **Ropa.** `drawPerson()` y `rigHuman()` entienden prendas en `opts`: `vest`, `jacket` (+`jacketShade`,
+  `patches`), `strap`, `scarf`, `pendant`, `whistle`, `badge`, `tie`, `cross`, `number`,
+  `stripe`, `torn`, `skates`, `bandages`, `goggles`, `visor`, `pattern`, `partyhat`. Un aspecto
+  quita la ropa del personaje (la lista `ROPA`) y pone la suya; lo que no es ropa (la coleta,
+  la silueta) se conserva.
+- **Muñecos de vóxeles.** Una primera versión sacaba los cubitos del propio sprite (extruido)
+  y no gustó: se quedaba en un cartón con grosor. Ahora cada figura se modela aparte:
+  - `vgrid()` es una rejilla de cubitos con `box()` y `paint()` (repinta sólo donde ya hay,
+    como el `source-atop` de los sprites). Un color con `!` delante brilla (va a una malla con
+    `MeshBasicMaterial`): ojos del Smiler, del Hound, de Lázaro y del Wretch, la linterna.
+  - `rigHuman(look)` monta el humano con la paleta y las prendas del aspecto (las mismas
+    `opts` de `drawHumanoid()`); `rigHound/Crawler/Clump/Smiler/Moth` los animales. Cada
+    pieza tiene su padre y su articulación (`at`, en cubitos); un humano mide 36 cubitos,
+    como su sprite.
+  - `rigTemplate()` hace las mallas una vez por aspecto y tamaño (en `atlas.rigT`, con
+    `userData.keep`) y `makeRig()` monta un `Group` por figura. El grupo lleva `material`
+    como si fuera una malla, para que el tinte del especial y la opacidad de los amigos sigan
+    funcionando sin tocarlos.
+  - La animación la hace `rigAnimate()` desde `billboard()`: mide la velocidad por lo que la
+    figura se ha movido desde el fotograma anterior (un salto de más de 1,5 m es un
+    teletransporte y no cuenta), y `rigPose()` —función pura— da los giros de cada pieza.
+    Las posturas especiales se piden con `userData.pose` (`held`, `grab`, `stun`, `wind`,
+    `chase`, `down`), el golpe con `userData.swing` y lo que lleva en las manos con
+    `userData.gearL/gearR`. `setFrame()` no hace nada con una figura: se anima sola.
+  - `actorDown()` tumba la figura (o aplasta el sprite) al caer en multijugador.
+
 ## 7. Trampas que ya han mordido
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.
@@ -373,6 +416,11 @@ teclado, el ratón o `pollPad()`), y `btn()`/`tag()` devuelven la tecla o el bot
 (`PAD_BTN`). En los datos (fichas de objetos) se escribe `{crowbar}` y lo traduce `keyify()`.
 Con mando, la mochila y el panel de curar se manejan con `padPanel()`. `pruebas/multijugador.js` busca
 teclas escritas a mano en el código.
+
+**`world` se reasigna en cada `buildLevel()`.**
+Cualquier referencia guardada a `world` de antes de cambiar de nivel apunta a un grupo que ya
+no se dibuja: lo que añadas ahí no sale en pantalla. Por eso los compañeros de multijugador se
+recrean si `o.mesh.parent !== world`.
 
 **Con el ratón capturado no se puede hacer clic en el HUD.**
 La mochila desplegable (1.5.0) decía «clic para cogerlo», pero con el *pointer lock* puesto
