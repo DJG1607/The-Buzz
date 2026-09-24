@@ -230,7 +230,7 @@ muy despacio de una nota a otra con `setTargetAtTime` — nunca salta, nunca hay
   usan `beginPlay()` y `resumeGame()` para no repetir los mismos números en dos sitios.
   `pauseGame()`, `toTitle()` y `die()` bajan `musicGain`/`ambGain` igual que ya hacían con
   `humGain`.
-- **No se puede verificar de oído.** `pruebas/tanda3.js` prueba los números que deciden el
+- **No se puede verificar de oído.** `pruebas/curacion.js` prueba los números que deciden el
   sonido (la raíz baja con el riesgo, el sabor coincide con el `deco`), no el sonido en
   sí. Si tocas esto, compruébalo jugando.
 
@@ -356,7 +356,7 @@ devolvía el texto con `btn.textContent = "Borrar progreso"`. Buscando el mismo 
 salieron más: la frase de muerte de las diez entidades (no tenían `death_en`), las muertes
 por hemorragia o cordura, las pistas del objeto en la mano, los controles de la pausa (sin
 `data-en`), el sello «Catalogado» y la lista de «Tu música», que se pinta al arrancar y no se
-repintaba al cambiar de idioma. `pruebas/tanda4.js` busca ahora esos patrones en el código.
+repintaba al cambiar de idioma. `pruebas/mundo.js` busca ahora esos patrones en el código.
 Si algo se pinta una sola vez, `applyLanguage()` tiene que volver a pintarlo.
 
 **Lo semitransparente tiene que llevar `depthWrite:false`.**
@@ -371,7 +371,7 @@ Con mando el juego seguía enseñando «[E]», «[C]», «CLIC IZQ»… (y con t
 también las de siempre). Ahora `INPUT` dice qué se tocó lo último (`setInput()` desde el
 teclado, el ratón o `pollPad()`), y `btn()`/`tag()` devuelven la tecla o el botón del mando
 (`PAD_BTN`). En los datos (fichas de objetos) se escribe `{crowbar}` y lo traduce `keyify()`.
-Con mando, la mochila y el panel de curar se manejan con `padPanel()`. `tanda6` busca
+Con mando, la mochila y el panel de curar se manejan con `padPanel()`. `pruebas/multijugador.js` busca
 teclas escritas a mano en el código.
 
 **Con el ratón capturado no se puede hacer clic en el HUD.**
@@ -392,12 +392,21 @@ con una sola etiqueta `<script>` sin módulos.
 
 ## 8. Comprobar que no has roto nada
 
+Mientras tocas algo, la versión rápida (alrededor de un minuto):
+
+```bash
+node pruebas/todo.js rapido
+```
+
+Antes de commitear, la completa (7-8 minutos):
+
 ```bash
 node pruebas/todo.js
 ```
 
-Tarda un par de minutos y carga el juego sin navegador. Lo que mira está explicado en
-[pruebas/README.md](pruebas/README.md).
+Las dos cargan el juego sin navegador y hacen lo mismo; la rápida con menos semillas y
+menos vueltas en las tres pruebas pesadas (`niveles`, `mundo` e `inventario`). Lo que mira
+cada una está explicado en [pruebas/README.md](pruebas/README.md).
 
 Para verlo de verdad en el navegador hace falta servirlo por HTTP (con `file://` algunas
 cosas no van):

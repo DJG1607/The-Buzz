@@ -1,4 +1,4 @@
-/* Comprueba los arreglos y añadidos de la tercera tanda: la mochila/objetos
+/* Curación, códice y música (desde 1.5.1): la mochila/objetos
    de equipo responden al usarlos, curar una zona concreta del cuerpo, que el
    códice se reinicie con el progreso, y la música/ambiente por nivel.
    ────────────────────────────────────────────────────────────────────────────
@@ -108,4 +108,4 @@ try {
 } catch (e) { ok = false; console.log("   " + e.stack); }
 c.ok(ok, "música + ambiente en 10 niveles reales seguidos, sin excepciones");
 
-process.exit(c.resumen("la tercera tanda") ? 1 : 0);
+process.exit(c.resumen("la curación, el códice y la música") ? 1 : 0);

@@ -1,4 +1,4 @@
-/* Cuarta tanda (1.6.0): casilleros que ya no se tragan el botín, ataques
+/* El mundo (desde 1.6.0): casilleros que ya no se tragan el botín, ataques
    especiales para las diez entidades, fauna fiel a la wiki, brújula más
    floja, salidas que cuesta cruzar, el nivel que se reordena, las dos manos,
    el mapa del descenso, la música nueva y el refinado de sprites.
@@ -19,6 +19,8 @@ const {
   qualityRatio, bumpMul
 } = j;
 const c = crearContador();
+const RAPIDO = !!process.env.ZUMBIDO_RAPIDO;          // node pruebas/todo.js rapido
+if (RAPIDO) console.log("  (versión rápida: menos semillas y menos vueltas de reordenamiento)");
 
 function limpio(id, semilla) {
   buildLevel(id || "0", semilla || 1);
@@ -127,7 +129,7 @@ console.log("\n── LAS SALIDAS CUESTAN MÁS ──");
 let pocas = true, lejos = true, niveles = 0;
 for (const l of CAT) {
   if (l.settlement) continue;
-  for (let sem = 1; sem <= 6; sem++) {
+  for (let sem = 1; sem <= (RAPIDO ? 1 : 6); sem++) {
     limpio(l.id, sem);
     niveles++;
     const maxEsperado = Math.min(l.exitsTo.length, 3);
@@ -147,10 +149,10 @@ console.log("\n── EL NIVEL SE REORDENA SIN ROMPER NADA ──");
 let cambios = 0, rotos = 0, emparedados = 0, instanciasMal = 0, probados = 0, salidasMovidas = 0;
 for (const l of CAT) {
   if (l.settlement) continue;
-  for (let sem = 1; sem <= 3; sem++) {
+  for (let sem = 1; sem <= (RAPIDO ? 1 : 3); sem++) {
     limpio(l.id, sem * 7);
     const pc = [w2c(player.pos.x), w2c(player.pos.z)];
-    for (let vuelta = 0; vuelta < 4; vuelta++) {
+    for (let vuelta = 0; vuelta < (RAPIDO ? 2 : 4); vuelta++) {
       const antes = bfs(G.grid, G.n, pc[0], pc[1]).dist.filter(d => d >= 0).length;
       let abiertosAntes = 0; for (let i = 0; i < G.grid.length; i++) if (G.grid[i] === 0) abiertosAntes++;
       const r = shiftMaze(Math.random);
@@ -212,7 +214,7 @@ const catAntes = JSON.stringify(CAT.map(l => l.ents));
 G.randomMode = true;
 const destinos = new Set(); let fueraDelGrafo = 0, nombresBien = true, faunas = new Set(), salidasTotal = 0;
 for (const l of CAT.slice(0, 20)) {
-  for (let sem = 1; sem <= 4; sem++) {
+  for (let sem = 1; sem <= (RAPIDO ? 1 : 4); sem++) {
     buildLevel(l.id, sem * 13);
     const oficiales = new Set(l.exitsTo.map(r => r.to));
     for (const e of G.exits) {
@@ -224,10 +226,10 @@ for (const l of CAT.slice(0, 20)) {
     faunas.add(JSON.stringify(G.cfg.ents));
   }
 }
-c.ok(destinos.size > 25, "las salidas llevan a " + destinos.size + " niveles distintos, no sólo a los del grafo");
+c.ok(destinos.size > (RAPIDO ? 12 : 25), "las salidas llevan a " + destinos.size + " niveles distintos, no sólo a los del grafo");
 c.ok(fueraDelGrafo > salidasTotal * 0.6, fueraDelGrafo + " de " + salidasTotal + " salidas van a un sitio al que el grafo normal no lleva");
 c.ok(nombresBien, "el destino que anuncia cada salida es el nivel que te encuentras al cruzarla");
-c.ok(faunas.size > 40, "la fauna se baraja: " + faunas.size + " combinaciones distintas en 80 niveles");
+c.ok(faunas.size > (RAPIDO ? 10 : 40), "la fauna se baraja: " + faunas.size + " combinaciones distintas en " + (RAPIDO ? 20 : 80) + " niveles");
 const a1 = JSON.stringify(instantiate("5", 99).ents), a2 = JSON.stringify(instantiate("5", 99).ents);
 c.ok(a1 === a2, "la misma semilla da siempre el mismo nivel barajado");
 G.randomMode = false;
@@ -283,4 +285,4 @@ startCrossing(sal);
 c.ok(G.crossing === null && t >= need - 0.11, "aguantando " + need.toFixed(1) + " s se cruza (y ya no se puede volver a empezar: está en transición)");
 keys["e"] = false;
 
-process.exit(c.resumen("la cuarta tanda") ? 1 : 0);
+process.exit(c.resumen("el mundo") ? 1 : 0);

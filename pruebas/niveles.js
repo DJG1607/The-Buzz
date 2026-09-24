@@ -19,7 +19,10 @@ const j = cargar();
 const { CAT, G, buildLevel, bfs, player, w2c, ENT_DEF, DIFFS } = j;
 const c = crearContador();
 
-const SEMILLAS = Array.from({ length: 20 }, (_, i) => i * 7919 + 3);
+// en modo rápido (node pruebas/todo.js rapido) se miran 2 semillas en vez de 20
+const RAPIDO = !!process.env.ZUMBIDO_RAPIDO;
+const SEMILLAS = Array.from({ length: RAPIDO ? 2 : 20 }, (_, i) => i * 7919 + 3);
+if (RAPIDO) console.log("  (versión rápida: " + SEMILLAS.length + " semillas; los destinos y las salidas por nivel sólo se miran en la completa)");
 
 /* ── 1. cada nivel, con cada semilla, tiene que ser jugable ── */
 function jugable(cfg, semilla) {
@@ -95,7 +98,8 @@ c.ok(huerfanos.length === 0, huerfanos.length ? "niveles a los que no se llega: 
 
 /* ── 3. todos los destinos declarados acaban apareciendo ── */
 console.log("\n── LOS DESTINOS DECLARADOS, ¿SALEN ALGUNA VEZ? ──");
-for (const cfg of CAT) {
+if (RAPIDO) console.log("  (saltado en la versión rápida: necesita muchas semillas)");
+for (const cfg of (RAPIDO ? [] : CAT)) {
   const declarados = [...new Set(cfg.exitsTo.map(r => r.to))];
   const vistos = {}; declarados.forEach(x => vistos[x] = 0);
   let minSalidas = 99, minPasos = 1e9;
@@ -113,7 +117,8 @@ for (const cfg of CAT) {
   const etiqueta = ("Level " + cfg.id).padEnd(12) +
     (declarados.length - nunca.length) + "/" + declarados.length + " destinos" +
     ", mínimo " + minSalidas + " salidas, la más cercana a " + minPasos + " pasos";
-  c.ok(nunca.length === 0 && minSalidas >= 2 && minPasos >= 10,
+  // con pocas semillas es normal que algún destino no llegue a salir: eso sólo se exige en la completa
+  c.ok((RAPIDO || nunca.length === 0) && minSalidas >= 2 && minPasos >= 10,
     etiqueta + (nunca.length ? "  ← nunca aparece: " + nunca.join(",") : ""));
 }
 

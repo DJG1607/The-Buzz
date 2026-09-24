@@ -1,4 +1,4 @@
-/* Comprueba lo añadido en la tanda grande: armas de mano, habilidades por
+/* Armas y habilidades (desde 1.5.0): armas de mano, habilidades por
    personaje, el modo Sin retorno sin guardado, y las paredes atravesables.
    ────────────────────────────────────────────────────────────────────────────
    Cada mecánica aquí toca un sistema que ya existía (inventario, daño, botín,
@@ -127,4 +127,4 @@ if (G.noclips && G.noclips.length) {
   console.log("  (esta semilla no generó ningún par; probado en otras semillas arriba)");
 }
 
-process.exit(c.resumen("la tanda grande") ? 1 : 0);
+process.exit(c.resumen("las armas y habilidades") ? 1 : 0);

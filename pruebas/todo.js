@@ -1,7 +1,12 @@
 /* Lanza todas las pruebas de una vez.
    ────────────────────────────────────────────────────────────────────────────
-   Uso:  node pruebas/todo.js            todas
-         node pruebas/todo.js niveles    sólo una
+   Uso:  node pruebas/todo.js                 todas, completas (7-8 minutos)
+         node pruebas/todo.js rapido          todas, en versión corta (~1 minuto)
+         node pruebas/todo.js niveles         sólo una
+         node pruebas/todo.js rapido mundo    sólo una, en versión corta
+
+   El modo rápido es para ir comprobando mientras se toca algo: hace lo mismo
+   con menos semillas y menos vueltas. Antes de commitear, la completa.
 
    Termina con código 0 si todo está bien y 1 si algo falla, así que sirve
    igual para mirarlo a ojo que para engancharlo a cualquier automatismo.   */
@@ -14,14 +19,16 @@ const PRUEBAS = [
   ["niveles", "que los 51 niveles se puedan jugar y el grafo de saltos esté sano"],
   ["combate", "velocidades, aliento y los ataques especiales de las entidades"],
   ["objetos", "botín, dado, plano y cinta, bengalas y traducciones"],
-  ["tanda2", "armas de mano, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"],
-  ["tanda3", "curación por zona, códice que se reinicia y se ve mejor, música y ambiente"],
-  ["tanda4", "casilleros, especiales, fauna de la wiki, brújula, salidas, reordenamiento, manos, mapa, música y sprites"],
-  ["tanda5", "fauna con techo, especiales sin encadenar, inventario por huecos, soltar/desechar, uso rápido, ajustes"],
-  ["tanda6", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando"]
+  ["armas", "armas de mano, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"],
+  ["curacion", "curación por zona, códice que se reinicia y se ve mejor, música y ambiente"],
+  ["mundo", "casilleros, especiales, fauna de la wiki, brújula, salidas, reordenamiento, modo aleatorio, idiomas"],
+  ["inventario", "fauna con techo, especiales sin encadenar, inventario por huecos, soltar/desechar, uso rápido, ajustes"],
+  ["multijugador", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando"]
 ];
 
-const pedida = process.argv[2];
+const args = process.argv.slice(2);
+const rapido = args.includes("rapido") || args.includes("rápido");
+const pedida = args.find(a => a !== "rapido" && a !== "rápido");
 const lista = pedida ? PRUEBAS.filter(([n]) => n === pedida) : PRUEBAS;
 if (!lista.length) {
   console.log("No existe la prueba «" + pedida + "». Hay: " + PRUEBAS.map(p => p[0]).join(", "));
@@ -34,7 +41,8 @@ for (const [nombre, descripcion] of lista) {
   console.log("\n" + "═".repeat(74));
   console.log("  " + nombre.toUpperCase() + " — " + descripcion);
   console.log("═".repeat(74));
-  const r = spawnSync(process.execPath, [path.join(__dirname, nombre + ".js")], { stdio: "inherit" });
+  const env = Object.assign({}, process.env, rapido ? { ZUMBIDO_RAPIDO: "1" } : {});
+  const r = spawnSync(process.execPath, [path.join(__dirname, nombre + ".js")], { stdio: "inherit", env });
   resultados.push([nombre, r.status === 0]);
 }
 
@@ -44,5 +52,5 @@ for (const [nombre, ok] of resultados) console.log("  " + (ok ? "BIEN " : "FALLA
 console.log("  " + ((Date.now() - t0) / 1000).toFixed(0) + " s");
 console.log(malas.length
   ? "\n  Falla: " + malas.map(([n]) => n).join(", ") + ". Mira más arriba qué línea."
-  : "\n  Todo correcto.");
+  : "\n  Todo correcto." + (rapido ? " (versión rápida: antes de commitear, pasa la completa)" : ""));
 process.exit(malas.length ? 1 : 0);

@@ -1,4 +1,4 @@
-/* Quinta tanda (1.7.0): lo que se notaba jugando.
+/* Inventario y fauna (desde 1.7.0): lo que se notaba jugando.
    ────────────────────────────────────────────────────────────────────────────
    · Niveles con mucha fauna: techo de entidades, sólo unas pocas persiguen a
      la vez y los especiales ya no se encadenan (uno cada 5 s como mínimo).
@@ -17,6 +17,7 @@ const {
   OPT_ROWS, OPT_TAB_OF, OPT_TABS
 } = j;
 const c = crearContador();
+const RAPIDO = !!process.env.ZUMBIDO_RAPIDO;          // node pruebas/todo.js rapido
 const fuente = fs.readFileSync(path.join(__dirname, "..", "el-zumbido.html"), "utf8");
 
 function limpio(id, semilla) {
@@ -29,9 +30,10 @@ function limpio(id, semilla) {
 /* ── 1. niveles con mucha fauna ── */
 console.log("── NIVELES CON MUCHA FAUNA ──");
 let peor = 0, peorTipo = 0, dondePeor = "";
-for (const modo of [1, 2, 3, 4]) {
+// en la rápida sólo el caso más cargado: Sin retorno, muy abajo
+for (const modo of (RAPIDO ? [4] : [1, 2, 3, 4])) {
   G.opts = Object.assign({}, G.opts, { diff: modo });
-  for (const depth of [0, 8, 20]) {
+  for (const depth of (RAPIDO ? [20] : [0, 8, 20])) {
     G.depth = depth;
     for (const l of CAT) {
       if (l.settlement) continue;
@@ -129,4 +131,4 @@ for (const l of CAT.slice(0, 25)) {
 }
 c.ok(lejos, "las salidas quedan más lejos: nunca antes del 38% del recorrido");
 
-process.exit(c.resumen("la quinta tanda") ? 1 : 0);
+process.exit(c.resumen("el inventario") ? 1 : 0);

@@ -1,4 +1,4 @@
-/* Sexta tanda (1.8.0): multijugador de verdad, botiquín, aspectos, teclas a
+/* Multijugador (desde 1.8.0): multijugador de verdad, botiquín, aspectos, teclas a
    gusto y mando.
    ────────────────────────────────────────────────────────────────────────────
    El multijugador no se puede probar con PeerJS sin varios ordenadores, así
@@ -150,4 +150,4 @@ c.ok(literales.length === 0, "ningún texto con una tecla escrita a mano" + (lit
 solo.G.opts.pad = 0; solo.pollPad(0.1);
 c.ok(solo.PAD.move.x === 0 && solo.PAD.move.y === 0, "con el mando desactivado en Ajustes, no hace nada");
 
-process.exit(c.resumen("la sexta tanda") ? 1 : 0);
+process.exit(c.resumen("el multijugador") ? 1 : 0);

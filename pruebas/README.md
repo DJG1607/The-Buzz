@@ -3,9 +3,15 @@
 Comprobaciones automáticas del juego. No hace falta instalar nada: sólo Node.
 
 ```bash
-node pruebas/todo.js            # todas (un par de minutos)
-node pruebas/todo.js niveles    # sólo una
+node pruebas/todo.js                 # todas, completas (7-8 minutos): antes de commitear
+node pruebas/todo.js rapido          # todas, versión corta (~1 minuto): mientras tocas algo
+node pruebas/todo.js niveles         # sólo una
+node pruebas/todo.js rapido mundo    # sólo una, versión corta
 ```
+
+La versión rápida hace las mismas comprobaciones con menos semillas y menos vueltas en las
+tres pruebas pesadas (`niveles`, `mundo` e `inventario`). Lo único que se salta es que
+todos los destinos de cada nivel lleguen a salir, porque eso necesita muchas semillas.
 
 Termina con código 0 si todo va bien y 1 si algo falla.
 
@@ -51,15 +57,15 @@ El botín (que un 6 nunca salga muerto), el dado de la dificultad, que el plano 
 grabadora caduquen al bajar de nivel pero la brújula no, la luz de las bengalas medida a
 varias distancias, y que todos los objetos estén en español y en inglés.
 
-### `tanda2.js` — unos segundos
-Lo añadido en la tanda de la versión 1.5.0: que las armas de mano se repartan entre las
+### `armas.js` — unos segundos
+Lo añadido en la versión 1.5.0: que las armas de mano se repartan entre las
 dos manos y golpeen con su propio cooldown; que las cuatro habilidades activas hagan
 exactamente lo que dicen (Marcos localiza la salida, Vera se garantiza un buen casillero,
 Lázaro reduce el daño a la mitad, el Entrenador aturde en área); que Sin retorno no deje
 guardar; y que las paredes atravesables salgan en pares, no toquen el laberinto y
 teleporten de verdad.
 
-### `tanda3.js` — unos segundos
+### `curacion.js` — unos segundos
 Tres arreglos y un añadido de la versión 1.5.1. El más sutil: **`wipeProgress()` borraba
 `localStorage` pero no `G.codex` en memoria**, así que el primer objeto o entidad que
 vieras en la siguiente partida volvía a guardar el códice viejo por encima del que
@@ -71,8 +77,8 @@ sonido no se puede verificar en un test, así que esto comprueba los números qu
 (la raíz baja y los intervalos se cierran cuanto más peligroso es el nivel) y que la
 generación de audio en 10 niveles reales no lanza ninguna excepción.
 
-### `tanda4.js` — medio minuto
-La tanda 1.6.0. Que el dado sólo vacíe casilleros con un 1 natural y que lo que no cabe se
+### `mundo.js` — un par de minutos (unos segundos en la rápida)
+Lo de la versión 1.6.0. Que el dado sólo vacíe casilleros con un 1 natural y que lo que no cabe se
 quede dentro; que las diez entidades avisen y peguen con su especial (y los Facelings no
 contra el Entrenador); la fauna de varios niveles contra la wiki; que la brújula pierda
 señal con la distancia y no dé metros; que haya 1-3 salidas y lejos, y que cruzarlas se
@@ -85,15 +91,15 @@ catálogo normal quede intacto al salir. Al final, un barrido del código contra
 idioma: ningún `textContent = "…"` sin `tx()`, ninguna muerte sólo en español y los controles
 de la pausa con su `data-en`.
 
-### `tanda5.js` — medio minuto
-La tanda 1.7.0: que ningún nivel pase del techo de entidades de su dificultad (ni a
+### `inventario.js` — un minuto (unos segundos en la rápida)
+Lo de la versión 1.7.0: que ningún nivel pase del techo de entidades de su dificultad (ni a
 descenso 21) ni de 4 por especie; que dos entidades no carguen su especial a la vez y
 haya pausa entre uno y otro; que cada hueco sea un objeto y respete su máximo, que baja
 con la dificultad; soltar, recoger y desechar; el uso de una pulsación; los ajustes
 repartidos en pestañas; y en el código, que el brillo de las salidas no tape al jugador,
 que no haya baliza y que las paredes de clipping arranquen casi invisibles.
 
-### `tanda6.js` — unos segundos
+### `multijugador.js` — unos segundos
 El multijugador sin PeerJS: carga **tres copias del juego** (anfitrión y dos invitados) y las
 conecta con una red de mentira en estrella, como la de verdad. Comprueba que los invitados se
 ven entre sí gracias al reenvío, que el modo de sala lo elige sólo el anfitrión, que morir con
