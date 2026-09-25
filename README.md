@@ -201,3 +201,4 @@ Niveles, entidades y salidas basados en el lore público de la
 [Backrooms Wiki](https://backrooms-wiki.wikidot.com/), publicada bajo
 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Los textos de este juego son
 propios; ninguno reproduce los artículos originales.
+
