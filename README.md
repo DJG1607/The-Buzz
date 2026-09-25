@@ -102,16 +102,19 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   Repellent**, **Royal Rations**, **suelas de goma silenciosa** (hechas con Liquid Silence), **Lucky
   O' Milk** de fresa y **Greasy Marshmallows**; la **cinta americana**; y los tres del modo Agente.
 - **Voz por proximidad y gestos** con amigos: oyes a cada uno según lo cerca que esté (y nada si
-  está en otro nivel), hablando con **[Y]** o con el micro abierto; y **[H]** abre ocho gestos
+  está en otro nivel), con el micro abierto (o, si lo prefieres, manteniendo **[Y]**); y **[H]** abre ocho gestos
   (saludar, aquí, sígueme, espera, peligro, salida, gracias, vale) que salen en un bocadillo y,
-  con los muñecos 3D, el personaje los hace.
+  con los muñecos 3D, el personaje los hace. Las salas vacías se cierran solas a los diez minutos,
+  y si el anfitrión se va, los demás siguen en solitario.
 - **Una habilidad activa por personaje** (tecla **[C]**), con su propio tiempo de recarga: Marcos
   localiza la salida sin brújula, Vera se garantiza un buen casillero, Lázaro aguanta la mitad de
   daño un rato, y el Entrenador aturde todo lo que tenga cerca.
-- **La mochila se despliega con [B]** y enseña todo lo que llevas. **Cada hueco es un objeto**, no
-  una unidad, y cada objeto tiene un máximo que baja con la dificultad. Desde la mochila puedes
-  **soltar** un objeto al suelo (y recogerlo luego) o **desecharlo**; **[X]** suelta lo que llevas
-  en la mano. Las teclas 1-4 usan el objeto al primer toque.
+- **La mochila es un cajón que entra por la derecha con [B]**: arriba las dos manos, debajo los
+  huecos (los libres se ven punteados) y el equipo. Eliges un objeto y su ficha te dice qué hace,
+  con tres botones: **usar** (o empuñar, guardar, encender), **soltar** al suelo (y recogerlo luego)
+  y **desechar**, que pide una segunda pulsación. También con flechas, Enter, [X] y Supr, o con el
+  mando. **Cada hueco es un objeto**, no una unidad, y cada objeto tiene un máximo que baja con la
+  dificultad. Las teclas 1-4 usan el objeto al primer toque (o empuñan el arma de ese hueco).
 - **Códice**: un archivo de campo, con iconos y pestañas, que documenta cada entidad,
   objeto y nivel según los vas encontrando, con la ficha real de cada uno.
 - **Paredes que no son paredes de verdad**: entras por una y sales por otra, en otro punto del

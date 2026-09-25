@@ -453,10 +453,48 @@ Cualquier referencia guardada a `world` de antes de cambiar de nivel apunta a un
 no se dibuja: lo que añadas ahí no sale en pantalla. Por eso los compañeros de multijugador se
 recrean si `o.mesh.parent !== world`.
 
+**El compañero de multijugador siempre salía de espaldas (3.0.1).**
+Su sprite usaba la fila (frente, perfil, espalda) que calculaba SU juego con SU cámara, que
+siempre está detrás de él. La fila hay que calcularla en cada ordenador con la cámara propia
+y hacia dónde mira el compañero (`player.facing`, que es lo que se manda ahora).
+
+**PeerJS no siempre avisa cuando el otro cierra la pestaña.** El `close` de una conexión
+puede no llegar nunca, y el invitado se quedaba «conectado» a una sala que ya no existía.
+Por eso hay un latido (`{t:"latido"}` cada 2 s en `mpVigilar()`): una conexión que lleva 15 s
+callada se da por cerrada. Además, al cerrar la pestaña (`pagehide`) se destruye el peer para
+que el nombre de la sala quede libre al momento, y una sala vacía se cierra a los 10 minutos.
+
+**Clones al darle a «Entrar» después de «Crear sala».** `mpEmpezar()` creaba un peer nuevo
+sin cerrar el anterior, y el nuevo se conectaba a la sala del viejo: el mismo jugador otra
+vez. Ahora cierra lo que hubiera antes, ignora mensajes de uno mismo y, dentro de una sala,
+los botones de crear y entrar se sustituyen por «Salir de la sala».
+
+**La voz por WebAudio no pasa por la cancelación de eco.** El navegador sólo cancela el eco
+de lo que suena por un `<audio>`; con WebAudio y altavoces, tu compañero se oía a sí mismo.
+La voz sale por el `<audio>` (con `el.volume` según la distancia) y WebAudio sólo la mide.
+Probarla de verdad: dos pestañas del navegador integrado se conectan por el broker de PeerJS;
+basta sustituir `navigator.mediaDevices.getUserMedia` por un oscilador para tener «micro».
+
 **Con el ratón capturado no se puede hacer clic en el HUD.**
 La mochila desplegable (1.5.0) decía «clic para cogerlo», pero con el *pointer lock* puesto
 los clics nunca le llegaban. Ahora abrirla suelta el ratón (sin pausar: el manejador de
 `pointerlockchange` mira `bpOpen`) y cerrarla lo vuelve a capturar.
+
+**`#hud` tiene `pointer-events:none`: todo lo clicable dentro tiene que pedir `auto` (3.0.1).**
+Por eso usar, soltar y desechar en la mochila no hacían nada: los clics atravesaban el panel,
+caían en el `<canvas>` del juego y su manejador cerraba la mochila. Les pasaba lo mismo al
+tablón del M.E.G., a los gestos y al maniquí de vitales. `pruebas/inventario.js` lo comprueba
+para cada uno; si añades un panel con botones al HUD, añádelo a esa lista.
+Y al cambiar de un panel a otro, el que se cierra no debe volver a capturar el ratón
+(`closeBackpack(true)`, `closeMegBoard(true)`): `requestPointerLock()` es asíncrono y la
+captura llegaba cuando el panel nuevo ya estaba abierto. Por si acaso, `pointerlockchange`
+suelta cualquier captura que llegue con un panel abierto.
+
+**La mochila (3.0.1) es un cajón con selección: `BP.sel`.** `bpEntries()` da la lista (manos,
+huecos, equipo) y `bpDo("main"|"drop"|"trash")` actúa sobre lo elegido; ratón, teclado
+(`bpKeyAction()`) y mando (`padPanel()`) pasan todos por ahí. Tras actuar, la selección sigue
+al objeto (un arma que cambia de mano) o pasa al que ocupa su hueco. Desechar pide dos
+pulsaciones en 3 s (`BP.armed`).
 
 **El banco de pruebas se engancha en el ÚLTIMO `resize();`.**
 Inyecta la exportación de símbolos justo antes. Hasta 1.6.0 usaba el primero, y en cuanto

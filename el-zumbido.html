@@ -69,7 +69,7 @@
   #b-san i{background:linear-gradient(90deg,#77803a,var(--sane));}
   #b-hp  i{background:linear-gradient(90deg,#5e2018,var(--blood2));}
   #b-st  i{background:linear-gradient(90deg,#33495a,var(--stam));}
-  #bodyc{display:block; width:62px; height:96px; image-rendering:pixelated; border:1px solid var(--line2); background:rgba(7,7,10,.8);}
+  #bodyc{display:block; width:62px; height:96px; image-rendering:pixelated; border:1px solid var(--line2); background:rgba(7,7,10,.8); pointer-events:auto;}
 
   #kit{top:0; right:0; margin:12px; display:grid; gap:8px; justify-items:end;}
   #slots{display:grid; grid-template-columns:repeat(5,34px); gap:5px; justify-content:end;}
@@ -457,28 +457,77 @@
   }
   .mpp b{color:var(--ink);}
   .mpp span{color:var(--ink-faint);}
+  /* la mochila: un cajón que entra por la derecha. Va dentro del HUD, que no
+     recibe el ratón, así que tiene que pedirlo (pointer-events:auto) */
   #backpack{
-    position:fixed; left:50%; bottom:104px; transform:translateX(-50%);
-    width:min(560px, 88vw); background:rgba(10,10,12,.92); border:1px solid var(--line2);
-    border-radius:3px; padding:14px 16px; z-index:40;
+    position:fixed; top:0; right:0; bottom:0; width:min(390px, 94vw); z-index:40; pointer-events:auto;
+    display:flex; flex-direction:column; gap:12px; padding:18px 18px 14px; box-sizing:border-box;
+    background:linear-gradient(180deg, rgba(20,18,14,.97), rgba(8,8,11,.98) 60%);
+    border-left:1px solid var(--line); box-shadow:-30px 0 60px rgba(0,0,0,.6);
+    transform:translateX(104%); visibility:hidden;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear .3s;
   }
-  .bp-head{display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px;}
-  #bpGrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(96px,1fr)); gap:6px;}
+  #backpack.open{transform:none; visibility:visible; transition:transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s;}
+  #backpack::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(180deg, transparent, rgba(200,134,58,.55) 30%, rgba(200,134,58,.55) 70%, transparent);}
+  #bpTop{display:grid; grid-template-columns:1fr auto; align-items:center; gap:6px 10px;}
+  #bpTop .bp-t{font-family:"Special Elite",serif; font-size:22px; letter-spacing:.06em; color:var(--fluor);}
+  #bpTop .bp-t small{display:block; font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint); margin-top:2px;}
+  #bpClose{font:inherit; font-size:14px; width:30px; height:30px; background:none; border:1px solid var(--line2); color:var(--ink-dim); cursor:pointer;}
+  #bpClose:hover{border-color:var(--amber); color:var(--fluor);}
+  #bpBar{grid-column:1 / -1; display:flex; gap:3px; align-items:center;}
+  #bpBar i{flex:1; height:5px; background:rgba(221,214,189,.08);}
+  #bpBar i.on{background:var(--sane);} #bpBar.full i.on{background:var(--amber);}
+  #bpBar b{font-weight:500; font-size:10.5px; color:var(--ink-dim); margin-left:6px; font-variant-numeric:tabular-nums;}
+  #bpGrid{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:12px; padding-right:2px;}
+  .bp-sec{display:flex; justify-content:space-between; font-size:9.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px;}
+  .bp-cells{display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;}
+  .bp-cells.hands{grid-template-columns:1fr 1fr;}
   .bp-it{
-    display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 4px;
-    border:1px solid var(--line2); border-radius:2px; cursor:pointer; background:rgba(221,214,189,.03);
-    transition:border-color .12s ease, background .12s ease;
+    position:relative; aspect-ratio:1; display:grid; place-items:center; cursor:pointer; box-sizing:border-box;
+    border:1px solid var(--line2); background:radial-gradient(circle at 50% 42%, rgba(221,214,189,.09), rgba(221,214,189,.02) 72%);
+    transition:border-color .12s ease, background .12s ease, transform .12s ease;
   }
-  .bp-it:hover{border-color:var(--ink-faint); background:rgba(221,214,189,.08);}
-  .bp-it.held{border-color:var(--ink);}
-  .bp-it canvas{image-rendering:pixelated; width:24px; height:24px;}
-  .bp-it .bp-n{font-size:9.5px; text-align:center; line-height:1.25; color:var(--ink);}
-  .bp-it .bp-q{font-size:8.5px; color:var(--ink-faint);}
+  #bpGrid.intro .bp-it{animation:bpIn .32s ease both;}
+  .hands .bp-it{aspect-ratio:auto; height:58px; grid-template-columns:40px 1fr; justify-items:start; gap:8px; padding:0 10px;}
+  .bp-it:hover{border-color:var(--ink-faint); transform:translateY(-1px);}
+  .bp-it.sel{border-color:var(--amber); background:radial-gradient(circle at 50% 42%, rgba(200,134,58,.2), rgba(200,134,58,.04) 72%);
+    box-shadow:0 0 16px rgba(200,134,58,.22);}
+  .bp-it.empty{cursor:default; border-style:dashed; border-color:rgba(221,214,189,.16); background:none; animation:none !important;}
+  .bp-it.empty:hover{transform:none; border-color:var(--line2);}
+  .hands .bp-it.empty .bp-k{position:static; grid-column:1 / -1; justify-self:center; font-size:9.5px; letter-spacing:.14em;}
+  .bp-it canvas{image-rendering:pixelated; width:34px; height:34px;}
+  .bp-it .bp-q{position:absolute; right:4px; bottom:2px; font-size:10px; color:var(--fluor); font-variant-numeric:tabular-nums;}
+  .bp-it .bp-q.max{color:var(--amber);}
+  .bp-it .bp-k{position:absolute; left:4px; top:2px; font-size:8.5px; color:var(--ink-faint);}
+  .bp-it .bp-w{position:absolute; left:5px; right:5px; bottom:3px; height:2px; background:rgba(255,255,255,.08);}
+  .bp-it .bp-w i{display:block; height:100%; background:var(--sane);} .bp-it .bp-w i.low{background:#e0624a;}
+  .bp-it .bp-hn{font-size:10.5px; color:var(--ink); line-height:1.3;} .bp-it .bp-hn span{display:block; font-size:8.5px; letter-spacing:.14em; color:var(--ink-faint);} .bp-it .bp-hn b{font-weight:400;}
+  .bp-it.torch-on::after{content:""; position:absolute; right:5px; top:5px; width:5px; height:5px; border-radius:50%; background:var(--fluor); box-shadow:0 0 6px var(--fluor);}
+  @keyframes bpIn{from{opacity:0; transform:translateX(14px);} to{opacity:1; transform:none;}}
+  #bpInfo{border-top:1px solid var(--line2); padding-top:12px; display:grid; grid-template-columns:64px 1fr; gap:8px 12px; align-items:center; min-height:150px;}
+  #bpInfo .bpi-ic{width:64px; height:64px; display:grid; place-items:center; border:1px solid var(--line); background:radial-gradient(circle, rgba(221,214,189,.1), transparent 70%);}
+  #bpInfo .bpi-ic canvas{width:52px; height:52px; image-rendering:pixelated;}
+  #bpInfo .bpi-n{font-family:"Special Elite",serif; font-size:17px; color:var(--fluor); line-height:1.2;}
+  #bpInfo .bpi-m{font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); margin-top:3px;}
+  #bpInfo .bpi-d{grid-column:1 / -1; font-size:11.5px; line-height:1.5; color:var(--ink-dim);}
+  #bpInfo .bpi-d b{color:var(--ink); font-weight:500;}
+  #bpInfo .bpi-e{grid-column:1 / -1; font-size:11.5px; color:var(--ink-faint); text-align:center; padding:18px 0;}
+  #bpInfo .bpi-a{grid-column:1 / -1; display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;}
+  .bpb{font:inherit; font-size:11.5px; padding:9px 4px 7px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer;
+    color:var(--ink); background:rgba(221,214,189,.04); border:1px solid var(--line); transition:border-color .12s ease, background .12s ease;}
+  .bpb kbd{font:inherit; font-size:9px; color:var(--ink-faint);}
+  .bpb:hover{border-color:var(--ink-dim); background:rgba(221,214,189,.08);}
+  .bpb.main{color:var(--sane); border-color:rgba(185,196,99,.55);} .bpb.main:hover{background:rgba(185,196,99,.1);}
+  .bpb.trash:hover{border-color:#e0624a; color:#ffb09a;}
+  .bpb.trash.armed{background:rgba(166,58,43,.35); border-color:#e0624a; color:#ffd2c4;}
+  .bpb:disabled{opacity:.35; cursor:default; background:none;} .bpb:disabled:hover{border-color:var(--line);}
   .bp-hint{margin-top:9px; font-size:9.5px; color:var(--ink-faint); text-align:center;}
+  #backpack .bp-hint{margin-top:0; line-height:1.5;}
   #megBoard{
     position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
     width:min(620px, 92vw); max-height:78vh; overflow:auto; background:rgba(10,10,12,.94); border:1px solid var(--line2);
-    border-radius:3px; padding:14px 16px; z-index:40;
+    border-radius:3px; padding:14px 16px; z-index:40; pointer-events:auto;
   }
   .mq-sec{font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--amber); margin:12px 0 6px;}
   .mq-sec:first-child{margin-top:0;}
@@ -652,7 +701,7 @@
   }
   #abilityChip.ready{color:var(--sane);}
   #gestos{position:fixed; left:50%; bottom:150px; transform:translateX(-50%); display:flex; flex-wrap:wrap; justify-content:center; gap:5px;
-    width:min(640px, 94vw); z-index:30;}
+    width:min(640px, 94vw); z-index:30; pointer-events:auto;}
   .gesto{display:flex; align-items:center; gap:5px; font:inherit; font-size:11px; padding:5px 8px; color:var(--ink);
     background:rgba(10,10,12,.88); border:1px solid var(--line2); cursor:pointer;}
   .gesto:hover{border-color:var(--amber);}
@@ -802,9 +851,14 @@
     <div class="bp-hint" id="hpHint"></div>
   </div>
 
-  <div id="backpack" hidden>
-    <div class="bp-head"><span data-en="Backpack">Mochila</span><b id="bpCap"></b></div>
+  <div id="backpack" aria-hidden="true">
+    <div id="bpTop">
+      <div class="bp-t"><span data-en="Backpack">Mochila</span><small id="bpSub"></small></div>
+      <button type="button" id="bpClose" title="Cerrar">&#10005;</button>
+      <div id="bpBar"></div>
+    </div>
     <div id="bpGrid"></div>
+    <div id="bpInfo"></div>
     <div class="bp-hint" id="bpHint"></div>
   </div>
 
@@ -897,6 +951,7 @@
     <div class="btnrow">
       <button class="btn" id="mpCreate" data-en="Create room">Crear sala</button>
       <button class="btn" id="mpJoin" data-en="Join">Entrar</button>
+      <button class="btn" id="mpLeave" hidden data-en="Leave the room">Salir de la sala</button>
       <button class="btn ghost" id="mpBack" data-en="Back">Volver</button>
     </div>
     <div id="mpStatus" class="meta"></div>
@@ -1176,7 +1231,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "3.0.0";
+const VERSION = "3.0.1";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -7976,9 +8031,9 @@ function panelHints(){
     ? tx("↑ ↓ elegir zona · A vendar · B cerrar","↑ ↓ choose part · A bandage · B close")
     : tx("Clic en una zona o pulsa su número · "+tag("heal")+" para cerrar","Click a part or press its number · "+tag("heal")+" to close");
   if(h2) h2.textContent = INPUT === "pad"
-    ? tx("↑ ↓ elegir · A usar o cambiar de mano · X soltar · Y desechar · B cerrar","↑ ↓ choose · A use or swap hands · X drop · Y discard · B close")
-    : tx("Clic para usarlo · clic en un arma para pasarla de la mochila a una mano y al revés · "+tag("pack")+" para cerrar",
-         "Click to use it · click a weapon to move it between your hands and the pack · "+tag("pack")+" to close");
+    ? tx("Cruceta: elegir · A: acción · X: soltar · Y: desechar · B: cerrar","D-pad: choose · A: action · X: drop · Y: discard · B: close")
+    : tx("Clic: elegir · doble clic: acción · flechas y Enter · "+tag("pack")+" o Esc: cerrar",
+         "Click: pick · double click: action · arrows and Enter · "+tag("pack")+" or Esc: close");
   const hb = document.getElementById("healBtn");
   if(hb){ const b = hb.querySelector("b"); if(b) b.textContent = btn("heal"); }
 }
@@ -8066,7 +8121,7 @@ function renderPauseKeys(){
       .map(([b,t])=> "<div><kbd>"+b+"</kbd><span> "+t+"</span></div>").join("");
     return;
   }
-  host.innerHTML = ["fwd","run","use","torch","flare","drink","bandage","heal","drop","pack","ability"].map(id=>{
+  host.innerHTML = ["fwd","run","use","torch","flare","drink","bandage","heal","drop","pack","ability","gesture","talk"].map(id=>{
     const a = ACTION_BY[id];
     const tecla = id === "fwd" ? [kb("fwd"),kb("left"),kb("back"),kb("right")].map(keyLabel).join(" ") : keyLabel(kb(id));
     return "<div><kbd>"+tecla+"</kbd><span> "+(id === "fwd" ? tx("moverte","move") : tx(a.es, a.en).toLowerCase())+"</span></div>";
@@ -8092,11 +8147,22 @@ window.addEventListener("keydown",(e)=>{
   if(!G.running || G.paused) { if(k==="escape" && G.paused) resumeGame(); return; }
   doKeyAction(k);
 });
+// con la mochila abierta: flechas eligen, Enter usa, [soltar] suelta, Supr desecha, Esc cierra
+function bpKeyAction(k){
+  const nav = {arrowleft:[-1,0], arrowright:[1,0], arrowup:[0,-1], arrowdown:[0,1]}[k];
+  if(nav){ bpNav(nav[0], nav[1]); return true; }
+  if(k === "enter"){ bpDo("main"); return true; }
+  if(k === kb("drop")){ bpDo("drop"); return true; }
+  if(k === "delete" || k === "backspace"){ bpDo("trash"); return true; }
+  if(k === "escape"){ closeBackpack(); return true; }
+  return false;
+}
 // lo que hace cada tecla en partida; también lo usa el mando
 function doKeyAction(k){
   if(k===kb("talk")){ vozHablar(true); return; }
   if(k===kb("crowbar")){ useItem("crowbar"); return; }        // antes del QTE: si no, se la come
   if(k===kb("pack")){ closeHeal(); toggleBackpack(); return; }
+  if(bpOpen && bpKeyAction(k)) return;
   if(k===kb("heal")){ toggleHeal(); return; }
   if(healOpen && k>="1" && k<="6"){ const p = PARTS[parseInt(k,10)-1]; if(p){ healBodyPart(p.id); renderHeal(); } return; }
   if(k===kb("ability")){ useAbility(); return; }
@@ -8133,6 +8199,8 @@ canvas.addEventListener("mousedown",(e)=>{
 canvas.addEventListener("contextmenu",(e)=>{ if(pointerLocked) e.preventDefault(); });
 document.addEventListener("pointerlockchange",()=>{
   pointerLocked = document.pointerLockElement === canvas;
+  // una captura que llega tarde (se pidió al cerrar un panel y ya hay otro abierto) se suelta
+  if(pointerLocked && (bpOpen || healOpen || megOpen)){ document.exitPointerLock(); return; }
   if(!pointerLocked && G.running && !G.paused && !bpOpen && !healOpen && !megOpen && !gestosOpen) pauseGame();
 });
 document.addEventListener("mousemove",(e)=>{
@@ -8156,10 +8224,11 @@ function updatePlayer(dt){
     return;
   }
   if(G.downed){ player.speed = 0; return; }
-  if(keys[kb("fwd")]||keys["arrowup"])    iz+=1;
-  if(keys[kb("back")]||keys["arrowdown"]) iz-=1;
-  if(keys[kb("left")]||keys["arrowleft"]) ix-=1;
-  if(keys[kb("right")]||keys["arrowright"])ix+=1;
+  const fl = !bpOpen;                                  // con la mochila abierta las flechas eligen objeto
+  if(keys[kb("fwd")]||(fl && keys["arrowup"]))    iz+=1;
+  if(keys[kb("back")]||(fl && keys["arrowdown"])) iz-=1;
+  if(keys[kb("left")]||(fl && keys["arrowleft"])) ix-=1;
+  if(keys[kb("right")]||(fl && keys["arrowright"]))ix+=1;
   ix += PAD.move.x; iz += PAD.move.y;                  // el stick del mando suma
   ix = clamp(ix,-1,1); iz = clamp(iz,-1,1);
 
@@ -8458,9 +8527,12 @@ function useItem(id){
   if(id === "almond"){
     if(!hasItem("almond")){ toast(tx("No te queda Almond Water.","No Almond Water left.")); return; }
     removeItem("almond");
+    const antes = G.sanity;
     G.sanity = Math.min(100, G.sanity + 39);
     Audio_.sip();
-    logLine(tx("Almond Water. <b>+34</b> cordura.","Almond Water. <b>+34</b> sanity."));
+    // antes ponía +34 aunque daba 39 (y aunque estuvieras casi a tope)
+    const gana = Math.round(G.sanity - antes);
+    logLine(tx("Almond Water. <b>+"+gana+"</b> cordura.","Almond Water. <b>+"+gana+"</b> sanity."));
   }
   else if(id === "bandage"){
     if(!hasItem("bandage")){ toast(tx("No te quedan vendajes.","No bandages left.")); return; }
@@ -8644,7 +8716,9 @@ function toggleHeal(force){
   healOpen = force === undefined ? !healOpen : force;
   $("healPanel").hidden = !healOpen;
   if(healOpen){
-    if(bpOpen) closeBackpack();
+    // antes la mochila, al cerrarse, volvía a capturar el ratón y el panel de curar no se podía clicar
+    if(bpOpen) closeBackpack(true);
+    if(typeof closeMegBoard === "function") closeMegBoard(true);
     renderHeal();
     if(document.pointerLockElement) document.exitPointerLock();
   } else grabPointer();
@@ -10630,6 +10704,8 @@ function slotKey(idx){
   useOrHold(slot.id, true);
 }
 function useOrHold(id, rapido){
+  // un arma guardada en la mochila: su tecla la empuña (antes la «sacaba» y no hacía nada)
+  if(ITEMS[id] && ITEMS[id].weapon && invFind(id)){ weaponClick(id); return; }
   const quick = rapido && (!G.opts || G.opts.quickUse !== 0) && QUICK_USE[id];
   if(quick){
     useItem(id);
@@ -10646,36 +10722,187 @@ function flashSlot(id){
   if(el && el.animate) el.animate([{background:"rgba(185,196,99,.45)"},{background:"rgba(185,196,99,0)"}], {duration:380});
 }
 
-/* ── mochila desplegable: [B] la abre y enseña TODO lo que llevas,
-   no sólo los cuatro huecos rápidos. Un clic la coge, otro clic la usa. */
+/* ── mochila: un cajón que entra deslizándose por la derecha ──
+   [B] lo abre. Arriba van las dos manos; debajo, los huecos (los libres se
+   ven punteados) y el equipo. Un clic elige un objeto y enseña su ficha con
+   tres botones: la acción principal (usar, empuñar, guardar, encender),
+   soltar al suelo y desechar, que pide una segunda pulsación. Doble clic
+   hace la principal. Teclado: flechas para elegir, Enter, {drop} y Supr.
+   Mando: cruceta, A, X e Y.
+   Antes era una rejilla metida en el HUD, que no recibe el ratón
+   (pointer-events:none): los clics la atravesaban, caían en el juego y lo
+   cerraban, y por eso usar, soltar y desechar no hacían nada. */
 let bpOpen = false;
-function bpRow(id, qty, held, hand){
-  const def = ITEMS[id];
-  const row = document.createElement("div");
-  row.className = "bp-it" + (held ? " held" : "") + (hand ? " inhand" : "");
+const BP = {list:[], sel:"", armed:"", armedT:0};
+const BP_USO_EQUIPO = {flashlight:1, megcamera:1};         // equipo que además se puede usar
+function bpKey(e){ return e ? e.id+"|"+(e.hand||"") : ""; }
+function bpEntries(){
+  const out = [];
+  ["L","R"].forEach(hand=>{ const id = G.weapons[hand]; if(id) out.push({id, qty:1, hand}); });
+  G.inv.forEach((s, n)=> out.push({id:s.id, qty:s.qty, n}));
+  EQUIP_IDS.forEach(id=>{ if(G.equip[id]) out.push({id, qty:1, eq:true}); });
+  return out;
+}
+function bpSelected(){ return BP.list.find(e=> bpKey(e) === BP.sel) || null; }
+// la acción principal del objeto: lo que pone el botón y lo que hace
+function bpMain(e){
+  const def = ITEMS[e.id];
+  if(def.weapon) return e.hand
+    ? {txt:tx("Guardar","Stow"), fn:()=> weaponClick(e.id, e.hand)}
+    : {txt:tx("Empuñar","Wield"), fn:()=> weaponClick(e.id)};
+  if(e.id === "flashlight") return {txt:G.torchOn ? tx("Apagar","Switch off") : tx("Encender","Switch on"), fn:()=> toggleTorch()};
+  if(def.equip && !BP_USO_EQUIPO[e.id]) return null;          // funciona sola mientras la llevas
+  return {txt:tx("Usar","Use"), fn:()=> useItem(e.id)};
+}
+// qué es cada cosa, en una línea
+function bpMeta(e){
+  const def = ITEMS[e.id];
+  if(def.weapon){
+    const w = G.wear[e.id] !== undefined ? G.wear[e.id] : 1;
+    const donde = e.hand ? (e.hand === "L" ? tx("mano izquierda","left hand") : tx("mano derecha","right hand")) : tx("en la mochila","in the pack");
+    return tx("Arma","Weapon")+" · "+donde+" · "+Math.max(1, Math.round(w*100))+"%";
+  }
+  if(def.equip) return tx("Equipo · no ocupa hueco","Gear · takes no slot");
+  return tx("Consumible","Consumable")+" · "+e.qty+"/"+stackMax(e.id);
+}
+function bpDo(que){
+  const e = bpSelected();
+  if(!e) return;
+  const k = bpKey(e);
+  const antes = BP.list.findIndex(x=> bpKey(x) === k);       // antes de actuar: la acción vuelve a pintar la lista
+  if(que === "main"){ const m = bpMain(e); if(m){ m.fn(); Audio_.click(); } }
+  else if(que === "drop") dropItem(e.id, e.hand, false);
+  else if(que === "trash"){
+    // desechar se pierde para siempre: la primera pulsación sólo avisa
+    if(BP.armed !== k || Date.now() - BP.armedT > 3000){
+      BP.armed = k; BP.armedT = Date.now(); renderBackpack();
+      setTimeout(()=>{ if(bpOpen && BP.armed === k && Date.now() - BP.armedT > 3000){ BP.armed = ""; renderBackpack(); } }, 3100);
+      return;
+    }
+    dropItem(e.id, e.hand, true);
+  }
+  BP.armed = "";
+  // si el objeto sigue ahí se queda elegido; un arma que cambia de mano o de
+  // hueco, allí donde haya ido; y si se ha gastado, el que ocupa su hueco
+  BP.list = bpEntries();
+  if(BP.list.length){
+    const movida = BP.list.find(x=> bpKey(x) === k) || BP.list.find(x=> x.id === e.id);
+    const vecino = e.n !== undefined && G.inv.length ? BP.list.find(x=> x.n === Math.min(e.n, G.inv.length-1)) : null;
+    BP.sel = bpKey(movida || vecino || BP.list[clamp(antes, 0, BP.list.length-1)]);
+  }
+  renderBackpack();
+}
+function bpPick(k){
+  if(BP.sel !== k) BP.armed = "";
+  BP.sel = k;
+  renderBackpack();
+}
+// flechas o cruceta: izquierda y derecha van de uno en uno; arriba y abajo
+// buscan la casilla que queda encima o debajo en pantalla
+function bpNav(dx, dy){
+  if(!BP.list.length) return;
+  let i = Math.max(0, BP.list.findIndex(x=> bpKey(x) === BP.sel));
+  if(dy){
+    const cells = [...document.querySelectorAll("#bpGrid .bp-it[data-k]")];
+    const cur = cells.find(c=> c.getAttribute("data-k") === BP.sel);
+    const r0 = cur && cur.getBoundingClientRect();
+    let best = null, bd = 1e9;
+    if(r0) cells.forEach(c=>{
+      const r = c.getBoundingClientRect();
+      const vy = (r.top + r.height/2) - (r0.top + r0.height/2);
+      if(vy*dy < 4) return;
+      const d = Math.abs(vy)*4 + Math.abs((r.left + r.width/2) - (r0.left + r0.width/2));
+      if(d < bd){ bd = d; best = c; }
+    });
+    if(best){ bpPick(best.getAttribute("data-k")); return; }
+    dx = dy*5;                                        // sin geometría (o sin fila): de cinco en cinco
+  }
+  i = clamp(i + dx, 0, BP.list.length-1);
+  bpPick(bpKey(BP.list[i]));
+}
+function bpCell(e, host, delay){
+  const def = ITEMS[e.id];
+  const k = bpKey(e);
+  const c = document.createElement("div");
+  c.className = "bp-it" + (k === BP.sel ? " sel" : "") + (e.id === "flashlight" && G.torchOn ? " torch-on" : "");
+  c.setAttribute("data-k", k);
+  c.style.animationDelay = (delay*18)+"ms";
   const cv = document.createElement("canvas"); cv.width = ICON_PX; cv.height = ICON_PX;
-  cv.getContext("2d").drawImage(ICON_TEX[def.icon], 0, 0, ICON_PX, ICON_PX);
-  row.appendChild(cv);
-  const n = document.createElement("div"); n.className = "bp-n"; n.textContent = txf(def,"name");
-  row.appendChild(n);
-  if(!hand && !def.equip && !def.weapon){ const q = document.createElement("div"); q.className = "bp-q"; q.textContent = qty+"/"+stackMax(id); row.appendChild(q); }
-  else if(qty > 1){ const q = document.createElement("div"); q.className = "bp-q"; q.textContent = "×"+qty; row.appendChild(q); }
-  if(hand){ const q = document.createElement("div"); q.className = "bp-q"; q.textContent = hand === "L" ? tx("IZQ","L") : tx("DER","R"); row.appendChild(q); }
-  row.addEventListener("click", ()=>{
-    if(def.weapon) weaponClick(id, hand); else useOrHold(id, true);
-    renderBackpack();
-  });
-  // soltar al suelo (se puede recoger) y desechar (se pierde)
-  const acc = document.createElement("div"); acc.className = "bp-acts";
-  const mk = (txt, title, fn)=>{
-    const b = document.createElement("button"); b.type = "button"; b.className = "bp-act"; b.textContent = txt; b.title = title;
-    b.addEventListener("click", ev=>{ ev.stopPropagation(); fn(); renderBackpack(); });
-    acc.appendChild(b);
+  const cx = cv.getContext("2d"); cx.imageSmoothingEnabled = false; cx.drawImage(ICON_TEX[def.icon], 0, 0, ICON_PX, ICON_PX);
+  c.appendChild(cv);
+  if(e.hand){
+    const n = document.createElement("div"); n.className = "bp-hn";
+    const lado = document.createElement("span"); lado.textContent = e.hand === "L" ? tx("IZQUIERDA","LEFT") : tx("DERECHA","RIGHT");
+    const nom = document.createElement("b"); nom.textContent = txf(def,"name");
+    n.appendChild(lado); n.appendChild(nom);
+    c.appendChild(n);
+  }
+  if(e.n !== undefined && e.n < 10){ const kk = document.createElement("span"); kk.className = "bp-k"; kk.textContent = (e.n+1) % 10; c.appendChild(kk); }
+  if(def.weapon){
+    const w = G.wear[e.id] !== undefined ? G.wear[e.id] : 1;
+    const bar = document.createElement("div"); bar.className = "bp-w";
+    bar.innerHTML = "<i class=\""+(w < 0.2 ? "low" : "")+"\" style=\"width:"+Math.max(2, Math.round(w*100))+"%\"></i>";
+    c.appendChild(bar);
+  } else if(e.qty > 1){
+    const q = document.createElement("span"); q.className = "bp-q" + (e.qty >= stackMax(e.id) ? " max" : ""); q.textContent = "×"+e.qty; c.appendChild(q);
+  }
+  c.title = txf(def,"name");
+  c.addEventListener("click", ev=>{ ev.stopPropagation(); bpPick(k); });
+  c.addEventListener("dblclick", ev=>{ ev.stopPropagation(); BP.sel = k; bpDo("main"); });
+  host.appendChild(c);
+}
+function bpEmpty(host, txt){
+  const c = document.createElement("div"); c.className = "bp-it empty";
+  if(txt){ c.innerHTML = "<span class=\"bp-k\">"+txt+"</span>"; }
+  host.appendChild(c);
+}
+function bpSection(titulo, extra, clase){
+  const box = document.createElement("div");
+  const h = document.createElement("div"); h.className = "bp-sec";
+  h.innerHTML = "<span>"+titulo+"</span><span>"+(extra || "")+"</span>";
+  const cells = document.createElement("div"); cells.className = "bp-cells" + (clase ? " "+clase : "");
+  box.appendChild(h); box.appendChild(cells);
+  $("bpGrid").appendChild(box);
+  return cells;
+}
+function bpInfo(){
+  const host = $("bpInfo");
+  host.textContent = "";
+  const e = bpSelected();
+  if(!e){
+    const p = document.createElement("div"); p.className = "bpi-e";
+    p.textContent = BP.list.length ? tx("Elige un objeto para ver qué hace.","Pick an item to see what it does.")
+                                   : tx("No llevas nada. Los casilleros esconden cosas: ábrelos con "+tag("use")+".","You carry nothing. Lockers hide things: open them with "+tag("use")+".");
+    host.appendChild(p);
+    return;
+  }
+  const def = ITEMS[e.id];
+  const ic = document.createElement("div"); ic.className = "bpi-ic";
+  const cv = document.createElement("canvas"); cv.width = ICON_PX; cv.height = ICON_PX;
+  const cx = cv.getContext("2d"); cx.imageSmoothingEnabled = false; cx.drawImage(ICON_TEX[def.icon], 0, 0, ICON_PX, ICON_PX);
+  ic.appendChild(cv); host.appendChild(ic);
+  const t = document.createElement("div");
+  const tn = document.createElement("div"); tn.className = "bpi-n"; tn.textContent = txf(def,"name"); t.appendChild(tn);
+  const tm = document.createElement("div"); tm.className = "bpi-m"; tm.textContent = bpMeta(e); t.appendChild(tm);
+  host.appendChild(t);
+  const d = document.createElement("div"); d.className = "bpi-d";
+  d.innerHTML = keyify(txf(def,"blurb"));
+  host.appendChild(d);
+  const acts = document.createElement("div"); acts.className = "bpi-a";
+  const pad = INPUT === "pad";
+  const mk = (clase, txt, tecla, fn, off)=>{
+    const b = document.createElement("button"); b.type = "button"; b.className = "bpb "+clase; b.disabled = !!off;
+    const s1 = document.createElement("span"); s1.textContent = txt; b.appendChild(s1);
+    const s2 = document.createElement("kbd"); s2.textContent = tecla; b.appendChild(s2);
+    b.addEventListener("click", ev=>{ ev.stopPropagation(); fn(); });
+    acts.appendChild(b);
   };
-  mk("⤓", tx("Soltar en el suelo","Drop on the floor"), ()=> dropItem(id, hand, false));
-  mk("✕", tx("Desechar","Discard"), ()=> dropItem(id, hand, true));
-  row.appendChild(acc);
-  return row;
+  const m = bpMain(e);
+  mk("main", m ? m.txt : tx("Funciona sola","Works on its own"), m ? (pad ? "A" : "Enter") : "", ()=> bpDo("main"), !m);
+  mk("drop", tx("Soltar","Drop")+(e.qty > 1 ? " ×"+e.qty : ""), pad ? "X" : btn("drop"), ()=> bpDo("drop"));
+  const armed = BP.armed === bpKey(e) && Date.now() - BP.armedT <= 3000;
+  mk("trash"+(armed ? " armed" : ""), armed ? tx("¿Seguro?","Sure?") : tx("Desechar","Discard")+(e.qty > 1 ? " 1" : ""), pad ? "Y" : tx("Supr","Del"), ()=> bpDo("trash"));
+  host.appendChild(acts);
 }
 
 /* ── soltar y desechar ──
@@ -10769,34 +10996,59 @@ function weaponClick(id, hand){
   refreshSlots();
 }
 function renderBackpack(){
-  const grid = $("bpGrid");
-  grid.textContent = "";
+  BP.list = bpEntries();
+  if(!BP.list.some(x=> bpKey(x) === BP.sel)) BP.sel = BP.list.length ? bpKey(BP.list[0]) : "";
+  $("bpGrid").textContent = "";
   panelHints();
-  G.inv.forEach(slot=> grid.appendChild(bpRow(slot.id, slot.qty, G.held === slot.id)));
-  EQUIP_IDS.forEach(id=>{
-    if(G.equip[id]) grid.appendChild(bpRow(id, 1, G.held === id));
+  let d = 0;
+  // las manos: siempre las dos, vacías o no
+  const hands = bpSection(tx("En las manos","In your hands"), tx("clic izq · clic der","L-click · R-click"), "hands");
+  ["L","R"].forEach(h=>{
+    const e = BP.list.find(x=> x.hand === h);
+    if(e) bpCell(e, hands, d++);
+    else bpEmpty(hands, h === "L" ? tx("IZQUIERDA · vacía","LEFT · empty") : tx("DERECHA · vacía","RIGHT · empty"));
   });
-  ["L","R"].forEach(hand=>{
-    const id = G.weapons[hand];
-    if(id) grid.appendChild(bpRow(id, 1, G.held === id, hand));
-  });
-  $("bpCap").textContent = invCount()+"/"+G.cap;
+  // los huecos: los libres también, para ver cuánto cabe
+  const cells = bpSection(G.cap > 4 ? tx("Mochila","Backpack") : tx("Bolsillos","Pockets"), invCount()+" / "+G.cap);
+  BP.list.filter(x=> x.n !== undefined).forEach(e=> bpCell(e, cells, d++));
+  for(let i = invCount(); i < G.cap; i++) bpEmpty(cells);
+  const eq = BP.list.filter(x=> x.eq);
+  if(eq.length){
+    const box = bpSection(tx("Equipo","Gear"), tx("no ocupa hueco","takes no slot"));
+    eq.forEach(e=> bpCell(e, box, d++));
+  }
+  const bar = $("bpBar");
+  bar.innerHTML = "";
+  for(let i = 0; i < G.cap; i++){ const s = document.createElement("i"); if(i < invCount()) s.className = "on"; bar.appendChild(s); }
+  const n = document.createElement("b"); n.textContent = invCount()+"/"+G.cap; bar.appendChild(n);
+  bar.classList.toggle("full", invCount() >= G.cap);
+  $("bpSub").textContent = G.cap > 4 ? tx("10 huecos","10 slots") : tx("sin mochila: 4 bolsillos","no backpack: 4 pockets");
+  $("bpClose").title = tx("Cerrar","Close");
+  bpInfo();
 }
 function toggleBackpack(){
+  if(bpOpen){ closeBackpack(); return; }
   if(!G.running || G.paused || G.grab) return;
-  bpOpen = !bpOpen;
-  $("backpack").hidden = !bpOpen;
-  if(bpOpen){
-    renderBackpack();
-    // con el ratón capturado no se podía hacer clic en nada de la mochila
-    if(document.pointerLockElement) document.exitPointerLock();
-  } else grabPointer();
+  if(typeof closeMegBoard === "function") closeMegBoard(true);
+  if(typeof gestosOpen !== "undefined" && gestosOpen) toggleGestos();
+  bpOpen = true; BP.armed = "";
+  if(G.held && hasItem(G.held)) BP.sel = bpKey(bpEntries().find(x=> x.id === G.held));
+  const el = $("backpack");
+  el.classList.add("open"); el.setAttribute("aria-hidden", "false");
+  // las casillas entran en cascada sólo al abrir, no cada vez que se elige algo
+  $("bpGrid").classList.add("intro");
+  setTimeout(()=> $("bpGrid").classList.remove("intro"), 600);
+  renderBackpack();
+  // con el ratón capturado no se podía hacer clic en nada de la mochila
+  if(document.pointerLockElement) document.exitPointerLock();
 }
-function closeBackpack(){
+// sinRaton: se cierra para abrir otro panel, así que el ratón no se vuelve a capturar
+function closeBackpack(sinRaton){
   if(!bpOpen) return;
-  bpOpen = false;
-  $("backpack").hidden = true;
-  grabPointer();
+  bpOpen = false; BP.armed = "";
+  const el = $("backpack");
+  el.classList.remove("open"); el.setAttribute("aria-hidden", "true");
+  if(!sinRaton) grabPointer();
 }
 
 /* ═══════════════ AJUSTES ═══════════════
@@ -10805,7 +11057,7 @@ function closeBackpack(){
 
 const OPTS_KEY = "zumbido.opts.v1";
 const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es",
-  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, voz:1, pad:1, padSens:1.0, padInvert:0, keys:{} };
+  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, voz:2, pad:1, padSens:1.0, padInvert:0, keys:{} };
 
 function loadOpts(){
   G.opts = Object.assign({}, OPTS_DEF, {keys:{}});
@@ -10831,7 +11083,8 @@ function loadOpts(){
       if(typeof o.quickUse === "number") G.opts.quickUse = o.quickUse ? 1 : 0;
       if(typeof o.pad === "number") G.opts.pad = o.pad ? 1 : 0;
       if(typeof o.figs === "number") G.opts.figs = o.figs ? 1 : 0;
-      if(typeof o.voz === "number") G.opts.voz = clamp(Math.round(o.voz), 0, 2);
+      // antes el valor por defecto era «pulsar Y» y se guardaba solo: sólo vale si lo eligió el jugador
+      if(typeof o.voz === "number" && o.vozElegida) G.opts.voz = clamp(Math.round(o.voz), 0, 2);
       if(typeof o.padSens === "number") G.opts.padSens = clamp(o.padSens, 0.4, 3);
       if(typeof o.padInvert === "number") G.opts.padInvert = o.padInvert ? 1 : 0;
       if(o.keys && typeof o.keys === "object"){
@@ -10938,7 +11191,7 @@ const OPT_ROWS = [
   {
     id:"voz", key:"voz", label:"Voz con amigos", min:0, max:2, step:1, note:"",
     get:()=> vozModo(),
-    set:(v)=>{ G.opts.voz = clamp(Math.round(v), 0, 2); vozAjuste(); },
+    set:(v)=>{ G.opts.voz = clamp(Math.round(v), 0, 2); G.opts.vozElegida = 1; vozAjuste(); },
     fmt:(v)=> v <= 0 ? tx("apagada","off") : (v >= 2 ? tx("micro abierto","open mic") : tx("pulsar ","push ")+tag("talk"))
   },
   {
@@ -11903,7 +12156,7 @@ function toggleMegBoard(){
 }
 function openMegBoard(tablon){
   if(!G.running || G.paused || G.grab) return;
-  if(typeof closeBackpack === "function") closeBackpack();
+  if(typeof closeBackpack === "function") closeBackpack(true);
   closeHeal();
   megOpen = true; megEnTablon = !!tablon;
   if(megEnTablon && G.meg && !G.meg.ofertas.length) megOfertas();
@@ -11911,11 +12164,11 @@ function openMegBoard(tablon){
   renderMegBoard();
   if(document.pointerLockElement) document.exitPointerLock();
 }
-function closeMegBoard(){
+function closeMegBoard(sinRaton){
   if(!megOpen) return;
   megOpen = false;
   $("megBoard").hidden = true;
-  grabPointer();
+  if(!sinRaton) grabPointer();
 }
 function megBoton(texto, fn, off){
   const b = document.createElement("button");
@@ -12101,6 +12354,8 @@ function mpAbrir(){
 function mpPintarGente(){
   const host = $("mpPeople");
   host.textContent = "";
+  // dentro de una sala ya no se crea ni se entra en otra: sólo se sale
+  $("mpCreate").hidden = MP.activo; $("mpJoin").hidden = MP.activo; $("mpLeave").hidden = !MP.activo;
   $("mpMode").hidden = !MP.activo;
   $("mpLobbyChat").hidden = !MP.activo;
   mpPintarModo();
@@ -12271,7 +12526,10 @@ function mpEmpezar(anfitrion){
   const sala = mpSlug($("mpRoom").value);
   if(!nombre){ mpEstado(tx("Ponte un nombre.","Put a name in.")); return; }
   if(!sala){ mpEstado(tx("Ponle nombre a la sala.","Give the room a name.")); return; }
-  MP.nombre = nombre; MP.sala = sala; MP.anfitrion = anfitrion;
+  // si ya había una conexión abierta se cierra antes: si no, el juego se
+  // conectaba a su propia sala una y otra vez y salían «clones» tuyos
+  if(MP.peer || MP.activo) mpSalir();
+  MP.nombre = nombre; MP.sala = sala; MP.anfitrion = anfitrion; MP.vacia = 0;
   try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
 
   mpEstado(tx("Conectando…","Connecting…"));
@@ -12310,7 +12568,9 @@ function mpEmpezar(anfitrion){
 }
 
 function mpAtarConexion(c){
+  if(c.peer === mpYo()){ try{ c.close(); }catch(e){} return; }       // nunca con uno mismo
   c.on("open", ()=>{
+    c.visto = Date.now();
     MP.conexiones.push(c);
     c.send({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base"});
     if(MP.anfitrion){
@@ -12330,6 +12590,14 @@ function mpAtarConexion(c){
 
 function mpSoltar(c){
   MP.conexiones = MP.conexiones.filter(x=> x !== c);
+  if(!MP.anfitrion && MP.activo && !MP.conexiones.length){
+    // se ha ido el anfitrión: la sala ya no existe y sigues por tu cuenta
+    mpSalir();
+    toast(tx("El anfitrión ha cerrado la sala: sigues en solitario.","The host closed the room: you carry on alone."), 5);
+    mpEstado(tx("El anfitrión ha cerrado la sala.","The host closed the room."));
+    mpPintarGente();
+    return;
+  }
   const o = MP.otros[c.peer];
   if(o){
     if(o.mesh) world.remove(o.mesh);
@@ -12349,12 +12617,15 @@ function mpEnviar(m){
 
 function mpRecibir(c, m){
   if(!m || !m.t) return;
+  if(c) c.visto = Date.now();                      // cualquier mensaje cuenta como señal de vida
+  if(m.t === "latido") return;
   const from = m.from || c.peer;
   // el anfitrión hace de centralita: lo que le llega de un invitado lo pasa a los demás
   if(MP.anfitrion && !m.from && MP_REENVIA[m.t]){
     const fw = Object.assign({}, m, {from:c.peer});
     MP.conexiones.forEach(x=>{ if(x !== c){ try{ x.send(fw); }catch(e){} } });
   }
+  if(from === mpYo()) return;                     // un eco de uno mismo no es otro jugador
   if(m.t === "sala" && !MP.anfitrion){ MP.modo = m.modo === "random" ? "random" : "normal"; mpPintarModo(); return; }
   if(m.t === "chat"){ addChat(String(m.n||"?").slice(0,14), String(m.txt||"").slice(0,120), false); return; }
   if(m.t === "gesto"){
@@ -12433,7 +12704,7 @@ function updateGhosts(dt){
     MP.reloj = MP_RITMO;
     mpEnviar({
       t:"pos", x:+player.pos.x.toFixed(2), z:+player.pos.z.toFixed(2),
-      yaw:+player.yaw.toFixed(2), f:(player.animFrame|0), r:(player.animRow|0),
+      yaw:+player.facing.toFixed(2), f:(player.animFrame|0), r:(player.animRow|0),
       n:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base",
       hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed
     });
@@ -12475,7 +12746,15 @@ function updateGhosts(dt){
     actorDown(o.mesh, !!o.dn);
     if(o.gesto && o.gesto.t > 0){ o.gesto.t -= dt; if(!o.dn && isRig(o.mesh)) o.mesh.userData.pose = o.gesto.pose; }
     vozCompanero(o, aqui);
-    setFrame(o.mesh, o.frame % 8, (o.row||0) % 4);
+    // La fila del sprite (frente, perfil, espalda) sale de hacia dónde mira él
+    // respecto a TU cámara. Antes se usaba la que calculaba su juego con su
+    // cámara, que siempre está detrás de él: por eso siempre se le veía de espaldas.
+    const camYaw = Math.atan2(o.vx - camera.position.x, o.vz - camera.position.z);
+    const rel = wrapA((o.yaw || 0) - camYaw), a2 = Math.abs(rel);
+    const fila = a2 < Math.PI/4 ? 2 : (a2 > Math.PI*0.75 ? 0 : 1);
+    setFrame(o.mesh, o.frame % 8, fila);
+    if(!isRig(o.mesh)) o.mesh.scale.x = (fila === 1 && rel < 0) ? -1 : 1;
+    o.fila = fila;
     o.mesh.userData.yaw = o.yaw;
     billboard(o.mesh, camera.position);
     o.tag.position.set(o.vx, o.dn ? 0.95 : 1.62, o.vz);
@@ -12486,16 +12765,17 @@ function updateGhosts(dt){
 /* ── voz por proximidad ──
    Audio por WebRTC de navegador a navegador, con el mismo PeerJS de la sala.
    Cada uno manda siempre el mismo flujo: una salida de WebAudio a la que se
-   engancha el micrófono sólo mientras hablas ({talk}) o siempre, con el micro
-   abierto (Ajustes → Sonido → Voz). Así la llamada se monta una vez y no hay
-   que renegociarla cada vez que alguien abre o cierra el micro.
+   engancha el micrófono siempre (micro abierto, lo de por defecto) o sólo
+   mientras mantienes {talk} (Ajustes → Sonido → Voz). Así la llamada se monta
+   una vez y no hay que renegociarla cada vez que alguien abre o cierra el micro.
    Entre cada pareja llama el de id menor, para que no haya dos llamadas
-   cruzadas. La voz de cada compañero entra con su volumen y su panorama según
-   dónde esté: entera a 2 m, nada a 18 m, amortiguada tras una pared y muda si
-   está en otro nivel. Sin permiso de micro, igualmente oyes a los demás. */
+   cruzadas. La voz de cada compañero entra con su volumen según dónde esté:
+   entera a 2 m, nada a 18 m, amortiguada tras una pared y muda si está en
+   otro nivel. Sin permiso de micro, igualmente oyes a los demás. Probado con
+   dos pestañas de verdad y un micro falso: el audio llega en los dos sentidos. */
 const VOZ = {listo:false, dest:null, mic:null, micSrc:null, micGain:null, calls:{}, nodes:{}, hablo:false, pidiendo:false};
 const VOZ_CERCA = 2, VOZ_LEJOS = 18;
-function vozModo(){ return G.opts && typeof G.opts.voz === "number" ? G.opts.voz : 1; }   // 0 apagada · 1 pulsar · 2 abierto
+function vozModo(){ return G.opts && typeof G.opts.voz === "number" ? G.opts.voz : 2; }   // 0 apagada · 1 pulsar · 2 abierto
 function vozPreparar(){
   if(VOZ.listo || !MP.activo || vozModo() === 0) return VOZ.listo;
   Audio_.init();
@@ -12507,7 +12787,7 @@ function vozPreparar(){
   VOZ.listo = true;
   mpEnviar({t:"voz", on:1});
   for(const k in MP.otros) if(MP.otros[k].voz) vozLlamar(k);
-  if(vozModo() === 2) vozPedirMicro();
+  vozPedirMicro();
   return true;
 }
 // el micro se pide la primera vez que hace falta (el navegador pregunta)
@@ -12560,20 +12840,19 @@ function vozAtar(call){
 }
 function vozEscuchar(id, st){
   vozQuitar(id, true);
-  const ctx = Audio_.ctx;
-  // Chrome no pasa el audio de WebRTC a WebAudio si el flujo no está en un <audio>
-  const el = new Audio(); el.muted = true; el.srcObject = st; try{ el.play(); }catch(e){}
-  const src = ctx.createMediaStreamSource(st);
-  const gain = ctx.createGain(); gain.gain.value = 0;
-  const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-  const an = ctx.createAnalyser(); an.fftSize = 256;
-  src.connect(an); src.connect(gain);
-  if(pan){ gain.connect(pan); pan.connect(Audio_.master); } else gain.connect(Audio_.master);
-  VOZ.nodes[id] = {el, src, gain, pan, an, buf:new Uint8Array(an.fftSize), nivel:0};
+  // Se oye por un <audio> normal y no por WebAudio: la cancelación de eco del
+  // navegador sólo tiene en cuenta lo que suena por ahí. Si no, con altavoces
+  // tu compañero se oía a sí mismo de vuelta. WebAudio sólo mide si habla.
+  const el = new Audio(); el.autoplay = true; el.srcObject = st; el.volume = 0;
+  const p = el.play(); if(p && p.catch) p.catch(()=>{});
+  const src = Audio_.ctx.createMediaStreamSource(st);
+  const an = Audio_.ctx.createAnalyser(); an.fftSize = 256;
+  src.connect(an);
+  VOZ.nodes[id] = {el, src, an, buf:new Uint8Array(an.fftSize), nivel:0, vol:0};
 }
 function vozQuitar(id, soloNodos){
   const n = VOZ.nodes[id];
-  if(n){ try{ n.src.disconnect(); n.gain.disconnect(); if(n.pan) n.pan.disconnect(); n.el.srcObject = null; }catch(e){} delete VOZ.nodes[id]; }
+  if(n){ try{ n.src.disconnect(); n.el.pause(); n.el.srcObject = null; }catch(e){} delete VOZ.nodes[id]; }
   if(!soloNodos) delete VOZ.calls[id];
 }
 function vozApagar(){
@@ -12598,8 +12877,9 @@ function vozCompanero(o, aqui){
   if(!n) { o.habla = false; return; }
   const dx = o.vx - player.pos.x, dz = o.vz - player.pos.z, d = Math.hypot(dx, dz);
   const v = aqui ? vozDistancia(d, canSee(player.pos.x, player.pos.z, o.vx, o.vz)) : 0;
-  n.gain.gain.value = lerp(n.gain.gain.value, v, 0.3);
-  if(n.pan) n.pan.pan.value = clamp(Math.sin(Math.atan2(dx, dz) - player.yaw) * -0.8, -1, 1);
+  const general = (G.opts && typeof G.opts.vol === "number") ? clamp(G.opts.vol*1.6, 0.25, 1) : 1;
+  n.vol = lerp(n.vol, v*general, 0.3);
+  n.el.volume = clamp(n.vol, 0, 1);
   n.an.getByteTimeDomainData(n.buf);
   let pico = 0; for(let i=0;i<n.buf.length;i+=4) pico = Math.max(pico, Math.abs(n.buf[i] - 128));
   n.nivel = lerp(n.nivel, pico, 0.3);
@@ -12693,6 +12973,31 @@ function updateGestos(dt){
   }
 }
 
+// Una sala vacía (nadie más conectado) se cierra sola a los diez minutos,
+// haya entrado alguien antes o no. Al cerrar la pestaña se cierra al momento.
+const MP_VACIA_MAX = 600;
+const MP_SIN_SEÑAL = 15000;                       // ms sin noticias de una conexión: se da por perdida
+function mpVigilar(dt){
+  if(!MP.activo) return;
+  // Latido: PeerJS no siempre avisa cuando el otro cierra la pestaña, así que
+  // cada uno manda una señal cada dos segundos y, si una conexión lleva 15 s
+  // callada, se da por cerrada (al invitado le devuelve al juego en solitario).
+  MP.latido = (MP.latido || 0) + dt;
+  if(MP.latido >= 2){ MP.latido = 0; mpEnviar({t:"latido"}); }
+  const ahora = Date.now();
+  MP.conexiones.slice().forEach(c=>{ if(c.visto && ahora - c.visto > MP_SIN_SEÑAL){ try{ c.close(); }catch(e){} mpSoltar(c); } });
+  if(!MP.activo || !MP.anfitrion) return;
+  if(MP.conexiones.length){ MP.vacia = 0; return; }
+  MP.vacia = (MP.vacia || 0) + dt;
+  if(MP.vacia < MP_VACIA_MAX) return;
+  mpSalir();
+  toast(tx("La sala llevaba diez minutos vacía y se ha cerrado.","The room had been empty for ten minutes and has been closed."), 5);
+  mpEstado(tx("La sala se cerró tras diez minutos sin nadie.","The room closed after ten minutes with nobody in it."));
+  mpPintarGente();
+}
+setInterval(()=> mpVigilar(1), 1000);
+window.addEventListener("pagehide", ()=>{ if(MP.peer){ try{ MP.peer.destroy(); }catch(e){} } });
+
 function mpSalir(){
   vozApagar();
   Object.keys(MP.otros).forEach(k=>{
@@ -12705,7 +13010,7 @@ function mpSalir(){
   MP.conexiones.forEach(c=>{ try{ c.close(); }catch(e){} });
   MP.conexiones = [];
   if(MP.peer){ try{ MP.peer.destroy(); }catch(e){} MP.peer = null; }
-  MP.activo = false; MP.anfitrion = false;
+  MP.activo = false; MP.anfitrion = false; MP.vacia = 0;
   mpRoster();
 }
 
@@ -12942,21 +13247,17 @@ function padPanel(gp, down, dt){
     if(down(1) || down(3)){ closeHeal(); grabPointer(); }
     return;
   }
-  const rows = [...document.querySelectorAll("#bpGrid .bp-it")];
-  if(!rows.length){ if(down(1)) toggleBackpack(); return; }
-  PAD.sel = clamp((PAD.sel||0) + mv, 0, rows.length-1);
-  rows.forEach((r,i)=> r.classList.toggle("padfocus", i === PAD.sel));
-  const row = rows[PAD.sel];
-  const acts = row.querySelectorAll(".bp-act");
-  if(down(0)) row.click();
-  else if(down(2) && acts[0]) acts[0].click();
-  else if(down(3) && acts[1]) acts[1].click();
-  if(down(1)) toggleBackpack();
-  if(mv || down(0) || down(2) || down(3)){
-    const again = [...document.querySelectorAll("#bpGrid .bp-it")];
-    PAD.sel = clamp(PAD.sel, 0, Math.max(0, again.length-1));
-    again.forEach((r,i)=> r.classList.toggle("padfocus", i === PAD.sel));
-  }
+  // la mochila: la cruceta (o el stick) elige y A, X, Y hacen lo de los botones de la ficha
+  const ax = gp.axes[0] || 0;
+  let mx = 0;
+  if(down(14) || (ax < -0.6 && PAD.nav <= 0)) mx = -1;
+  if(down(15) || (ax >  0.6 && PAD.nav <= 0)) mx = 1;
+  if(mx) PAD.nav = 0.2;
+  if(mx || mv) bpNav(mx, mv);
+  if(down(0)) bpDo("main");
+  else if(down(2)) bpDo("drop");
+  else if(down(3)) bpDo("trash");
+  if(down(1)) closeBackpack();
 }
 function pollPad(dt){
   const gp = G.opts && G.opts.pad ? padConnected() : null;
@@ -13095,6 +13396,7 @@ $("megBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; wantM
 $("mpBtn").addEventListener("click", mpAbrir);
 $("mpCreate").addEventListener("click", ()=> mpEmpezar(true));
 $("mpJoin").addEventListener("click", ()=> mpEmpezar(false));
+$("mpLeave").addEventListener("click", ()=>{ mpSalir(); mpEstado(tx("Has salido de la sala.","You left the room.")); $("mpGoRow").hidden = true; mpPintarGente(); });
 $("mpBack").addEventListener("click", ()=>{ mpSalir(); renderChars(); show("titleScreen"); });
 $("mpGo").addEventListener("click", ()=>{ wantRandom = MP.modo === "random"; wantMeg = false; openChars(); });
 document.querySelectorAll(".mp-mode").forEach(b=> b.addEventListener("click", ()=> mpElegirModo(b.getAttribute("data-modo"))));
@@ -13123,6 +13425,7 @@ $("pauseCodexBtn").addEventListener("click", ()=>{ renderCodex("pauseScreen"); s
 $("codexBack").addEventListener("click", ()=> show(G.codexFrom || "titleScreen"));
 $("dmapBtn").addEventListener("click", ()=>{ renderDescentMap("titleScreen"); show("dmapScreen"); });
 $("healBtn").addEventListener("click", ()=> toggleHeal());
+$("bpClose").addEventListener("click", ev=>{ ev.stopPropagation(); closeBackpack(); });
 $("dmapBack").addEventListener("click", ()=> show(dmFrom));
 $("dmSvg").addEventListener("click", ev=>{
   const n = ev.target.closest && ev.target.closest(".dm-n");

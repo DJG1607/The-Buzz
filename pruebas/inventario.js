@@ -131,4 +131,101 @@ for (const l of CAT.slice(0, 25)) {
 }
 c.ok(lejos, "las salidas quedan más lejos: nunca antes del 38% del recorrido");
 
+/* ── 5. el cajón de la mochila (3.0.1) ──
+   Los botones de usar, soltar y desechar no hacían nada: el panel vivía dentro
+   del HUD, que tiene pointer-events:none, y los clics lo atravesaban hasta el
+   juego (que lo cerraba). Lo mismo le pasaba al tablón del M.E.G., a los
+   gestos y al maniquí de vitales. */
+console.log("\n── EL CAJÓN DE LA MOCHILA ──");
+// la regla CSS «#id{...}» del principio de una línea (no «#hud #id» ni «#id .clase»)
+const cssDe = id => {
+  let i = fuente.indexOf("#" + id + "{");
+  while (i > 0 && fuente[i - 1] !== " " && fuente[i - 1] !== "\n") i = fuente.indexOf("#" + id + "{", i + 1);
+  return i < 0 ? "" : fuente.slice(i, fuente.indexOf("}", i));
+};
+const sinRaton = ["backpack", "megBoard", "gestos", "healPanel", "healBtn", "bodyc"].filter(id => !/pointer-events:auto/.test(cssDe(id)));
+c.ok(!sinRaton.length, "todo lo que se clica dentro del HUD pide el ratón (pointer-events:auto)" + (sinRaton.length ? ": falta en " + sinRaton.join(", ") : ""));
+c.ok(/#backpack\{[^}]*transform:translateX\(104%\)/.test(fuente) && /#backpack\.open\{[^}]*transform:none/.test(fuente), "entra deslizándose por la derecha");
+
+const { BP, bpEntries, bpDo, bpKey, bpKeyAction, toggleBackpack, invFind } = j;
+limpio();
+G.inv = []; G.cap = 10; G.equip = { backpack: true, flashlight: true }; G.weapons = { L: "pipe", R: null }; G.wear = { pipe: 0.8 };
+addItem("almond", 1); addItem("almond", 1); addItem("bandage", 1); addItem("ducttape", 1);
+G.inv.splice(2, 0, { id: "rebar", qty: 1 }); G.wear.rebar = 0.7;       // guardada: con una mano libre, addItem la empuñaría
+G.sanity = 40; G.held = null;
+toggleBackpack();
+c.ok(j.bpOpen && BP.sel === "pipe|L", "se abre con lo primero elegido: la mano izquierda");
+const orden = bpEntries().map(bpKey).join(" ");
+c.ok(orden.indexOf("pipe|L") === 0 && orden.indexOf("almond|") < orden.indexOf("flashlight|"), "orden: manos, huecos y equipo (" + orden + ")");
+
+BP.sel = "almond|"; bpDo("main");
+c.ok(G.sanity > 40 && invFind("almond").qty === 1, "«Usar» bebe el agua");
+bpDo("drop");
+c.ok(!hasItem("almond") && G.drops.some(d => d.id === "almond"), "«Soltar» lo deja en el suelo");
+c.ok(BP.sel === "bandage|", "y queda elegido el que ocupa su hueco, no el primero de todos (" + BP.sel + ")");
+bpDo("trash");
+c.ok(hasItem("bandage") && BP.armed === "bandage|", "«Desechar» la primera vez sólo pide confirmación");
+bpDo("trash");
+c.ok(!hasItem("bandage") && !G.drops.some(d => d.id === "bandage"), "la segunda lo tira del todo");
+BP.sel = "ducttape|"; bpDo("trash"); BP.sel = "rebar|"; bpDo("trash");
+c.ok(hasItem("ducttape") && hasItem("rebar"), "cambiar de objeto anula la confirmación pendiente");
+BP.armed = "";
+
+BP.sel = "rebar|"; bpDo("main");
+c.ok(G.weapons.R === "rebar" && BP.sel === "rebar|R", "«Empuñar» pasa el arma a la mano libre y la selección la sigue");
+bpDo("main");
+c.ok(!G.weapons.R && invFind("rebar") && BP.sel === "rebar|", "«Guardar» la devuelve a la mochila");
+BP.sel = "flashlight|"; G.torchFuel = 50; G.torchOn = false; bpDo("main");
+c.ok(G.torchOn, "la linterna se enciende desde su ficha");
+c.ok(j.bpMain({ id: "backpack", qty: 1, eq: true }) === null, "el equipo pasivo no tiene acción principal (la mochila, el mapa…)");
+
+BP.sel = "pipe|L";
+bpKeyAction("arrowright");
+c.ok(BP.sel !== "pipe|L", "las flechas cambian de objeto");
+const sel1 = BP.sel;
+bpKeyAction("arrowleft");
+c.ok(BP.sel === "pipe|L", "y vuelven");
+c.ok(/const fl = !bpOpen;/.test(fuente), "con la mochila abierta las flechas no mueven al personaje");
+BP.sel = "ducttape|"; G.wear.pipe = 0.3;
+bpKeyAction("enter");
+c.ok(!hasItem("ducttape") && G.wear.pipe > 0.3, "Enter hace la acción principal (la cinta arregla la tubería)");
+BP.sel = "rebar|"; bpKeyAction(j.kb("drop"));
+c.ok(!hasItem("rebar"), "la tecla de soltar suelta lo elegido");
+bpKeyAction("escape");
+c.ok(!j.bpOpen, "Esc cierra la mochila (sin pausar)");
+c.ok(G.paused !== true, "…y no ha pausado");
+
+// con mando: B abre, la cruceta elige, A usa, X suelta, Y (dos veces) desecha, B cierra
+limpio();
+G.inv = []; G.cap = 10; G.equip = { backpack: true }; G.weapons = { L: null, R: null };
+addItem("almond", 2); addItem("bandage", 1); addItem("battery", 1);
+G.sanity = 30; G.opts.pad = 1;
+const pad = { connected: true, id: "Mando de prueba", axes: [0, 0, 0, 0], buttons: Array.from({ length: 17 }, () => ({ pressed: false })) };
+j.__ctx.navigator.getGamepads = () => [pad];
+const pulsa = b => { pad.buttons[b].pressed = true; j.pollPad(0.05); pad.buttons[b].pressed = false; j.pollPad(0.05); };
+pulsa(1);
+c.ok(j.bpOpen && BP.sel === "almond|", "mando: B abre la mochila");
+pulsa(0);
+c.ok(G.sanity > 30 && invFind("almond").qty === 1, "A usa lo elegido");
+pulsa(15);
+c.ok(BP.sel === "bandage|", "la cruceta a la derecha pasa al siguiente");
+pulsa(2);
+c.ok(!hasItem("bandage") && G.drops.some(d => d.id === "bandage"), "X lo suelta");
+pulsa(3);
+c.ok(hasItem("battery") || hasItem("almond"), "Y una vez sólo avisa");
+pulsa(3);
+c.ok(bpEntries().length === 2, "Y otra vez lo desecha (" + bpEntries().map(bpKey).join(" ") + ")");
+pulsa(1);
+c.ok(!j.bpOpen, "B la cierra");
+G.opts.pad = 0;
+
+limpio();
+G.inv = [{ id: "bat", qty: 1 }]; G.weapons = { L: "pipe", R: null }; G.wear = { pipe: 1, bat: 1 };
+slotKey(0);
+c.ok(G.weapons.R === "bat" && !invFind("bat"), "la tecla de un hueco con un arma la empuña (antes la «sacaba» y no pasaba nada)");
+c.ok(/if\(bpOpen\) closeBackpack\(true\);/.test(fuente) && /closeBackpack\(true\);\s*closeHeal\(\);\s*megOpen = true;/.test(fuente),
+  "abrir curar o el tablón con la mochila abierta no vuelve a capturar el ratón");
+c.ok(/if\(pointerLocked && \(bpOpen \|\| healOpen \|\| megOpen\)\)/.test(fuente), "y una captura que llega tarde con un panel abierto se suelta");
+c.ok(!/<b>\+34<\/b>/.test(fuente), "el Almond Water dice lo que cura de verdad (ponía +34 y daba 39)");
+
 process.exit(c.resumen("el inventario") ? 1 : 0);

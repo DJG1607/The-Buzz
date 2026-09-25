@@ -102,7 +102,11 @@ descenso 21) ni de 4 por especie; que dos entidades no carguen su especial a la 
 haya pausa entre uno y otro; que cada hueco sea un objeto y respete su máximo, que baja
 con la dificultad; soltar, recoger y desechar; el uso de una pulsación; los ajustes
 repartidos en pestañas; y en el código, que el brillo de las salidas no tape al jugador,
-que no haya baliza y que las paredes de clipping arranquen casi invisibles.
+que no haya baliza y que las paredes de clipping arranquen casi invisibles. Desde la 3.0.1,
+el cajón de la mochila: que todo lo que se clica en el HUD pida el ratón (`pointer-events:auto`;
+sin eso los botones de usar, soltar y desechar no hacían nada), sus tres acciones con la
+confirmación de desechar, empuñar y guardar armas, las flechas, Enter y Esc, y lo mismo con un
+mando simulado (B, cruceta, A, X, Y).
 
 ### `multijugador.js` — unos segundos
 El multijugador sin PeerJS: carga **tres copias del juego** (anfitrión y dos invitados) y las
@@ -110,7 +114,9 @@ conecta con una red de mentira en estrella, como la de verdad. Comprueba que los
 ven entre sí gracias al reenvío, que el modo de sala lo elige sólo el anfitrión, que morir con
 amigos te deja caído, que reanimar gasta un botiquín, y que se acaba si nadie llega o no queda
 nadie en pie. También el botiquín en solitario, los aspectos y lo que cuesta desbloquearlos,
-cambiar e intercambiar teclas y un mando simulado. Desde la 3.0, los gestos (que lleguen a los
+cambiar e intercambiar teclas y un mando simulado. Desde la 3.0.1, la sala: que el compañero se vea
+desde tu cámara (de frente si viene hacia ti), que no salgan clones, que una sala vacía se cierre
+a los diez minutos y que el invitado vuelva a solitario si el anfitrión deja de dar señales. Desde la 3.0, los gestos (que lleguen a los
 demás por la centralita, con su bocadillo), el volumen de la voz según la distancia y las
 paredes, y que el aviso de «tengo voz» se reenvíe.
 

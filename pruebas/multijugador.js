@@ -164,10 +164,60 @@ c.ok(vd(1, true) === 1 && vd(18, true) === 0 && vd(5, true) > vd(10, true) && vd
   "voz por proximidad: entera a 2 m, nada a 18 m, baja con la distancia y tras una pared");
 A.mpEnviar({ t: "voz", on: 1 });
 c.ok(B.MP.otros[ids.get(A)].voz === true && H.MP.otros[ids.get(A)].voz === true, "cuando Ana activa la voz, los demás se enteran");
-c.ok(A.vozModo() === 1, "por defecto se habla manteniendo una tecla (Y)");
+c.ok(A.vozModo() === 2, "por defecto el micro va abierto: la voz funciona sin tener que mantener ninguna tecla");
 c.ok(/MP\.peer\.on\("call", vozEntrante\)/.test(fuente) && /String\(mpYo\(\)\) > String\(id\)/.test(fuente),
   "entre cada pareja llama sólo el de id menor: nada de llamadas cruzadas");
 c.ok(/createMediaStreamDestination/.test(fuente) && /VOZ\.micGain\.gain\.value = abierto \? 1 : 0/.test(fuente),
-  "la llamada lleva siempre el mismo flujo y el micro sólo se abre al hablar");
+  "la llamada lleva siempre el mismo flujo y el micro se abre o se cierra con una ganancia");
+c.ok(/n\.el\.volume = clamp\(n\.vol, 0, 1\)/.test(fuente) && !/pan\.connect\(Audio_\.master\)/.test(fuente),
+  "la voz suena por un <audio> (con la cancelación de eco del navegador), no por WebAudio");
+c.ok(/o\.vozElegida\)/.test(fuente), "el «pulsar Y» que se guardaba solo en versiones anteriores ya no se hereda");
+
+
+/* ── la sala, la orientación del compañero y el latido (3.0.1) ── */
+console.log("\n── LA SALA (3.0.1) ──");
+// el compañero se ve desde TU cámara: si viene de cara, de frente
+const anaB = B.MP.otros[ids.get(A)];
+// (en el banco la cámara está en el origen)
+anaB.x = anaB.vx = 0; anaB.z = anaB.vz = 10; anaB.yaw = Math.PI; anaB.lv = B.G.levelId + "@" + B.G.levelSeed; anaB.visto = 0;
+B.updateGhosts(0.05);
+c.ok(anaB.fila === 0, "si tu compañero camina hacia tu cámara, se le ve de frente (antes, siempre de espaldas)");
+anaB.yaw = 0; anaB.x = anaB.vx = 0; anaB.z = anaB.vz = 10; B.updateGhosts(0.05);
+c.ok(anaB.fila === 2, "si se aleja, de espaldas");
+anaB.yaw = Math.PI / 2; anaB.x = anaB.vx = 0; anaB.z = anaB.vz = 10; B.updateGhosts(0.05);
+c.ok(anaB.fila === 1, "y si cruza por delante, de perfil");
+c.ok(/yaw:\+player\.facing\.toFixed\(2\)/.test(fuente), "cada uno manda hacia dónde mira su personaje, no su cámara");
+
+// sin clones: un eco de uno mismo no crea otro jugador
+const antesEco = Object.keys(A.MP.otros).length;
+A.mpRecibir(null, { t: "hola", from: ids.get(A), nombre: "Ana", ch: "scout" });
+c.ok(Object.keys(A.MP.otros).length === antesEco && !A.MP.otros[ids.get(A)], "un mensaje de uno mismo no te crea un «clon»");
+let cerrada = false;
+A.mpAtarConexion({ peer: ids.get(A), on() {}, close() { cerrada = true; } });
+c.ok(cerrada, "y una conexión contigo mismo se cierra al momento");
+c.ok(/if\(MP\.peer \|\| MP\.activo\) mpSalir\(\);/.test(fuente), "crear o entrar en una sala cierra antes la conexión que hubiera (de ahí salían los clones)");
+c.ok(/\$\("mpCreate"\)\.hidden = MP\.activo; \$\("mpJoin"\)\.hidden = MP\.activo; \$\("mpLeave"\)\.hidden = !MP\.activo;/.test(fuente),
+  "dentro de una sala desaparecen «Crear» y «Entrar» y sale «Salir de la sala»");
+
+// la sala se cierra sola a los diez minutos vacía
+const Sv = cargar();
+Sv.MP.activo = true; Sv.MP.anfitrion = true; Sv.MP.peer = { id: "elzumbido-vacia", destroy() {} }; Sv.MP.conexiones = [];
+Sv.mpVigilar(Sv.MP_VACIA_MAX - 1);
+c.ok(Sv.MP.activo, "una sala vacía sigue abierta a los 9:59");
+Sv.mpVigilar(2);
+c.ok(!Sv.MP.activo && !Sv.MP.peer, "a los diez minutos vacía se cierra y el nombre queda libre");
+const S2 = cargar();
+S2.MP.activo = true; S2.MP.anfitrion = true; S2.MP.peer = { id: "elzumbido-llena", destroy() {} };
+S2.MP.conexiones = [{ peer: "x", visto: Date.now(), send() {}, close() {} }];
+S2.mpVigilar(S2.MP_VACIA_MAX + 5);
+c.ok(S2.MP.activo, "con alguien dentro no se cierra, pasen los minutos que pasen");
+
+// latido: si el anfitrión deja de dar señales, el invitado vuelve a jugar solo
+const I = cargar();
+const cxHost = { peer: "elzumbido-sala", visto: Date.now() - 20000, send() {}, close() {} };
+I.MP.activo = true; I.MP.anfitrion = false; I.MP.peer = { id: "peer-invitado", destroy() {} };
+I.MP.conexiones = [cxHost]; I.MP.otros = { "elzumbido-sala": { nombre: "Hugo" } };
+I.mpVigilar(1);
+c.ok(!I.MP.activo && !I.MP.conexiones.length, "si el anfitrión lleva 15 s sin dar señales (cerró la pestaña), el invitado sigue en solitario");
 
 process.exit(c.resumen("el multijugador") ? 1 : 0);
