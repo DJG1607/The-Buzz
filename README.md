@@ -176,6 +176,17 @@ está el esquema del mando.
 | `Enter` | Chat (jugando con amigos) |
 | `B` | Abrir / cerrar la mochila |
 | `ESC` | Pausa y ajustes |
+| `↑ ↑ ↓ ↓ ← → ← → B A` | Modo pruebas (encender / apagar) |
+
+**Modo pruebas.** El código Konami, en cualquier pantalla, lo enciende o lo apaga. Para encenderlo
+pide una **contraseña**, escondida en un acertijo de cuatro líneas de código cifradas cada una de una
+forma distinta: sin resolverlo no se entra (el navegador la recuerda una vez acertada). Es para buscar
+fallos: desbloquea todos los personajes y trajes, enseña el códice y el mapa del descenso enteros,
+da fichas del M.E.G. sin límite y cada partida empieza con todo el equipo, las tres armas y cada
+objeto a tope (mochila de 30 huecos). En la pausa aparecen **Dame todo**, **Invencible** y
+**Viajar a un nivel** (desde el mapa del descenso), y **Salir del modo pruebas**. Mientras está encendido no se ganan logros, y
+al apagarlo todo vuelve a estar como estaba: no toca el progreso de verdad. La versión del título
+lo avisa («MODO PRUEBAS»).
 
 ## Cómo está hecho
 

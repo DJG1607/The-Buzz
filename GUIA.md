@@ -380,6 +380,32 @@ muy despacio de una nota a otra con `setTargetAtTime` — nunca salta, nunca hay
   pone el bocadillo; con los muñecos 3D, la postura va en `userData.pose` (`wave`, `point`,
   `stop`, `bow`, `cheer`).
 
+## 6¹³. El modo pruebas (3.0.2)
+
+**Quitarlo del juego:** `const MODO_PRUEBAS = false;` y el código Konami deja de hacer nada
+(también se ignora lo que hubiera guardado el navegador). Dentro del juego se apaga con el
+mismo código o con «Salir del modo pruebas» en la pausa.
+
+**La contraseña.** Encender pide una contraseña (`trucoPedir()` abre `#trucoBox`). En el código
+no está escrita: sólo su huella FNV-1a (`TRUCO_HUELLA`, con `trucoHuella()`), y el jugador la
+saca de `TRUCO_PIEZAS`, un acertijo de cuatro piezas en español y en inglés, cada una cifrada de
+una forma y con su pista; cada pieza da un trozo y hacen falta las cuatro. Acertarla guarda la
+huella en `localStorage["zumbido.pruebas.llave"]` y el código ya no la vuelve a pedir; apagar
+nunca la pide. Si cambias la contraseña, regenera las piezas y la huella a la vez:
+`pruebas/inventario.js` descifra el acertijo con sus propias pistas y comprueba que dé la
+huella, así que no se puede quedar sin solución. No escribas la contraseña ni la llave en claro
+en el repositorio (ni en las pruebas): es público.
+
+El código Konami (↑↑↓↓←→←→BA) enciende o apaga `TRUCO.on`, que se guarda aparte del progreso
+(`localStorage["zumbido.pruebas"]`). Todo lo que desbloquea es **virtual**: se mira `TRUCO.on`
+en `charUnlocked()`, `skinUnlocked()`, el códice, el mapa del descenso y `megFichas()` (9999),
+así que al apagarlo no queda rastro en `G.unlocked`, `G.codex` ni `G.prog`. Comprar en el tablón
+no descuenta fichas y `unlockAch()` no da logros. `resetRun()` llama a `trucoDarTodo()`, que
+también está en la pausa junto a `TRUCO.god` (lo miran `hurtPlayer()` y `die()`) y a
+`trucoViajar(id)`, que sale como botón en `dmSelect()` si el mapa se abrió desde la pausa.
+Si añades algo que se desbloquea, que mire `TRUCO.on` en su comprobación en vez de escribirlo
+en el progreso.
+
 ## 7. Trampas que ya han mordido
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.

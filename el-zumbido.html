@@ -215,6 +215,17 @@
   #logfeed div b{color:var(--sane); font-weight:500;}
 
   /* ───────── pantallas ───────── */
+  #trucoBox{position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:24px; overflow-y:auto;
+    background:rgba(4,4,6,.82); backdrop-filter:blur(4px);}
+  #trucoBox .sheet{width:min(640px,100%);}
+  #trCodigo{margin:14px 0; padding:14px 16px; font:12px/1.55 "IBM Plex Mono",monospace; white-space:pre-wrap; word-break:break-word;
+    background:rgba(0,0,0,.45); border:1px solid var(--line2); border-left:3px solid var(--amber); color:var(--ink); max-height:48vh; overflow:auto;}
+  #trCodigo .tr-c{color:var(--ink-faint);} #trCodigo .tr-s{color:var(--fluor);}
+  .tr-in{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  #trucoPass{flex:1; min-width:160px; font:inherit; font-size:15px; letter-spacing:.2em; padding:9px 12px; color:var(--fluor);
+    background:rgba(0,0,0,.5); border:1px solid var(--line); outline:none;}
+  #trucoPass:focus{border-color:var(--amber);}
+  #trMal{min-height:18px; margin-top:8px; font-size:11.5px; color:#ff9a7a;}
   .screen{
     position:fixed; inset:0; display:grid; place-items:center; z-index:20;
     background:radial-gradient(ellipse at 50% 40%, rgba(16,15,18,.84), rgba(7,7,10,.96) 68%);
@@ -1110,6 +1121,22 @@
   </div>
 </div>
 
+<div id="trucoBox" hidden>
+  <div class="sheet">
+    <div class="eyebrow" data-en="M.E.G. · Restricted file">M.E.G. · Archivo restringido</div>
+    <h2 data-en="Password">Contraseña</h2>
+    <div class="rule"></div>
+    <p class="body" data-en="Test mode is locked. Whoever hid the password left these four lines in the code.">El modo pruebas está bajo llave. Quien escondió la contraseña dejó estas cuatro líneas en el código.</p>
+    <pre id="trCodigo"></pre>
+    <div class="tr-in">
+      <input id="trucoPass" maxlength="40" autocomplete="off" spellcheck="false" placeholder="········">
+      <button class="btn" id="trOk" data-en="Enter">Entrar</button>
+      <button class="btn ghost" id="trNo" data-en="Cancel">Cancelar</button>
+    </div>
+    <div id="trMal"></div>
+  </div>
+</div>
+
 <div class="screen" id="pauseScreen" hidden>
   <div class="sheet">
     <div class="eyebrow" data-en="Log paused">Registro en pausa</div>
@@ -1122,6 +1149,12 @@
       <button class="btn ghost" id="pauseOptsBtn" data-en="Settings">Ajustes</button>
       <button class="btn ghost" id="abandonBtn" data-en="Abandon run">Abandonar la partida</button>
       <button class="btn ghost" id="pauseCodexBtn" data-en="Codex">Códice</button>
+    </div>
+    <div class="btnrow" id="trucoRow" hidden>
+      <button class="btn ghost" id="trDar" data-en="Give me everything">Dame todo</button>
+      <button class="btn ghost" id="trGod">Invencible: no</button>
+      <button class="btn ghost" id="trViajar" data-en="Travel to a level">Viajar a un nivel</button>
+      <button class="btn ghost" id="trSalir" data-en="Leave test mode">Salir del modo pruebas</button>
     </div>
   </div>
 </div>
@@ -1231,7 +1264,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "3.0.1";
+const VERSION = "3.0.2";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1253,7 +1286,7 @@ function applyLangDom(){
   document.documentElement.lang = LANG;
 }
 function paintVersion(){
-  const t = "v" + VERSION;
+  const t = "v" + VERSION + (typeof TRUCO !== "undefined" && TRUCO.on ? tx(" · MODO PRUEBAS"," · TEST MODE") : "");
   const a = $("verTag"), b = $("verTagOpts");
   if(a) a.textContent = t;
   if(b) b.textContent = t;
@@ -2015,6 +2048,7 @@ function skinNeedText(s){
 }
 function skinUnlocked(s){
   const n = s && s.need; if(!n) return true;
+  if(TRUCO.on) return true;                               // modo pruebas
   const p = G.prog || {};
   return (!n.rand || (p.rand||0) >= n.rand) && (!n.rev || (p.rev||0) >= n.rev) && (!n.mp || (p.mp||0) >= n.mp) && (!n.meg || (p.meg||0) >= n.meg);
 }
@@ -2042,6 +2076,7 @@ function skinAtlas(chId, skinId){
   return SPRITES[key];
 }
 function checkSkins(){
+  if(TRUCO.on) return;                    // con el modo pruebas no se avisa de trajes ganados «de verdad»
   G.prog = G.prog || {};
   G.prog.seen = G.prog.seen || {};
   SKINS.forEach(s=>{
@@ -4373,6 +4408,151 @@ function saveMeta(){
     localStorage.setItem(META_KEY, JSON.stringify({best:G.best, unlocked:G.unlocked, ach:G.ach, codex:G.codex, prog:G.prog, skins:G.skins}));
   }catch(e){}
 }
+/* ═══════════════ MODO PRUEBAS (código Konami) ═══════════════
+   ↑ ↑ ↓ ↓ ← → ← → B A, en cualquier pantalla. Sirve para buscar fallos sin
+   tener que ganarse nada: todos los personajes y trajes, el códice y el mapa
+   del descenso enteros, fichas del M.E.G. sin límite, y cada partida empieza
+   con todo (mochila de 30 huecos). En la pausa salen darte todo otra vez, ser
+   invencible, viajar a cualquier nivel y salir del modo. Mientras está
+   encendido no se ganan logros, y nada de lo desbloqueado así se guarda en el
+   progreso de verdad.
+   Para encenderlo pide una contraseña, escondida en un acertijo de cuatro
+   piezas cifradas cada una de una forma (TRUCO_PIEZAS). Aquí no está la
+   contraseña: sólo su huella (TRUCO_HUELLA), así que hay que resolverlo.
+   Una vez acertada, este navegador la recuerda y el código ya no la pide.
+   Para quitar el modo del juego entero: MODO_PRUEBAS = false. */
+const MODO_PRUEBAS = true;
+const TRUCO_KEY = "zumbido.pruebas", TRUCO_LLAVE_KEY = "zumbido.pruebas.llave";
+const TRUCO_HUELLA = "713b4f8d";
+const KONAMI = ["arrowup","arrowup","arrowdown","arrowdown","arrowleft","arrowright","arrowleft","arrowright","b","a"];
+const TRUCO = {on:false, god:false, buf:[], pidiendo:false};
+// el acertijo: cada pieza sólo se lee con su pista, y hacen falta las cuatro
+const TRUCO_PIEZAS = {
+  es:[
+    {p:["I · Vigenère. La llave es el eje horizontal,","    escrita por alguien que no sabía ortografía."], c:"LB RZAMESC XAEZB GA NO"},
+    {p:["II · Julio César la movió tres letras hacia delante."], c:"OD VHJXQGD HV BQ"},
+    {p:["III · El alfabeto se miró en el espejo: la A es Z, la B es Y."], c:"OZ GVIXVIZ VH OZ X"},
+    {p:["IV · Suena como un telégrafo."], c:".-.. .- / ..- .-.. - .. -- .- / . ... / .-.. .- / ...."}
+  ],
+  en:[
+    {p:["I · Vigenère. The key is the horizontal axis, in Spanish,","    written by someone who could not spell."], c:"TIG NARSU RQWCE JU DG"},
+    {p:["II · Julius Caesar moved it three letters forward."], c:"WKH VHFRQG LV BQ"},
+    {p:["III · The alphabet looked in the mirror: A is Z, B is Y."], c:"GSV GSRIW RH GSV X"},
+    {p:["IV · It sounds like a telegraph."], c:"- .... . / .-.. .- ... - / .. ... / - .... . / ...."}
+  ]
+};
+function trucoHuella(txt){
+  // FNV-1a de 32 bits: basta para no dejar la contraseña a la vista
+  const s = unescape(encodeURIComponent("meg:" + String(txt || "").trim().toLowerCase().replace(/\s+/g, "")));
+  let h = 0x811c9dc5;
+  for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return ("0000000" + h.toString(16)).slice(-8);
+}
+function trucoLlaveGuardada(){ try{ return localStorage.getItem(TRUCO_LLAVE_KEY) === TRUCO_HUELLA; }catch(e){ return false; } }
+try{ TRUCO.on = MODO_PRUEBAS && localStorage.getItem(TRUCO_KEY) === "1" && trucoLlaveGuardada(); }catch(e){}
+// cada tecla pulsada pasa por aquí; devuelve true si acaba de completar el código
+function trucoTecla(k){
+  if(!MODO_PRUEBAS) return false;
+  TRUCO.buf.push(k);
+  if(TRUCO.buf.length > KONAMI.length) TRUCO.buf.shift();
+  if(TRUCO.buf.length === KONAMI.length && TRUCO.buf.every((x,i)=> x === KONAMI[i])){
+    TRUCO.buf = [];
+    // apagar nunca pide nada; encender, la contraseña (salvo que ya la supieras)
+    if(TRUCO.on || trucoLlaveGuardada()) trucoCambiar(!TRUCO.on);
+    else trucoPedir();
+    return true;
+  }
+  return false;
+}
+function trucoPedir(){
+  if(G.running && !G.paused && !G.dead && typeof pauseGame === "function") pauseGame();
+  TRUCO.pidiendo = true;
+  const box = $("trucoBox");
+  box.hidden = false;
+  const cod = $("trCodigo");
+  cod.textContent = "";
+  const linea = (txt, cls)=>{ const s = document.createElement("span"); if(cls) s.className = cls; s.textContent = txt + "\n"; cod.appendChild(s); };
+  linea(tx("/* Cuatro piezas. Ninguna sirve sola. */","/* Four pieces. None of them works alone. */"), "tr-c");
+  (TRUCO_PIEZAS[LANG === "en" ? "en" : "es"]).forEach((pz, i)=>{
+    linea("");
+    pz.p.forEach(t=> linea("// " + t, "tr-c"));
+    linea("const " + ["I","II","III","IV"][i] + " = \"" + pz.c + "\";", "tr-s");
+  });
+  linea("");
+  linea(tx("// Junta I + II + III + IV, en minúsculas. Es el manuscrito","// Join I + II + III + IV, in lower case. It is the manuscript"), "tr-c");
+  linea(tx("// que nadie ha sabido leer... pero le falta una letra.","// nobody has ever managed to read... but a letter is missing."), "tr-c");
+  $("trMal").textContent = "";
+  const inp = $("trucoPass");
+  inp.value = "";
+  try{ inp.focus(); }catch(e){}
+}
+function trucoCerrarCaja(){
+  TRUCO.pidiendo = false;
+  $("trucoBox").hidden = true;
+  const inp = $("trucoPass"); try{ inp.blur(); }catch(e){}
+}
+// devuelve true si la contraseña es la buena
+function trucoProbar(txt){
+  if(trucoHuella(txt) !== TRUCO_HUELLA){
+    $("trMal").textContent = tx("Contraseña incorrecta. Vuelve a leer las piezas.","Wrong password. Read the pieces again.");
+    try{ Audio_.tone(180, 0.2, 0.06, "square", 120); }catch(e){}
+    const box = $("trucoBox").firstElementChild;
+    if(box && box.animate) box.animate([{transform:"translateX(0)"},{transform:"translateX(-8px)"},{transform:"translateX(8px)"},{transform:"translateX(0)"}], {duration:260});
+    return false;
+  }
+  try{ localStorage.setItem(TRUCO_LLAVE_KEY, TRUCO_HUELLA); }catch(e){}
+  trucoCerrarCaja();
+  trucoCambiar(true);
+  return true;
+}
+function trucoCambiar(on){
+  TRUCO.on = !!on && MODO_PRUEBAS;
+  if(!TRUCO.on) TRUCO.god = false;
+  try{ localStorage.setItem(TRUCO_KEY, TRUCO.on ? "1" : "0"); }catch(e){}
+  try{ Audio_.tone(TRUCO.on ? 660 : 330, 0.18, 0.06, "square", TRUCO.on ? 1320 : 165); }catch(e){}
+  toast(TRUCO.on ? tx("Modo pruebas activado: todo desbloqueado.","Test mode on: everything unlocked.")
+                 : tx("Modo pruebas desactivado.","Test mode off."), 4);
+  if(TRUCO.on && G.running && !G.dead) trucoDarTodo();
+  trucoPintar();
+}
+// todo el equipo, las tres armas y cada consumible hasta su máximo
+function trucoDarTodo(){
+  EQUIP_IDS.forEach(id=> addItem(id, 1));
+  G.cap = Math.max(G.cap, 30);                      // addItem("backpack") la deja en 10
+  ["pipe","rebar","bat"].forEach(id=>{ addItem(id, 1); G.wear[id] = 1; });
+  Object.keys(ITEMS).forEach(id=>{
+    const d = ITEMS[id];
+    if(d.equip || d.weapon) return;
+    while(addItem(id, 1)){}
+  });
+  G.torchFuel = 100; G.sanity = 100; G.stamina = staminaMax();
+  PARTS.forEach(p=>{ G.body[p.id] = 100; G.bleeding[p.id] = 0; });
+  refreshSlots();
+  logLine(tx("Modo pruebas: llevas <b>de todo</b>.","Test mode: you carry <b>everything</b>."));
+}
+function trucoViajar(id){
+  if(!TRUCO.on || !CAT_BY_ID[id] || MP.activo) return;
+  G.paused = false; G.downed = false; G.extract = null;
+  // lo que estuviera pasando en el nivel que dejas no viaja contigo
+  if(G.grab){ G.grab.ent.grabbed = false; G.grab = null; $("qte").hidden = true; $("qte").classList.remove("on"); }
+  if(typeof cancelCrossing === "function") cancelCrossing();
+  closeBackpack(true); closeHeal();
+  G.depth++;
+  G.best = Math.max(G.best, G.depth);
+  descendTo(id, rollSeed());
+}
+// la etiqueta de la versión y los botones de la pausa
+function trucoPintar(){
+  paintVersion();
+  const row = document.getElementById("trucoRow");
+  if(row) row.hidden = !TRUCO.on;
+  const g = document.getElementById("trGod");
+  if(g) g.textContent = TRUCO.god ? tx("Invencible: sí","Invincible: on") : tx("Invencible: no","Invincible: off");
+  const v = document.getElementById("trViajar");
+  if(v) v.disabled = !!(typeof MP !== "undefined" && MP.activo);
+  if(typeof renderChars === "function" && !$("charScreen").hidden) renderChars();
+}
+
 function codexSeeEnt(type){
   if(!G.codex.ent[type]){ G.codex.ent[type] = true; saveMeta(); }
 }
@@ -4380,7 +4560,7 @@ function codexSeeItem(id){
   if(!G.codex.item[id]){ G.codex.item[id] = true; saveMeta(); }
 }
 function charUnlocked(ch){
-  if(!ch.locked) return true;
+  if(!ch.locked || TRUCO.on) return true;
   return !!G.unlocked[ch.id];
 }
 function checkUnlocks(){
@@ -4414,6 +4594,7 @@ function resetRun(charId){
   G.randomMode = false; G.megMode = false; G.meg = {q:null, ofertas:[]}; G.megObj = null; G.megBoard = null;
   G.levelId = "0";
   G.levelSeed = rollSeed();
+  if(TRUCO.on) trucoDarTodo();
 }
 
 /* ── guardar y continuar: sólo se puede en un puesto del M.E.G. ── */
@@ -8136,9 +8317,12 @@ function grabPointer(){
 
 window.addEventListener("keydown",(e)=>{
   if(document.activeElement && document.activeElement.id === "chatIn") return;   // escribiendo en el chat
+  if(TRUCO.pidiendo) return;                                                        // escribiendo la contraseña
   setInput("kb");
   const k = e.key.toLowerCase();
   keys[k] = true;
+  // la última tecla del código no cuenta como jugada, ni se escribe en la caja de la contraseña
+  if(trucoTecla(k)){ e.preventDefault(); keys[k] = false; return; }
   if(k===" ") e.preventDefault();
   if(k==="escape" && !$("settingsScreen").hidden){ closeOpts(); return; }
   if(!$("settingsScreen").hidden && (k==="arrowleft" || k==="arrowright") && !(document.activeElement && document.activeElement.tagName === "INPUT")){
@@ -8372,6 +8556,7 @@ function partName(id){ for(const p of PARTS) if(p.id===id) return txf(p,"name");
 
 function hurtPlayer(amount, source){
   if(G.dead || G.downed) return;
+  if(TRUCO.god) return;                                   // modo pruebas: invencible
   amount *= (G.char ? G.char.tough : 1) * DIFF_LV().dmg;
   if(G.shield > 0) amount *= 0.5;   // Aguante, la habilidad de Lázaro
   if(G.stats) G.stats.hurt += amount;
@@ -10507,7 +10692,7 @@ function achCount(){ let n=0; for(const k in G.ach) if(G.ach[k]) n++; return n; 
 
 let achQueue = [], achShowing = false;
 function unlockAch(id){
-  if(!id || G.ach[id]) return false;
+  if(!id || G.ach[id] || TRUCO.on) return false;          // con el modo pruebas no se ganan logros
   G.ach[id] = true;
   saveMeta();
   achQueue.push(id);
@@ -11565,7 +11750,7 @@ function renderDescentMap(from){
   CAT.forEach(c=>{
     const p = pos[c.id];
     const col = c.settlement ? "#7ce07a" : RISK_COL[c.risk||0];
-    const seen = c.id === "0" || G.unlocked["level_"+c.id];
+    const seen = c.id === "0" || TRUCO.on || G.unlocked["level_"+c.id];
     out += '<g class="dm-n" data-id="'+c.id+'">'+
       '<rect class="bx" x="'+p.x+'" y="'+p.y+'" width="'+NW+'" height="'+NH+'" fill="#141417" stroke="'+col+'" stroke-width="1"></rect>'+
       '<rect x="'+p.x+'" y="'+p.y+'" width="3" height="'+NH+'" fill="'+col+'"></rect>'+
@@ -11614,7 +11799,10 @@ function dmSelect(id){
     '<div class="dm-k">'+tx("Desde aquí puedes ir a","From here you can go to")+' ('+outs.length+')</div>'+
     '<div class="dm-l">'+outs.map(r=> btn(r.to, r.kind, "out")).join("")+'</div>'+
     '<div class="dm-k">'+tx("Se llega desde","Reached from")+' ('+ins.length+')</div>'+
-    '<div class="dm-l">'+(ins.length ? ins.map(r=> btn(r.from, r.kind, "in")).join("") : tx("sólo haciendo noclip","only by noclipping"))+'</div>';
+    '<div class="dm-l">'+(ins.length ? ins.map(r=> btn(r.from, r.kind, "in")).join("") : tx("sólo haciendo noclip","only by noclipping"))+'</div>'+
+    // modo pruebas, con una partida en pausa: ir directamente
+    (TRUCO.on && dmFrom === "pauseScreen" && !MP.activo
+      ? '<div class="dm-l"><button type="button" class="dm-go" data-viaje="'+id+'"><em>'+tx("modo pruebas","test mode")+'</em> '+tx("Viajar aquí","Travel here")+'</button></div>' : "");
 }
 
 /* ═══════════════ PANTALLAS Y FLUJO ═══════════════ */
@@ -11752,7 +11940,7 @@ function renderCodex(from){
 
   seccion("ent", tx("Entidades","Entities"));
   Object.keys(ENT_DEF).forEach(k=>{
-    const visto = !!(G.codex && G.codex.ent[k]);
+    const visto = TRUCO.on || !!(G.codex && G.codex.ent[k]);
     const def = ENT_DEF[k];
     const stat = visto ? (ENT_NAMES[k]||"") : "";
     fila("ent", stat, visto ? txf(def,"death") : "", visto, visto ? entityIcon(k) : null);
@@ -11760,13 +11948,13 @@ function renderCodex(from){
 
   seccion("item", tx("Objetos","Items"));
   Object.keys(ITEMS).forEach(k=>{
-    const visto = !!(G.codex && G.codex.item[k]);
+    const visto = TRUCO.on || !!(G.codex && G.codex.item[k]);
     fila("item", txf(ITEMS[k],"name"), visto ? keyify(txf(ITEMS[k],"blurb")).replace(/<[^>]+>/g,"") : "", visto, visto ? itemIconCanvas(ITEMS[k].icon) : undefined);
   });
 
   seccion("lvl", tx("Niveles","Levels"));
   CAT.forEach(c=>{
-    const visto = !!(G.unlocked && G.unlocked["level_"+c.id]);
+    const visto = TRUCO.on || !!(G.unlocked && G.unlocked["level_"+c.id]);
     const nombre = visto ? levelTitle(c)+"  ·  "+riskName(c.risk) : "";
     fila("lvl", nombre, visto ? txf(c,"tip") : "", visto, null, RISK_COL[c.risk]);
   });
@@ -11969,7 +12157,7 @@ const MEG_TIENDA = [
 ];
 const MEG_BASES = CAT.filter(c=> c.settlement).map(c=> c.id);
 
-function megFichas(){ return (G.prog && G.prog.fichas) || 0; }
+function megFichas(){ return TRUCO.on ? 9999 : ((G.prog && G.prog.fichas) || 0); }
 function megHechas(){ return (G.prog && G.prog.meg) || 0; }
 function megTitulo(q){ return tx(MEG_TIPOS[q.tipo].es, MEG_TIPOS[q.tipo].en); }
 function megProgreso(q){
@@ -12241,7 +12429,7 @@ function megCobrar(){
   const q = G.meg.q;
   if(!q || !q.done) return;
   G.prog = G.prog || {rand:0, mp:0, rev:0, seen:{}};
-  G.prog.fichas = megFichas() + q.fichas;
+  G.prog.fichas = (G.prog.fichas || 0) + q.fichas;
   G.prog.meg = megHechas() + 1;
   const def = ITEMS[q.premio];
   if(def.equip && G.equip[q.premio]){ G.prog.fichas += 15; logLine(tx("Ya tenías ","You already had ")+txf(def,"name")+tx(": te lo pagan en fichas (+15).",": they pay you in chips instead (+15)."));}
@@ -12281,7 +12469,7 @@ function megComprar(it){
   if(megFichas() < it.precio) return;
   if(def.equip && G.equip[it.id]){ toast(tx("Ya lo llevas.","You already have it.")); return; }
   if(!addItem(it.id, 1)){ toast(tx("No te cabe.","It does not fit.")); return; }
-  G.prog.fichas = megFichas() - it.precio;
+  if(!TRUCO.on) G.prog.fichas = megFichas() - it.precio;   // con el modo pruebas, gratis
   saveMeta();
   Audio_.click();
   refreshSlots(); renderMegBoard();
@@ -13103,6 +13291,10 @@ function pauseGame(){
   if(!G.running || G.paused) return;
   G.paused = true;
   closeHeal();
+  // los cajones van por encima de las pantallas: con la pausa se cierran
+  if(bpOpen) closeBackpack(true);
+  if(typeof megOpen !== "undefined" && megOpen) closeMegBoard(true);
+  trucoPintar();
   if(document.pointerLockElement) document.exitPointerLock();
   Audio_.set(Audio_.humGain, 0.01, 0.4);
   Audio_.set(Audio_.musicGain, 0.012, 0.4);
@@ -13135,6 +13327,11 @@ function toTitle(){
 
 function die(why){
   if(G.dead) return;
+  if(TRUCO.god && !dieForce){                             // modo pruebas: invencible, también a la cordura
+    G.sanity = Math.max(G.sanity, 60);
+    PARTS.forEach(p=>{ G.body[p.id] = Math.max(G.body[p.id], 60); G.bleeding[p.id] = 0; });
+    return;
+  }
   if(G.downed && !dieForce) return;
   if(MP.activo && !dieForce && mpAlguienVivo()){ goDown(why); return; }
   if(MP.activo) mpEnviar({t:"muerto"});
@@ -13390,6 +13587,18 @@ $("retryBtn").addEventListener("click", ()=>{ renderChars(); show("titleScreen")
 $("loadBtn").addEventListener("click", continueRun);
 $("quitBtn").addEventListener("click", toTitle);
 $("resumeBtn").addEventListener("click", resumeGame);
+$("trOk").addEventListener("click", ()=> trucoProbar($("trucoPass").value));
+$("trNo").addEventListener("click", ()=> trucoCerrarCaja());
+$("trucoPass").addEventListener("keydown", ev=>{
+  ev.stopPropagation();
+  if(ev.key === "Enter"){ ev.preventDefault(); trucoProbar(ev.target.value); }
+  else if(ev.key === "Escape"){ ev.preventDefault(); trucoCerrarCaja(); }
+});
+$("trSalir").addEventListener("click", ()=> trucoCambiar(false));
+$("trDar").addEventListener("click", ()=>{ trucoDarTodo(); toast(tx("Llevas de todo.","You carry everything."), 2); });
+$("trGod").addEventListener("click", ()=>{ TRUCO.god = !TRUCO.god; trucoPintar(); });
+$("trViajar").addEventListener("click", ()=>{ renderDescentMap("pauseScreen"); show("dmapScreen"); });
+trucoPintar();
 $("playBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; wantMeg = false; openChars(); });
 $("randBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = true; wantMeg = false; openChars(); });
 $("megBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; wantMeg = true; openChars(); });
@@ -13432,6 +13641,8 @@ $("dmSvg").addEventListener("click", ev=>{
   dmSelect(n ? n.getAttribute("data-id") : null);
 });
 $("dmInfo").addEventListener("click", ev=>{
+  const v = ev.target.closest && ev.target.closest("[data-viaje]");
+  if(v){ trucoViajar(v.getAttribute("data-viaje")); return; }
   const b = ev.target.closest && ev.target.closest("[data-go]");
   if(!b) return;
   const id = b.getAttribute("data-go");

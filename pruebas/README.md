@@ -106,7 +106,11 @@ que no haya baliza y que las paredes de clipping arranquen casi invisibles. Desd
 el cajón de la mochila: que todo lo que se clica en el HUD pida el ratón (`pointer-events:auto`;
 sin eso los botones de usar, soltar y desechar no hacían nada), sus tres acciones con la
 confirmación de desechar, empuñar y guardar armas, las flechas, Enter y Esc, y lo mismo con un
-mando simulado (B, cruceta, A, X, Y).
+mando simulado (B, cruceta, A, X, Y). Desde la 3.0.2, el modo pruebas: que el código Konami
+pida la contraseña sólo completo y en orden, que el acertijo se resuelva con sus pistas (en los
+dos idiomas) y dé la contraseña, que ésta no esté escrita en el juego, que desbloquee personajes y trajes, que no dé logros ni
+gaste fichas de verdad, que cada partida empiece con todo, la invencibilidad, viajar a un nivel,
+y que al apagarlo todo vuelva a estar como antes.
 
 ### `multijugador.js` — unos segundos
 El multijugador sin PeerJS: carga **tres copias del juego** (anfitrión y dos invitados) y las

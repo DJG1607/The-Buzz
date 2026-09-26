@@ -228,4 +228,77 @@ c.ok(/if\(bpOpen\) closeBackpack\(true\);/.test(fuente) && /closeBackpack\(true\
 c.ok(/if\(pointerLocked && \(bpOpen \|\| healOpen \|\| megOpen\)\)/.test(fuente), "y una captura que llega tarde con un panel abierto se suelta");
 c.ok(!/<b>\+34<\/b>/.test(fuente), "el Almond Water dice lo que cura de verdad (ponía +34 y daba 39)");
 
+/* ── 6. modo pruebas: el código Konami (3.0.2) ── */
+console.log("\n── MODO PRUEBAS (CÓDIGO KONAMI) ──");
+const { TRUCO, trucoTecla, trucoDarTodo, trucoViajar, CHARACTERS, SKINS, charUnlocked, skinUnlocked, unlockAch, megFichas, resetRun, EQUIP_IDS } = j;
+const guardado = () => j.__ctx.localStorage.getItem("zumbido.pruebas");
+c.ok(!TRUCO.on, "arranca apagado");
+const bloqueados = CHARACTERS.filter(ch => !charUnlocked(ch)).length + SKINS.filter(s => !skinUnlocked(s)).length;
+const KON = ["arrowup","arrowup","arrowdown","arrowdown","arrowleft","arrowright","arrowleft","arrowright","b","a"];
+["a", "b"].concat(KON.slice(0, 9)).forEach(k => trucoTecla(k));
+c.ok(!TRUCO.on, "a medias (o con teclas de más delante) no hace nada");
+trucoTecla("a");
+c.ok(!TRUCO.on && TRUCO.pidiendo, "↑↑↓↓←→←→BA no lo enciende: pide la contraseña");
+
+// el acertijo tiene que poder resolverse con sus propias pistas, en los dos idiomas.
+// La llave va en base64 para no destripárselo a quien lea las pruebas.
+const LLAVE = Buffer.from("YWJjaXNh", "base64").toString();
+const AB = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const desVigenere = (t, llave) => { let j2 = 0; return t.replace(/[A-Z]/g, ch => AB[(AB.indexOf(ch) - AB.indexOf(llave[j2++ % llave.length].toUpperCase()) + 26) % 26]); };
+const desCesar = (t, n) => t.replace(/[A-Z]/g, ch => AB[(AB.indexOf(ch) - n + 26) % 26]);
+const desAtbash = t => t.replace(/[A-Z]/g, ch => AB[25 - AB.indexOf(ch)]);
+const MORSE = ".- -... -.-. -.. . ..-. --. .... .. .--- -.- .-.. -- -. --- .--. --.- .-. ... - ..- ...- .-- -..- -.-- --..".split(" ");
+const desMorse = t => t.split(" / ").map(w => w.split(" ").map(l => AB[MORSE.indexOf(l)]).join("")).join(" ");
+const soluciones = {}, trozos = {};
+for (const lengua of ["es", "en"]) {
+  const pz = j.TRUCO_PIEZAS[lengua];
+  const claro = [desVigenere(pz[0].c, LLAVE), desCesar(pz[1].c, 3), desAtbash(pz[2].c), desMorse(pz[3].c)];
+  trozos[lengua] = claro.map(f => f.split(" ").pop());
+  soluciones[lengua] = trozos[lengua].join("").toLowerCase();
+  c.ok(pz.length === 4 && claro.every(f => /^[A-Z ]+$/.test(f)), "acertijo (" + lengua + "): " + claro.join(" · "));
+}
+c.ok(soluciones.es === soluciones.en && j.trucoHuella(soluciones.es) === j.TRUCO_HUELLA, "las cuatro piezas juntas dan la contraseña, igual en español que en inglés");
+c.ok(["es", "en"].every(l => trozos[l].length === 4 && trozos[l].every(t => t.length >= 1 && t.length <= 2)) &&
+  new Set(j.TRUCO_PIEZAS.es.map(pz => pz.c)).size === 4 && new Set(j.TRUCO_PIEZAS.es.map(pz => pz.p[0].split(" · ")[1].split(" ")[0])).size === 4,
+  "cada pieza sólo da un trozo: hacen falta las cuatro");
+c.ok(!fuente.toLowerCase().includes(LLAVE) && !fuente.toLowerCase().includes(soluciones.es), "ni la llave del Vigenère ni la contraseña están escritas en el juego");
+c.ok(j.trucoProbar(soluciones.es.slice(0, 4) + "i" + soluciones.es.slice(4)) === false && !TRUCO.on && TRUCO.pidiendo,
+  "bien escrita no vale: la palabra lleva la falta a posta");
+c.ok(j.trucoProbar(soluciones.es) === true && TRUCO.on && !TRUCO.pidiendo && guardado() === "1", "con la buena se enciende y se queda guardado en el navegador");
+c.ok(bloqueados > 0 && CHARACTERS.every(charUnlocked) && SKINS.every(skinUnlocked), "todos los personajes y trajes, también los del M.E.G. (" + bloqueados + " estaban bloqueados)");
+const achAntes = Object.keys(G.ach).length;
+c.ok(unlockAch("deep5") === false && Object.keys(G.ach).length === achAntes, "con él no se ganan logros");
+const fichasReales = (G.prog && G.prog.fichas) || 0;
+c.ok(megFichas() >= 9999, "fichas del M.E.G. sin límite…");
+limpio(); G.inv = []; G.cap = 10; G.equip = { backpack: true };
+j.megComprar({ id: "rations", precio: 20 });
+c.ok(hasItem("rations") && ((G.prog && G.prog.fichas) || 0) === fichasReales, "…y comprar no gasta las de verdad");
+resetRun("scout");
+const consumibles = Object.keys(ITEMS).filter(id => !ITEMS[id].equip && !ITEMS[id].weapon);
+c.ok(G.cap >= 30 && EQUIP_IDS.every(id => G.equip[id]) && ["pipe", "rebar", "bat"].every(hasItem) &&
+  consumibles.every(id => invFind(id) && invFind(id).qty === stackMax(id)),
+  "cada partida empieza con todo: equipo, las tres armas y " + consumibles.length + " consumibles a tope (" + G.inv.length + "/" + G.cap + " huecos)");
+limpio(); G.inv = []; G.equip = {}; G.cap = 4; G.weapons = { L: null, R: null };
+G.running = true; G.dead = false;
+trucoDarTodo();
+c.ok(G.cap >= 30 && hasItem("medkit") && hasItem("megcamera"), "«Dame todo» en plena partida");
+TRUCO.god = true; G.sanity = 50;
+const cuerpo = JSON.stringify(G.body);
+j.hurtPlayer(80, "prueba");
+c.ok(JSON.stringify(G.body) === cuerpo, "invencible: no hace daño");
+j.die("prueba");
+c.ok(!G.dead && G.sanity >= 60, "ni se muere (tampoco de cordura)");
+TRUCO.god = false;
+const hondo = G.depth; G.paused = true;
+trucoViajar("37");
+c.ok(G.levelId === "37" && G.depth === hondo + 1 && !G.paused, "viajar a cualquier nivel desde el mapa del descenso (del 0 al Level 37 de golpe)");
+c.ok(/data-viaje=/.test(fuente) && /id="trucoRow" hidden/.test(fuente), "los botones sólo salen en la pausa con el modo encendido");
+KON.forEach(k => trucoTecla(k));
+c.ok(!TRUCO.on && guardado() === "0" && !CHARACTERS.every(charUnlocked), "el mismo código lo apaga y todo vuelve a estar como antes");
+c.ok(!TRUCO.god, "y quita la invencibilidad");
+c.ok(/const MODO_PRUEBAS = true;/.test(fuente) && /function trucoTecla\(k\)\{\s*if\(!MODO_PRUEBAS\) return false;/.test(fuente),
+  "se puede quitar del juego entero con MODO_PRUEBAS = false");
+c.ok(/id="trSalir"/.test(fuente) && /\$\("trSalir"\)\.addEventListener\("click", \(\)=> trucoCambiar\(false\)\)/.test(fuente), "y apagar desde la pausa");
+c.ok(/if\(trucoTecla\(k\)\)\{ e\.preventDefault\(\);/.test(fuente), "la última tecla del código no se cuela en la caja de la contraseña");
+
 process.exit(c.resumen("el inventario") ? 1 : 0);
