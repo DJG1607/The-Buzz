@@ -495,6 +495,24 @@ sin cerrar el anterior, y el nuevo se conectaba a la sala del viejo: el mismo ju
 vez. Ahora cierra lo que hubiera antes, ignora mensajes de uno mismo y, dentro de una sala,
 los botones de crear y entrar se sustituyen por «Salir de la sala».
 
+**El anfitrión perdía el hilo con el servidor de salas y nadie lo notaba (3.0.3).**
+PeerJS registra el nombre de la sala en un servidor; si el anfitrión pierde esa conexión
+(red, pestaña en segundo plano, servidor) salta `disconnected` y la sala **deja de poder
+encontrarse** aunque él la vea «abierta»: el que intenta entrar recibe «no hay ninguna sala con
+ese nombre». `mpReconectar()` lo arregla con `peer.reconnect()` (mismo nombre) desde el evento,
+desde `mpVigilar()` y al volver a la pestaña (`visibilitychange`). Ojo: `reconnect()` vuelve a
+lanzar `open`, y el manejador tiene que ser idempotente (`MP.abierto`) o el invitado llamaba
+otra vez al anfitrión y salían clones. En localhost no se ve; se reproduce en vivo con
+`MP.peer.socket._socket.close()` en dos pestañas del navegador integrado.
+Además: el que no consigue entrar (sala inexistente, 15 s sin abrir la conexión, fallo de red)
+pasa por `mpFalloAlEntrar()`, que lo cierra todo y devuelve los botones de «Entrar» y «Crear»
+(en la 3.0.1 se quedaban ocultos); un `peer-unavailable` con la sala ya montada es una llamada de
+voz a alguien que se fue y no echa a nadie; y `mpSalir()` marca todo como cerrado **antes** de
+cerrar las conexiones, porque `c.close()` avisa al momento y salía el falso «el anfitrión ha
+cerrado la sala». El latido y los diez minutos cuentan con el reloj (`Date.now()`), no con
+«un tic = un segundo»: los navegadores frenan los temporizadores de las pestañas en segundo plano.
+`pruebas/multijugador.js` lo cubre con un `Peer` de mentira.
+
 **La voz por WebAudio no pasa por la cancelación de eco.** El navegador sólo cancela el eco
 de lo que suena por un `<audio>`; con WebAudio y altavoces, tu compañero se oía a sí mismo.
 La voz sale por el `<audio>` (con `el.volume` según la distancia) y WebAudio sólo la mide.

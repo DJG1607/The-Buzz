@@ -1264,7 +1264,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "3.0.2";
+const VERSION = "3.0.3";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -12721,39 +12721,94 @@ function mpEmpezar(anfitrion){
   try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
 
   mpEstado(tx("Conectando…","Connecting…"));
+  const gen = MP.gen = (MP.gen || 0) + 1;              // si se pulsa dos veces, sólo vale la última
   mpCargarLibreria().then(()=>{
+    if(gen !== MP.gen) return;
     const id = anfitrion ? MP_PREFIJO + sala : undefined;
-    MP.peer = new Peer(id, {debug:0});
+    const peer = MP.peer = new Peer(id, {debug:0});
+    MP.abierto = false;
+    const mio = ()=> MP.peer === peer;                   // los avisos de un peer ya cerrado no cuentan
 
-    MP.peer.on("open", ()=>{
+    peer.on("open", ()=>{
+      if(!mio()) return;
       MP.activo = true;
+      // «open» vuelve a saltar cada vez que se recupera la conexión con el servidor:
+      // sólo la primera vez se abre la sala o se llama al anfitrión
+      if(MP.abierto){
+        mpEstado(anfitrion ? tx("Conexión recuperada: la sala vuelve a estar abierta.","Link restored: the room is open again.")
+                           : tx("Conectado.","Connected."));
+        return;
+      }
+      MP.abierto = true;
       if(anfitrion){
         mpEstado(tx("Sala abierta. Que tus amigos escriban «","Room open. Have your friends type \u201c")+sala+tx("» y le den a Entrar.","\u201d and hit Join."));
         $("mpGoRow").hidden = false;
       } else {
-        const c = MP.peer.connect(MP_PREFIJO + sala, {reliable:false});
+        const c = peer.connect(MP_PREFIJO + sala, {reliable:false});
         mpAtarConexion(c);
         mpEstado(tx("Entrando en la sala…","Joining the room…"));
+        // si en 15 s no ha abierto, no se queda esperando para siempre
+        clearTimeout(MP.esperaT);
+        MP.esperaT = setTimeout(()=>{
+          if(!mio() || MP.conexiones.length) return;
+          mpFalloAlEntrar(tx("No he conseguido conectar con la sala. Puede que ya no exista o que vuestra red no deje conectar.","Could not connect to the room. It may be gone, or your network may be blocking the link."));
+        }, 15000);
       }
       mpPintarGente();
     });
 
-    MP.peer.on("connection", (c)=> mpAtarConexion(c));
-    MP.peer.on("call", vozEntrante);
+    // se pierde el hilo con el servidor (red, pestaña dormida…): la sala deja de poder encontrarse
+    peer.on("disconnected", ()=>{ if(mio()) mpReconectar(); });
+    peer.on("connection", (c)=>{ if(mio()) mpAtarConexion(c); });
+    peer.on("call", (call)=>{ if(mio()) vozEntrante(call); });
 
-    MP.peer.on("error", (err)=>{
+    peer.on("error", (err)=>{
+      if(!mio()) return;
       const t = String(err && err.type || err);
-      if(t === "unavailable-id")
-        mpEstado(tx("Esa sala ya existe. Dale a Entrar en vez de Crear.","That room already exists. Hit Join instead of Create."));
-      else if(t === "peer-unavailable")
-        mpEstado(tx("No hay ninguna sala con ese nombre. ¿La ha creado alguien?","No room with that name. Has anyone created it?"));
-      else
-        mpEstado(tx("Fallo de conexión: ","Connection problem: ")+t);
+      const sinNadie = !MP.anfitrion && !MP.conexiones.length;           // el que entra, sin haber conseguido entrar
+      if(t === "unavailable-id"){
+        if(MP.abierto) { mpSalir(); mpEstado(tx("Otro ha ocupado el nombre de tu sala mientras estabas desconectado: crea la sala otra vez.","Someone took your room name while you were offline: create the room again.")); }
+        else { mpSalir(); mpEstado(tx("Esa sala ya existe. Dale a Entrar en vez de Crear.","That room already exists. Hit Join instead of Create.")); }
+        mpPintarGente();
+      }
+      else if(t === "peer-unavailable"){
+        // también salta al llamar por voz a alguien que ya se fue: eso no es un fallo al entrar
+        if(sinNadie) mpFalloAlEntrar(tx("No hay ninguna sala con ese nombre. ¿La ha creado alguien? Si acaba de crearla, espera unos segundos.","No room with that name. Has anyone created it? If they just did, wait a few seconds."));
+      }
+      else if(t === "network" || t === "server-error" || t === "socket-error" || t === "socket-closed"){
+        if(sinNadie && !MP.abierto) mpFalloAlEntrar(tx("No llego al servidor de salas. ¿Hay internet?","Cannot reach the room server. Is there internet?"));
+        else mpReconectar();
+      }
+      else if(sinNadie) mpFalloAlEntrar(tx("Fallo de conexión: ","Connection problem: ")+t);
+      else mpEstado(tx("Fallo de conexión: ","Connection problem: ")+t);
     });
   }).catch(()=>{
     mpEstado(tx("No he podido cargar el multijugador. ¿Hay internet?","Could not load multiplayer. Is there internet?"));
   });
 }
+
+// el que quería entrar y no ha podido: se cierra todo y vuelven los botones de Entrar y Crear
+function mpFalloAlEntrar(msg){
+  clearTimeout(MP.esperaT);
+  mpSalir();
+  mpEstado(msg);
+  $("mpGoRow").hidden = true;
+  mpPintarGente();
+}
+
+// Recupera la conexión con el servidor de salas conservando el mismo nombre.
+// Sin esto, si el anfitrión perdía ese hilo la sala dejaba de existir para los
+// demás («no hay ninguna sala con ese nombre») aunque él la viera abierta.
+function mpReconectar(){
+  const p = MP.peer;
+  if(!p || p.destroyed || !p.disconnected) return;
+  const ahora = Date.now();
+  if(ahora - (MP.reintento || 0) < 3000) return;
+  MP.reintento = ahora;
+  if(MP.anfitrion) mpEstado(tx("Se ha perdido la conexión con el servidor: reconectando…","Lost the link to the server: reconnecting…"));
+  try{ p.reconnect(); }catch(e){}
+}
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) mpReconectar(); });
 
 function mpAtarConexion(c){
   if(c.peer === mpYo()){ try{ c.close(); }catch(e){} return; }       // nunca con uno mismo
@@ -12779,6 +12834,7 @@ function mpAtarConexion(c){
 function mpSoltar(c){
   MP.conexiones = MP.conexiones.filter(x=> x !== c);
   if(!MP.anfitrion && MP.activo && !MP.conexiones.length){
+    if(!c.visto){ mpFalloAlEntrar(tx("No he conseguido conectar con la sala. Puede que ya no exista o que vuestra red no deje conectar.","Could not connect to the room. It may be gone, or your network may be blocking the link.")); return; }
     // se ha ido el anfitrión: la sala ya no existe y sigues por tu cuenta
     mpSalir();
     toast(tx("El anfitrión ha cerrado la sala: sigues en solitario.","The host closed the room: you carry on alone."), 5);
@@ -13165,14 +13221,24 @@ function updateGestos(dt){
 // haya entrado alguien antes o no. Al cerrar la pestaña se cierra al momento.
 const MP_VACIA_MAX = 600;
 const MP_SIN_SEÑAL = 15000;                       // ms sin noticias de una conexión: se da por perdida
-function mpVigilar(dt){
+function mpVigilar(dtForzado){
+  // Con el reloj de verdad: un navegador con la pestaña en segundo plano frena
+  // los temporizadores (a un tic por minuto, o más), y contar «un tic = un
+  // segundo» dejaba de mandar el latido y cerraba salas y conexiones por error.
+  // (dtForzado sólo lo usan las pruebas.)
+  const ahora = Date.now();
+  const real = MP.tic ? Math.min((ahora - MP.tic) / 1000, 3600) : 0;
+  const forzado = typeof dtForzado === "number";
+  const dt = forzado ? dtForzado : real;
+  const dormida = !forzado && real > 5;                   // esta pestaña ha estado dormida
+  MP.tic = ahora;
   if(!MP.activo) return;
+  mpReconectar();                                         // no-op salvo que se haya perdido el servidor
+  if(dormida) MP.conexiones.forEach(c=>{ c.visto = ahora; });   // lo que no ha llegado es culpa nuestra
   // Latido: PeerJS no siempre avisa cuando el otro cierra la pestaña, así que
   // cada uno manda una señal cada dos segundos y, si una conexión lleva 15 s
   // callada, se da por cerrada (al invitado le devuelve al juego en solitario).
-  MP.latido = (MP.latido || 0) + dt;
-  if(MP.latido >= 2){ MP.latido = 0; mpEnviar({t:"latido"}); }
-  const ahora = Date.now();
+  if(ahora - (MP.ultLatido || 0) >= 2000){ MP.ultLatido = ahora; mpEnviar({t:"latido"}); }
   MP.conexiones.slice().forEach(c=>{ if(c.visto && ahora - c.visto > MP_SIN_SEÑAL){ try{ c.close(); }catch(e){} mpSoltar(c); } });
   if(!MP.activo || !MP.anfitrion) return;
   if(MP.conexiones.length){ MP.vacia = 0; return; }
@@ -13183,7 +13249,7 @@ function mpVigilar(dt){
   mpEstado(tx("La sala se cerró tras diez minutos sin nadie.","The room closed after ten minutes with nobody in it."));
   mpPintarGente();
 }
-setInterval(()=> mpVigilar(1), 1000);
+setInterval(mpVigilar, 1000);
 window.addEventListener("pagehide", ()=>{ if(MP.peer){ try{ MP.peer.destroy(); }catch(e){} } });
 
 function mpSalir(){
@@ -13195,10 +13261,15 @@ function mpSalir(){
   });
   MP.otros = {};
   MP.modo = "normal";
-  MP.conexiones.forEach(c=>{ try{ c.close(); }catch(e){} });
-  MP.conexiones = [];
-  if(MP.peer){ try{ MP.peer.destroy(); }catch(e){} MP.peer = null; }
-  MP.activo = false; MP.anfitrion = false; MP.vacia = 0;
+  // Se marca todo como cerrado ANTES de cerrar las conexiones: c.close() avisa
+  // al momento, y con la sala aún «abierta» salía el falso «el anfitrión ha
+  // cerrado la sala» cada vez que salías tú.
+  const cs = MP.conexiones, peer = MP.peer;
+  MP.conexiones = []; MP.peer = null;
+  MP.activo = false; MP.anfitrion = false; MP.vacia = 0; MP.abierto = false;
+  clearTimeout(MP.esperaT);
+  cs.forEach(c=>{ try{ c.close(); }catch(e){} });
+  if(peer){ try{ peer.destroy(); }catch(e){} }
   mpRoster();
 }
 

@@ -120,7 +120,11 @@ amigos te deja caído, que reanimar gasta un botiquín, y que se acaba si nadie 
 nadie en pie. También el botiquín en solitario, los aspectos y lo que cuesta desbloquearlos,
 cambiar e intercambiar teclas y un mando simulado. Desde la 3.0.1, la sala: que el compañero se vea
 desde tu cámara (de frente si viene hacia ti), que no salgan clones, que una sala vacía se cierre
-a los diez minutos y que el invitado vuelva a solitario si el anfitrión deja de dar señales. Desde la 3.0, los gestos (que lleguen a los
+a los diez minutos y que el invitado vuelva a solitario si el anfitrión deja de dar señales. Desde la 3.0.3,
+entrar en una sala con un `Peer` de mentira: que el anfitrión recupere la sala si pierde el
+servidor (sin abrirla dos veces), que el que no consigue entrar recupere sus botones y sepa por qué,
+el límite de 15 s, que salir tú mismo no dé el falso aviso del anfitrión y que el latido y los diez
+minutos vayan por reloj real. Desde la 3.0, los gestos (que lleguen a los
 demás por la centralita, con su bocadillo), el volumen de la voz según la distancia y las
 paredes, y que el aviso de «tengo voz» se reenvíe.
 

@@ -165,7 +165,7 @@ c.ok(vd(1, true) === 1 && vd(18, true) === 0 && vd(5, true) > vd(10, true) && vd
 A.mpEnviar({ t: "voz", on: 1 });
 c.ok(B.MP.otros[ids.get(A)].voz === true && H.MP.otros[ids.get(A)].voz === true, "cuando Ana activa la voz, los demás se enteran");
 c.ok(A.vozModo() === 2, "por defecto el micro va abierto: la voz funciona sin tener que mantener ninguna tecla");
-c.ok(/MP\.peer\.on\("call", vozEntrante\)/.test(fuente) && /String\(mpYo\(\)\) > String\(id\)/.test(fuente),
+c.ok(/peer\.on\("call", \(call\)=>\{ if\(mio\(\)\) vozEntrante\(call\); \}\)/.test(fuente) && /String\(mpYo\(\)\) > String\(id\)/.test(fuente),
   "entre cada pareja llama sólo el de id menor: nada de llamadas cruzadas");
 c.ok(/createMediaStreamDestination/.test(fuente) && /VOZ\.micGain\.gain\.value = abierto \? 1 : 0/.test(fuente),
   "la llamada lleva siempre el mismo flujo y el micro se abre o se cierra con una ganancia");
@@ -220,4 +220,141 @@ I.MP.conexiones = [cxHost]; I.MP.otros = { "elzumbido-sala": { nombre: "Hugo" } 
 I.mpVigilar(1);
 c.ok(!I.MP.activo && !I.MP.conexiones.length, "si el anfitrión lleva 15 s sin dar señales (cerró la pestaña), el invitado sigue en solitario");
 
-process.exit(c.resumen("el multijugador") ? 1 : 0);
+/* ── entrar en una sala (3.0.3): el servidor de salas, con un Peer de mentira ──
+   Lo que fallaba en la vida real y en localhost no se ve: si el anfitrión
+   pierde el hilo con el servidor la sala deja de existir para los demás; el que
+   no consigue entrar se quedaba sin botón de «Entrar»; y al salir uno mismo
+   salía el falso «el anfitrión ha cerrado la sala». */
+console.log("\n── ENTRAR EN UNA SALA (3.0.3) ──");
+class PeerFalso {
+  constructor(id) {
+    this.id = id || "invitado-" + Math.random().toString(36).slice(2, 7);
+    this.h = {}; this.disconnected = false; this.destroyed = false; this.llamadas = []; this.reconexiones = 0;
+    PeerFalso.todos.push(this);
+  }
+  on(e, f) { (this.h[e] = this.h[e] || []).push(f); }
+  emit(e, x) { (this.h[e] || []).forEach(f => f(x)); }
+  connect(id) { const cx = conexionFalsa(id); this.llamadas.push(id); this.ultima = cx; return cx; }
+  reconnect() { this.reconexiones++; this.disconnected = false; }
+  destroy() { this.destroyed = true; }
+}
+PeerFalso.todos = [];
+function conexionFalsa(id) {
+  const cx = { peer: id, h: {}, enviados: [], on(e, f) { this.h[e] = f; }, send(m) { this.enviados.push(m); },
+    close() { if (this.cerrada) return; this.cerrada = true; if (this.h.close) this.h.close(); } };
+  return cx;
+}
+// elementos de la pantalla que se conservan (el banco crea uno nuevo en cada getElementById)
+function pantalla(X) {
+  const doc = X.__ctx.document, cache = {};
+  doc.getElementById = id => cache[id] || (cache[id] = doc.createElement("div"));
+  cache.mpName = doc.getElementById("mpName"); cache.mpName.value = "Ana";
+  cache.mpRoom = doc.getElementById("mpRoom"); cache.mpRoom.value = "La Sala 9";
+  cache.toast = doc.getElementById("toast");
+  return cache;
+}
+const dejar = () => new Promise(r => setImmediate(r));
+
+(async () => {
+  // 1. el anfitrión pierde el hilo con el servidor: reconecta una vez, sin abrir la sala de nuevo
+  const H = cargar(); const pH = pantalla(H);
+  H.__ctx.Peer = PeerFalso; H.MP.libreria = true;
+  H.mpEmpezar(true); await dejar();
+  const ph = PeerFalso.todos[PeerFalso.todos.length - 1];
+  c.ok(ph.id === "elzumbido-la-sala-9", "«La Sala 9» se convierte en el nombre de sala elzumbido-la-sala-9");
+  ph.emit("open");
+  c.ok(H.MP.activo && H.MP.anfitrion && !pH.mpGoRow.hidden, "el anfitrión abre la sala");
+  ph.disconnected = true; ph.emit("disconnected");
+  c.ok(ph.reconexiones === 1 && /reconectando/.test(pH.mpStatus.textContent), "si pierde el hilo con el servidor, reconecta (antes la sala dejaba de existir sin que nadie lo notara)");
+  ph.disconnected = true; ph.emit("disconnected");
+  c.ok(ph.reconexiones === 1, "sin insistir cada milisegundo: espera unos segundos entre intentos");
+  H.MP.reintento = 0; ph.disconnected = true; H.mpVigilar(1);
+  c.ok(ph.reconexiones === 2, "y el vigilante de cada segundo vuelve a intentarlo si sigue sin servidor");
+  ph.emit("open");
+  c.ok(H.MP.activo && /vuelve a estar abierta/.test(pH.mpStatus.textContent), "al recuperarlo, la sala vuelve a estar abierta");
+
+  // 2. el invitado: «open» al reconectar no vuelve a llamar al anfitrión
+  const G2 = cargar(); const pG = pantalla(G2);
+  G2.__ctx.Peer = PeerFalso; G2.MP.libreria = true;
+  G2.mpEmpezar(false); await dejar();
+  const pg = PeerFalso.todos[PeerFalso.todos.length - 1];
+  pg.emit("open"); pg.emit("open");
+  c.ok(pg.llamadas.length === 1 && pg.llamadas[0] === "elzumbido-la-sala-9", "el invitado llama al anfitrión una sola vez, aunque «open» salte otra vez al reconectar (si no, salían clones)");
+
+  // 3. no consigue entrar: vuelven «Crear» y «Entrar» (antes sólo salía «Salir de la sala»)
+  pg.emit("error", { type: "peer-unavailable" });
+  c.ok(!G2.MP.activo && !G2.MP.peer && pG.mpCreate.hidden === false && pG.mpJoin.hidden === false && pG.mpLeave.hidden === true,
+    "si la sala no existe, el invitado puede volver a darle a «Entrar» sin salir antes");
+  c.ok(/No hay ninguna sala/.test(pG.mpStatus.textContent), "y se le dice por qué");
+  const antesPeers = PeerFalso.todos.length;
+  G2.mpEmpezar(false); await dejar();
+  c.ok(PeerFalso.todos.length === antesPeers + 1, "y puede intentarlo otra vez");
+  PeerFalso.todos[PeerFalso.todos.length - 1].emit("open");
+
+  // 4. una llamada de voz a alguien que ya se fue no echa a nadie de la sala
+  const V = cargar(); pantalla(V);
+  V.__ctx.Peer = PeerFalso; V.MP.libreria = true;
+  V.mpEmpezar(false); await dejar();
+  const pv = PeerFalso.todos[PeerFalso.todos.length - 1];
+  pv.emit("open"); pv.ultima.h.open();
+  pv.emit("error", { type: "peer-unavailable" });
+  c.ok(V.MP.activo && V.MP.conexiones.length === 1, "«peer-unavailable» con la sala ya montada (una llamada de voz a alguien que se fue) no te saca de ella");
+
+  // 5. nunca llega a abrirse: a los 15 s se rinde en vez de quedarse «Entrando…» para siempre
+  const T = cargar(); const pT = pantalla(T);
+  const pend = [];
+  T.__ctx.setTimeout = (f, ms) => { pend.push({ f, ms }); return pend.length; };
+  T.__ctx.Peer = PeerFalso; T.MP.libreria = true;
+  T.mpEmpezar(false); await dejar();
+  PeerFalso.todos[PeerFalso.todos.length - 1].emit("open");
+  const espera = pend.find(p => p.ms === 15000);
+  c.ok(!!espera && T.MP.activo, "entrar arma un límite de 15 s");
+  espera.f();
+  c.ok(!T.MP.activo && !pT.mpCreate.hidden && /No he conseguido conectar/.test(pT.mpStatus.textContent), "si en 15 s no ha abierto, se rinde y vuelven los botones");
+
+  // 6. una conexión que se cae sin haber llegado a abrirse no es «el anfitrión cerró la sala»
+  const N = cargar(); const pN = pantalla(N);
+  N.__ctx.Peer = PeerFalso; N.MP.libreria = true;
+  N.mpEmpezar(false); await dejar();
+  const pn = PeerFalso.todos[PeerFalso.todos.length - 1];
+  pn.emit("open"); pn.ultima.h.error && pn.ultima.h.error();
+  c.ok(!N.MP.activo && /No he conseguido conectar/.test(pN.mpStatus.textContent) && !/anfitri/i.test(pN.toast.textContent),
+    "una conexión que falla al entrar dice que no ha podido conectar, no que el anfitrión cerró la sala");
+
+  // 7. salir uno mismo no avisa de nada falso
+  const L = cargar(); const pL = pantalla(L);
+  L.__ctx.Peer = PeerFalso; L.MP.libreria = true;
+  L.mpEmpezar(false); await dejar();
+  const pl = PeerFalso.todos[PeerFalso.todos.length - 1];
+  pl.emit("open"); pl.ultima.h.open();
+  c.ok(L.MP.activo && L.MP.conexiones.length === 1, "el invitado entra en la sala");
+  pL.toast.textContent = "";
+  L.mpSalir();
+  c.ok(!L.MP.activo && pl.destroyed && pl.ultima.cerrada && pL.toast.textContent === "",
+    "salir tú mismo cierra todo sin el falso «el anfitrión ha cerrado la sala»");
+
+  // 8. el reloj de verdad: una pestaña dormida no cierra salas ni conexiones por error
+  const R = cargar(); pantalla(R);
+  const cxR = { peer: "elzumbido-x", visto: Date.now() - 50000, send() {}, close() {} };
+  R.MP.activo = true; R.MP.anfitrion = false; R.MP.peer = { id: "yo", destroy() {}, disconnected: false, destroyed: false };
+  R.MP.conexiones = [cxR]; R.MP.otros = {};
+  R.MP.tic = Date.now() - 60000;                        // el navegador la ha tenido 60 s sin dar un solo tic
+  R.mpVigilar();
+  c.ok(R.MP.activo && R.MP.conexiones.length === 1, "si esta pestaña ha estado dormida, no da por perdidas las conexiones (lo que no llegó es culpa suya)");
+  cxR.visto = Date.now() - 20000; R.MP.tic = Date.now() - 1000;
+  R.mpVigilar();
+  c.ok(!R.MP.activo, "pero 15 s callada estando despierta sí");
+  const E = cargar(); pantalla(E);
+  E.MP.activo = true; E.MP.anfitrion = true; E.MP.peer = { id: "elzumbido-e", destroy() {}, disconnected: false, destroyed: false }; E.MP.conexiones = [];
+  E.MP.tic = Date.now() - 601000;
+  E.mpVigilar();
+  c.ok(!E.MP.activo, "una sala vacía se cierra a los diez minutos de reloj, no de tics de temporizador");
+  const Q = cargar(); pantalla(Q);
+  const enviados = [];
+  Q.MP.activo = true; Q.MP.anfitrion = true; Q.MP.peer = { id: "elzumbido-q", destroy() {}, disconnected: false, destroyed: false };
+  Q.MP.conexiones = [{ peer: "z", visto: Date.now(), send(m) { enviados.push(m.t); }, close() {} }];
+  Q.MP.tic = Date.now() - 1000; Q.mpVigilar();
+  c.ok(enviados.includes("latido"), "el latido se manda por tiempo real (cada 2 s)");
+
+  process.exit(c.resumen("el multijugador") ? 1 : 0);
+})();
