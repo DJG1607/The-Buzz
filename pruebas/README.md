@@ -123,7 +123,7 @@ desde tu cámara (de frente si viene hacia ti), que no salgan clones, que una sa
 a los diez minutos y que el invitado vuelva a solitario si el anfitrión deja de dar señales. Desde la 3.0.3,
 entrar en una sala con un `Peer` de mentira: que el anfitrión recupere la sala si pierde el
 servidor (sin abrirla dos veces), que el que no consigue entrar recupere sus botones y sepa por qué,
-el límite de 15 s, que salir tú mismo no dé el falso aviso del anfitrión y que el latido y los diez
+el límite de 40 s con su aviso a los 8, que use su propia lista de STUN (no los TURN de PeerJS, que ya no existen) y deje sitio para un TURN, que salir tú mismo no dé el falso aviso del anfitrión y que el latido y los diez
 minutos vayan por reloj real. Desde la 3.0, los gestos (que lleguen a los
 demás por la centralita, con su bocadillo), el volumen de la voz según la distancia y las
 paredes, y que el aviso de «tengo voz» se reenvíe.

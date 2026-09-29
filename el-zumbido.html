@@ -1264,7 +1264,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "3.0.3";
+const VERSION = "3.0.4";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -12498,6 +12498,34 @@ function paintMegChip(){
    sigue dependiendo únicamente de Three.js.                                 */
 
 const MP_LIB = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
+/* Servidores para que dos dispositivos se encuentren a través de sus routers.
+   PeerJS trae los suyos, pero sus TURN gratuitos (eu-0 y us-0.turn.peerjs.com)
+   ya no existen en el DNS, y con eso entre redes distintas sólo conecta quien
+   tiene suerte con el router. Aquí van varios STUN que responden (comprobado)
+   y un hueco para un TURN propio, que es lo único que asegura la conexión
+   cuando uno de los routers no deja hacerla directa (datos móviles, CGNAT…).
+   El TURN es el gratuito de ExpressTURN (probado: concede relevo por UDP 3478;
+   TCP y TLS no responden en ese servidor, así que una red que bloquee el UDP
+   tampoco pasará por él, y no deja relevo contra relevo: al menos uno de los
+   dos ha de ser alcanzable, p. ej. uno en casa y otro con datos móviles). Las credenciales van a la vista, como en cualquier web
+   estática: si alguien abusa, se cambian en el panel de ExpressTURN. WebRTC ya
+   prueba primero la conexión directa y, si falla, pasa solo al relevo. */
+const MP_STUN = [
+  {urls:"stun:stun.cloudflare.com:3478"},
+  {urls:"stun:global.stun.twilio.com:3478"},
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:"stun:stun.nextcloud.com:3478"}
+];
+const MP_TURN = [
+  {urls:"turn:free.expressturn.com:3478", username:"000000002106032264", credential:"tigylaLc+K/Ra/donZb5rIwSqbk="}
+];
+// Para comprobar el TURN sin depender de la red: si el que ENTRA abre el juego con
+// «?relevo» en la dirección, su conexión va forzada por el servidor de relevo.
+// Sólo el que entra: este TURN gratuito no deja relevo contra relevo (responde
+// «403 Forbidden IP» aunque sean sus dos IPs), así que uno de los dos tiene que
+// ser alcanzable directamente.
+const MP_SOLO_RELEVO = /[?&]relevo\b/.test(String(location.search || ""));
+const MP_ESPERA = 40000;                          // ms para que una conexión entre redes distintas se abra
 const MP_PREFIJO = "elzumbido-";
 const MP_RITMO = 0.08;                     // cada cuánto se manda la posición
 
@@ -12725,7 +12753,7 @@ function mpEmpezar(anfitrion){
   mpCargarLibreria().then(()=>{
     if(gen !== MP.gen) return;
     const id = anfitrion ? MP_PREFIJO + sala : undefined;
-    const peer = MP.peer = new Peer(id, {debug:0});
+    const peer = MP.peer = new Peer(id, {debug:0, config:{iceServers:MP_TURN.concat(MP_STUN), iceTransportPolicy:(MP_SOLO_RELEVO && !anfitrion) ? "relay" : "all", sdpSemantics:"unified-plan"}});
     MP.abierto = false;
     const mio = ()=> MP.peer === peer;                   // los avisos de un peer ya cerrado no cuentan
 
@@ -12747,12 +12775,15 @@ function mpEmpezar(anfitrion){
         const c = peer.connect(MP_PREFIJO + sala, {reliable:false});
         mpAtarConexion(c);
         mpEstado(tx("Entrando en la sala…","Joining the room…"));
-        // si en 15 s no ha abierto, no se queda esperando para siempre
-        clearTimeout(MP.esperaT);
+        // entre redes distintas puede tardar; si no abre, no se queda esperando para siempre
+        clearTimeout(MP.esperaT); clearTimeout(MP.avisoT);
+        MP.avisoT = setTimeout(()=>{
+          if(mio() && !MP.conexiones.length) mpEstado(tx("Sigo intentándolo… entre redes distintas puede tardar un poco.","Still trying… it can take a while between different networks."));
+        }, 8000);
         MP.esperaT = setTimeout(()=>{
           if(!mio() || MP.conexiones.length) return;
-          mpFalloAlEntrar(tx("No he conseguido conectar con la sala. Puede que ya no exista o que vuestra red no deje conectar.","Could not connect to the room. It may be gone, or your network may be blocking the link."));
-        }, 15000);
+          mpFalloAlEntrar(mpMsgNoConecta());
+        }, MP_ESPERA);
       }
       mpPintarGente();
     });
@@ -12787,9 +12818,13 @@ function mpEmpezar(anfitrion){
   });
 }
 
+function mpMsgNoConecta(){
+  return tx("No he conseguido conectar con la sala. Puede que ya no exista o que vuestros routers no dejen la conexión directa (datos móviles, otra red…).",
+            "Could not connect to the room. It may be gone, or your routers may not allow a direct link (mobile data, another network…).");
+}
 // el que quería entrar y no ha podido: se cierra todo y vuelven los botones de Entrar y Crear
 function mpFalloAlEntrar(msg){
-  clearTimeout(MP.esperaT);
+  clearTimeout(MP.esperaT); clearTimeout(MP.avisoT);
   mpSalir();
   mpEstado(msg);
   $("mpGoRow").hidden = true;
@@ -12825,16 +12860,38 @@ function mpAtarConexion(c){
     $("mpGoRow").hidden = false;
     mpEstado(tx("Conectado.","Connected."));
     mpPintarGente();
+    mpTipoConexion(c);
   });
   c.on("data", (m)=> mpRecibir(c, m));
   c.on("close", ()=> mpSoltar(c));
   c.on("error", ()=> mpSoltar(c));
 }
 
+// Dice por dónde va la conexión: directa entre los dos, o por un servidor de
+// relevo (TURN). Si nunca sale «por relevo» y a alguien no le conecta, falta un TURN.
+function mpTipoConexion(c){
+  const pc = c.peerConnection;
+  if(!pc || !pc.getStats) return;
+  setTimeout(()=>{
+    pc.getStats().then(rep=>{
+      const cand = {}; let par = null;
+      rep.forEach(r=>{
+        if(r.type === "local-candidate" || r.type === "remote-candidate") cand[r.id] = r;
+        if(r.type === "candidate-pair" && r.nominated && r.state === "succeeded") par = r;
+      });
+      if(!par) return;
+      const l = cand[par.localCandidateId], r = cand[par.remoteCandidateId];
+      c.via = ((l && l.candidateType === "relay") || (r && r.candidateType === "relay")) ? "relay" : "direct";
+      if(MP.conexiones.indexOf(c) >= 0)
+        mpEstado(tx("Conectado ","Connected ")+(c.via === "relay" ? tx("(por servidor de relevo).","(through a relay server).") : tx("(conexión directa).","(direct link).")));
+    }).catch(()=>{});
+  }, 1500);
+}
+
 function mpSoltar(c){
   MP.conexiones = MP.conexiones.filter(x=> x !== c);
   if(!MP.anfitrion && MP.activo && !MP.conexiones.length){
-    if(!c.visto){ mpFalloAlEntrar(tx("No he conseguido conectar con la sala. Puede que ya no exista o que vuestra red no deje conectar.","Could not connect to the room. It may be gone, or your network may be blocking the link.")); return; }
+    if(!c.visto){ mpFalloAlEntrar(mpMsgNoConecta()); return; }
     // se ha ido el anfitrión: la sala ya no existe y sigues por tu cuenta
     mpSalir();
     toast(tx("El anfitrión ha cerrado la sala: sigues en solitario.","The host closed the room: you carry on alone."), 5);
@@ -13267,7 +13324,7 @@ function mpSalir(){
   const cs = MP.conexiones, peer = MP.peer;
   MP.conexiones = []; MP.peer = null;
   MP.activo = false; MP.anfitrion = false; MP.vacia = 0; MP.abierto = false;
-  clearTimeout(MP.esperaT);
+  clearTimeout(MP.esperaT); clearTimeout(MP.avisoT);
   cs.forEach(c=>{ try{ c.close(); }catch(e){} });
   if(peer){ try{ peer.destroy(); }catch(e){} }
   mpRoster();

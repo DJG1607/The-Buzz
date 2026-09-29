@@ -227,7 +227,8 @@ c.ok(!I.MP.activo && !I.MP.conexiones.length, "si el anfitrión lleva 15 s sin d
    salía el falso «el anfitrión ha cerrado la sala». */
 console.log("\n── ENTRAR EN UNA SALA (3.0.3) ──");
 class PeerFalso {
-  constructor(id) {
+  constructor(id, opciones) {
+    this.opciones = opciones || {};
     this.id = id || "invitado-" + Math.random().toString(36).slice(2, 7);
     this.h = {}; this.disconnected = false; this.destroyed = false; this.llamadas = []; this.reconexiones = 0;
     PeerFalso.todos.push(this);
@@ -281,6 +282,21 @@ const dejar = () => new Promise(r => setImmediate(r));
   pg.emit("open"); pg.emit("open");
   c.ok(pg.llamadas.length === 1 && pg.llamadas[0] === "elzumbido-la-sala-9", "el invitado llama al anfitrión una sola vez, aunque «open» salte otra vez al reconectar (si no, salían clones)");
 
+  // 2b. la configuración de red: PeerJS trae TURN gratuitos que ya no existen
+  const cfg = pg.opciones.config || {};
+  const urls = (cfg.iceServers || []).flatMap(x => [].concat(x.urls));
+  c.ok(urls.length >= 3 && urls.every(u => /^(stun|turn)s?:/.test(u)) && !urls.some(u => /peerjs\.com/.test(u)),
+    "usa su propia lista de servidores y no los TURN de PeerJS, que ya no existen (" + urls.length + " servidores)");
+  c.ok(urls.length <= 5, "sin pasarse de servidores: Chrome avisa de que con más de cinco se descubre más lento");
+  const primero = (cfg.iceServers || [])[0] || {};
+  c.ok([].concat(primero.urls).every(u => /^turns?:/.test(u)) && !!primero.username && !!primero.credential,
+    "el servidor de relevo (TURN, con usuario y clave) va el primero de la lista");
+  c.ok((cfg.iceServers || []).slice(1).every(x => [].concat(x.urls).every(u => /^stun:/.test(u))) && (cfg.iceServers || []).length >= 2,
+    "y detrás van los STUN");
+  c.ok(cfg.iceTransportPolicy === "all", "por defecto se prueba la conexión directa y, si falla, WebRTC pasa solo al relevo");
+  c.ok(/iceTransportPolicy:\(MP_SOLO_RELEVO && !anfitrion\) \? "relay" : "all"/.test(fuente) && /\[\?&\]relevo/.test(fuente),
+    "con «?relevo» en la dirección, el que entra (sólo él: el TURN no deja relevo contra relevo) va forzado por el servidor de relevo, para probar el TURN");
+
   // 3. no consigue entrar: vuelven «Crear» y «Entrar» (antes sólo salía «Salir de la sala»)
   pg.emit("error", { type: "peer-unavailable" });
   c.ok(!G2.MP.activo && !G2.MP.peer && pG.mpCreate.hidden === false && pG.mpJoin.hidden === false && pG.mpLeave.hidden === true,
@@ -307,10 +323,13 @@ const dejar = () => new Promise(r => setImmediate(r));
   T.__ctx.Peer = PeerFalso; T.MP.libreria = true;
   T.mpEmpezar(false); await dejar();
   PeerFalso.todos[PeerFalso.todos.length - 1].emit("open");
-  const espera = pend.find(p => p.ms === 15000);
-  c.ok(!!espera && T.MP.activo, "entrar arma un límite de 15 s");
+  const espera = pend.find(p => p.ms === 40000), aviso = pend.find(p => p.ms === 8000);
+  c.ok(!!espera && T.MP.activo, "entrar espera hasta 40 s (entre redes distintas tarda)");
+  aviso.f();
+  c.ok(/Sigo intentándolo/.test(pT.mpStatus.textContent), "a los 8 s avisa de que sigue intentándolo");
   espera.f();
-  c.ok(!T.MP.activo && !pT.mpCreate.hidden && /No he conseguido conectar/.test(pT.mpStatus.textContent), "si en 15 s no ha abierto, se rinde y vuelven los botones");
+  c.ok(!T.MP.activo && !pT.mpCreate.hidden && /No he conseguido conectar/.test(pT.mpStatus.textContent) && /routers/.test(pT.mpStatus.textContent),
+    "si no abre, se rinde, vuelven los botones y se apunta a los routers como posible causa");
 
   // 6. una conexión que se cae sin haber llegado a abrirse no es «el anfitrión cerró la sala»
   const N = cargar(); const pN = pantalla(N);

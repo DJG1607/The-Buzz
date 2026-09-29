@@ -94,6 +94,7 @@ c.ok(!G.meg.q && !j.hasItem("almond"), "Suministros: se entregan en el tablón y
 
 console.log("\n── FICHAS, INTENDENCIA Y TRAJES ──");
 G.prog.fichas = 100;
+G.inv = [];                       // los premios al azar de las misiones de antes pueden llenar los bolsillos
 j.megComprar({ id:"megradio", precio:40 });
 c.ok(G.prog.fichas === 60 && j.hasItem("megradio"), "en la intendencia se compra con fichas (radio: 40)");
 G.prog.fichas = 10;

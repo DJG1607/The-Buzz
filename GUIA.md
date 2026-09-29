@@ -513,6 +513,24 @@ cerrado la sala». El latido y los diez minutos cuentan con el reloj (`Date.now(
 «un tic = un segundo»: los navegadores frenan los temporizadores de las pestañas en segundo plano.
 `pruebas/multijugador.js` lo cubre con un `Peer` de mentira.
 
+**PeerJS ya no trae TURN que funcionen: entre redes distintas hay que dárselos (3.0.4).**
+Sus servidores de relevo gratuitos (`eu-0.turn.peerjs.com`, `us-0.turn.peerjs.com`) ya no existen
+en el DNS, así que con la configuración por defecto sólo quedaba un STUN, y dos dispositivos en
+redes distintas (datos móviles, CGNAT, routers estrictos) sólo conectan si el router deja hacerlo
+directamente. En un mismo equipo o en localhost no se nota. `new Peer()` recibe ahora
+`config:{iceServers:MP_STUN.concat(MP_TURN)}` (sustituye a la de PeerJS por completo, por eso
+lleva también `sdpSemantics`). `MP_STUN` son cuatro STUN comprobados; `MP_TURN` lleva el TURN
+gratuito de ExpressTURN (`free.expressturn.com:3478`, las credenciales van a la vista: se cambian
+en su panel si alguien abusa). Se pega ahí cualquier otro con `{urls:[…], username:"…", credential:"…"}`.
+**Límites de ese TURN, comprobados a mano con peticiones TURN crudas:** sólo responde por UDP 3478
+(TCP y TLS no), así que una red que bloquee el UDP (colegios) no pasa; y **no deja relevo contra
+relevo** (`CreatePermission` → 403 Forbidden IP, también entre sus dos IPs), o sea que al menos uno
+de los dos ha de ser alcanzable: uno en casa y otro con datos móviles sí, dos redes muy cerradas no.
+Un TURN de pago o con TCP/443 lo arregla. Abrir el juego con `?relevo` fuerza al que ENTRA a usar
+sólo el relevo (el anfitrión no: por lo dicho, relevo contra relevo no puede funcionar). Con la conexión abierta el
+juego dice «directa» o «por servidor de relevo» (`mpTipoConexion()`), y si no abre en 40 s
+(`MP_ESPERA`) lo cuenta y vuelve a dejar «Entrar». Chrome avisa si hay más de cinco servidores.
+
 **La voz por WebAudio no pasa por la cancelación de eco.** El navegador sólo cancela el eco
 de lo que suena por un `<audio>`; con WebAudio y altavoces, tu compañero se oía a sí mismo.
 La voz sale por el `<audio>` (con `el.volume` según la distancia) y WebAudio sólo la mide.
