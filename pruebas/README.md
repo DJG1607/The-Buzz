@@ -112,6 +112,11 @@ dos idiomas) y dé la contraseña, que ésta no esté escrita en el juego, que d
 gaste fichas de verdad, que cada partida empiece con todo, la invencibilidad, viajar a un nivel,
 y que al apagarlo todo vuelva a estar como antes.
 
+### `mundo.js` — calidad gráfica (desde 3.0.5)
+Que cada nivel de calidad pida más que el anterior, que el recorte de distancia no se note en
+ninguno de los 66 niveles (lo que se deja de dibujar ya lo tapa la niebla), el material sencillo,
+cuándo se pinta el grano, la resolución dinámica y que la viñeta ya no use «multiplicar».
+
 ### `multijugador.js` — unos segundos
 El multijugador sin PeerJS: carga **tres copias del juego** (anfitrión y dos invitados) y las
 conecta con una red de mentira en estrella, como la de verdad. Comprueba que los invitados se
@@ -123,7 +128,8 @@ desde tu cámara (de frente si viene hacia ti), que no salgan clones, que una sa
 a los diez minutos y que el invitado vuelva a solitario si el anfitrión deja de dar señales. Desde la 3.0.3,
 entrar en una sala con un `Peer` de mentira: que el anfitrión recupere la sala si pierde el
 servidor (sin abrirla dos veces), que el que no consigue entrar recupere sus botones y sepa por qué,
-el límite de 40 s con su aviso a los 8, que use su propia lista de STUN (no los TURN de PeerJS, que ya no existen) y deje sitio para un TURN, que salir tú mismo no dé el falso aviso del anfitrión y que el latido y los diez
+que el invitado empiece en la semilla del anfitrión y que cada partida traiga una nueva, que un compañero caído se tumbe (y no se aplaste), que cambiar a 3D con la sala abierta los rehaga y que se vea lo que llevan en las manos, los objetos que se sueltan (que los vean los compañeros, con su desgaste, que recogerlos los quite
+para todos, y que el que llega después los vea), el límite de 40 s con su aviso a los 8, que use su propia lista de STUN (no los TURN de PeerJS, que ya no existen) y deje sitio para un TURN, que salir tú mismo no dé el falso aviso del anfitrión y que el latido y los diez
 minutos vayan por reloj real. Desde la 3.0, los gestos (que lleguen a los
 demás por la centralita, con su bocadillo), el volumen de la voz según la distancia y las
 paredes, y que el aviso de «tengo voz» se reenvíe.

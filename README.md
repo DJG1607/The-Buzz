@@ -136,6 +136,10 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   y una melodía con eco que se ponen más tensos cuanto más peligroso es el nivel, más goteo,
   viento o chispazos según el tipo de sitio. **Puedes subir tu propia música** en Ajustes, y
   la música y el ambiente tienen cada uno su volumen.
+- **Calidad gráfica que se nota**: Baja, Media, Alta y Ultra no sólo cambian la resolución sino
+  también las luces, la distancia de dibujado, el polvo, el grano y el tipo de material (en una
+  gráfica integrada a 1080p, Baja pasa de 14 ms a 1 ms por fotograma y Alta de 25 a 16). Y un
+  **ajuste automático** baja la resolución solo si el juego va a menos de 40 fps.
 - **Ajustes en cuatro pestañas** (Partida, Controles, Sonido, Gráficos) que se deslizan de lado.
   Opciones gráficas: calidad (resolución y relieve), distancia de visión, filtro de pantalla
   (limpio, grano o VHS), temblor de cámara y contador de FPS.

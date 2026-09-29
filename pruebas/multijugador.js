@@ -174,6 +174,119 @@ c.ok(/n\.el\.volume = clamp\(n\.vol, 0, 1\)/.test(fuente) && !/pan\.connect\(Aud
 c.ok(/o\.vozElegida\)/.test(fuente), "el «pulsar Y» que se guardaba solo en versiones anteriores ya no se hereda");
 
 
+/* ── objetos en el suelo compartidos (3.0.5) ──
+   Lo que soltabas sólo existía en tu copia del nivel: los compañeros no lo veían. */
+console.log("\n── OBJETOS EN EL SUELO ──");
+const suelo = (X, id) => X.G.drops.filter(d => d.id === id);
+for (const X of [H, A, B]) X.G.drops = [];
+A.G.inv = [{ id: "almond", qty: 3 }]; A.player.pos.set(A.player.pos.x + 0.5, 0, A.player.pos.z);
+A.dropItem("almond", null, false);
+const dA = suelo(A, "almond")[0], dH = suelo(H, "almond")[0], dB = suelo(B, "almond")[0];
+c.ok(dA && dH && dB, "lo que suelta Ana lo ven el anfitrión y Bea");
+c.ok(dH && dB && dH.uid === dA.uid && dB.uid === dA.uid && dB.qty === 3 && Math.abs(dB.x - dA.x) < 0.01 && Math.abs(dB.z - dA.z) < 0.01,
+  "en el mismo sitio, con la misma cantidad y el mismo identificador");
+c.ok(suelo(A, "almond").length === 1 && suelo(H, "almond").length === 1, "sin duplicados: el que lo suelta no recibe su propio eco");
+c.ok(dB.mesh && dB.mesh.visible !== false, "y se dibuja (tiene su icono en el suelo)");
+
+// recoger: lo ve todo el mundo, y con cantidades a medias también
+B.G.inv = [{ id: "almond", qty: B.stackMax("almond") - 1 }];
+B.pickDrop(dB);
+c.ok(dB.qty === 2 && suelo(A, "almond")[0] && suelo(A, "almond")[0].qty === 2 && suelo(H, "almond")[0].qty === 2,
+  "si Bea sólo puede coger uno, a los demás les quedan los dos que sobran");
+B.G.inv = [];
+B.pickDrop(suelo(B, "almond")[0]);
+c.ok(B.hasItem("almond") && !suelo(A, "almond").length && !suelo(H, "almond").length && !suelo(B, "almond").length,
+  "cuando Bea lo recoge todo, desaparece para todos");
+
+// desechar no deja nada; un arma conserva su desgaste
+A.G.inv = [{ id: "almond", qty: 1 }]; A.dropItem("almond", null, true);
+c.ok(!suelo(H, "almond").length && !suelo(A, "almond").length, "desechar no deja nada en el suelo de nadie");
+A.G.weapons = { L: "pipe", R: null }; A.G.wear = { pipe: 0.4 };
+A.dropItem("pipe", "L", false);
+const pipeB = suelo(B, "pipe")[0];
+c.ok(pipeB && Math.abs(pipeB.wear - 0.4) < 1e-6, "un arma soltada llega con su desgaste (40%)");
+B.G.weapons = { L: null, R: null }; B.G.inv = []; B.G.wear = {};
+B.pickDrop(pipeB);
+c.ok(B.G.wear.pipe !== undefined && Math.abs(B.G.wear.pipe - 0.4) < 1e-6 && !suelo(A, "pipe").length, "Bea la recoge con ese mismo desgaste y desaparece para Ana");
+
+// un mensaje repetido, o de un objeto que no existe, no crea nada
+const nHants = H.G.drops.length;
+const msg = { t: "suelo", uid: "peer-ana#77", id: "bandage", qty: 1, x: 3, z: 4, lv: H.G.levelId + "@" + H.G.levelSeed };
+H.mpRecibir(vuelta(H, A), msg); H.mpRecibir(vuelta(H, A), msg);
+H.mpRecibir(vuelta(H, A), { t: "suelo", uid: "peer-ana#78", id: "noexiste", qty: 1, x: 3, z: 4, lv: msg.lv });
+c.ok(H.G.drops.length === nHants + 1, "el mismo aviso dos veces no duplica, y un objeto inventado se ignora");
+for (const X of [H, A, B]) X.G.drops = [];
+
+// objetos de un nivel en el que aún no estoy: salen al entrar
+B.mpRecibir(vuelta(B, H), { t: "suelo", uid: "sala#1", id: "bandage", qty: 2, x: 1, z: 2, lv: "1@5" });
+c.ok(!suelo(B, "bandage").length, "un objeto de otro nivel no aparece en el mío");
+B.buildLevel("1", 5);
+c.ok(suelo(B, "bandage").length === 1 && suelo(B, "bandage")[0].qty === 2, "…pero sale cuando entro en ese nivel (el anfitrión ya había bajado)");
+B.buildLevel("0", 7); A.buildLevel("0", 7); H.buildLevel("0", 7);
+
+// el que llega después ve lo que ya había
+H.G.inv = [{ id: "flare", qty: 2 }]; H.dropItem("flare", null, false);
+const N = cargar();
+ids.set(N, "peer-nico"); nombres.set(N, "Nico");
+N.MP.activo = true; N.MP.nombre = "Nico"; N.MP.peer = { id: "peer-nico" }; N.MP.anfitrion = false;
+N.resetRun("scout"); N.buildLevel("0", 7); N.G.running = true;
+H.MP.conexiones.push(vuelta(H, N)); N.MP.conexiones = [vuelta(N, H)];
+N.mpEnviar({ t: "hola", nombre: "Nico", ch: "scout", sk: "base" });
+c.ok(suelo(N, "flare").length === 1 && suelo(N, "flare")[0].qty === 2, "quien entra en la sala después ve los objetos que ya estaban en el suelo");
+H.MP.conexiones = H.MP.conexiones.filter(x => x.peer !== "peer-nico");
+for (const X of [H, A, B]) X.G.drops = [];
+
+// el nivel de una partida con amigos lo manda el anfitrión, también en la ficha del invitado
+const Gs = cargar(); Gs.MP.activo = true; Gs.MP.anfitrion = false; Gs.MP.conexiones = []; Gs.MP.peer = { id: "peer-gus", destroy() {} };
+Gs.mpRecibir({ send() {}, peer: "elzumbido-sala" }, { t: "nivel", id: "1", seed: 4242, modo: "normal" });
+Gs.startRun("scout");
+c.ok(Gs.G.levelId === "1" && Gs.G.levelSeed === 4242, "el invitado empieza en la semilla y el nivel del anfitrión (antes se inventaba los suyos hasta el primer «hola»)");
+const Hs = cargar(); Hs.MP.activo = true; Hs.MP.anfitrion = true; Hs.MP.conexiones = []; Hs.MP.peer = { id: "elzumbido-x", destroy() {} };
+const semillas = []; for (let i = 0; i < 4; i++) { Hs.startRun("scout"); semillas.push(Hs.G.levelSeed); }
+c.ok(new Set(semillas).size === 4, "el anfitrión saca una semilla nueva en cada partida (" + semillas.join(", ") + ")");
+c.ok(/SEMILLA DEL NIVEL/.test(fuente) && /LEVEL SEED/.test(fuente), "y la ficha del nivel enseña la semilla, en los dos idiomas");
+
+c.ok(/MP_REENVIA = \{[^}]*suelo:1, recoge:1\}/.test(fuente), "el anfitrión reenvía «suelo» y «recoge» (de un invitado a los demás)");
+const Solo = cargar(); Solo.resetRun("scout"); Solo.buildLevel("0", 3);
+Solo.G.inv = [{ id: "almond", qty: 1 }]; Solo.dropItem("almond", null, false);
+c.ok(Solo.G.drops.length === 1 && !Solo.MP.activo, "en solitario sigue funcionando igual");
+
+/* ── compañeros caídos, figuras 3D y lo que llevan en las manos (3.0.5) ──
+   Un compañero caído se veía como un sprite de pie aplastado a menos de la mitad
+   de alto, «aplastado y flotando»; y cambiar «Personajes» (pixel art / 3D) con la
+   sala abierta no se notaba en los compañeros. Se prueba con figuras de objetos
+   normales: el banco no tiene WebGL y sus mallas de mentira dicen que todo es 3D. */
+console.log("\n── COMPAÑEROS CAÍDOS Y EN 3D ──");
+const figura = rig => ({ userData: rig ? { rig: {} } : {}, scale: { x: 1, y: 1, z: 1 }, position: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0, order: "XYZ", set(x, y, z) { this.x = x; this.y = y; this.z = z; } } });
+const sprite = figura(false), muneco = figura(true);
+c.ok(A.actorY(sprite, false) === 0.71 && A.actorY(muneco, false) === 0.71, "de pie, el centro va a 0,71 m (media figura)");
+c.ok(A.actorY(sprite, true) < 0.1 && A.actorY(muneco, true) === 0.34, "caído, el sprite se pega al suelo (" + A.actorY(sprite, true) + " m) y el muñeco 3D se tumba solo (0,34)");
+A.actorDown(sprite, true);
+c.ok(sprite.scale.y === 1 && sprite.userData.tumbado === true, "un sprite caído ya no se aplasta: se marca como tumbado");
+A.billboard(sprite, { x: 0, y: 1, z: 5 });
+c.ok(Math.abs(sprite.rotation.x + Math.PI / 2) < 1e-9 && sprite.rotation.order === "YXZ" && Math.abs(sprite.rotation.y) < 1e-9,
+  "y billboard() lo echa boca arriba, con la cabeza hacia el lado contrario a la cámara");
+A.actorDown(sprite, false);
+A.billboard(sprite, { x: 3, y: 1, z: 0 });
+c.ok(sprite.rotation.x === 0 && Math.abs(sprite.rotation.y - Math.PI / 2) < 1e-9 && sprite.rotation.order === "XYZ", "al levantarse vuelve a mirar a la cámara, de pie");
+A.G.opts.figs = 0;
+c.ok(!A.figuraDesactualizada(sprite) && A.figuraDesactualizada(muneco), "con «pixel art», un muñeco 3D está desactualizado y un sprite no");
+A.G.opts.figs = 1;
+c.ok(A.figuraDesactualizada(sprite) && !A.figuraDesactualizada(muneco), "con «3D», al revés: por eso los compañeros se rehacen al cambiar el ajuste");
+A.G.opts.figs = 0;
+c.ok(/figuraDesactualizada\(o\.mesh\)\)\{ if\(o\.mesh\.parent\)/.test(fuente) && /set:\(v\)=>\{ G\.opts\.figs = v >= 1 \? 1 : 0; refrescarFiguras\(\); \}/.test(fuente),
+  "los compañeros se rehacen solos, y cambiar el ajuste lo aplica al momento");
+// lo que lleva en las manos
+A.G.weapons = { L: "pipe", R: null }; A.G.torchOn = false;
+A.G.opts.figs = 0; A.updateGhosts(0.2);
+c.ok(B.MP.otros[ids.get(A)].gl === "pipe" && !B.MP.otros[ids.get(A)].gr, "Bea recibe el arma que lleva Ana en la mano izquierda");
+A.G.weapons = { L: null, R: "bat" }; A.G.torchOn = true;
+A.updateGhosts(0.2);
+c.ok(B.MP.otros[ids.get(A)].gl === "torch" && B.MP.otros[ids.get(A)].gr === "bat", "y la linterna encendida en la otra (con la izquierda libre) y el bate en la derecha");
+A.G.weapons = { L: null, R: null }; A.G.torchOn = false;
+c.ok(/userData\.gearL = GEAR\[o\.gl\] \? o\.gl : null/.test(fuente) && A.GEAR.pipe && A.GEAR.torch, "en 3D se dibuja con lo que sea un objeto conocido (GEAR), y lo demás se ignora");
+
 /* ── la sala, la orientación del compañero y el latido (3.0.1) ── */
 console.log("\n── LA SALA (3.0.1) ──");
 // el compañero se ve desde TU cámara: si viene de cara, de frente

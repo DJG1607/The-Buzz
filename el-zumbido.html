@@ -30,7 +30,7 @@
   canvas#gl{display:block; width:100%; height:100%;}
 
   .fx{position:fixed; inset:0; pointer-events:none;}
-  #vignette{background:radial-gradient(ellipse 74% 64% at 50% 48%, rgba(0,0,0,0) 32%, rgba(0,0,0,.72) 80%, rgba(0,0,0,.96) 100%); mix-blend-mode:multiply;}
+  #vignette{background:radial-gradient(ellipse 74% 64% at 50% 48%, rgba(0,0,0,0) 32%, rgba(0,0,0,.72) 80%, rgba(0,0,0,.96) 100%);}
   #dread{background:radial-gradient(ellipse 58% 54% at 50% 50%, rgba(0,0,0,0) 26%, rgba(110,16,10,.6) 100%); opacity:0; transition:opacity .5s linear;}
   #bloodfx{background:radial-gradient(ellipse 70% 62% at 50% 50%, rgba(0,0,0,0) 40%, rgba(120,10,6,.5) 100%); opacity:0; transition:opacity .35s linear;}
   #grain{opacity:.16; mix-blend-mode:overlay;}
@@ -633,8 +633,8 @@
   .mb-x:hover{color:var(--blood2); border-color:var(--blood2);}
   .mb-empty{font-size:11px; color:var(--ink-faint);}
   label.btn{display:inline-block; cursor:pointer;}
-  #scan{opacity:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, rgba(0,0,0,0) 1px 3px); mix-blend-mode:multiply;}
-  body[data-fx="0"] #grain{display:none;}
+  #scan{opacity:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, rgba(0,0,0,0) 1px 3px);}
+  body[data-fx="0"] #grain, body[data-q="1"] #grain{display:none;}
   body[data-fx="0"] #vignette{opacity:.55;}
   body[data-fx="2"] #grain{opacity:.3;}
   body[data-fx="2"] #scan{opacity:1;}
@@ -1264,7 +1264,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "3.0.4";
+const VERSION = "3.0.5";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -5605,11 +5605,34 @@ function rigGear(m, r){
     r.gear[sd] = {id:want, mesh:o};
   });
 }
-// caído en el suelo (multijugador): la figura se tumba; el sprite se aplasta
+// Caído en el suelo (multijugador): la figura 3D se tumba con la postura «down»; el
+// sprite se echa boca arriba (billboard() lo pone plano). Antes se aplastaba a
+// menos de la mitad de alto y se quedaba de pie: se veía «aplastado y flotando».
 function actorDown(m, on){
   if(!m) return;
   if(isRig(m)){ m.userData.pose = on ? "down" : ""; m.scale.y = 1; rigAnimate(m); }
-  else m.scale.y = on ? 0.45 : 1;
+  else { m.userData.tumbado = !!on; m.scale.y = 1; }
+}
+// a qué altura va el centro de la figura: de pie, media figura; caída, la 3D casi a la
+// mitad (ya se tumba sola) y el sprite tumbado, pegado al suelo
+function actorY(m, caido){ return !caido ? 0.71 : (isRig(m) ? 0.34 : 0.045); }
+// la figura (3D o plana) ya no es la que pide el ajuste «Personajes»
+function figuraDesactualizada(m){ return !!m && isRig(m) !== voxOn(); }
+// cambiar «Personajes» se aplica al momento a ti y a tus compañeros (las entidades, al bajar)
+function refrescarFiguras(){
+  if(!G.cfg) return;
+  if(player.mesh && figuraDesactualizada(player.mesh)){
+    const viejo = player.mesh;
+    scene.remove(viejo);
+    if(viejo.material){ if(viejo.material.map) viejo.material.map.dispose(); viejo.material.dispose(); }
+    player.mesh = makeActor(skinAtlas(G.char.id, skinOf(G.char.id)), 0.94, 1.42);
+    scene.add(player.mesh);
+    if(G.downed) actorDown(player.mesh, true);
+  }
+  for(const k in MP.otros){
+    const o = MP.otros[k];
+    if(o.mesh && figuraDesactualizada(o.mesh)){ if(o.mesh.parent) o.mesh.parent.remove(o.mesh); o.mesh = null; }
+  }
 }
 function makeSprite(atlas, w, h){
   if(atlas.cw) w = h*atlas.cw/atlas.ch;           // píxeles cuadrados: el ancho sale del alto
@@ -5640,7 +5663,13 @@ function billboard(m, camPos){
     rigAnimate(m);
     return;
   }
-  m.rotation.y = Math.atan2(camPos.x - m.position.x, camPos.z - m.position.z);
+  const ang = Math.atan2(camPos.x - m.position.x, camPos.z - m.position.z);
+  if(m.userData && m.userData.tumbado){
+    // tumbado boca arriba, con la cabeza hacia el lado contrario a la cámara
+    m.rotation.order = "YXZ"; m.rotation.set(-Math.PI/2, ang, 0);
+  } else {
+    m.rotation.order = "XYZ"; m.rotation.set(0, ang, 0);
+  }
 }
 
 /* ═══════════════ SALIDAS: geometría por tipo ═══════════════ */
@@ -5823,7 +5852,7 @@ function buildExitMesh(kind, wx, wz, cfg){
   g.position.set(wx, 0, wz);
   const C = G.cell;
   let lightColor = 0xffffff, lightY = 1.2, pulse = [];
-  const dark  = new THREE.MeshStandardMaterial({color:0x1a1916, roughness:.9});
+  const dark  = stdMat({color:0x1a1916, roughness:.9});
   const trim  = furnMat("exTrim",  EXIT_PAINT.paint("#34302a","#6e6a62"), {roughness:.62, metalness:.3});
   const metal = furnMat("exSteel", EXIT_PAINT.steel(), {roughness:.38, metalness:.75});
   // depthWrite:false: una pieza semitransparente que escribe profundidad tapa al
@@ -5992,7 +6021,7 @@ function buildExitMesh(kind, wx, wz, cfg){
     const ring = new THREE.Mesh(new THREE.CylinderGeometry(C*0.32, C*0.34, 0.8, 18, 1, true), stoneMat);
     ring.position.y = 0.4; g.add(ring);
     const cap = new THREE.Mesh(new THREE.TorusGeometry(C*0.33,0.06,8,20),
-      new THREE.MeshStandardMaterial({color:0x5a5548, roughness:.9}));
+      stdMat({color:0x5a5548, roughness:.9}));
     cap.rotation.x = Math.PI/2; cap.position.y = 0.8; g.add(cap);
     const water = new THREE.Mesh(new THREE.CircleGeometry(C*0.30, 18), new THREE.MeshBasicMaterial({color:0x05070c}));
     water.rotation.x = -Math.PI/2; water.position.y = 0.12; g.add(water);
@@ -6003,7 +6032,7 @@ function buildExitMesh(kind, wx, wz, cfg){
     }
     const beam = new THREE.Mesh(new THREE.BoxGeometry(C*0.76,0.1,0.1), wood);
     beam.position.y = 1.3; g.add(beam);
-    const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.7,5), new THREE.MeshStandardMaterial({color:0x8a7a58, roughness:1}));
+    const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.7,5), stdMat({color:0x8a7a58, roughness:1}));
     rope.position.set(0,0.95,0); g.add(rope);
     const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.11,0.2,10), metal);
     bucket.position.set(0,0.5,0); g.add(bucket);
@@ -6042,7 +6071,7 @@ function furnMat(key, make, opts){
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = 4;
   t.encoding = THREE.sRGBEncoding;
-  const m = new THREE.MeshStandardMaterial(Object.assign({
+  const m = stdMat(Object.assign({
     map:t, bumpMap:t, bumpScale:0.02, roughness:0.72, metalness:0.25
   }, opts||{}));
   FURN[key] = m;
@@ -6614,7 +6643,7 @@ function userMusicDuck(){
    lo que tiene bulto tiene también su hitbox. */
 
 function decorate(kind, open, cfg, rand){
-  const M = (c,r,m)=> new THREE.MeshStandardMaterial({color:c, roughness:r===undefined?0.9:r, metalness:m||0});
+  const M = (c,r,m)=> stdMat({color:c, roughness:r===undefined?0.9:r, metalness:m||0});
   // colR: radio de colisión. Sin él, el objeto se atraviesa (cosas altas o planas).
   const add = (mesh, x, y, z, ry, colR)=>{
     mesh.position.set(x,y,z);
@@ -6841,7 +6870,7 @@ function decorate(kind, open, cfg, rand){
         const body = new THREE.Mesh(new THREE.BoxGeometry(0.5,1.1,0.42), machM);
         add(body, w.x - w.fx*0.18, 0.55, w.z - w.fz*0.18, w.rot, 0.38);
         const jug = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.46,12),
-          new THREE.MeshStandardMaterial({color:0xe8e2c6, roughness:.35, transparent:true, opacity:.75}));
+          stdMat({color:0xe8e2c6, roughness:.35, transparent:true, opacity:.75}));
         add(jug, body.position.x, 1.34, body.position.z);
         const tap = new THREE.Mesh(new THREE.BoxGeometry(0.06,0.1,0.1), M(0x8a8a84,.4,.6));
         add(tap, body.position.x + w.fx*0.22, 0.78, body.position.z + w.fz*0.22, w.rot);
@@ -6948,7 +6977,7 @@ function decorate(kind, open, cfg, rand){
   }
   else if(kind === "suburb" || kind === "city"){
     const bin = M(0x3a4a3e,.85), mail = M(0x5a5248,.8,.3);
-    const puddleM = new THREE.MeshStandardMaterial({
+    const puddleM = stdMat({
       color:0x0d1219, roughness:0.08, metalness:0.65, transparent:true, opacity:.9
     });
     const leafCols = [0x6a4a22,0x7a5a28,0x4a3a1c];
@@ -6964,7 +6993,7 @@ function decorate(kind, open, cfg, rand){
         const n = 3+((rand()*6)|0);
         for(let i=0;i<n;i++){
           const lf = new THREE.Mesh(new THREE.PlaneGeometry(0.16,0.1),
-            new THREE.MeshStandardMaterial({color:leafCols[(rand()*3)|0], roughness:1, side:THREE.DoubleSide}));
+            stdMat({color:leafCols[(rand()*3)|0], roughness:1, side:THREE.DoubleSide}));
           lf.rotation.x = -Math.PI/2;
           add(lf, c2w(x)+(rand()-0.5)*G.cell*0.8, 0.014, c2w(y)+(rand()-0.5)*G.cell*0.8, rand()*TAU);
         }
@@ -7100,7 +7129,7 @@ function decorate(kind, open, cfg, rand){
     });
   }
   else if(kind === "mall"){
-    const glass = new THREE.MeshStandardMaterial({color:0x8aa0a8, roughness:.15, metalness:.2, transparent:true, opacity:.35});
+    const glass = stdMat({color:0x8aa0a8, roughness:.15, metalness:.2, transparent:true, opacity:.35});
     const bench = M(0x4a463e,.9), pot = M(0x6a6258,.95), plant = M(0x38502f,.95);
     const signCols = [0xd85a3a,0x3a7ad8,0xd8b83a,0x4ad87a];
     open.forEach(([x,y])=>{
@@ -7292,7 +7321,7 @@ function inSpecial(){
 }
 
 function decorateSpecials(cfg, rand){
-  const M = (c,r,m)=> new THREE.MeshStandardMaterial({color:c, roughness:r===undefined?0.9:r, metalness:m||0});
+  const M = (c,r,m)=> stdMat({color:c, roughness:r===undefined?0.9:r, metalness:m||0});
   G.specials.forEach(sp=>{
     const k = sp.kind;
     const x0 = c2w(sp.cx), z0 = c2w(sp.cy), R = sp.r*G.cell;
@@ -7420,8 +7449,8 @@ function disposeGroup(grp){
 function surfaceMat(spec, rep){
   const canvasTex = MAT[spec[0]](spec[1]);
   const map = finishTex(canvasTex, rep);
-  const bump = finishTex(canvasTex, rep);
-  return new THREE.MeshStandardMaterial({
+  const bump = calidad().simple ? null : finishTex(canvasTex, rep);       // Lambert no tiene relieve
+  return stdMat({
     map, bumpMap:bump, bumpScale:0.055*bumpMul(), roughness:0.93, metalness:0.03
   });
 }
@@ -7464,12 +7493,15 @@ function initDust(){
     color:0xc4b9a2, size:0.035, transparent:true, opacity:0.4, depthWrite:false, fog:true
   }));
   scene.add(dustPoints);
+  const n = calidad().dust;
+  dustPoints.visible = n > 0; g.setDrawRange(0, n);
 }
 function updateDust(dt){
-  if(!dustPoints) return;
+  const n = calidad().dust;
+  if(!dustPoints || n <= 0) return;
   const a = dustPoints.geometry.attributes.position, arr = a.array;
   const px = player.pos.x, pz = player.pos.z;
-  for(let i=0;i<arr.length;i+=3){
+  for(let i=0;i<n*3;i+=3){
     arr[i+1] += dt*0.06;                         // flota hacia arriba, muy lento
     arr[i]   += Math.sin(G.t*0.4 + i)*dt*0.05;
     if(arr[i+1] > 3.2) arr[i+1] = 0.05;
@@ -7539,6 +7571,7 @@ function buildLevel(levelId, seed){
   flowField = null; flowCell = [-1,-1];
 
   scene.fog = new THREE.FogExp2(cfg.fogColor, cfg.fog / viewMul());
+  applyFar();
   renderer.setClearColor(cfg.fogColor, 1);
   ambient.color.setHex(cfg.amb); ambient.intensity = cfg.ambI;
   hemi.intensity = cfg.ceil ? 0.1 : 0.22;
@@ -7557,7 +7590,7 @@ function buildLevel(levelId, seed){
 
   const wallMat = surfaceMat(cfg.wall, 1);
   wallMat.map.repeat.set(G.cell/2.4, cfg.wallH/2.4);
-  wallMat.bumpMap.repeat.set(G.cell/2.4, cfg.wallH/2.4);
+  if(wallMat.bumpMap) wallMat.bumpMap.repeat.set(G.cell/2.4, cfg.wallH/2.4);
 
   let count = 0;
   for(let i=0;i<G.grid.length;i++) if(G.grid[i]===1) count++;
@@ -7600,7 +7633,7 @@ function buildLevel(levelId, seed){
   // ── lámparas ──
   if(cfg.lampStyle !== "none"){
     const lampMat = new THREE.MeshBasicMaterial({color:cfg.lampColor, side:THREE.DoubleSide, fog:false, transparent:true});
-    const fixtureMat = new THREE.MeshStandardMaterial({color:0x5a5a52, roughness:.7, metalness:.3});
+    const fixtureMat = stdMat({color:0x5a5a52, roughness:.7, metalness:.3});
     const dark = G.specials.filter(sp=> sp.kind === "blackout");
     open.forEach(([x,y])=>{
       if((x*3+y*7) % cfg.lampEvery !== 0) return;
@@ -7864,6 +7897,7 @@ function buildLevel(levelId, seed){
   resetStats();
   updateNearestExit();
   if(typeof mpAnunciarNivel === "function") mpAnunciarNivel();
+  if(typeof mpSueloPendiente === "function") mpSueloPendiente();
 
   $("lvlName").textContent = levelTitle(cfg);
   $("lvlDepth").textContent = modePrefix()+tx("DESCENSO ","DEPTH ")+(G.depth+1)+" · "+G.char.name.toUpperCase();
@@ -7878,10 +7912,10 @@ function buildOutpost(cell, cfg, rand){
   const g = new THREE.Group();
   g.position.set(wx, 0, wz);
 
-  const sack = new THREE.MeshStandardMaterial({color:0x6a6450, roughness:1});
-  const wood = new THREE.MeshStandardMaterial({color:0x5a4733, roughness:.95});
-  const steel = new THREE.MeshStandardMaterial({color:0x60686a, roughness:.55, metalness:.5});
-  const cloth = new THREE.MeshStandardMaterial({color:0x3f4a3a, roughness:1});
+  const sack = stdMat({color:0x6a6450, roughness:1});
+  const wood = stdMat({color:0x5a4733, roughness:.95});
+  const steel = stdMat({color:0x60686a, roughness:.55, metalness:.5});
+  const cloth = stdMat({color:0x3f4a3a, roughness:1});
 
   // sacos terreros
   for(let i=0;i<7;i++){
@@ -7918,7 +7952,7 @@ function buildOutpost(cell, cfg, rand){
   const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,2.0,5), steel);
   pole.position.set(-G.cell*0.32, 1.0, 0); g.add(pole);
   const flag = new THREE.Mesh(new THREE.PlaneGeometry(0.7,0.42),
-    new THREE.MeshStandardMaterial({color:0x4a6a3e, roughness:1, side:THREE.DoubleSide}));
+    stdMat({color:0x4a6a3e, roughness:1, side:THREE.DoubleSide}));
   flag.position.set(-G.cell*0.32+0.36, 1.72, 0); g.add(flag);
 
   world.add(g);
@@ -7927,7 +7961,7 @@ function buildOutpost(cell, cfg, rand){
   const deskG = new THREE.Group();
   deskG.position.set(wx + G.cell*0.22, 0, wz);
   const book = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.06,0.22),
-    new THREE.MeshStandardMaterial({color:0xcfc4a2, roughness:.9}));
+    stdMat({color:0xcfc4a2, roughness:.9}));
   book.position.set(0,0.78,0.18); deskG.add(book);
   const glow = new THREE.Mesh(new THREE.RingGeometry(0.5,0.62,18),
     new THREE.MeshBasicMaterial({color:0x8ee07a, transparent:true, opacity:.5, side:THREE.DoubleSide, fog:false}));
@@ -7956,7 +7990,7 @@ function makeTape(wx, wz){
   const g = new THREE.Group();
   g.position.set(wx, 0, wz);
   const body = new THREE.Mesh(new THREE.BoxGeometry(0.26,0.07,0.18),
-    new THREE.MeshStandardMaterial({color:0x3d4248, roughness:.7, metalness:.3}));
+    stdMat({color:0x3d4248, roughness:.7, metalness:.3}));
   body.position.y = 0.05; g.add(body);
   const win = new THREE.Mesh(new THREE.PlaneGeometry(0.14,0.08),
     new THREE.MeshBasicMaterial({color:0x1a1d22}));
@@ -8935,7 +8969,7 @@ function lightFlare(){
   const g = new THREE.Group();
   g.position.set(player.pos.x, 0, player.pos.z);
   const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.3,6),
-    new THREE.MeshStandardMaterial({color:0x8e3a2a, roughness:.9}));
+    stdMat({color:0x8e3a2a, roughness:.9}));
   stick.rotation.z = Math.PI/2; stick.position.y = 0.04; g.add(stick);
   const core = new THREE.Mesh(new THREE.SphereGeometry(0.11,10,8),
     new THREE.MeshBasicMaterial({color:0xfff0c0, fog:false}));
@@ -9291,7 +9325,7 @@ function useCamera(){
 function placeBeacon(){
   const g = new THREE.Group();
   g.position.set(player.pos.x, 0, player.pos.z);
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 0.9, 6), new THREE.MeshStandardMaterial({color:0x5a6268, roughness:.6, metalness:.4}));
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 0.9, 6), stdMat({color:0x5a6268, roughness:.6, metalness:.4}));
   pole.position.y = 0.45; g.add(pole);
   const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshBasicMaterial({color:0x7ce06a, fog:false}));
   bulb.position.y = 0.95; g.add(bulb);
@@ -10153,9 +10187,10 @@ function updateLights(dt){
       if(d<1000) near.push([d,l]);
     }
     near.sort((a,b)=>a[0]-b[0]);
+    const cupo = calidad().lamps;
     for(let i=0;i<LIGHT_POOL.length;i++){
       const L=LIGHT_POOL[i];
-      if(i<near.length){
+      if(i<near.length && i<cupo){
         const l=near[i][1];
         L.position.set(l.x, l.y, l.z);
         L.color.setHex(cfg.lampColor);
@@ -10175,7 +10210,7 @@ function updateLights(dt){
     const L=LIGHT_POOL[i], lamp=L.userData.lamp;
     if(lamp) L.intensity = lamp.dead ? 0 : cfg.lampI*lamp.on*out;
   }
-  ambient.intensity = cfg.ambI * (out ? 1 : 0.25);
+  ambient.intensity = cfg.ambI * (out ? 1 : 0.25) * calidad().amb;
   // salidas: laten, pero sobre su propia intensidad (baja). Antes este bucle les
   // subía la opacidad a 0,4-0,9 y la luz a 2, y por eso se veían desde lejos.
   const p = 0.55+Math.sin(G.t*2.4)*0.45;
@@ -10629,16 +10664,31 @@ function updateHud(dt){
 
 const gctx = $("grain").getContext("2d");
 let grainFrame = 0;
+// El grano se pintaba píxel a píxel en JavaScript (100.000 números al azar por
+// fotograma) y hasta con el filtro en «Limpio», donde ni se ve. Ahora es una
+// textura de ruido hecha una sola vez que se desplaza al azar, y no se pinta si
+// no se ve (filtro «Limpio» o calidad Baja).
+const GRANO = {pat:null, pintado:0};
+function granoActivo(){ return !!G.opts && G.opts.fx !== 0 && calidad().grain; }
 function updateGrain(){
+  if(!granoActivo()) return;
   if((grainFrame++ % 2)!==0) return;
   const w=$("grain").width, h=$("grain").height;
   if(w<2||h<2) return;
-  const img=gctx.createImageData(w,h), d=img.data;
-  for(let i=0;i<d.length;i+=4){
-    const v=100+Math.random()*100;
-    d[i]=d[i+1]=d[i+2]=v; d[i+3]=46;
+  if(!GRANO.pat){
+    const t = document.createElement("canvas"); t.width = t.height = 256;
+    const tc = t.getContext("2d"), img = tc.createImageData(256,256), d = img.data;
+    for(let i=0;i<d.length;i+=4){ const v=100+Math.random()*100; d[i]=d[i+1]=d[i+2]=v; d[i+3]=46; }
+    tc.putImageData(img,0,0);
+    GRANO.pat = gctx.createPattern(t, "repeat");
   }
-  gctx.putImageData(img,0,0);
+  gctx.setTransform(1,0,0,1,0,0);
+  gctx.clearRect(0,0,w,h);
+  gctx.setTransform(1,0,0,1, -((Math.random()*256)|0), -((Math.random()*256)|0));
+  gctx.fillStyle = GRANO.pat;
+  gctx.fillRect(0,0,w+256,h+256);
+  gctx.setTransform(1,0,0,1,0,0);
+  GRANO.pintado++;
 }
 
 /* ═══════════════ LOGROS ═══════════════
@@ -11132,12 +11182,18 @@ function dropItem(id, hand, destroy){
   }
   refreshSlots();
 }
-function spawnDrop(id, qty, x, z, wear){
+// Lo que se deja en el suelo lo ven todos los de la sala: cada objeto lleva un
+// identificador (uid) y se avisa al crearlo y al recogerlo. Un objeto que llega
+// de otro jugador trae su uid y no se vuelve a anunciar (si no, rebotaría).
+function spawnDrop(id, qty, x, z, wear, uid){
   const m = new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.42),
     new THREE.MeshBasicMaterial({map:iconTexture(ITEMS[id].icon), transparent:true, alphaTest:0.4, side:THREE.DoubleSide}));
   m.position.set(x, 0.3, z);
   world.add(m);
-  G.drops.push({id, qty, x, z, mesh:m, t:Math.random()*6, wear});
+  const d = {id, qty, x, z, mesh:m, t:Math.random()*6, wear, uid: uid || mpUidSuelo()};
+  G.drops.push(d);
+  if(!uid) mpAvisarSuelo(d);
+  return d;
 }
 function pickDrop(d){
   if(d.wear !== undefined && ITEMS[d.id].weapon && !hasItem(d.id)) G.wear[d.id] = d.wear;
@@ -11147,6 +11203,7 @@ function pickDrop(d){
   if(got) logLine(tx("Recoges: ","Picked up: ")+"<b>"+txf(ITEMS[d.id],"name")+"</b>"+(got>1?" ×"+got:"")+".");
   if(d.qty > 0) toast(tx("No te cabe más: ","No room for more: ")+txf(ITEMS[d.id],"name"));
   if(d.qty <= 0){ d.mesh.visible = false; G.drops.splice(G.drops.indexOf(d), 1); }
+  if(got) mpAvisarRecoger(d);
   refreshSlots();
 }
 function updateExitSpin(dt){
@@ -11242,7 +11299,7 @@ function closeBackpack(sinRaton){
 
 const OPTS_KEY = "zumbido.opts.v1";
 const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es",
-  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, voz:2, pad:1, padSens:1.0, padInvert:0, keys:{} };
+  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, voz:2, pad:1, padSens:1.0, padInvert:0, auto:1, keys:{} };
 
 function loadOpts(){
   G.opts = Object.assign({}, OPTS_DEF, {keys:{}});
@@ -11265,6 +11322,7 @@ function loadOpts(){
       if(typeof o.fx === "number") G.opts.fx = clamp(Math.round(o.fx), 0, 2);
       if(typeof o.shake === "number") G.opts.shake = clamp(o.shake, 0, 1);
       if(typeof o.fps === "number") G.opts.fps = o.fps ? 1 : 0;
+      if(typeof o.auto === "number") G.opts.auto = o.auto ? 1 : 0;
       if(typeof o.quickUse === "number") G.opts.quickUse = o.quickUse ? 1 : 0;
       if(typeof o.pad === "number") G.opts.pad = o.pad ? 1 : 0;
       if(typeof o.figs === "number") G.opts.figs = o.figs ? 1 : 0;
@@ -11303,18 +11361,72 @@ function applyBrightness(){
   renderer.toneMappingExposure = 0.96 * ((G.opts && G.opts.bright) || 1);
 }
 // calidad: resolución interna y relieve de texturas
-function qualityRatio(){
-  const q = (G.opts && G.opts.quality) || 3, dpr = window.devicePixelRatio || 1;
-  return [0.7, 1, Math.min(dpr, 1.6), Math.min(dpr, 2)][q-1];
+/* Cada nivel de calidad decide seis cosas, no sólo la resolución. Medido en una
+   gráfica integrada (Intel UHD, 1080p): la resolución era casi lo único que
+   cambiaba y el juego iba igual de justo en Baja que en Ultra, porque el coste
+   estaba en otro sitio:
+   · ratio: resolución interna (× devicePixelRatio en Alta y Ultra);
+   · lamps: luces de techo encendidas a la vez (cada una se paga en cada píxel);
+   · fog: hasta dónde se dibuja, como múltiplo de 1/densidad de la niebla — más
+     allá de ahí la niebla ya lo tapa entero, así que recortarlo no se ve
+     (Alta y Ultra pierden 0 píxeles visibles y ganan un 25-40 % de fotograma);
+   · dust: motas de polvo; · grain: el grano de cinta (JS + capa de mezcla);
+   · simple: materiales Lambert en vez de PBR (a casi la mitad de precio, y sin relieve);
+   · amb: un poco más de luz ambiente para compensar las lámparas que faltan. */
+const CALIDAD = [null,
+  {nombre:["Baja","Low"],   ratio:()=>0.6,                                              lamps:3, fog:2.0, dust:0,   grain:false, simple:true,  bump:0,   amb:1.25},
+  {nombre:["Media","Medium"], ratio:()=>1,                                             lamps:5, fog:2.6, dust:100, grain:true,  simple:true,  bump:0,   amb:1.10},
+  {nombre:["Alta","High"],  ratio:()=>Math.min(window.devicePixelRatio || 1, 1.6),     lamps:7, fog:3.0, dust:260, grain:true,  simple:false, bump:1,   amb:1},
+  {nombre:["Ultra","Ultra"], ratio:()=>Math.min(window.devicePixelRatio || 1, 2),      lamps:7, fog:3.6, dust:260, grain:true,  simple:false, bump:1.5, amb:1}
+];
+function calidadNivel(){ return clamp(Math.round((G.opts && G.opts.quality) || 3), 1, 4); }
+function calidad(){ return CALIDAD[calidadNivel()]; }
+function qualityRatio(){ return calidad().ratio(); }
+function bumpMul(){ return calidad().bump; }
+// hasta dónde se dibuja con una niebla de esa densidad y ese nivel de calidad
+function distanciaDibujo(densidad, nivel){
+  return clamp(CALIDAD[clamp(nivel, 1, 4)].fog / Math.max(0.0005, densidad || 0.04), 40, 240);
 }
-function bumpMul(){ const q = (G.opts && G.opts.quality) || 3; return q === 1 ? 0 : (q === 4 ? 1.5 : 1); }
+function applyFar(){
+  if(!scene.fog) return;
+  camera.far = distanciaDibujo(scene.fog.density, calidadNivel());
+  camera.updateProjectionMatrix();
+}
+// material «de superficie»: PBR o, en Baja y Media, Lambert (sin brillo ni relieve)
+const LAMBERT_PARAMS = ["color","map","emissive","emissiveIntensity","transparent","opacity","side","alphaTest","fog","vertexColors","depthWrite"];
+function paramsLambert(p){ const q = {}; LAMBERT_PARAMS.forEach(k=>{ if(p[k] !== undefined) q[k] = p[k]; }); return q; }
+function stdMat(p){ p = p || {}; return calidad().simple ? new THREE.MeshLambertMaterial(paramsLambert(p)) : new THREE.MeshStandardMaterial(p); }
+// Resolución dinámica: si va a menos de 40 fps baja poco a poco y, si sobra, vuelve a subir.
+// Nunca pasa de lo que has elegido en Calidad. Se puede apagar en Ajustes.
+const GOB = {mul:1, ok:0, avisado:false};
+function gobernar(fps){
+  if(!G.opts || G.opts.auto === 0) return false;
+  let cambio = false;
+  if(fps < 40 && GOB.mul > 0.6){ GOB.mul = Math.max(0.6, Math.round((GOB.mul - 0.12)*100)/100); GOB.ok = 0; cambio = true; }
+  else if(fps > 56){ if(++GOB.ok >= 4 && GOB.mul < 1){ GOB.mul = Math.min(1, Math.round((GOB.mul + 0.08)*100)/100); GOB.ok = 0; cambio = true; } }
+  else GOB.ok = 0;
+  if(cambio){
+    renderer.setPixelRatio(Math.max(0.4, qualityRatio()*GOB.mul));
+    if(GOB.mul < 1 && !GOB.avisado){
+      GOB.avisado = true;
+      toast(tx("Bajo un poco la resolución para que vaya más fluido. (Ajustes → Gráficos → Ajuste automático)","Lowering the resolution a little to keep it smooth. (Settings → Graphics → Auto adjust)"), 5);
+    }
+  }
+  return cambio;
+}
 function applyQuality(){
+  GOB.mul = 1; GOB.ok = 0;
   renderer.setPixelRatio(qualityRatio());
   lowFps = 0;
+  const P = calidad();
+  document.body.setAttribute("data-q", String(calidadNivel()));
+  LIGHT_POOL.forEach((L,i)=>{ L.visible = i < P.lamps; });          // una luz que no está no se paga en ningún píxel
+  applyFar();
+  if(dustPoints){ dustPoints.visible = P.dust > 0; dustPoints.geometry.setDrawRange(0, P.dust); }
   resize();
 }
 function viewMul(){ return (G.opts && G.opts.view) || 1; }
-function applyView(){ if(scene.fog && G.cfg) scene.fog.density = G.cfg.fog / viewMul(); }
+function applyView(){ if(scene.fog && G.cfg){ scene.fog.density = G.cfg.fog / viewMul(); applyFar(); } }
 function applyFx(){ document.body.setAttribute("data-fx", String((G.opts && G.opts.fx !== undefined) ? G.opts.fx : 1)); }
 function applyFps(){ const e = document.getElementById("fpsc"); if(e) e.hidden = !(G.opts && G.opts.fps); }
 function applyVolume(){
@@ -11400,7 +11512,7 @@ const OPT_ROWS = [
   {
     id:"figs", key:"figs", label:"Personajes", min:0, max:1, step:1, note:"",
     get:()=> G.opts.figs,
-    set:(v)=>{ G.opts.figs = v >= 1 ? 1 : 0; },
+    set:(v)=>{ G.opts.figs = v >= 1 ? 1 : 0; refrescarFiguras(); },
     fmt:(v)=> v >= 1 ? tx("muñecos 3D","3D figures") : tx("pixel art","pixel art")
   },
   {
@@ -11420,6 +11532,12 @@ const OPT_ROWS = [
     get:()=> G.opts.fps,
     set:(v)=>{ G.opts.fps = v >= 1 ? 1 : 0; applyFps(); },
     fmt:(v)=> v >= 1 ? tx("visible","shown") : tx("oculto","hidden")
+  },
+  {
+    id:"auto", key:"auto", label:"Ajuste automático", min:0, max:1, step:1, note:"",
+    get:()=> G.opts.auto === 0 ? 0 : 1,
+    set:(v)=>{ G.opts.auto = v >= 1 ? 1 : 0; GOB.mul = 1; GOB.ok = 0; renderer.setPixelRatio(qualityRatio()); },
+    fmt:(v)=> v >= 1 ? tx("activado","on") : tx("desactivado","off")
   },
   {
     id:"pad", key:"pad", label:"Jugar con mando", min:0, max:1, step:1, note:"",
@@ -11480,6 +11598,7 @@ const OPT_LABELS = {
   fx:     ["Filtro de pantalla","Screen filter"],
   shake:  ["Temblor de cámara","Camera shake"],
   fps:    ["Contador de FPS","FPS counter"],
+  auto:   ["Ajuste automático","Auto adjust"],
   quickUse:["Usar objetos","Using items"],
   figs:   ["Personajes","Characters"],
   pad:    ["Jugar con mando","Play with a controller"],
@@ -11509,8 +11628,8 @@ const OPT_NOTES = {
            "Proximity voice chat: you hear each teammate by how close they are, and not at all if they are on another level. Push to talk or always-open mic; the browser asks for permission the first time."],
   ambVol: ["El zumbido de los fluorescentes, el goteo, el viento y los chispazos.",
            "The fluorescent hum, the dripping, the wind and the sparks."],
-  quality:["Resolución interna y relieve de las texturas. Baja si el juego va a tirones; Ultra en pantallas de alta densidad. El relieve se nota al cambiar de nivel.",
-           "Internal resolution and texture relief. Lower it if the game stutters; Ultra for high-density screens. Relief kicks in on the next level."],
+  quality:["Cuánto le pide el juego a tu gráfica. Baja: resolución al 60 %, 3 luces, sin polvo ni grano y materiales sencillos. Media: 5 luces y materiales sencillos. Alta: todo. Ultra: más resolución y relieve más marcado. Los materiales se cambian al entrar al siguiente nivel; lo demás, al momento.",
+           "How much the game asks of your graphics card. Low: 60% resolution, 3 lights, no dust or grain and simple materials. Medium: 5 lights and simple materials. High: everything. Ultra: more resolution and stronger relief. Materials change on the next level; the rest applies at once."],
   view:   ["Cuánto se ve antes de que la niebla se lo coma. Más alto quita miedo y cuesta algo de rendimiento.",
            "How far you can see before the fog swallows it. Higher is less scary and costs some performance."],
   fx:     ["Limpio sin nada, grano de cinta como siempre, o VHS con líneas de barrido y color lavado.",
@@ -11519,10 +11638,12 @@ const OPT_NOTES = {
            "Lower this if the shaking when you take hits makes you dizzy."],
   fps:    ["Enseña los fotogramas por segundo en la esquina.",
            "Shows frames per second in the corner."],
+  auto:   ["Si el juego va a menos de 40 fotogramas por segundo, baja la resolución poco a poco hasta que vaya fluido, y la vuelve a subir si sobra. Nunca pasa de lo que elijas en Calidad.",
+           "If the game runs below 40 frames per second, it lowers the resolution bit by bit until it is smooth, and raises it again if there is room. It never goes above what you pick in Quality."],
   quickUse:["Con las teclas 1-4 o un clic en la mochila: gastar el objeto al momento, o sacarlo primero y confirmar con otra pulsación.",
            "With keys 1-4 or a click in the backpack: use the item straight away, or take it out first and confirm with another press."],
-  figs:   ["Personajes y entidades en pixel art (sprites con ciclo de andar y de correr) o como muñecos de cubitos en 3D. Se aplica al entrar al siguiente nivel.",
-           "Characters and entities as pixel art (sprites with walk and run cycles) or as 3D little-cube figures. Applies from the next level."],
+  figs:   ["Personajes y entidades en pixel art (sprites con ciclo de andar y de correr) o como muñecos de cubitos en 3D. Tú y tus compañeros cambiáis al momento; las entidades, al entrar al siguiente nivel.",
+           "Characters and entities as pixel art (sprites with walk and run cycles) or as 3D little-cube figures. You and your teammates switch at once; entities switch on the next level."],
   pad:    ["Cualquier mando que el navegador reconozca (Xbox, PlayStation, genéricos). Conéctalo y pulsa un botón.",
            "Any controller the browser recognises (Xbox, PlayStation, generic). Plug it in and press a button."],
   padSens:["Lo rápido que gira la cámara con el stick derecho.","How fast the right stick turns the camera."],
@@ -11542,7 +11663,7 @@ const OPT_TABS = [
 ];
 const OPT_TAB_OF = {figs:"gfx", lang:"game", diff:"game", qte:"game", fov:"ctrl", sens:"ctrl", quickUse:"ctrl", pad:"ctrl", padSens:"ctrl", padInvert:"ctrl",
   vol:"sound", musicSrc:"sound", musicVol:"sound", ambVol:"sound", voz:"sound",
-  bright:"gfx", quality:"gfx", view:"gfx", fx:"gfx", shake:"gfx", fps:"gfx"};
+  bright:"gfx", quality:"gfx", view:"gfx", fx:"gfx", shake:"gfx", fps:"gfx", auto:"gfx"};
 let optTab = 0;
 function optFit(){
   const vp = $("optViewport"), page = $("optRows").children[optTab];
@@ -11679,7 +11800,7 @@ function resetOpts(){
   G.opts.bright = OPTS_DEF.bright;
   G.opts.qte = OPTS_DEF.qte;
   G.opts.diff = OPTS_DEF.diff;
-  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","quickUse","figs","voz","pad","padSens","padInvert"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
+  ["musicVol","ambVol","musicSrc","quality","view","fx","shake","fps","auto","quickUse","figs","voz","pad","padSens","padInvert"].forEach(k=> G.opts[k] = OPTS_DEF[k]);
   G.opts.keys = {}; renderKeyBox();
   applyVolume();
   applyBrightness();
@@ -12268,10 +12389,10 @@ function megPlaceObj(tipo){
   if(tipo === "fetch"){
     const g = new THREE.Group();
     g.position.set(x, 0, z);
-    const cuero = new THREE.MeshStandardMaterial({color:0x5a3a22, roughness:.7});
+    const cuero = stdMat({color:0x5a3a22, roughness:.7});
     const caja = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.34, 0.14), cuero);
     caja.position.y = 0.17; g.add(caja);
-    const asa = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, 0.04), new THREE.MeshStandardMaterial({color:0x2a2a2a}));
+    const asa = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, 0.04), stdMat({color:0x2a2a2a}));
     asa.position.y = 0.37; g.add(asa);
     const aro = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.52, 18),
       new THREE.MeshBasicMaterial({color:0x7ce06a, transparent:true, opacity:.5, side:THREE.DoubleSide, fog:false}));
@@ -12317,16 +12438,16 @@ function buildMegBoard(wx, wz){
   const x = wx + G.cell*0.08, z = wz + G.cell*0.34;
   const g = new THREE.Group();
   g.position.set(x, 0, z);
-  const madera = new THREE.MeshStandardMaterial({color:0x5a4733, roughness:.95});
+  const madera = stdMat({color:0x5a4733, roughness:.95});
   for(const s of [-1, 1]){
     const pata = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.7, 0.06), madera);
     pata.position.set(s*0.62, 0.85, 0); g.add(pata);
   }
-  const corcho = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.9, 0.05), new THREE.MeshStandardMaterial({color:0x9a7a4a, roughness:1}));
+  const corcho = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.9, 0.05), stdMat({color:0x9a7a4a, roughness:1}));
   corcho.position.y = 1.25; g.add(corcho);
-  const papel = new THREE.MeshStandardMaterial({color:0xe8e0c8, roughness:1});
+  const papel = stdMat({color:0xe8e0c8, roughness:1});
   [[-0.38,1.4],[0.02,1.34],[0.36,1.44],[-0.2,1.08],[0.3,1.1]].forEach(([px,py],i)=>{
-    const p = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.3), i === 2 ? new THREE.MeshStandardMaterial({color:0xd86a4a, roughness:1}) : papel);
+    const p = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.3), i === 2 ? stdMat({color:0xd86a4a, roughness:1}) : papel);
     p.position.set(px, py, -0.03); p.rotation.y = Math.PI; p.rotation.z = (i%2 ? 0.08 : -0.06); g.add(p);
   });
   const aro = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.66, 18),
@@ -12535,9 +12656,53 @@ const MP = {
 };
 // Qué reenvía el anfitrión: la red es una estrella (cada invitado sólo está
 // conectado al anfitrión), así que sin esto los invitados no se veían entre sí.
-const MP_REENVIA = {hola:1, pos:1, chat:1, caido:1, muerto:1, revivir:1, gesto:1, voz:1};
+const MP_REENVIA = {hola:1, pos:1, chat:1, caido:1, muerto:1, revivir:1, gesto:1, voz:1, suelo:1, recoge:1};
 function mpEsc(t){ return String(t).replace(/[&<>"]/g, c=> ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function mpYo(){ return MP.peer && MP.peer.id; }
+
+/* ── objetos en el suelo compartidos ──
+   El nivel es el mismo para todos pero cada uno tiene su copia; lo que se suelta
+   iba sólo a la copia de quien lo soltaba. Ahora se manda «suelo» al soltar y
+   «recoge» (con lo que queda) al recoger. Si llega un objeto de un nivel en el
+   que todavía no estás (el anfitrión ya ha bajado y tu copia aún se está
+   construyendo), se guarda y sale cuando entres en él. */
+function mpNivelKey(){ return G.levelId+"@"+G.levelSeed; }
+function mpUidSuelo(){ MP.sueloN = (MP.sueloN || 0) + 1; return (mpYo() || "solo")+"#"+MP.sueloN; }
+function mpMsgSuelo(d){
+  return {t:"suelo", uid:d.uid, id:d.id, qty:d.qty, x:+d.x.toFixed(2), z:+d.z.toFixed(2), w:d.wear, lv:mpNivelKey()};
+}
+function mpAvisarSuelo(d){ if(MP.activo) mpEnviar(mpMsgSuelo(d)); }
+function mpAvisarRecoger(d){ if(MP.activo) mpEnviar({t:"recoge", uid:d.uid, resto:Math.max(0, d.qty)}); }
+function mpPonerSuelo(m, from){
+  if(!m.uid || !ITEMS[m.id] || G.drops.some(x=> x.uid === m.uid)) return;
+  const qty = clamp(m.qty|0, 1, 99);
+  const x = +m.x, z = +m.z;
+  if(!isFinite(x) || !isFinite(z)) return;
+  if(m.lv !== mpNivelKey()){                       // de un nivel en el que aún no estoy
+    MP.sueloPend = (MP.sueloPend || []).filter(p=> p.uid !== m.uid).concat([m]).slice(-60);
+    return;
+  }
+  spawnDrop(m.id, qty, x, z, typeof m.w === "number" ? m.w : undefined, m.uid);
+  const o = MP.otros[from];
+  addChat("", (o && o.nombre || "?")+tx(" deja en el suelo: "," drops: ")+txf(ITEMS[m.id],"name")+(qty>1 ? " ×"+qty : ""), false, true);
+}
+function mpQuitarSuelo(m, from){
+  MP.sueloPend = (MP.sueloPend || []).filter(p=> p.uid !== m.uid);
+  const d = G.drops.find(x=> x.uid === m.uid);
+  if(!d) return;
+  d.qty = m.resto|0;
+  if(d.qty <= 0){ d.mesh.visible = false; G.drops.splice(G.drops.indexOf(d), 1); }
+  const o = MP.otros[from];
+  addChat("", (o && o.nombre || "?")+tx(" recoge: "," picks up: ")+txf(ITEMS[d.id],"name"), false, true);
+}
+// al entrar en un nivel salen los objetos que llegaron mientras se construía
+function mpSueloPendiente(){
+  if(!MP.sueloPend || !MP.sueloPend.length) return;
+  const k = mpNivelKey();
+  const ahora = MP.sueloPend.filter(m=> m.lv === k);
+  MP.sueloPend = MP.sueloPend.filter(m=> m.lv !== k && m.lv !== undefined).slice(-60);
+  ahora.forEach(m=> mpPonerSuelo(m, null));
+}
 
 function mpSlug(t){
   return String(t||"").toLowerCase().trim()
@@ -12674,7 +12839,7 @@ function goDown(why){
   G.entities.forEach(e=>{ e.state = "wander"; e.alert = 0; e.hunt = 0; if(e.spWind > 0) cancelSpecial(e); });
   Audio_.scream();
   $("downed").hidden = false;
-  if(player.mesh){ player.mesh.position.y = 0.34; actorDown(player.mesh, true); }
+  if(player.mesh){ player.mesh.position.y = actorY(player.mesh, true); actorDown(player.mesh, true); setFrame(player.mesh, 0, 0); }
   mpEnviar({t:"caido", on:1});
   addChat("", MP.nombre+tx(" ha caído."," is down."), true, true);
 }
@@ -12928,6 +13093,8 @@ function mpRecibir(c, m){
   }
   if(from === mpYo()) return;                     // un eco de uno mismo no es otro jugador
   if(m.t === "sala" && !MP.anfitrion){ MP.modo = m.modo === "random" ? "random" : "normal"; mpPintarModo(); return; }
+  if(m.t === "suelo"){ mpPonerSuelo(m, from); return; }
+  if(m.t === "recoge"){ mpQuitarSuelo(m, from); return; }
   if(m.t === "chat"){ addChat(String(m.n||"?").slice(0,14), String(m.txt||"").slice(0,120), false); return; }
   if(m.t === "gesto"){
     const o = MP.otros[from], g = GESTO_BY[m.g];
@@ -12965,6 +13132,8 @@ function mpRecibir(c, m){
     // el anfitrión contesta diciendo en qué nivel está la expedición
     if(MP.anfitrion && G.cfg && !m.from){
       try { c.send({t:"nivel", id:G.levelId, seed:G.levelSeed, modo:MP.modo}); } catch(e){}
+      // y lo que ya hay en el suelo, para el que llega más tarde
+      if(nuevo) (G.drops || []).forEach(d=>{ try{ c.send(mpMsgSuelo(d)); }catch(e){} });
     }
     return;
   }
@@ -12981,6 +13150,7 @@ function mpRecibir(c, m){
     o.id = from;
     o.x = m.x; o.z = m.z; o.yaw = m.yaw; o.frame = m.f|0; o.row = m.r|0; o.visto = 0;
     o.hp = m.hp; o.lv = m.lv; o.muerto = false;
+    o.gl = m.gl; o.gr = m.gr;
     if((m.dn ? 1 : 0) !== (o.dn ? 1 : 0)) o.dn = m.dn ? 1 : 0;
     if(m.n) o.nombre = String(m.n).slice(0,14);
     if(m.ch && m.ch !== o.ch){ o.ch = m.ch; o.cambio = true; }
@@ -13007,7 +13177,8 @@ function updateGhosts(dt){
       t:"pos", x:+player.pos.x.toFixed(2), z:+player.pos.z.toFixed(2),
       yaw:+player.facing.toFixed(2), f:(player.animFrame|0), r:(player.animRow|0),
       n:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base",
-      hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed
+      hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed,
+      gl:G.weapons.L || (G.torchOn ? "torch" : null), gr:G.weapons.R || null
     });
     MP.rosterT = (MP.rosterT||0) - MP_RITMO;
     if(MP.rosterT <= 0){ MP.rosterT = 0.5; mpRoster(); }
@@ -13024,7 +13195,7 @@ function updateGhosts(dt){
     }
     if(o.x === undefined) continue;
     // al cambiar de nivel se tira el mundo entero: hay que volver a crear el sprite
-    if(o.mesh && (o.mesh.parent !== world || o.cambio)){ if(o.mesh.parent) o.mesh.parent.remove(o.mesh); o.mesh = null; }
+    if(o.mesh && (o.mesh.parent !== world || o.cambio || figuraDesactualizada(o.mesh))){ if(o.mesh.parent) o.mesh.parent.remove(o.mesh); o.mesh = null; }
     if(o.tag && o.tag.parent !== world){ o.tag = null; }
     o.cambio = false;
     const aqui = !o.muerto && (!o.lv || o.lv === G.levelId+"@"+G.levelSeed);
@@ -13043,8 +13214,12 @@ function updateGhosts(dt){
     o.mesh.visible = aqui; o.tag.visible = aqui;
     o.vx = lerp(o.vx, o.x, 1-Math.pow(0.002, dt));
     o.vz = lerp(o.vz, o.z, 1-Math.pow(0.002, dt));
-    o.mesh.position.set(o.vx, o.dn ? 0.34 : 0.71, o.vz);
+    o.mesh.position.set(o.vx, actorY(o.mesh, !!o.dn), o.vz);
     actorDown(o.mesh, !!o.dn);
+    if(isRig(o.mesh)){                        // lo que lleva en las manos (arma o linterna)
+      o.mesh.userData.gearL = GEAR[o.gl] ? o.gl : null;
+      o.mesh.userData.gearR = GEAR[o.gr] ? o.gr : null;
+    }
     if(o.gesto && o.gesto.t > 0){ o.gesto.t -= dt; if(!o.dn && isRig(o.mesh)) o.mesh.userData.pose = o.gesto.pose; }
     vozCompanero(o, aqui);
     // La fila del sprite (frente, perfil, espalda) sale de hacia dónde mira él
@@ -13053,12 +13228,12 @@ function updateGhosts(dt){
     const camYaw = Math.atan2(o.vx - camera.position.x, o.vz - camera.position.z);
     const rel = wrapA((o.yaw || 0) - camYaw), a2 = Math.abs(rel);
     const fila = a2 < Math.PI/4 ? 2 : (a2 > Math.PI*0.75 ? 0 : 1);
-    setFrame(o.mesh, o.frame % 8, fila);
-    if(!isRig(o.mesh)) o.mesh.scale.x = (fila === 1 && rel < 0) ? -1 : 1;
+    setFrame(o.mesh, o.dn ? 0 : o.frame % 8, o.dn ? 0 : fila);       // caído: boca arriba, de frente y quieto
+    if(!isRig(o.mesh)) o.mesh.scale.x = (!o.dn && fila === 1 && rel < 0) ? -1 : 1;
     o.fila = fila;
     o.mesh.userData.yaw = o.yaw;
     billboard(o.mesh, camera.position);
-    o.tag.position.set(o.vx, o.dn ? 0.95 : 1.62, o.vz);
+    o.tag.position.set(o.vx, o.dn ? (isRig(o.mesh) ? 0.95 : 0.6) : 1.62, o.vz);
     billboard(o.tag, camera.position);
   }
 }
@@ -13332,6 +13507,9 @@ function mpSalir(){
 
 function startRun(charId){
   Audio_.init(); Audio_.resume();
+  // el invitado ya recibió el nivel del anfitrión: resetRun() lo pisaba con una semilla
+  // suya y hasta el primer «hola» construía (y enseñaba en la ficha) otro laberinto
+  const heredado = (MP.activo && !MP.anfitrion) ? {id:G.levelId, seed:G.levelSeed} : null;
   resetRun(charId);
   if(MP.activo) addItem("medkit", 1);          // con amigos, cada uno baja con un botiquín
   if(wantMeg && !MP.activo){
@@ -13347,6 +13525,7 @@ function startRun(charId){
     const cajon = TIERS.comun.concat(TIERS.bueno);
     for(let i=0;i<2;i++) addItem(cajon[(Math.random()*cajon.length)|0], 1);
   }
+  if(heredado){ G.levelId = heredado.id; G.levelSeed = heredado.seed; }       // el nivel manda el anfitrión
   buildLevel(G.levelId, G.levelSeed);
   refreshSlots();
   computeReveal(true);
@@ -13374,7 +13553,9 @@ function renderBrief(){
     '<p class="body"><em>'+txf(cfg,"tip")+'</em></p>';
   $("brSpecs").innerHTML = specsHtml(cfg);
   $("brRun").innerHTML =
-    tx("Llevas <b>","You carry <b>")+Math.round(G.sanity)+tx("%</b> de cordura y <b>","%</b> sanity and <b>")+Math.round(bodyAvg())+tx("%</b> de cuerpo. Encima: ","%</b> body. On you: ")+invSummary()+".";
+    tx("Llevas <b>","You carry <b>")+Math.round(G.sanity)+tx("%</b> de cordura y <b>","%</b> sanity and <b>")+Math.round(bodyAvg())+tx("%</b> de cuerpo. Encima: ","%</b> body. On you: ")+invSummary()+"."+
+    // la semilla decide el laberinto: con amigos tiene que ser la misma para todos, y cambiar en cada partida nueva
+    '<div style="margin-top:8px;font-size:10.5px;letter-spacing:.06em;color:#5c5849">'+tx("SEMILLA DEL NIVEL ","LEVEL SEED ")+G.levelSeed+(MP.activo && !MP.anfitrion ? tx(" · la fija el anfitrión"," · set by the host") : "")+'</div>';
   $("brBtn").textContent = G.depth===0 ? tx("Entrar","Enter") : tx("Bajar al nivel","Go down");
   show("briefScreen");
 }
@@ -13670,7 +13851,7 @@ function frame(){
     fpsAcc += dt; frames++;
     if(fpsAcc > 2){
       const fps = frames/fpsAcc;
-      if(fps < 32 && lowFps === 0){ lowFps = 1; renderer.setPixelRatio(Math.min(1, qualityRatio())); }
+      gobernar(fps);
       if(G.opts.fps) $("fpsc").textContent = Math.round(fps)+" FPS";
       fpsAcc = 0; frames = 0;
     }
@@ -13692,7 +13873,7 @@ buildIcons();
 loadMeta();
 loadOpts();
 applyBrightness();
-renderer.setPixelRatio(qualityRatio());
+applyQuality();                     // resolución, luces, polvo y el atributo data-q de la calidad elegida
 applyFx(); applyFps();
 loadUserTracks();
 $("mbFile").addEventListener("change", ev=>{ addUserTracks(ev.target.files); ev.target.value = ""; });

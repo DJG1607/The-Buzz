@@ -207,6 +207,57 @@ c.ok(ratios[0] < ratios[1] && ratios[1] <= ratios[2] && ratios[2] <= ratios[3], 
 G.opts.quality = 1; const sinRelieve = bumpMul(); G.opts.quality = 3;
 c.ok(sinRelieve === 0 && bumpMul() === 1, "calidad baja quita el relieve de las texturas");
 
+/* ── calidad gráfica (3.0.5) ──
+   Medido en una gráfica integrada a 1080p, «Baja» y «Ultra» iban casi igual de
+   justos porque sólo cambiaba la resolución. Ahora cada nivel decide también las
+   luces, la distancia de dibujado, el polvo, el grano y el tipo de material. */
+console.log("\n── CALIDAD GRÁFICA ──");
+const { CALIDAD, calidad, distanciaDibujo, paramsLambert, gobernar, GOB, granoActivo, LIGHT_POOL } = j;
+const P = CALIDAD.slice(1);
+const sube = k => P.every((p, i) => i === 0 || p[k] >= P[i - 1][k]);
+c.ok(P.length === 4 && sube("lamps") && sube("dust") && sube("fog") && sube("bump") && [0.6, 1, 1, 1].every((r, i) => Math.abs(P[i].ratio() - r) < 1e-9),
+  "cada nivel de calidad pide más que el anterior: luces " + P.map(p => p.lamps).join("/") + ", polvo " + P.map(p => p.dust).join("/"));
+c.ok(P[0].simple && P[1].simple && !P[2].simple && !P[3].simple && !P[0].grain && P[1].grain, "Baja y Media usan materiales sencillos; Baja además quita el grano");
+c.ok(P.every(p => p.lamps <= LIGHT_POOL.length), "ninguna calidad pide más luces de las que hay (" + LIGHT_POOL.length + ")");
+// el recorte de distancia no puede notarse: lo que queda fuera tiene que estar ya tapado por la niebla
+const tope = [0.03, 0.005, 0.0005, 0.00005];        // lo que puede verse del fondo, por calidad
+let fueraDeRango = 0, sePasa = 0, sePasaDe = "", masLejosEnBaja = 0;
+for (const l of CAT) {
+  const dens = j.instantiate(l.id, 3).fog;
+  for (let q = 1; q <= 4; q++) {
+    const far = distanciaDibujo(dens, q);
+    if (far < 40 || far > 240) fueraDeRango++;
+    if (far < 240 && far > 40 && Math.exp(-Math.pow(far * dens, 2)) > tope[q - 1]) { sePasa++; sePasaDe = l.id + " q" + q; }
+    if (q > 1 && distanciaDibujo(dens, q - 1) > far + 1e-9) masLejosEnBaja++;
+  }
+}
+c.ok(fueraDeRango === 0 && masLejosEnBaja === 0, "la distancia de dibujado va de 40 a 240 m y nunca es mayor en una calidad más baja (" + CAT.length + " niveles)");
+c.ok(sePasa === 0, "en los " + CAT.length + " niveles, lo que se deja de dibujar ya lo tapa la niebla (≤ 3 % en Baja, ≤ 0,005 % en Ultra)" + (sePasa ? ": falla " + sePasaDe : ""));
+const pl = paramsLambert({ color: 1, map: {}, roughness: 0.5, metalness: 0.3, bumpMap: {}, bumpScale: 1, opacity: 0.5, transparent: true, side: 2 });
+c.ok(Object.keys(pl).sort().join() === "color,map,opacity,side,transparent", "el material sencillo se queda con el color, la textura y la transparencia, y suelta lo del PBR (" + Object.keys(pl).join(", ") + ")");
+G.opts.fx = 1; G.opts.quality = 3;
+const grano = [[0, 3], [1, 1], [1, 3], [2, 2], [2, 1]].map(([fx, q]) => { G.opts.fx = fx; G.opts.quality = q; return granoActivo(); });
+G.opts.fx = 1; G.opts.quality = 3;
+c.ok(grano.join() === "false,false,true,true,false", "el grano sólo se pinta si se ve: no con «Limpio», ni con calidad Baja");
+// resolución dinámica
+G.opts.auto = 1; GOB.mul = 1; GOB.ok = 0;
+c.ok(gobernar(30) === true && GOB.mul === 0.88, "a 30 fps baja la resolución un paso (×0,88)");
+for (let i = 0; i < 6; i++) gobernar(25);
+c.ok(GOB.mul === 0.6 && gobernar(20) === false, "sigue bajando pero nunca por debajo de ×0,6");
+const antes60 = GOB.mul;
+c.ok(gobernar(48) === false && gobernar(60) === false && gobernar(60) === false && gobernar(60) === false && GOB.mul === antes60, "con 48 fps se queda como está, y a 60 espera cuatro tandas antes de subir");
+c.ok(gobernar(60) === true && GOB.mul === 0.68, "…y a la cuarta sube un paso (×0,68)");
+G.opts.auto = 0; GOB.mul = 1;
+c.ok(gobernar(10) === false && GOB.mul === 1, "con el ajuste automático apagado no toca nada");
+G.opts.auto = 1; GOB.mul = 1; GOB.ok = 0;
+const fuenteM = require("fs").readFileSync(require("path").join(__dirname, "..", "el-zumbido.html"), "utf8");
+c.ok(!/#vignette\{[^}]*mix-blend-mode/.test(fuenteM) && !/#scan\{[^}]*mix-blend-mode/.test(fuenteM) && /body\[data-q="1"\] #grain/.test(fuenteM),
+  "la viñeta y las líneas de barrido ya no usan «multiplicar» (negro con transparencia es lo mismo y cuesta menos) y el grano se oculta en Baja");
+c.ok((fuenteM.match(/new THREE\.MeshStandardMaterial\(/g) || []).length === 1 && (fuenteM.match(/\bstdMat\(/g) || []).length >= 25, "todos los materiales de superficie pasan por stdMat(), que elige el tipo según la calidad");
+c.ok(/applyBrightness\(\);\s*applyQuality\(\);/.test(fuenteM), "la calidad elegida se aplica ya al arrancar (antes sólo al tocar el ajuste)");
+c.ok(/if\(!granoActivo\(\)\) return;/.test(fuenteM) && !/createImageData\(w,h\)/.test(fuenteM), "el grano no se pinta píxel a píxel en JavaScript ni cuando no se ve");
+c.ok(j.OPT_ROWS.some(r => r.id === "auto") && j.OPT_TAB_OF.auto === "gfx", "el ajuste automático está en la pestaña de Gráficos");
+
 /* ── 9. modo aleatorio ── */
 console.log("\n── MODO ALEATORIO ──");
 const { instantiate, levelTitle } = j;

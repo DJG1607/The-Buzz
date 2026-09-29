@@ -513,6 +513,47 @@ cerrado la sala». El latido y los diez minutos cuentan con el reloj (`Date.now(
 «un tic = un segundo»: los navegadores frenan los temporizadores de las pestañas en segundo plano.
 `pruebas/multijugador.js` lo cubre con un `Peer` de mentira.
 
+**«Bajar los gráficos» casi no bajaba nada (3.0.5).** Medido en una gráfica integrada (Intel UHD,
+1080p, mismo nivel y semilla), el fotograma iba igual en Media, Alta y Ultra (25 ms) y sólo Baja
+ganaba, y sólo por la resolución. Lo caro estaba en otro sitio, así que `CALIDAD[]` (una tabla, un
+perfil por nivel) decide ahora seis cosas: resolución, **luces** (cada una se paga en cada píxel),
+**distancia de dibujado** (`distanciaDibujo()`: la niebla ya lo tapa todo más allá de `k/densidad`,
+así que recortar ahí no se ve y ahorra el 25-40 % del fotograma también en Alta), polvo, grano y
+**material** (`stdMat()`: Lambert en Baja y Media, casi la mitad de precio que el PBR y muy parecido).
+Resultado, ms por fotograma antes → ahora: Baja 14,1 → 1,0 · Media 25,4 → 3,6 · Alta 25,2 → 16,4 ·
+Ultra 25,1 → 20,0. Además el grano de cinta se pintaba píxel a píxel en JS (100.000 números al azar
+por fotograma) **incluso con el filtro en «Limpio»**: ahora es una textura de ruido que se desplaza
+y no se pinta si no se ve; y `#vignette`/`#scan` dejan de usar `mix-blend-mode:multiply` (negro
+con transparencia es lo mismo y cuesta menos). La resolución dinámica (`gobernar()`, ajuste
+«Ajuste automático») baja hasta ×0,6 si va a menos de 40 fps y vuelve a subir, sin pasar de lo
+elegido. Reglas: todo material nuevo va por `stdMat()` (y `.bumpMap` puede ser `null`); todo coste
+visual nuevo se cuelga de un campo de `CALIDAD`. **Cómo medir esto:** copia de depuración con
+`window.__dbg`, `innerWidth/innerHeight` forzados (con el panel oculto valen 0 y el lienzo mide
+0×0: sólo mides la CPU), `gl.finish()` tras cada `render`, 40 fotogramas de calentamiento (cambiar
+el número de luces recompila todos los shaders) y la versión anterior con `git show` a la misma
+escala de pantalla (el `devicePixelRatio` del panel cambia entre 1 y 1,25 si está oculto).
+
+**Un compañero caído se veía «aplastado y flotando» (3.0.5).** El sprite caído se escalaba a 0,45 de
+alto y se quedaba de pie. Ahora `actorDown()` lo marca como tumbado y `billboard()` lo echa boca
+arriba (`rotation.order = "YXZ"`, −90° en X y el giro en Y). Cambiar «Personajes» (pixel art / 3D)
+con la sala abierta tampoco se notaba en los compañeros: `figuraDesactualizada()` los rehace y
+`refrescarFiguras()` lo aplica al momento. Cada uno manda además lo que lleva en las manos (`gl`,
+`gr`) y las figuras 3D lo dibujan. **En el banco las mallas de mentira dicen que todo es 3D
+(`isRig()` siempre true) y no guardan `userData`:** estas piezas se prueban con objetos normales.
+
+**Lo que pasa «sólo en tu copia» no lo ve nadie más (3.0.5).** Cada jugador construye su propia
+copia del nivel (misma semilla, enemigos y casilleros propios), así que todo lo que cambie el
+mundo tiene que mandarse a mano. Los objetos soltados no se mandaban: los compañeros no los
+veían. Ahora `spawnDrop()` los anuncia (`suelo`) y `pickDrop()` avisa de lo que queda
+(`recoge`), con un identificador único (`uid`) para no duplicar ni rebotar; el anfitrión los
+reenvía (`MP_REENVIA`), se los manda al que entra después (en el «hola») y guarda los de un nivel
+al que aún no has llegado (`MP.sueloPend`, se vacía en `buildLevel()`). Los casilleros y los
+enemigos siguen siendo de cada uno a propósito. El nivel de una partida con amigos lo fija el
+anfitrión: `startRun()` conserva la semilla que el invitado ya recibió (`heredado`; antes
+`resetRun()` se la pisaba con una propia y la ficha del nivel enseñaba otro laberinto hasta el
+primer «hola»). La ficha del nivel enseña la semilla para poder comprobarlo a ojo. Si añades algo que deje cosas en el mundo,
+decide si es de todos y mándalo igual.
+
 **PeerJS ya no trae TURN que funcionen: entre redes distintas hay que dárselos (3.0.4).**
 Sus servidores de relevo gratuitos (`eu-0.turn.peerjs.com`, `us-0.turn.peerjs.com`) ya no existen
 en el DNS, así que con la configuración por defecto sólo quedaba un STUN, y dos dispositivos en
