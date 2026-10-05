@@ -25,6 +25,8 @@ const PRUEBAS = [
   ["inventario", "fauna con techo, especiales sin encadenar, inventario por huecos, soltar/desechar, uso rápido, ajustes"],
   ["multijugador", "multijugador (tres copias conectadas), botiquín y reanimar, aspectos, teclas a gusto, mando, gestos y voz"],
   ["figuras", "ropa de cada personaje y aspecto, figuras de 8 bits en 3D (vóxeles)"],
+  ["ropa", "ropa y protecciones (4.0): desgaste, ponerse/quitarse, guardado, aspecto, animaciones, versión"],
+  ["salagrande", "sala grande (4.0): aforo de 4 y 10, reenvío adelgazado, mensajes cortos, voz con los más cercanos"],
   ["agente", "modo Agente del M.E.G.: tablón, los 8 tipos de encargo, intendencia, trajes y guardado"]
 ];
 

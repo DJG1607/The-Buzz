@@ -15,7 +15,7 @@ const c = crearContador();
 /* ── 0. sprites de pixel art ── */
 console.log("── SPRITES DE PIXEL ART ──");
 const at = SPRITES.char_scout;
-c.ok(at.cols === 8 && at.rows === 4 && at.cw === 48 && at.ch === 72, "cada persona: 8 fotogramas (4 de andar, 4 de correr) × 4 direcciones, en celdas de 48×72");
+c.ok(at.cols === 8 && at.rows === 5 && at.cw === 48 && at.ch === 72, "cada persona: 8 fotogramas (4 de andar, 4 de correr) × 4 direcciones y una fila para el cuerpo caído, en celdas de 48×72");
 c.ok(["hound", "crawler", "clump"].every(k => SPRITES[k].cols === 8 && SPRITES[k].cw === 64 && SPRITES[k].ch === 48), "Hound, Crawler y Clump: de perfil, 64×48, también con fotogramas de correr");
 c.ok(["smiler", "deathmoth"].every(k => SPRITES[k].cw === 48 && SPRITES[k].ch === 48), "Smiler y Deathmoth: de frente, 48×48");
 c.ok(G.opts.figs === 0 && !j.voxOn(), "por defecto se juega con los sprites");

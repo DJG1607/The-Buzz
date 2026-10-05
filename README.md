@@ -68,7 +68,13 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   por WebRTC. Quien crea la sala elige el **modo** (Descenso o Aleatorio); hay **chat** (en la
   sala y con [Enter] en partida), **nombres** encima de cada uno y una lista con la vida de todos.
   Si mueres con amigos, **caes**: tienes 40 s para que alguien te **reanime con un botiquín**.
-  Cada uno tiene sus enemigos y su botín. No hace falta instalar nada.
+  Cada uno tiene sus enemigos y su botín. No hace falta instalar nada. Desde la 4.0, la sala puede
+  ser una **sala grande** de hasta 10 jugadores (la voz sólo con los tres más cercanos).
+- **Ropa y protecciones (4.0)**: casco, mascarilla, chaleco, traje, guantes y botas en cuatro ranuras.
+  Cada prenda se come parte de los golpes a las zonas que cubre, se desgasta y se rompe; se ve en el
+  personaje (tuyo y de tus compañeros), y la mochila se ve en cualquiera. Ponerse algo, beber,
+  vendarse o recibir un golpe tienen su animación.
+- **Versión a la vista**: en Ajustes aparece la versión y un botón para buscar actualizaciones.
 - **Sprites de pixel art al estilo de [Backrooms No-Clip](https://github.com/AgenteMaxo/backrooms-noclip)**:
   nítidos, con contorno oscuro, luz desde arriba y proporciones de persona, con **ciclo de andar
   y de correr** de frente, de perfil y de espaldas (y los animales, al trote y al galope).

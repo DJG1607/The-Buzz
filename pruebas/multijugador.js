@@ -246,7 +246,7 @@ const semillas = []; for (let i = 0; i < 4; i++) { Hs.startRun("scout"); semilla
 c.ok(new Set(semillas).size === 4, "el anfitrión saca una semilla nueva en cada partida (" + semillas.join(", ") + ")");
 c.ok(/SEMILLA DEL NIVEL/.test(fuente) && /LEVEL SEED/.test(fuente), "y la ficha del nivel enseña la semilla, en los dos idiomas");
 
-c.ok(/MP_REENVIA = \{[^}]*suelo:1, recoge:1\}/.test(fuente), "el anfitrión reenvía «suelo» y «recoge» (de un invitado a los demás)");
+c.ok(/MP_REENVIA = \{[^}]*suelo:1, recoge:1, accion:1\}/.test(fuente), "el anfitrión reenvía «suelo», «recoge» y «accion» (de un invitado a los demás)");
 const Solo = cargar(); Solo.resetRun("scout"); Solo.buildLevel("0", 3);
 Solo.G.inv = [{ id: "almond", qty: 1 }]; Solo.dropItem("almond", null, false);
 c.ok(Solo.G.drops.length === 1 && !Solo.MP.activo, "en solitario sigue funcionando igual");
@@ -257,19 +257,23 @@ c.ok(Solo.G.drops.length === 1 && !Solo.MP.activo, "en solitario sigue funcionan
    sala abierta no se notaba en los compañeros. Se prueba con figuras de objetos
    normales: el banco no tiene WebGL y sus mallas de mentira dicen que todo es 3D. */
 console.log("\n── COMPAÑEROS CAÍDOS Y EN 3D ──");
-const figura = rig => ({ userData: rig ? { rig: {} } : {}, scale: { x: 1, y: 1, z: 1 }, position: { x: 0, y: 0, z: 0 },
+const figura = rig => ({ userData: rig ? { rig: {} } : {}, position: { x: 0, y: 0, z: 0 },
+  scale: { x: 1, y: 1, z: 1, set(x, y, z) { this.x = x; this.y = y; this.z = z; } },
   rotation: { x: 0, y: 0, z: 0, order: "XYZ", set(x, y, z) { this.x = x; this.y = y; this.z = z; } } });
 const sprite = figura(false), muneco = figura(true);
+const FS = A.FALLEN_SCALE;
 c.ok(A.actorY(sprite, false) === 0.71 && A.actorY(muneco, false) === 0.71, "de pie, el centro va a 0,71 m (media figura)");
-c.ok(A.actorY(sprite, true) < 0.1 && A.actorY(muneco, true) === 0.34, "caído, el sprite se pega al suelo (" + A.actorY(sprite, true) + " m) y el muñeco 3D se tumba solo (0,34)");
+c.ok(Math.abs(A.actorY(sprite, true) - 0.71 * FS) < 1e-9 && A.actorY(muneco, true) === 0.34,
+  "caído, el sprite se apoya con los pies en el suelo (centro a " + A.actorY(sprite, true).toFixed(2) + " m) y el muñeco 3D se tumba solo (0,34)");
 A.actorDown(sprite, true);
-c.ok(sprite.scale.y === 1 && sprite.userData.tumbado === true, "un sprite caído ya no se aplasta: se marca como tumbado");
+c.ok(sprite.userData.tumbado === true && sprite.scale.x === FS && sprite.scale.y === FS,
+  "un sprite caído ya no se aplasta: usa su propio dibujo, más grande (×" + FS + ") para medir lo que una persona tumbada");
 A.billboard(sprite, { x: 0, y: 1, z: 5 });
-c.ok(Math.abs(sprite.rotation.x + Math.PI / 2) < 1e-9 && sprite.rotation.order === "YXZ" && Math.abs(sprite.rotation.y) < 1e-9,
-  "y billboard() lo echa boca arriba, con la cabeza hacia el lado contrario a la cámara");
+c.ok(sprite.rotation.x === 0 && Math.abs(sprite.rotation.y) < 1e-9, "y mira a la cámara como cualquier sprite (dibujado de lado: se lee desde cualquier ángulo)");
 A.actorDown(sprite, false);
 A.billboard(sprite, { x: 3, y: 1, z: 0 });
-c.ok(sprite.rotation.x === 0 && Math.abs(sprite.rotation.y - Math.PI / 2) < 1e-9 && sprite.rotation.order === "XYZ", "al levantarse vuelve a mirar a la cámara, de pie");
+c.ok(!sprite.userData.tumbado && sprite.scale.x === 1 && sprite.scale.y === 1 && Math.abs(sprite.rotation.y - Math.PI / 2) < 1e-9, "al levantarse vuelve a su tamaño");
+c.ok(A.SPRITES.char_scout.rows === 5 && A.FALLEN_ROW === 4, "cada personaje trae su cuerpo caído en una fila propia del atlas (la 4)");
 A.G.opts.figs = 0;
 c.ok(!A.figuraDesactualizada(sprite) && A.figuraDesactualizada(muneco), "con «pixel art», un muñeco 3D está desactualizado y un sprite no");
 A.G.opts.figs = 1;

@@ -435,11 +435,12 @@
   .skin-need{font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--amber); line-height:1.4;}
   .char-art.skin-locked canvas{filter:brightness(.35) grayscale(.6);}
   .mp-modes{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
-  .mp-mode{font:inherit; text-align:left; display:grid; gap:2px; padding:10px 12px; cursor:pointer; color:var(--ink);
+  #mpSize{margin-top:4px;} #mpSize .mp-modes{margin-top:6px;}
+  .mp-mode, .mp-tam{font:inherit; text-align:left; display:grid; gap:2px; padding:10px 12px; cursor:pointer; color:var(--ink);
     background:rgba(221,214,189,.03); border:1px solid var(--line2);}
-  .mp-mode b{font-family:"Special Elite",serif; font-weight:400; font-size:15px; color:var(--fluor);}
-  .mp-mode span{font-size:10.5px; color:var(--ink-faint);}
-  .mp-mode.on{border-color:var(--amber); background:rgba(200,134,58,.08);}
+  .mp-mode b, .mp-tam b{font-family:"Special Elite",serif; font-weight:400; font-size:15px; color:var(--fluor);}
+  .mp-mode span, .mp-tam span{font-size:10.5px; color:var(--ink-faint);}
+  .mp-mode.on, .mp-tam.on{border-color:var(--amber); background:rgba(200,134,58,.08);}
   .mp-mode:disabled{cursor:default;}
   .mp-modenote{font-size:10.5px; color:var(--ink-faint); margin-top:6px;}
   #mpLobbyChat{margin-top:12px; border:1px solid var(--line2); background:rgba(0,0,0,.2);}
@@ -622,7 +623,10 @@
   #optDots button.on{background:var(--fluor); width:22px; border-radius:4px;}
   @media (max-width:520px){ #optTabs{grid-template-columns:repeat(2,1fr);} }
   @media (prefers-reduced-motion:reduce){ #optRows,#optViewport{transition:none;} }
-  #musicBox{margin-top:16px; padding-top:14px; border-top:1px solid var(--line2);}
+  #musicBox, #verBox{margin-top:16px; padding-top:14px; border-top:1px solid var(--line2);}
+  #verBox .mb-head{display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim);}
+  #verBox .mb-head b{color:var(--amber); font-weight:500;}
+  #verInfo.ok{color:var(--sane);} #verInfo.nuevo{color:var(--amber);} #verInfo.mal{color:#ff9a7a;}
   #musicBox .mb-head{display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim);}
   #musicBox .mb-head b{color:var(--amber); font-weight:500;}
   #mbList{display:grid; gap:4px; margin-top:8px; max-height:150px; overflow:auto;}
@@ -950,6 +954,13 @@
       <input id="mpName" class="mpi" maxlength="14" placeholder="David">
       <label class="mpl" data-en="Room name">Nombre de la sala</label>
       <input id="mpRoom" class="mpi" maxlength="24" placeholder="la cuadrilla">
+      <div id="mpSize">
+        <label class="mpl" data-en="Room size (when you create it)">Tamaño de la sala (si la creas tú)</label>
+        <div class="mp-modes">
+          <button type="button" class="mp-tam on" data-tam="cuadrilla"><b data-en="Squad">Cuadrilla</b><span data-en="Up to 4 players. Everyone's voice, everyone drawn in full.">Hasta 4 jugadores. Se oye a todos y se ve a todos al detalle.</span></button>
+          <button type="button" class="mp-tam" data-tam="grande"><b data-en="Big room">Sala grande</b><span data-en="Up to 10 players. Voice only with the 3 nearest; far-away players are drawn simpler.">Hasta 10 jugadores. La voz sólo con los 3 más cercanos y a los lejanos se les dibuja más simple.</span></button>
+        </div>
+      </div>
     </div>
     <div id="mpMode" hidden>
       <label class="mpl" data-en="Room mode">Modo de la sala</label>
@@ -1112,6 +1123,14 @@
       <div class="btnrow" style="margin-top:8px"><label class="btn ghost small" for="mbFile" data-en="Upload songs">Subir canciones</label><input type="file" id="mbFile" accept="audio/*" multiple hidden></div>
       <div id="mbList"></div>
     </div>
+    <div id="verBox">
+      <div class="mb-head"><span data-en="Version">Versión</span><b id="verNow"></b></div>
+      <div class="opt-note" id="verInfo" data-en="The page you have open is cached by the browser, so it may not be the latest one. Check it here.">La página que tienes abierta la guarda el navegador, así que puede no ser la última. Compruébalo aquí.</div>
+      <div class="btnrow" style="margin-top:8px">
+        <button class="btn ghost small" id="verCheck" data-en="Check for updates">Buscar actualización</button>
+        <button class="btn small" id="verReload" hidden data-en="Reload with the new version">Recargar con la nueva versión</button>
+      </div>
+    </div>
     <div class="btnrow">
       <button class="btn" id="optsBack" data-en="Back">Volver</button>
       <button class="btn ghost" id="optsReset" data-en="Defaults">Valores por defecto</button>
@@ -1264,7 +1283,7 @@ function bootFail(err){
 const $ = (id) => document.getElementById(id);
 
 /* ── idioma: cada texto lleva su versión inglesa al lado ── */
-const VERSION = "3.0.5";
+const VERSION = "4.0";
 let LANG = "es";
 function tx(es, en){ return (LANG === "en" && en) ? en : es; }
 function txf(o, field){                       // campo traducible de un objeto de datos
@@ -1287,10 +1306,52 @@ function applyLangDom(){
 }
 function paintVersion(){
   const t = "v" + VERSION + (typeof TRUCO !== "undefined" && TRUCO.on ? tx(" · MODO PRUEBAS"," · TEST MODE") : "");
-  const a = $("verTag"), b = $("verTagOpts");
+  const a = $("verTag"), b = $("verTagOpts"), c = $("verNow");
   if(a) a.textContent = t;
   if(b) b.textContent = t;
+  if(c) c.textContent = "v" + VERSION;
 }
+// «3.0.5» < «4.0» < «4.0.1»: compara número a número, y lo que falta cuenta como cero
+function cmpVersion(a, b){
+  const x = String(a).split(".").map(n=> parseInt(n, 10) || 0), y = String(b).split(".").map(n=> parseInt(n, 10) || 0);
+  for(let i=0;i<Math.max(x.length, y.length);i++){
+    const d = (x[i] || 0) - (y[i] || 0);
+    if(d) return d < 0 ? -1 : 1;
+  }
+  return 0;
+}
+// la versión que hay publicada: se vuelve a pedir esta misma página sin usar la caché
+let verPublicada = null;
+function buscarVersion(){
+  if(!/^https?:/.test(location.protocol)) return Promise.reject(new Error("local"));
+  return fetch(location.pathname + "?v=" + Date.now(), {cache:"no-store"})
+    .then(r=> r.ok ? r.text() : Promise.reject(new Error("http "+r.status)))
+    .then(t=>{ const m = t.match(/const VERSION = "([^"]+)"/); if(!m) throw new Error("sin versión"); return verPublicada = m[1]; });
+}
+function comprobarVersion(){
+  const info = $("verInfo"), rec = $("verReload");
+  rec.hidden = true;
+  info.className = "opt-note";
+  info.textContent = tx("Buscando…","Checking…");
+  buscarVersion().then(v=>{
+    const c = cmpVersion(VERSION, v);
+    if(c < 0){
+      info.className = "opt-note nuevo";
+      info.textContent = tx("Hay una versión nueva: v"+v+". Tienes la v"+VERSION+".","There is a newer version: v"+v+". You have v"+VERSION+".");
+      rec.hidden = false;
+    } else {
+      info.className = "opt-note ok";
+      info.textContent = tx("Tienes la última versión (v"+VERSION+").","You have the latest version (v"+VERSION+").");
+    }
+  }).catch(e=>{
+    info.className = "opt-note mal";
+    info.textContent = e && e.message === "local"
+      ? tx("Desde un archivo local no se puede comprobar. La versión de este archivo es la v"+VERSION+".","It cannot be checked from a local file. This file is v"+VERSION+".")
+      : tx("No he podido comprobarlo (¿sin internet?). Tienes la v"+VERSION+".","Could not check (no internet?). You have v"+VERSION+".");
+  });
+}
+// recarga pidiendo la página otra vez al servidor, no a la caché
+function recargarNueva(){ location.href = location.pathname + "?r=" + Date.now(); }
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
 const lerp  = (a,b,t) => a+(b-a)*t;
 const TAU   = Math.PI*2;
@@ -1388,7 +1449,7 @@ function drawPerson(x, ox, oy, dir, col, p, o){
   const face = o.hood ? dk(skin, 0.5) : skin, faceSh = o.hood ? dk(skinSh, 0.5) : skinSh;
   const shirt = p.shirt || "#6a6a6a", shirtSh = p.shirtShade || dk(shirt, 0.8);
   const pants = p.pants || "#34343a", pantsSh = p.pantsShade || dk(pants, 0.8);
-  const shoe = p.shoe || "#222222", shoeSh = p.shoeShade || dk(shoe, 0.7);
+  const shoe = o.boots || p.shoe || "#222222", shoeSh = p.shoeShade || dk(shoe, 0.7);
   const sleeve = o.jacket || shirt, sleeveSh = o.jacketShade || shirtSh;
   const hunch = o.hunch || 0, reach = o.reach ? 5 : 0;
   const Lt = 12, Ls = 11, Lu = 10, Lf = 8 + reach, footH = o.skates ? 5 : 3;
@@ -1409,6 +1470,7 @@ function drawPerson(x, ox, oy, dir, col, p, o){
   // ── piezas comunes ──
   const shoeAt = (fx, fy, fw, far)=>{
     RX(x, fx, fy - 2, fw, 3, far ? dk(shoe, 0.8) : shoe); RX(x, fx, fy, fw, 1, shoeSh);
+    if(o.boots) RX(x, fx + 1, fy - 5, fw - 2, 3, far ? dk(shoe, 0.8) : dk(shoe, 0.92));            // caña de la bota
     if(o.skates){ RX(x, fx, fy + 1, fw, 1, "#d8d0c0"); RX(x, fx, fy + 2, 2, 1, "#e0503a"); RX(x, fx + fw - 2, fy + 2, 2, 1, "#e0503a"); }
   };
   const hairC = p.hair, hairS = p.hairShade || (p.hair && dk(p.hair, 0.72)), hairL = p.hair && dk(p.hair, 1.45);
@@ -1433,7 +1495,7 @@ function drawPerson(x, ox, oy, dir, col, p, o){
       seg(x, ex, ey, hx2, hy2, 4, c1);
       if(o.bandages){ RX(x, (sx + ex)/2 - 2, (sy + ey)/2, 4, 1, "#e8e0cc"); RX(x, (ex + hx2)/2 - 2, (ey + hy2)/2, 4, 1, "#e8e0cc"); }
       if(o.cross && !far) RX(x, sx - 2, sy + 2, 4, 2, "#c0392b");
-      RX(x, hx2 + Math.sin(r)*1.5 - 2, hy2 + Math.cos(r)*1.5 - 1.5, 4, 3, far ? skinSh : skin);
+      RX(x, hx2 + Math.sin(r)*1.5 - 2, hy2 + Math.cos(r)*1.5 - 1.5, 4, 3, far ? skinSh : (o.gloves || skin));
     };
     arm(g.arR, g.elR, true);
     drawLeg(LR, true);
@@ -1480,6 +1542,8 @@ function drawPerson(x, ox, oy, dir, col, p, o){
     }
     if(o.hood) RX(x, hc + 5, hy0 - 2, 2, hh + 2, dk(o.hood, 0.78));  // borde de la capucha
     if(o.cap){ RX(x, hc - 6, hy0 - 3, 12, 5, o.cap); RX(x, hc - 5, hy0 - 4, 9, 1, o.cap); RX(x, hc + 4, hy0 + 1, 5, 2, dk(o.cap, 0.8)); }
+    if(o.hardhat){ RX(x, hc - 6, hy0 - 4, 12, 6, o.hardhat); RX(x, hc - 5, hy0 - 5, 10, 1, o.hardhat); RX(x, hc + 4, hy0 + 1, 6, 2, dk(o.hardhat, 0.78)); RX(x, hc - 1, hy0 - 6, 2, 8, dk(o.hardhat, 0.85)); }
+    if(o.mask){ RX(x, hc + 1, base + 4, 6, 3, "#1e2a2e"); RX(x, hc + 2, base + 4, 2, 1, "#8fd0d8"); RX(x, hc + 3, base + 7, 5, 5, "#4a524a"); RX(x, hc + 6, base + 10, 3, 3, "#3a3f3a"); }
     if(o.goggles){ RX(x, hc - 6, hy0 + 2, 12, 2, "#2e2a26"); RX(x, hc + 3, hy0 + 1, 3, 3, "#8fc0c8"); RX(x, hc + 3, hy0 + 1, 1, 1, "#c8e8ec"); }
     if(o.visor){ RX(x, hc + 1, base + 4, 6, 7, "#1c2a2e"); RX(x, hc + 3, base + 5, 2, 1, "#8fd0d8"); RX(x, hc + 4, base + 10, 4, 3, "#4a4a44"); }
     if(o.partyhat) for(let i=0;i<10;i++){ const w = Math.max(1, Math.round(7*(1 - i/10))); RX(x, hc - 3 - i*0.3 - w/2 + 3, hy0 - 3 - i, w, 1, (i >> 1) % 2 ? "#e0c04a" : "#b4527e"); }
@@ -1510,7 +1574,7 @@ function drawPerson(x, ox, oy, dir, col, p, o){
     else RX(x, ax0 + inward, hy, 4, ey - hy + 1, sleeve);
     if(o.bandages){ RX(x, ax0, sy + 4, 4, 1, "#e8e0cc"); RX(x, ax0 + inward, (ey + hy)/2, 4, 1, "#e8e0cc"); }
     if(o.cross && sg === sgL) RX(x, ax0, sy + 3, 4, 2, "#c0392b");
-    RX(x, ax0 + inward, hy - (hy < ey ? 3 : 0), 4, 3, skin);
+    RX(x, ax0 + inward, hy - (hy < ey ? 3 : 0), 4, 3, o.gloves || skin);
   };
   const torso = ()=>{
     for(let yy = shY; yy <= hipY; yy++){
@@ -1577,6 +1641,8 @@ function drawPerson(x, ox, oy, dir, col, p, o){
       if(o.ponytail){ RX(x, cx - 1.5, hy0 + 5, 3, 14, hairC); RX(x, cx - 1.5, hy0 + 5, 3, 2, "#8a6a3a"); RX(x, cx - 0.5, hy0 + 17, 1, 2, hairS); }
     }
     if(o.cap){ RX(x, hx0 - 1, hy0 - 3, hw + 2, 5, o.cap); RX(x, cx - 1, hy0 + 1, 2, 1, dk(o.cap, 0.7)); }
+    if(o.hardhat){ RX(x, hx0 - 2, hy0 - 4, hw + 4, 6, o.hardhat); RX(x, hx0 - 1, hy0 - 5, hw + 2, 1, o.hardhat); RX(x, cx - 1, hy0 - 6, 2, 8, dk(o.hardhat, 0.85)); }
+    if(o.mask) RX(x, hx0 - 1, hy0 + 3, hw + 2, 2, "#2a2e2a");
     if(o.goggles) RX(x, hx0 - 1, hy0 + 2, hw + 2, 2, "#2e2a26");
     if(o.partyhat) for(let i=0;i<10;i++){ const w = Math.max(1, Math.round(7*(1 - i/10))); RX(x, cx - w/2, hy0 - 3 - i, w, 1, (i >> 1) % 2 ? "#e0c04a" : "#b4527e"); }
     return;
@@ -1609,6 +1675,8 @@ function drawPerson(x, ox, oy, dir, col, p, o){
   }
   if(o.hood){ RX(x, hx0 - 2, hy0 - 2, 2, hh + 3, dk(o.hood, 0.8)); RX(x, hx0 + hw, hy0 - 2, 2, hh + 3, dk(o.hood, 0.8)); }
   if(o.cap){ RX(x, hx0 - 1, hy0 - 3, hw + 2, 5, o.cap); RX(x, hx0, hy0 - 4, hw, 1, o.cap); RX(x, hx0 - 2, hy0 + 2, hw + 4, 1, dk(o.cap, 0.78)); }
+  if(o.hardhat){ RX(x, hx0 - 2, hy0 - 4, hw + 4, 6, o.hardhat); RX(x, hx0 - 1, hy0 - 5, hw + 2, 1, o.hardhat); RX(x, hx0 - 3, hy0 + 2, hw + 6, 1, dk(o.hardhat, 0.78)); RX(x, cx - 1, hy0 - 6, 2, 3, dk(o.hardhat, 0.85)); RX(x, hx0 + 1, hy0 - 3, 3, 1, "#fff2b8"); }
+  if(o.mask){ RX(x, hx0 + 1, base + 4, hw - 2, 3, "#1e2a2e"); RX(x, hx0 + 2, base + 4, 2, 1, "#8fd0d8"); RX(x, hx0 + 1, base + 7, hw - 2, 6, "#4a524a"); RX(x, cx - 2, base + 11, 4, 4, "#3a3f3a"); }
   if(o.goggles){
     RX(x, hx0 - 1, hy0 + 2, hw + 2, 2, "#2e2a26");
     RX(x, hx0 + 1, hy0 + 1, 3, 3, "#8fc0c8"); RX(x, hx0 + hw - 4, hy0 + 1, 3, 3, "#8fc0c8");
@@ -1622,6 +1690,78 @@ function drawPerson(x, ox, oy, dir, col, p, o){
     for(let i=0;i<10;i++){ const w = Math.max(1, Math.round(7*(1 - i/10))); RX(x, cx - w/2, hy0 - 3 - i, w, 1, (i >> 1) % 2 ? "#e0c04a" : "#b4527e"); }
     RX(x, cx - 1.5, hy0 - 15, 3, 2, "#f0e8d0");
   }
+}
+
+// Un cuerpo tumbado boca arriba, visto de lado: la cabeza a la izquierda, las piernas
+// a la derecha, en la parte de abajo de la celda de 48×72 (el resto va vacío).
+// Es un sprite que mira a la cámara como los demás, así que se lee igual desde cualquier
+// ángulo. La 3.0.5 giraba el sprite de pie hasta dejarlo plano y, con la cámara en ángulo,
+// los brazos colgando salían como una cruz; dibujado desde arriba tampoco se entendía.
+// Se escala ×FALLEN_SCALE en el mundo para que mida lo que una persona tumbada.
+// Las columnas 0 y 1 son dos fotogramas de respiración (el pecho sube 1 píxel).
+const FALLEN_SCALE = 1.35;
+function drawFallen(x, ox, oy, col, p, o){
+  o = o || {};
+  const up = col % 2, G = oy + 69;
+  const skin = p.skin || "#c49a6e", skinSh = p.skinShade || dk(skin, 0.82);
+  const shirt = p.shirt || "#6a6a6a", shirtSh = p.shirtShade || dk(shirt, 0.8);
+  const pants = p.pants || "#34343a", pantsSh = p.pantsShade || dk(pants, 0.8);
+  const shoe = o.boots || p.shoe || "#222222", shoeSh = p.shoeShade || dk(shoe, 0.7);
+  const sleeve = o.jacket || shirt, sleeveSh = o.jacketShade || shirtSh;
+  const hand = o.gloves || skin;
+  const faceless = !!o.faceless || !p.eye || p.eye === p.skin;
+  const hairC = p.hair, hairS = p.hairShade || (hairC && dk(hairC, 0.72));
+
+  ell(x, ox + 24, G + 1, 23, 2.5, "rgba(0,0,0,.35)");                  // sombra en el suelo
+
+  // piernas: la lejana estirada, la cercana con la rodilla doblada
+  seg(x, ox + 26, G - 6, ox + 44, G - 5, 5, pantsSh);
+  RX(x, ox + 43, G - 10, 4, 7, shoeSh);
+  seg(x, ox + 26, G - 5, ox + 35, G - 15, 5, pants);
+  seg(x, ox + 35, G - 15, ox + 41, G - 3, 5, pants);
+  if(o.stripe){ seg(x, ox + 26, G - 5, ox + 35, G - 15, 1, o.stripe); seg(x, ox + 35, G - 15, ox + 41, G - 3, 1, o.stripe); }
+  if(o.torn) RX(x, ox + 33, G - 15, 2, 2, skinSh);
+  RX(x, ox + 39, G - 4, 8, 4, shoe); RX(x, ox + 39, G - 1, 8, 1, shoeSh);
+  if(o.boots) RX(x, ox + 39, G - 7, 5, 3, dk(shoe, 0.85));              // caña de la bota
+
+  // torso: el pecho sube y baja
+  const top = G - 9 - up;
+  RX(x, ox + 10, top + 1, 17, G - top - 1, shirt);
+  ell(x, ox + 17, top + 2, 8.5, 2.6, shirt);                           // el pecho redondeado
+  RX(x, ox + 10, G - 2, 17, 2, shirtSh);
+  if(o.pattern) for(let i=12;i<26;i+=3) RX(x, ox + i, top + 2, 1, G - top - 3, dk(shirt, 0.82));
+  if(p.belt) RX(x, ox + 24, G - 10, 2, 9, p.belt);
+  if(o.jacket){ const J = o.jacket; RX(x, ox + 10, top + 1, 17, 4, J); RX(x, ox + 10, top + 5, 12, G - top - 7, J); RX(x, ox + 10, G - 2, 17, 1, o.jacketShade || dk(J, 0.8)); }
+  if(o.vest){ RX(x, ox + 12, top + 1, 8, G - top - 2, o.vest); RX(x, ox + 12, top + 3, 8, 1, "#e8d070"); RX(x, ox + 12, top + 7, 8, 1, "#e8d070"); }
+  if(o.strap) seg(x, ox + 12, top + 1, ox + 24, G - 2, 2, o.strap);
+  if(o.cross) { RX(x, ox + 17, top + 1, 3, 7, "#c0392b"); RX(x, ox + 15, top + 3, 7, 3, "#c0392b"); }
+  if(o.badge) RX(x, ox + 13, top + 2, 2, 2, "#e0c050");
+  if(o.pendant) ell(x, ox + 14, top + 5, 1.6, 1.6, "#c8a03a");
+  if(o.scarf) RX(x, ox + 9, top, 3, 6, o.scarf);
+
+  // el brazo cercano, tendido a lo largo del cuerpo
+  seg(x, ox + 13, top + 3, ox + 24, G - 5, 4, sleeve);
+  seg(x, ox + 13, top + 3, ox + 24, G - 5, 1, sleeveSh);
+  if(o.bandages) RX(x, ox + 18, top + 5, 1, 4, "#e8e0cc");
+  RX(x, ox + 24, G - 7, 4, 4, hand);
+
+  // cabeza boca arriba, vista de perfil: la cara mira hacia arriba
+  RX(x, ox + 8, G - 7, 3, 5, skinSh);                                  // cuello
+  const hx = ox + 5, hy = G - 8;
+  if(o.hood) ell(x, hx, hy, 7, 7.5, o.hood);
+  ell(x, hx, hy, 5.2, 6, o.hood ? dk(skin, 0.5) : skin);
+  if(hairC && !o.hood){ ell(x, hx - 2, hy + 1, 4, 5.5, hairC); RX(x, hx - 5, hy - 3, 2, 6, hairS); if(o.ponytail) RX(x, hx - 8, hy + 2, 4, 3, hairC); }
+  if(!o.hood) RX(x, hx + 3, hy, 1, 2, skinSh);                         // oreja
+  if(!faceless){
+    RX(x, hx + 1, hy - 3, 3, 1, hairS || skinSh);                      // ojo cerrado
+    RX(x, hx + 2, hy - 5, 1, 2, skinSh);                               // nariz hacia arriba
+    if(o.grin) RX(x, hx + 1, hy + 2, 4, 1, "#b8342a"); else RX(x, hx + 1, hy + 2, 3, 1, p.mouth || "#7a4a3a");
+  }
+  if(o.cap){ RX(x, hx - 6, hy - 6, 11, 3, o.cap); RX(x, hx + 2, hy - 4, 5, 1, dk(o.cap, 0.8)); }
+  if(o.hardhat){ ell(x, hx - 1, hy - 3, 6, 4, o.hardhat); RX(x, hx + 3, hy - 3, 5, 1, dk(o.hardhat, 0.78)); RX(x, hx - 3, hy - 8, 5, 1, dk(o.hardhat, 0.85)); }
+  if(o.goggles) { RX(x, hx - 1, hy - 4, 7, 2, "#2e2a26"); RX(x, hx + 1, hy - 4, 3, 2, "#8fc0c8"); }
+  if(o.visor) { RX(x, hx - 1, hy - 5, 7, 5, "#1c2a2e"); RX(x, hx + 1, hy - 4, 2, 1, "#8fd0d8"); }
+  if(o.mask){ RX(x, hx - 1, hy - 5, 7, 2, "#1e2a2e"); RX(x, hx + 1, hy - 5, 2, 1, "#8fd0d8"); RX(x, hx + 1, hy - 2, 5, 5, "#4a524a"); RX(x, hx + 4, hy + 2, 3, 3, "#3a3f3a"); }
 }
 
 // ── animales de perfil (celda 64×48, miran a la derecha) ──
@@ -1989,11 +2129,21 @@ const ENT_LOOK = {
   partygoer: {pal:PALETTES.partygoer, opts:{grin:true, partyhat:true}}
 };
 const SPRITES = {};
+// Fila 0 de frente, 1 de perfil, 2 de espaldas, 3 de perfil espejado (columnas 0-3 andar,
+// 4-7 correr) y la 4, el cuerpo caído, con dos fotogramas de respiración.
+const FALLEN_ROW = 4;
+function personAtlas(look){
+  const a = buildAtlas(8,5,(x,ox,oy,col,row)=>{
+    if(row < FALLEN_ROW) drawPerson(x,ox,oy,row,col,look.pal,look.opts);
+    else if(col < 2) drawFallen(x,ox,oy,col,look.pal,look.opts);
+  });
+  a.look = look;
+  return a;
+}
 function buildSprites(){
   CHARACTERS.forEach(ch=>{
     const look = skinLook(ch, "base");
-    SPRITES["char_"+ch.id] = buildAtlas(8,4,(x,ox,oy,col,row)=> drawPerson(x,ox,oy,row,col,look.pal,look.opts));
-    SPRITES["char_"+ch.id].look = look;
+    SPRITES["char_"+ch.id] = personAtlas(look);
   });
   for(const k in ENT_LOOK){
     const L = ENT_LOOK[k];
@@ -2064,14 +2214,19 @@ function skinLook(ch, skinId){
   if(skinId && skinId !== "base") ROPA.forEach(k=> delete base[k]);
   return {pal, opts: Object.assign(base, s.opts || {})};
 }
-function skinAtlas(chId, skinId){
+// gk (opcional): lo que lleva puesto («bhVg», ver wornKey()). Sin gk es el de siempre, con la
+// mochila que traiga el personaje (menús y retratos); con gk, sólo lo que lleva de verdad.
+function skinAtlas(chId, skinId, gk){
   const ch = CHARACTERS.find(c=> c.id === chId) || CHARACTERS[0];
+  if(typeof gk === "string"){
+    const sk = skinId && SKIN_BY[skinId] ? skinId : "base", k = "char_"+ch.id+"_"+sk+"_g"+gk;
+    if(!SPRITES[k]) SPRITES[k] = personAtlas(lookConRopa(skinLook(ch, sk), gk));
+    return SPRITES[k];
+  }
   if(!skinId || skinId === "base" || !SKIN_BY[skinId]) return SPRITES["char_"+ch.id];
   const key = "char_"+ch.id+"_"+skinId;
   if(!SPRITES[key]){
-    const look = skinLook(ch, skinId);
-    SPRITES[key] = buildAtlas(8,4,(x,ox,oy,col,row)=> drawPerson(x,ox,oy,row,col,look.pal,look.opts));
-    SPRITES[key].look = look;
+    SPRITES[key] = personAtlas(skinLook(ch, skinId));
   }
   return SPRITES[key];
 }
@@ -2216,6 +2371,30 @@ const ICON_DRAW = {
   megbeacon(x){
     P(x,7,5,2,9,"#5a6268"); P(x,5,13,6,2,"#3a4046");
     P(x,6,2,4,4,"#7ce06a"); P(x,7,2,2,1,"#c8ffb8"); P(x,5,3,1,2,"#4a9a3a"); P(x,10,3,1,2,"#4a9a3a");
+  },
+  hardhat(x){
+    P(x,3,6,10,6,"#e0b43a"); P(x,4,5,8,1,"#e0b43a"); P(x,5,4,6,1,"#e0b43a");
+    P(x,1,11,14,2,"#c89a28"); P(x,7,4,2,8,"#c89a28"); P(x,5,6,2,1,"#fff2b8"); P(x,1,12,14,1,"#8a6a18");
+  },
+  gasmask(x){
+    P(x,3,2,10,9,"#4a524a"); P(x,3,2,10,1,"#6a736a"); P(x,4,4,8,3,"#1e2a2e"); P(x,5,4,3,1,"#8fd0d8");
+    P(x,5,9,6,5,"#3a3f3a"); P(x,6,10,4,1,"#1e2220"); P(x,1,4,2,3,"#2a2e2a"); P(x,13,4,2,3,"#2a2e2a");
+  },
+  vest(x){
+    P(x,3,2,4,12,"#c8641e"); P(x,9,2,4,12,"#c8641e"); P(x,6,2,4,3,"#3a2a1a");
+    P(x,3,6,4,1,"#e8d070"); P(x,9,6,4,1,"#e8d070"); P(x,4,9,3,3,"#8c4a1c"); P(x,9,9,3,3,"#8c4a1c"); P(x,3,2,1,12,"#e0803a");
+  },
+  hazsuit(x){
+    P(x,4,3,8,11,"#d8b23a"); P(x,5,0,6,4,"#c8a430"); P(x,6,1,4,2,"#1c2a2e"); P(x,6,1,2,1,"#8fd0d8");
+    P(x,2,5,2,7,"#c8a430"); P(x,12,5,2,7,"#c8a430"); P(x,4,9,8,1,"#3a3a3a"); P(x,5,14,2,2,"#2a2a2a"); P(x,9,14,2,2,"#2a2a2a");
+  },
+  gloves(x){
+    P(x,2,6,5,7,"#6a5a3a"); P(x,2,3,1,4,"#6a5a3a"); P(x,3,2,1,5,"#6a5a3a"); P(x,4,2,1,5,"#6a5a3a"); P(x,5,3,1,4,"#6a5a3a"); P(x,2,11,5,2,"#4a3e26");
+    P(x,9,6,5,7,"#7a6a46"); P(x,9,3,1,4,"#7a6a46"); P(x,10,2,1,5,"#7a6a46"); P(x,11,2,1,5,"#7a6a46"); P(x,12,3,1,4,"#7a6a46"); P(x,9,11,5,2,"#4a3e26");
+  },
+  boots(x){
+    P(x,3,2,5,9,"#4a3a2a"); P(x,3,9,11,4,"#4a3a2a"); P(x,3,13,11,1,"#1a1a1a"); P(x,4,4,3,1,"#c8c0a0"); P(x,4,6,3,1,"#c8c0a0");
+    P(x,3,2,5,1,"#6a5a44"); P(x,11,9,3,1,"#6a5a44");
   }
 };
 
@@ -4307,15 +4486,22 @@ const ITEMS = {
   ducttape:   {name:"Cinta americana", icon:"ducttape", stack:true, blurb:"Arregla el arma más gastada que lleves en la mano: le devuelve la mitad del aguante.", name_en:"Duct tape", blurb_en:"Fixes the most worn weapon in your hands: gives it back half its toughness."},
   megradio:   {name:"Radio de extracción", icon:"megradio", stack:true, meg:true, blurb:"Del M.E.G. Pide que te saquen del nivel: aguanta 12 s y apareces en la Base Beta. Si algo te agarra, la cuenta se retrasa.", name_en:"Extraction radio", blurb_en:"M.E.G. issue. Call for extraction: hold on for 12 s and you turn up at Base Beta. If something grabs you, the countdown slips."},
   megcamera:  {name:"Cámara del M.E.G.", icon:"megcamera", equip:true, meg:true, blurb:"Apunta a una entidad a menos de 14 m y pulsa {gadget}: queda documentada y el flash la aturde 2 s. Tarda 8 s en recargar.", name_en:"M.E.G. camera", blurb_en:"Aim at an entity within 14 m and press {gadget}: it gets documented and the flash stuns it for 2 s. Takes 8 s to recharge."},
-  megbeacon:  {name:"Baliza del M.E.G.", icon:"megbeacon", stack:true, meg:true, blurb:"Se clava en el suelo: da luz verde y localiza las salidas que haya a menos de 30 m.", name_en:"M.E.G. beacon", blurb_en:"Stake it in the ground: it gives off green light and pinpoints every exit within 30 m."}
+  megbeacon:  {name:"Baliza del M.E.G.", icon:"megbeacon", stack:true, meg:true, blurb:"Se clava en el suelo: da luz verde y localiza las salidas que haya a menos de 30 m.", name_en:"M.E.G. beacon", blurb_en:"Stake it in the ground: it gives off green light and pinpoints every exit within 30 m."},
+  // 4.0: ropa. Se pone desde la mochila, se ve en el personaje, protege una zona y se desgasta
+  hardhat:    {name:"Casco de obra", icon:"hardhat", cloth:true, slot:"head", blurb:"Se lleva en la cabeza: se come el 55 % de lo que le caiga. Cada golpe lo desgasta hasta romperlo.", name_en:"Hard hat", blurb_en:"Worn on the head: it soaks up 55% of whatever lands there. Every hit wears it down until it breaks."},
+  gasmask:    {name:"Máscara antigás", icon:"gasmask", cloth:true, slot:"head", blurb:"Cabeza: absorbe el 25 % de los golpes y la cordura baja un 20 % más despacio. Sabe a goma vieja.", name_en:"Gas mask", blurb_en:"Head: soaks up 25% of hits and your sanity drains 20% slower. It tastes of old rubber."},
+  vest:       {name:"Chaleco reforzado", icon:"vest", cloth:true, slot:"torso", blurb:"Torso: se come el 45 % de los golpes al cuerpo. Naranja, para que te vean venir.", name_en:"Padded vest", blurb_en:"Torso: soaks up 45% of the hits to your body. Orange, so they can see you coming."},
+  hazsuit:    {name:"Traje de contención", icon:"hazsuit", cloth:true, slot:"torso", blurb:"Cubre el torso, los brazos y las piernas (30 % en cada zona), pero pesa: −8 % de aliento.", name_en:"Hazmat suit", blurb_en:"Covers torso, arms and legs (30% each) but it is heavy: −8% breath."},
+  gloves:     {name:"Guantes de trabajo", icon:"gloves", cloth:true, slot:"arms", blurb:"Brazos: absorben el 40 % de los golpes a cada uno.", name_en:"Work gloves", blurb_en:"Arms: soak up 40% of the hits to each one."},
+  boots:      {name:"Botas reforzadas", icon:"boots", cloth:true, slot:"legs", blurb:"Piernas: absorben el 40 % de los golpes a cada una.", name_en:"Reinforced boots", blurb_en:"Legs: soak up 40% of the hits to each one."}
 };
 const EQUIP_IDS = Object.keys(ITEMS).filter(k=> ITEMS[k].equip);
 
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
   comun: ["almond","almond","almond","bandage","bandage","battery","bat","marshmallow","luckymilk","ducttape"],
-  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage","medkit","firesalt","ducttape","luckymilk"],
-  raro:  ["compass","backpack","crowbar","rebar","map","flashlight","medkit","rations","repellent","soles"]
+  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage","medkit","firesalt","ducttape","luckymilk","boots","gloves","vest","hardhat"],
+  raro:  ["compass","backpack","crowbar","rebar","map","flashlight","medkit","rations","repellent","soles","gasmask","hazsuit","vest","hardhat"]
 };
 
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
@@ -4582,7 +4768,7 @@ function resetRun(charId){
   G.char = CHARACTERS.filter(c=>c.id===charId)[0] || CHARACTERS[0];
   G.depth = 0; G.sanity = 100;
   G.inv = []; G.equip = {}; G.cap = 4;
-  G.weapons = {L:null, R:null}; G.weaponCd = {L:0, R:0}; G.wear = {};
+  G.weapons = {L:null, R:null}; G.weaponCd = {L:0, R:0}; G.wear = {}; G.worn = CLOTH_VACIO(); G.partFlash = null; G.act = null;
   G.boostT = 0; G.bloatT = 0; G.mallows = []; G.extract = null; G.camCd = 0;
   G.abilityCd = 0; G.shield = 0; G.pulseExit = 0; G.lootBonus = 0;
   G.ambTimer = 2 + Math.random()*3;
@@ -4604,7 +4790,7 @@ function saveGame(){
     charId:G.char.id, depth:G.depth, levelId:G.levelId, levelSeed:G.levelSeed,
     sanity:G.sanity, body:G.body, bleeding:G.bleeding,
     inv:G.inv, equip:G.equip, cap:G.cap, torchFuel:G.torchFuel,
-    weapons:G.weapons, wear:G.wear, randomMode:!!G.randomMode, megMode:!!G.megMode, meg:G.meg,
+    weapons:G.weapons, wear:G.wear, worn:wornRaw(), randomMode:!!G.randomMode, megMode:!!G.megMode, meg:G.meg,
     when:Date.now()
   };
   try{
@@ -4638,13 +4824,240 @@ function applySave(d){
   G.randomMode = !!d.randomMode;
   G.megMode = !!d.megMode; G.meg = d.meg || {q:null, ofertas:[]}; G.megObj = null; G.megBoard = null;
   G.weaponCd = {L:0, R:0}; G.wear = d.wear || {};
+  G.worn = Object.assign(CLOTH_VACIO(), d.worn || {});
+  CLOTH_SLOTS.forEach(s=>{ if(G.worn[s] && !(CLOTH[G.worn[s]] && CLOTH[G.worn[s]].slot === s)) G.worn[s] = null; });   // una partida vieja o rara
   G.boostT = 0; G.bloatT = 0; G.mallows = []; G.extract = null; G.camCd = 0;
   G.torchFuel = d.torchFuel || 0;
   G.torchOn = false;
   G.stamina = staminaMax();
 }
 
-function staminaMax(){ return (72 + G.body.torso*0.48) * (G.char ? G.char.stamina : 1); }
+/* ═══════════════ CHISPAS (4.0) ═══════════════
+   Un solo THREE.Points con 80 partículas que se reutilizan: lo que se absorbe o se
+   rompe suelta un puñado de chispas que salen, caen y rebotan en el suelo. */
+const FX = {n:80, pos:null, col:null, vel:[], vida:null, pts:null, i:0};
+function initFx(){
+  const g = new THREE.BufferGeometry();
+  FX.pos = new Float32Array(FX.n*3); FX.col = new Float32Array(FX.n*3); FX.vida = new Float32Array(FX.n);
+  for(let i=0;i<FX.n;i++){ FX.pos[i*3+1] = -50; FX.vel.push([0,0,0]); }
+  g.setAttribute("position", new THREE.BufferAttribute(FX.pos,3));
+  g.setAttribute("color", new THREE.BufferAttribute(FX.col,3));
+  FX.pts = new THREE.Points(g, new THREE.PointsMaterial({size:0.09, vertexColors:true, transparent:true, opacity:0.95, depthWrite:false, blending:THREE.AdditiveBlending, fog:false}));
+  FX.pts.frustumCulled = false;
+  scene.add(FX.pts);
+}
+function chispas(x, y, z, n, rgb){
+  if(!FX.pts) initFx();
+  for(let k=0;k<n;k++){
+    const i = FX.i = (FX.i + 1) % FX.n, a = Math.random()*TAU, v = 1.2 + Math.random()*2.2;
+    FX.pos[i*3] = x + (Math.random()-0.5)*0.2; FX.pos[i*3+1] = y; FX.pos[i*3+2] = z + (Math.random()-0.5)*0.2;
+    FX.vel[i][0] = Math.cos(a)*v; FX.vel[i][1] = 1.2 + Math.random()*2.5; FX.vel[i][2] = Math.sin(a)*v;
+    FX.vida[i] = 0.35 + Math.random()*0.3;
+    FX.col[i*3] = rgb[0]; FX.col[i*3+1] = rgb[1]; FX.col[i*3+2] = rgb[2];
+  }
+  FX.pts.geometry.attributes.color.needsUpdate = true;
+}
+function updateFx(dt){
+  if(!FX.pts) return;
+  let vivo = false;
+  for(let i=0;i<FX.n;i++){
+    if(FX.vida[i] <= 0) continue;
+    FX.vida[i] -= dt; vivo = true;
+    if(FX.vida[i] <= 0){ FX.pos[i*3+1] = -50; continue; }
+    FX.vel[i][1] -= 9*dt;
+    FX.pos[i*3] += FX.vel[i][0]*dt; FX.pos[i*3+1] += FX.vel[i][1]*dt; FX.pos[i*3+2] += FX.vel[i][2]*dt;
+    if(FX.pos[i*3+1] < 0.02){ FX.pos[i*3+1] = 0.02; FX.vel[i][1] *= -0.3; }
+  }
+  if(vivo) FX.pts.geometry.attributes.position.needsUpdate = true;
+}
+
+/* ═══════════════ ACCIONES CON ANIMACIÓN (4.0) ═══════════════
+   Ponerse ropa, beber, vendarse, agacharse a coger algo y recibir un golpe duran un
+   momento. La figura 3D hace su postura (RIG_POSE.human); el sprite, un gesto de
+   cuerpo (se estira, se agacha, se sacude). Los compañeros las ven: se manda
+   {t:"accion", a}. */
+const ACCIONES = {
+  equip:{pose:"equip", t:0.9}, drink:{pose:"drink", t:0.8}, heal:{pose:"heal", t:0.9},
+  pick:{pose:"pick", t:0.6}, hurt:{pose:"hurt", t:0.35}
+};
+function playAct(kind){
+  const A = ACCIONES[kind]; if(!A) return;
+  G.act = {kind, t:A.t, dur:A.t};
+  if(MP.activo) mpEnviar({t:"accion", a:kind});
+}
+// desplazamiento y escala del sprite en cada acción; p va de 0 (empieza) a 1 (acaba)
+function actSprite(kind, p){
+  const s = Math.sin(clamp(p, 0, 1)*Math.PI);
+  switch(kind){
+    case "equip": return [s*0.07, 1 + s*0.05, 0];                      // se estira, como al ajustarse la ropa
+    case "drink": return [s*0.03, 1 - s*0.03, 0];
+    case "heal":  return [-s*0.05, 1 - s*0.06, 0];
+    case "pick":  return [-s*0.12, 1 - s*0.12, 0];                      // se agacha
+    case "hurt":  return [0, 1 - s*0.04, Math.sin(p*Math.PI*6)*0.05*(1 - p)];
+  }
+  return [0, 1, 0];
+}
+// el sprite o la figura del jugador se tiñe de rojo un instante al recibir un golpe
+function tinteJugador(k){
+  const m = player.mesh && player.mesh.material;
+  if(!m || !m.color || !m.color.setRGB) return;
+  const q = k > 0.02 ? k : 0;
+  if(player.tinte === q) return;
+  player.tinte = q;
+  m.color.setRGB(1, 1 - 0.55*q, 1 - 0.6*q);
+}
+function updateAct(dt){
+  const a = G.act;
+  if(!a || a.t <= 0){ tinteJugador(0); return null; }
+  a.t -= dt;
+  const p = clamp(1 - a.t/a.dur, 0, 1), sp = actSprite(a.kind, p);
+  tinteJugador(a.kind === "hurt" ? 1 - p : 0);
+  return {pose:ACCIONES[a.kind].pose, dy:sp[0], sy:sp[1], sx:sp[2]};
+}
+
+/* ═══════════════ ROPA Y PROTECCIONES (4.0) ═══════════════
+   Cuatro ranuras (cabeza, torso, brazos, piernas). Cada prenda protege unas zonas
+   y se come una parte de cada golpe que les llega; se desgasta con lo que absorbe
+   (G.wear, como las armas) y, cuando llega a cero, se rompe. Se ven en el personaje:
+   look.opts ya sabe dibujar casco, mascarilla, guantes y botas, y el atlas del
+   personaje se rehace por combinación («bhVg» = mochila, casco, chaleco gastado y
+   guantes; la mayúscula es «muy gastado»). */
+const CLOTH_SLOTS = ["head","torso","arms","legs"];
+const CLOTH_SLOT_NAME = {head:["cabeza","head"], torso:["torso","torso"], arms:["brazos","arms"], legs:["piernas","legs"]};
+const CLOTH = {
+  hardhat:{slot:"head",  parts:["head"], absorb:0.55, dur:40, key:"h",
+           dress:(p,o,d)=>{ o.hardhat = d ? "#a98a2e" : "#e0b43a"; }},
+  gasmask:{slot:"head",  parts:["head"], absorb:0.25, dur:60, key:"m", sanity:0.8,
+           dress:(p,o,d)=>{ o.mask = true; }},
+  vest:   {slot:"torso", parts:["torso"], absorb:0.45, dur:60, key:"v",
+           dress:(p,o,d)=>{ o.vest = d ? "#8c4a1c" : "#c8641e"; if(d) o.torn = true; }},
+  hazsuit:{slot:"torso", parts:["torso","armL","armR","legL","legR"], absorb:0.30, dur:45, key:"z", stamina:0.92,
+           dress:(p,o,d)=>{ const hz = SKIN_BY.hazmat; Object.assign(p, hz.pal); Object.assign(o, hz.opts); if(d){ p.shirt = dk(p.shirt, 0.78); p.pants = dk(p.pants, 0.78); o.torn = true; } }},
+  gloves: {slot:"arms",  parts:["armL","armR"], absorb:0.40, dur:50, key:"g",
+           dress:(p,o,d)=>{ o.gloves = d ? "#4a3e26" : "#6a5a3a"; }},
+  boots:  {slot:"legs",  parts:["legL","legR"], absorb:0.40, dur:60, key:"o",
+           dress:(p,o,d)=>{ o.boots = d ? "#2e241a" : "#4a3a2a"; }}
+};
+const CLOTH_BY_KEY = {}; Object.keys(CLOTH).forEach(id=> CLOTH_BY_KEY[CLOTH[id].key] = id);
+const CLOTH_VACIO = ()=> ({head:null, torso:null, arms:null, legs:null});
+function wornRaw(){ return G.worn || (G.worn = CLOTH_VACIO()); }
+function wornIds(){ const w = wornRaw(); return CLOTH_SLOTS.map(s=> w[s]).filter(Boolean); }
+function clothWearOf(id){ return G.wear[id] === undefined ? 1 : G.wear[id]; }
+function clothName(id){ return txf(ITEMS[id], "name"); }
+// la firma del aspecto visible: mochila y prendas (mayúscula = muy gastada)
+function wornKey(){
+  let k = G.equip && G.equip.backpack ? "b" : "";
+  const w = wornRaw();
+  CLOTH_SLOTS.forEach(s=>{ const id = w[s]; if(id) k += clothWearOf(id) < 0.3 ? CLOTH[id].key.toUpperCase() : CLOTH[id].key; });
+  return k;
+}
+function cleanKey(k){ return typeof k === "string" ? k.replace(/[^bhmvzgoBHMVZGO]/g, "").slice(0, 8) : ""; }
+// el aspecto de un personaje con lo que lleva puesto
+function lookConRopa(look, gk){
+  const pal = Object.assign({}, look.pal), o = Object.assign({}, look.opts);
+  const pack = o.pack || "#4d4437";
+  delete o.pack;                                           // la mochila sólo se ve si la llevas
+  for(let i=0;i<gk.length;i++){
+    const c = gk.charAt(i), low = c === c.toLowerCase(), k = c.toLowerCase();
+    if(k === "b") o.pack = pack;
+    else if(CLOTH_BY_KEY[k]) CLOTH[CLOTH_BY_KEY[k]].dress(pal, o, !low);
+  }
+  return {pal, opts:o};
+}
+// cuánto se come de cada golpe: baja con el desgaste (nueva 100 %, casi rota 60 %)
+function clothAbsorb(id){ return CLOTH[id].absorb*(0.6 + 0.4*clothWearOf(id)); }
+function clothProtect(partId, dmg){
+  if(!(dmg > 0)) return dmg;
+  let rest = dmg, absorbido = 0;
+  const w = wornRaw();
+  CLOTH_SLOTS.forEach(s=>{
+    const id = w[s];
+    if(!id || CLOTH[id].parts.indexOf(partId) < 0) return;
+    const quita = dmg*clothAbsorb(id);
+    rest -= quita; absorbido += quita;
+    clothWear(id, quita, s);
+  });
+  if(absorbido > 0.05) clothFx(partId, absorbido);
+  return Math.max(0, rest);
+}
+function clothWear(id, quita, slot){
+  const antes = clothWearOf(id), C = CLOTH[id];
+  const ahora = Math.max(0, antes - quita/C.dur);
+  G.wear[id] = ahora;
+  if(G.prog){ G.prog.absorbido = (G.prog.absorbido || 0) + quita; }
+  if(ahora <= 1e-6){ clothBreak(id, slot); return; }
+  if(ahora < 0.3 && antes >= 0.3){
+    toast(clothName(id)+tx(" está a punto de romperse."," is about to break."), 3);
+    refreshSlots();                                         // pasa a verse gastada
+  }
+}
+function clothBreak(id, slot){
+  wornRaw()[slot] = null;
+  delete G.wear[id];
+  Audio_.noise(0.35, 1400, 3, 0.12);
+  Audio_.tone(220, 0.25, 0.08, "sawtooth", 90);
+  G.shake = Math.min(0.5, G.shake + 0.2);
+  toast(tx("Se te ha roto: ","It broke: ")+clothName(id), 3.2);
+  logLine(tx("<b>"+clothName(id)+"</b> se rompe, pero aguantó lo que pudo.","<b>"+clothName(id)+"</b> breaks, but it held as long as it could."));
+  if(typeof chispas === "function") chispas(player.pos.x, 1.0, player.pos.z, 26, [1, 0.62, 0.28]);
+  unlockAch("clothbreak");
+  refreshSlots();
+}
+function clothFx(partId, absorbido){
+  G.partFlash = {id:partId, t:0.45};
+  Audio_.tone(1500, 0.05, 0.03, "triangle", 900);
+  if(typeof chispas === "function") chispas(player.pos.x, 0.5 + (partId === "head" ? 0.7 : (partId.indexOf("leg") === 0 ? -0.1 : 0.3)), player.pos.z, Math.min(14, 4 + (absorbido|0)), [0.55, 0.78, 1]);
+}
+function clothSanityMul(){
+  let m = 1; wornIds().forEach(id=>{ if(CLOTH[id].sanity) m *= CLOTH[id].sanity; });
+  return m;
+}
+function clothStaminaMul(){
+  let m = 1; wornIds().forEach(id=>{ if(CLOTH[id].stamina) m *= CLOTH[id].stamina; });
+  return m;
+}
+// ponerse una prenda de la mochila (lo que hubiera en esa ranura vuelve a la mochila)
+function putOn(id){
+  const C = CLOTH[id];
+  if(!C || !invFind(id)) return false;
+  const w = wornRaw(), previo = w[C.slot];
+  removeItem(id, 1);
+  if(previo && !addItem(previo, 1)) spawnDrop(previo, 1, player.pos.x, player.pos.z, G.wear[previo]);   // no cabe: al suelo
+  w[C.slot] = id;
+  Audio_.noise(0.22, 1100, 1.4, 0.07);
+  logLine(tx("Te pones: <b>","You put on: <b>")+clothName(id)+"</b> ("+tx(CLOTH_SLOT_NAME[C.slot][0], CLOTH_SLOT_NAME[C.slot][1])+", "+Math.round(clothWearOf(id)*100)+"%).");
+  if(typeof playAct === "function") playAct("equip");
+  unlockAch("dressed");
+  if(CLOTH_SLOTS.every(s=> w[s])) unlockAch("fullkit");
+  refreshSlots();
+  return true;
+}
+function takeOff(slot){
+  const w = wornRaw(), id = w[slot];
+  if(!id) return false;
+  if(!addItem(id, 1)){ toast(tx("No te cabe en la mochila.","No room in the backpack.")); return false; }
+  w[slot] = null;
+  Audio_.noise(0.18, 900, 1.2, 0.05);
+  logLine(tx("Te quitas: <b>","You take off: <b>")+clothName(id)+"</b>.");
+  refreshSlots();
+  return true;
+}
+// la figura del jugador lleva puesto lo que lleva (mochila y ropa)
+function refrescarAspecto(){
+  if(!G.cfg || !player.mesh || !G.char) return;
+  const gk = wornKey();
+  if((player.mesh.userData.gk || "") === gk) return;
+  const viejo = player.mesh;
+  scene.remove(viejo);
+  if(viejo.material){ if(viejo.material.map) viejo.material.map.dispose(); viejo.material.dispose(); }
+  player.mesh = makeActor(skinAtlas(G.char.id, skinOf(G.char.id), gk), 0.94, 1.42);
+  player.mesh.userData.gk = gk;
+  player.mesh.position.copy(viejo.position);
+  scene.add(player.mesh);
+  if(G.downed) actorDown(player.mesh, true);
+}
+
+function staminaMax(){ return (72 + G.body.torso*0.48) * (G.char ? G.char.stamina : 1) * clothStaminaMul(); }
 function bodyAvg(){
   let s=0; for(let i=0;i<PARTS.length;i++) s += G.body[PARTS[i].id];
   return s/PARTS.length;
@@ -4662,13 +5075,14 @@ function invCount(){ return G.inv.length; }
 const STACK_BASE = {almond:6, bandage:5, battery:4, flare:4, crowbar:2, recorder:2, medkit:3};
 function stackMax(id){
   const def = ITEMS[id];
-  if(!def || def.weapon || def.equip) return 1;
+  if(!def || def.weapon || def.equip || def.cloth) return 1;
   return Math.max(1, (STACK_BASE[id] || 3) + (DIFF_LV().stack || 0));
 }
 function invFind(id){ for(let i=0;i<G.inv.length;i++) if(G.inv[i].id===id) return G.inv[i]; return null; }
 function hasItem(id){
   const def = ITEMS[id];
   if(def && def.weapon) return G.weapons.L === id || G.weapons.R === id || !!invFind(id);
+  if(def && def.cloth) return !!invFind(id) || wornIds().indexOf(id) >= 0;
   return def && def.equip ? !!G.equip[id] : !!invFind(id);
 }
 
@@ -4686,6 +5100,7 @@ function addItem(id, qty){
     if(invFind(id)) return false;
   }
   codexSeeItem(id);
+  if(def.cloth && G.wear[id] === undefined) G.wear[id] = 0.55 + Math.random()*0.45;     // de un casillero nunca sale nueva
   if(def.equip){
     if(G.equip[id]) return false;
     G.equip[id] = true;
@@ -4986,7 +5401,7 @@ function rigHuman(look){
   const skin = p.skin || "#c49a6e", skinSh = p.skinShade || dk(skin, 0.82);
   const shirt = p.shirt || "#6a6a6a", shirtSh = p.shirtShade || dk(shirt, 0.8);
   const pants = p.pants || "#34343a", pantsSh = p.pantsShade || dk(pants, 0.8);
-  const shoe = p.shoe || "#222222", shoeSh = p.shoeShade || dk(shoe, 0.7);
+  const shoe = o.boots || p.shoe || "#222222", shoeSh = p.shoeShade || dk(shoe, 0.7);
   const sleeve = o.jacket || shirt, sleeveSh = o.jacketShade || shirtSh;
   const reach = o.reach ? 3 : 0;
   const faceless = !!o.faceless || !p.eye || p.eye === p.skin;
@@ -5101,6 +5516,11 @@ function rigHuman(look){
     H.box(x0, hh+1, 4, hw, 1, 3, dk(cc, 0.8));                         // visera
     mid.forEach(x=> H.set(x, hh+3, -1, dk(cc, 0.8)));                  // botón
   }
+  if(o.hardhat){
+    const hc2 = o.hardhat;
+    H.box(x0-1, hh+1, -5, hw+2, 2, 9, hc2); H.box(x0, hh+3, -4, hw, 1, 7, hc2);
+    H.box(x0-1, hh+1, 4, hw+2, 1, 3, dk(hc2, 0.78)); H.box(-1, hh+4, -3, 2, 1, 6, dk(hc2, 0.85));
+  }
   if(o.hood){
     const hd = o.hood, hds = dk(hd, 0.78);
     for(let x=x0-1;x<=x1+1;x++) for(let y=0;y<=hh+1;y++) for(let z=-5;z<=3;z++){
@@ -5115,6 +5535,10 @@ function rigHuman(look){
     const gy = hh - 2;
     for(let x=x0-1;x<=x1+1;x++) for(let z=-5;z<=4;z++) if(x === x0-1 || x === x1+1 || z === -5 || z === 4) H.set(x, gy, z, "#2e2a26");
     [x0+1, x1-2].forEach(x=>{ H.box(x, gy, 4, 2, 2, 1, "#8fc0c8"); H.set(x, gy+1, 4, "#c8e8ec"); });
+  }
+  if(o.mask){
+    H.box(x0+1, hh-5, 4, hw-2, 2, 1, "#1e2a2e"); H.set(x0+2, hh-4, 4, "#8fd0d8");
+    H.box(x0+1, hh-8, 4, hw-2, 3, 1, "#4a524a"); H.box(mid[0]-1, hh-8, 5, mid.length+2, 3, 1, "#3a3f3a");
   }
   if(o.visor){
     H.box(x0+1, hh-6, 4, hw-2, 6, 1, "#1c2a2e");
@@ -5135,7 +5559,7 @@ function rigHuman(look){
     if(o.cross && sd > 0) U.paint(-1,-2,-1,3,2,3,"#c0392b");            // brazalete
     const F = vgrid().box(-1,-fl,-1,3,fl,3, sleeve);
     F.paint(-1,-fl,-1,3,1,3, sleeveSh);                                 // puño
-    F.box(-1,-fl-3,-1,3,3,3, skin);
+    F.box(-1,-fl-3,-1,3,3,3, o.gloves || skin);
     F.paint(-1,-fl-3,-1,3,1,3, o.reach ? dk(skin, 0.55) : skinSh);    // dedos (uñas, si alcanza)
     if(o.bandages) F.paint(-1,-2,-1,3,1,3,"#e8e0cc");
     parts.push({n:"arm"+L, p:"torso", at:[sd*6.5, 10, 0], g:U, off:[-0.5,0,-0.5]});
@@ -5156,6 +5580,7 @@ function rigHuman(look){
     if(o.torn){ SH.paint(sd > 0 ? 0 : -1, -3, 1, 1, 1, 1, skinSh); SH.set(sd > 0 ? 1 : -2, -1, 1, null); }
     const sy = o.skates ? -5 : -6;
     SH.box(-2, sy, -2, 4, 2, 5, shoe); SH.paint(-2, sy, -2, 4, 1, 5, shoeSh);
+    if(o.boots) SH.box(-2, sy + 2, -2, 4, 2, 4, dk(shoe, 0.9));                      // caña de la bota
     if(o.skates){ SH.box(-1,-6,-1,2,1,3,"#d8d0c0"); SH.box(-2,-6,-2,4,1,1,"#e0503a"); SH.box(-2,-6,2,4,1,1,"#e0503a"); }
     parts.push({n:"thigh"+L, p:"root", at:[sd*2, 12, 0], g:TH});
     parts.push({n:"shin"+L, p:"thigh"+L, at:[0,-6,0], g:SH});
@@ -5532,6 +5957,22 @@ const RIG_POSE = {
     } else if(pz === "cheer"){                       // los dos brazos arriba
       const f = Math.sin(t*10)*0.15;
       R.rot.armL = [-2.9 + f, 0, 0.4]; R.rot.armR = [-2.9 - f, 0, -0.4]; R.rot.foreL = [-0.2, 0, 0]; R.rot.foreR = [-0.2, 0, 0];
+    } else if(pz === "equip"){                       // se ajusta la ropa: las dos manos por delante del pecho
+      const f = Math.sin(t*14);
+      R.rot.armL = [-1.25 + f*0.12, 0, -0.25]; R.rot.armR = [-1.25 - f*0.12, 0, 0.25];
+      R.rot.foreL = [-1.3, 0, 0]; R.rot.foreR = [-1.3, 0, 0];
+      R.rot.torso = [0.1, f*0.05, 0]; R.rot.head = [0.25, 0, 0];
+    } else if(pz === "drink"){                       // se lleva algo a la boca con la derecha
+      R.rot.armR = [-1.7, 0, -0.15]; R.rot.foreR = [-1.9, 0, 0]; R.rot.head = [-0.35, 0, 0]; R.rot.torso = [-0.08, 0, 0];
+    } else if(pz === "heal"){                        // se aprieta la herida, encorvado
+      R.rot.armL = [-0.7, 0, -0.35]; R.rot.foreL = [-1.6, 0, 0]; R.rot.torso = [0.28, 0, 0.05]; R.rot.head = [0.25, 0, 0];
+    } else if(pz === "pick"){                        // se agacha a coger algo
+      R.rot.torso = [0.75, 0, 0]; R.rot.head = [-0.3, 0, 0]; R.rot.armL = [-0.9, 0, 0.1]; R.rot.armR = [-0.9, 0, -0.1];
+      R.rot.thighL = [-0.5, 0, 0.03]; R.rot.thighR = [-0.5, 0, -0.03]; R.rot.shinL = [0.9, 0, 0]; R.rot.shinR = [0.9, 0, 0];
+      R.root.y = -2.5;
+    } else if(pz === "hurt"){                        // se echa hacia atrás al recibir el golpe
+      const f = Math.sin(t*40)*0.06;
+      R.rot.torso = [-0.35, f, 0]; R.rot.head = [-0.4, 0, f]; R.rot.armL = [-0.5, 0, 0.7]; R.rot.armR = [-0.5, 0, -0.7];
     } else if(pz === "down"){
       R.rot.armL = [0, 0, 1.2]; R.rot.armR = [0, 0, -1.2];
       R.rot.foreL = [-0.3, 0, 0]; R.rot.foreR = [-0.3, 0, 0];
@@ -5611,11 +6052,11 @@ function rigGear(m, r){
 function actorDown(m, on){
   if(!m) return;
   if(isRig(m)){ m.userData.pose = on ? "down" : ""; m.scale.y = 1; rigAnimate(m); }
-  else { m.userData.tumbado = !!on; m.scale.y = 1; }
+  else { m.userData.tumbado = !!on; m.scale.set(on ? FALLEN_SCALE : 1, on ? FALLEN_SCALE : 1, 1); }
 }
 // a qué altura va el centro de la figura: de pie, media figura; caída, la 3D casi a la
 // mitad (ya se tumba sola) y el sprite tumbado, pegado al suelo
-function actorY(m, caido){ return !caido ? 0.71 : (isRig(m) ? 0.34 : 0.045); }
+function actorY(m, caido){ return !caido ? 0.71 : (isRig(m) ? 0.34 : 0.71*FALLEN_SCALE); }   // el sprite caído, con los pies en el suelo
 // la figura (3D o plana) ya no es la que pide el ajuste «Personajes»
 function figuraDesactualizada(m){ return !!m && isRig(m) !== voxOn(); }
 // cambiar «Personajes» se aplica al momento a ti y a tus compañeros (las entidades, al bajar)
@@ -5625,7 +6066,8 @@ function refrescarFiguras(){
     const viejo = player.mesh;
     scene.remove(viejo);
     if(viejo.material){ if(viejo.material.map) viejo.material.map.dispose(); viejo.material.dispose(); }
-    player.mesh = makeActor(skinAtlas(G.char.id, skinOf(G.char.id)), 0.94, 1.42);
+    player.mesh = makeActor(skinAtlas(G.char.id, skinOf(G.char.id), wornKey()), 0.94, 1.42);
+    player.mesh.userData.gk = wornKey();
     scene.add(player.mesh);
     if(G.downed) actorDown(player.mesh, true);
   }
@@ -5663,13 +6105,7 @@ function billboard(m, camPos){
     rigAnimate(m);
     return;
   }
-  const ang = Math.atan2(camPos.x - m.position.x, camPos.z - m.position.z);
-  if(m.userData && m.userData.tumbado){
-    // tumbado boca arriba, con la cabeza hacia el lado contrario a la cámara
-    m.rotation.order = "YXZ"; m.rotation.set(-Math.PI/2, ang, 0);
-  } else {
-    m.rotation.order = "XYZ"; m.rotation.set(0, ang, 0);
-  }
+  m.rotation.y = Math.atan2(camPos.x - m.position.x, camPos.z - m.position.z);
 }
 
 /* ═══════════════ SALIDAS: geometría por tipo ═══════════════ */
@@ -6265,7 +6701,7 @@ function lootForRoll(roll, rand){
     let id = pool[(rand()*pool.length)|0];
     if(id === "map" && (G.navPrize !== "map" || hasItem("map"))) id = "almond";
     // el equipo repetido no entra en la mochila: se cambia por algo que sí sirva
-    if((ITEMS[id].equip || ITEMS[id].weapon) && hasItem(id)){
+    if((ITEMS[id].equip || ITEMS[id].weapon || ITEMS[id].cloth) && hasItem(id)){
       const sob = ["almond","almond","bandage","battery","flare"];
       id = sob[(rand()*sob.length)|0];
     }
@@ -7856,17 +8292,20 @@ function buildLevel(levelId, seed){
   G.grace = cfg.settlement ? 0 : DIFF_LV().grace;   // margen al entrar a un nivel
 
   // ── jugador ──
-  const atlas = skinAtlas(G.char.id, skinOf(G.char.id));
-  // al cambiar de personaje, de aspecto o de estilo (vóxeles/plano) se rehace la figura
+  const gk = wornKey();
+  const atlas = skinAtlas(G.char.id, skinOf(G.char.id), gk);
+  // al cambiar de personaje, de aspecto, de ropa o de estilo (vóxeles/plano) se rehace la figura
   if(player.mesh && (player.mesh.userData.atlas !== atlas || isRig(player.mesh) !== voxOn())){
     scene.remove(player.mesh);
     if(player.mesh.material.map) player.mesh.material.map.dispose();
     player.mesh.material.dispose();
     player.mesh = makeActor(atlas, 0.94, 1.42);
+    player.mesh.userData.gk = gk;
     scene.add(player.mesh);
   }
   if(!player.mesh){
     player.mesh = makeActor(atlas, 0.94, 1.42);
+    player.mesh.userData.gk = gk;
     scene.add(player.mesh);
     player.shadow = new THREE.Mesh(
       new THREE.CircleGeometry(0.34,14),
@@ -8441,7 +8880,7 @@ function updatePlayer(dt){
     }
     return;
   }
-  if(G.downed){ player.speed = 0; return; }
+  if(G.downed){ player.speed = 0; if(player.mesh) billboard(player.mesh, camera.position); return; }
   const fl = !bpOpen;                                  // con la mochila abierta las flechas eligen objeto
   if(keys[kb("fwd")]||(fl && keys["arrowup"]))    iz+=1;
   if(keys[kb("back")]||(fl && keys["arrowdown"])) iz-=1;
@@ -8500,12 +8939,15 @@ function updatePlayer(dt){
   player.animFrame = frame; player.animRow = row;   // los amigos lo necesitan
   player.mesh.scale.x = flip;
   player.mesh.userData.yaw = player.facing;          // la figura 3D mira hacia delante
-  player.mesh.userData.pose = G.gesto && G.gesto.t > 0 ? G.gesto.pose : "";
+  const ac = updateAct(dt);                          // ponerse ropa, beber, vendarse, agacharse, golpe
+  player.mesh.userData.pose = ac ? ac.pose : (G.gesto && G.gesto.t > 0 ? G.gesto.pose : "");
   const W = G.weapons || {};
   player.mesh.userData.gearL = W.L || (G.torchOn ? "torch" : null);   // lo que se ve en sus manos
   player.mesh.userData.gearR = W.R || null;
 
-  player.mesh.position.set(player.pos.x, 0.71 + (moving?Math.abs(Math.sin(player.bob*2.2))*0.02:0), player.pos.z);
+  player.mesh.position.set(player.pos.x + (ac ? ac.sx : 0), 0.71 + (moving?Math.abs(Math.sin(player.bob*2.2))*0.02:0) + (ac && !isRig(player.mesh) ? ac.dy : 0), player.pos.z);
+  // el sprite respira parado y hace el gesto de la acción; la figura 3D ya lo hace con su postura
+  if(!isRig(player.mesh)) player.mesh.scale.y = (ac ? ac.sy : 1) * (moving ? 1 : 1 + Math.sin(G.t*2.2)*0.012);
   billboard(player.mesh, camera.position);
   player.shadow.position.set(player.pos.x, 0.02, player.pos.z);
 
@@ -8593,13 +9035,15 @@ function hurtPlayer(amount, source){
   if(TRUCO.god) return;                                   // modo pruebas: invencible
   amount *= (G.char ? G.char.tough : 1) * DIFF_LV().dmg;
   if(G.shield > 0) amount *= 0.5;   // Aguante, la habilidad de Lázaro
-  if(G.stats) G.stats.hurt += amount;
   const part = rollPart();
+  amount = clothProtect(part, amount);                    // la ropa se come parte del golpe
+  if(G.stats) G.stats.hurt += amount;
   G.body[part] = Math.max(0, G.body[part] - amount);
   G.shake = Math.min(0.55, G.shake + amount*0.014);
   if(amount > 2.5){
     Audio_.hurt();
     flashBlood();
+    if(!G.act || G.act.t <= 0) playAct("hurt");           // se echa hacia atrás un instante
     if(G.body[part] < 55 && Math.random() < 0.45 && !G.bleeding[part]){
       G.bleeding[part] = 1;
       logLine(tx("Hemorragia en ","Bleeding from the ")+partName(part)+tx(". <b>"+tag("bandage")+"</b> para vendarte.",". <b>"+tag("bandage")+"</b> to bandage."));
@@ -8648,15 +9092,18 @@ function entitySpecial(e){
   const mult = (G.char ? G.char.tough : 1) * DIFF_LV().dmg * (G.shield > 0 ? 0.5 : 1);
   const total = sp.pct * 100 * PARTS.length * mult;
   const each  = total / sp.parts.length;
+  let real = 0;
   for(let i=0;i<sp.parts.length;i++){
     const id = sp.parts[i];
-    G.body[id] = Math.max(0, G.body[id] - each);
+    const rest = clothProtect(id, each);                  // la ropa también aguanta los especiales
+    real += rest;
+    G.body[id] = Math.max(0, G.body[id] - rest);
     if(sp.bleed && !G.bleeding[id] && G.body[id] < 78){
       G.bleeding[id] = 1;
       logLine(tx("Hemorragia en ","Bleeding from the ")+partName(id)+tx(". <b>"+tag("bandage")+"</b> para vendarte.",". <b>"+tag("bandage")+"</b> to bandage."));
     }
   }
-  if(G.stats) G.stats.hurt += total;
+  if(G.stats) G.stats.hurt += real;
   if(sp.sanity) G.sanity = clamp(G.sanity - sp.sanity, 0, 100);
   G.shake = Math.min(0.95, G.shake + 0.55);
   Audio_.scream();
@@ -8743,12 +9190,13 @@ function updateSpWarn(){
 /* ═══════════════ USO DE OBJETOS ═══════════════ */
 
 function useItem(id){
+  if(ITEMS[id] && ITEMS[id].cloth){ putOn(id); return; }
   if(id === "almond"){
     if(!hasItem("almond")){ toast(tx("No te queda Almond Water.","No Almond Water left.")); return; }
     removeItem("almond");
     const antes = G.sanity;
     G.sanity = Math.min(100, G.sanity + 39);
-    Audio_.sip();
+    Audio_.sip(); playAct("drink");
     // antes ponía +34 aunque daba 39 (y aunque estuvieras casi a tope)
     const gana = Math.round(G.sanity - antes);
     logLine(tx("Almond Water. <b>+"+gana+"</b> cordura.","Almond Water. <b>+"+gana+"</b> sanity."));
@@ -8822,7 +9270,7 @@ function useItem(id){
     if(!hasItem("medkit")){ toast(tx("No te quedan botiquines.","No first-aid kits left.")); return; }
     removeItem("medkit");
     PARTS.forEach(p=>{ G.body[p.id] = Math.min(100, G.body[p.id] + 30); G.bleeding[p.id] = 0; });
-    Audio_.wrap();
+    Audio_.wrap(); playAct("heal");
     logLine(tx("Botiquín: <b>+30</b> en todas las zonas y sin hemorragias.","First-aid kit: <b>+30</b> on every part and no bleeding."));
   }
   else if(id === "firesalt"){
@@ -8850,7 +9298,7 @@ function useItem(id){
     removeItem("rations");
     PARTS.forEach(p=>{ G.body[p.id] = Math.min(100, G.body[p.id] + 20); });
     G.stamina = staminaMax(); G.sanity = Math.min(100, G.sanity + 10);
-    Audio_.sip();
+    Audio_.sip(); playAct("drink");
     logLine(tx("Royal Rations: <b>+20</b> en todo el cuerpo, aliento lleno y <b>+10</b> de cordura. Ya estás pensando en el siguiente bocado.","Royal Rations: <b>+20</b> all over, full breath and <b>+10</b> sanity. You are already thinking about the next bite."));
   }
   else if(id === "luckymilk" || id === "marshmallow"){
@@ -8858,7 +9306,7 @@ function useItem(id){
     removeItem(id);
     G.stamina = staminaMax();
     G.boostT = Math.max(G.boostT || 0, id === "luckymilk" ? 25 : 12);
-    Audio_.sip();
+    Audio_.sip(); playAct("drink");
     if(id === "marshmallow"){
       G.mallows = (G.mallows || []).filter(t=> G.t - t < 60).concat([G.t]);
       if(G.mallows.length >= 3){ G.bloatT = 40; G.mallows = []; logLine(tx("Demasiadas <b>Greasy Marshmallows</b>: te duele la cabeza y el cuerpo te pesa.","Too many <b>Greasy Marshmallows</b>: your head aches and your body feels heavy.")); }
@@ -8903,7 +9351,7 @@ function bandagePart(part, avisaSiNoHay){
   G.body[part.id] = Math.min(100, G.body[part.id] + 45);
   const wasBleeding = G.bleeding[part.id];
   G.bleeding[part.id] = 0;
-  Audio_.wrap();
+  Audio_.wrap(); playAct("heal");
   logLine(tx("Vendas ","You bandage the ")+txf(part,"name")+(wasBleeding?tx(". Hemorragia cortada.",". Bleeding stopped."):". <b>+45</b>."));
   refreshSlots();
   return true;
@@ -9424,6 +9872,7 @@ function showDice(roll, label, good){
 function openContainer(c){
   if(c.opened) return;
   c.opened = true;
+  playAct("pick");
   Audio_.openBox();
   if(c.door){ c.door.userData.swing = 0; c.door.userData.open = true; }
 
@@ -10143,7 +10592,7 @@ function updateSanity(dt){
   }
   drain += near*0.9;
 
-  G.sanity = clamp(G.sanity - drain*dt*0.34*(G.char?G.char.sanity:1)*DIFF_LV().sanity, 0, 100);
+  G.sanity = clamp(G.sanity - drain*dt*0.34*(G.char?G.char.sanity:1)*DIFF_LV().sanity*clothSanityMul(), 0, 100);
 
   const panic = G.sanity<45 ? (45-G.sanity)/45 : 0;
   Audio_.set(Audio_.heartGain, panic>0.15 ? 0.06+panic*0.16 : 0, 0.6);
@@ -10437,6 +10886,11 @@ bodyc.addEventListener("click",(e)=>{
   const id = partAtBodyClick(e.clientX, e.clientY);
   if(id) healBodyPart(id);
 });
+function clothCovers(partId){
+  const w = wornRaw();
+  for(let i=0;i<CLOTH_SLOTS.length;i++){ const id = w[CLOTH_SLOTS[i]]; if(id && CLOTH[id].parts.indexOf(partId) >= 0) return id; }
+  return null;
+}
 function drawBody(){
   bctx.clearRect(0,0,31,48);
   for(const id in BODY_BOXES){
@@ -10451,6 +10905,11 @@ function drawBody(){
     bctx.fillRect(b[0],b[1],b[2],b[3]);
     bctx.fillStyle = "rgba(0,0,0,.35)";
     bctx.fillRect(b[0],b[1],b[2],1);
+    if(clothCovers(id)){ bctx.fillStyle = "#5a8ab0"; bctx.fillRect(b[0],b[1]+b[3]-1,b[2],1); }       // zona con ropa que protege
+    if(G.partFlash && G.partFlash.id === id && G.partFlash.t > 0){
+      bctx.strokeStyle = "rgba(140,200,255,"+Math.min(1, G.partFlash.t*3)+")"; bctx.lineWidth = 1;
+      bctx.strokeRect(b[0]-0.5,b[1]-0.5,b[2]+1,b[3]+1);                                                // acaba de absorber un golpe
+    }
     if(bodyHover === id){
       bctx.strokeStyle = "#f2e9c9"; bctx.lineWidth = 1;
       bctx.strokeRect(b[0]+0.5,b[1]+0.5,b[2]-1,b[3]-1);
@@ -10486,12 +10945,26 @@ function paintHands(){
   });
 }
 function refreshSlots(){
+  refrescarAspecto();                                      // la figura lleva puesto lo que lleva
   if(typeof bpOpen !== "undefined" && bpOpen) renderBackpack();
   paintHands();
   const eq = $("equip");
   eq.textContent = "";
   const equipIds = EQUIP_IDS;
   let anyEquip = false;
+  wornIds().forEach(id=>{
+    anyEquip = true;
+    const d = document.createElement("div");
+    d.className = "eq cloth";
+    d.appendChild(iconNode(ITEMS[id].icon));
+    const bar = document.createElement("i");
+    const w = clothWearOf(id);
+    bar.style.transform = "scaleX("+clamp(w,0.03,1)+")";
+    bar.style.background = w < 0.3 ? "#e0624a" : "var(--sane)";
+    d.appendChild(bar);
+    d.title = clothName(id)+" · "+Math.round(w*100)+"% — "+ITEMS[id].blurb;
+    eq.appendChild(d);
+  });
   equipIds.forEach(id=>{
     if(!G.equip[id]) return;
     anyEquip = true;
@@ -10656,6 +11129,7 @@ function updateHud(dt){
     }
   }
 
+  if(G.partFlash && G.partFlash.t > 0) G.partFlash.t -= dt;
   drawBody();
   drawNeedle();
 }
@@ -10720,7 +11194,10 @@ const ACHIEVEMENTS = [
   {id:"lazarus",    name:"Salió uno",            desc:"Desbloquea a Lázaro.", name_en:"One made it out", desc_en:"Unlock Lazarus."},
   {id:"meg1",       name:"Al servicio del M.E.G.", desc:"Cumple y cobra tu primera misión como agente.", name_en:"In the M.E.G.'s service", desc_en:"Complete and collect your first mission as an agent."},
   {id:"meg10",      name:"Agente veterano",      desc:"Cumple 10 misiones del M.E.G.", name_en:"Veteran agent", desc_en:"Complete 10 M.E.G. missions."},
-  {id:"broke",      name:"Hasta que se rompió",  desc:"Usa un arma hasta partirla.", name_en:"Until it broke", desc_en:"Use a weapon until it snaps."}
+  {id:"broke",      name:"Hasta que se rompió",  desc:"Usa un arma hasta partirla.", name_en:"Until it broke", desc_en:"Use a weapon until it snaps."},
+  {id:"dressed",    name:"Bien abrigado",        desc:"Ponte una prenda de protección.", name_en:"Well wrapped up", desc_en:"Put on a piece of protective clothing."},
+  {id:"clothbreak", name:"Hasta el último hilo", desc:"Que una prenda se te rompa tras haberte salvado de unos cuantos golpes.", name_en:"To the last thread", desc_en:"Have a garment break on you after it saved you from a few hits."},
+  {id:"fullkit",    name:"De pies a cabeza",     desc:"Lleva una prenda en cada ranura: cabeza, torso, brazos y piernas.", name_en:"Head to toe", desc_en:"Wear a garment in every slot: head, torso, arms and legs."}
 ];
 const ACH_BY_ID = {};
 ACHIEVEMENTS.forEach(a=> ACH_BY_ID[a.id] = a);
@@ -10932,7 +11409,8 @@ function updateHand(){
 
 // 1..0: con «uso rápido» (por defecto) el primer toque ya lo usa; si no,
 // el primero lo saca y el segundo lo usa, como antes.
-const QUICK_USE = {almond:1, bandage:1, battery:1, flare:1, recorder:1, medkit:1, rations:1, luckymilk:1, marshmallow:1, ducttape:1, repellent:1, megbeacon:1};
+const QUICK_USE = {almond:1, bandage:1, battery:1, flare:1, recorder:1, medkit:1, rations:1, luckymilk:1, marshmallow:1, ducttape:1, repellent:1, megbeacon:1,
+  hardhat:1, gasmask:1, vest:1, hazsuit:1, gloves:1, boots:1};
 function slotKey(idx){
   const slot = G.inv[idx];
   if(!slot){ holdItem(null); return; }
@@ -10970,10 +11448,11 @@ function flashSlot(id){
 let bpOpen = false;
 const BP = {list:[], sel:"", armed:"", armedT:0};
 const BP_USO_EQUIPO = {flashlight:1, megcamera:1};         // equipo que además se puede usar
-function bpKey(e){ return e ? e.id+"|"+(e.hand||"") : ""; }
+function bpKey(e){ return e ? e.id+"|"+(e.hand||(e.worn ? "w:"+e.worn : "")) : ""; }
 function bpEntries(){
   const out = [];
   ["L","R"].forEach(hand=>{ const id = G.weapons[hand]; if(id) out.push({id, qty:1, hand}); });
+  CLOTH_SLOTS.forEach(sl=>{ const id = wornRaw()[sl]; if(id) out.push({id, qty:1, worn:sl}); });
   G.inv.forEach((s, n)=> out.push({id:s.id, qty:s.qty, n}));
   EQUIP_IDS.forEach(id=>{ if(G.equip[id]) out.push({id, qty:1, eq:true}); });
   return out;
@@ -10982,6 +11461,9 @@ function bpSelected(){ return BP.list.find(e=> bpKey(e) === BP.sel) || null; }
 // la acción principal del objeto: lo que pone el botón y lo que hace
 function bpMain(e){
   const def = ITEMS[e.id];
+  if(def.cloth) return e.worn
+    ? {txt:tx("Quitarse","Take off"), fn:()=> takeOff(e.worn)}
+    : {txt:tx("Ponerse","Put on"), fn:()=> putOn(e.id)};
   if(def.weapon) return e.hand
     ? {txt:tx("Guardar","Stow"), fn:()=> weaponClick(e.id, e.hand)}
     : {txt:tx("Empuñar","Wield"), fn:()=> weaponClick(e.id)};
@@ -10997,6 +11479,10 @@ function bpMeta(e){
     const donde = e.hand ? (e.hand === "L" ? tx("mano izquierda","left hand") : tx("mano derecha","right hand")) : tx("en la mochila","in the pack");
     return tx("Arma","Weapon")+" · "+donde+" · "+Math.max(1, Math.round(w*100))+"%";
   }
+  if(def.cloth){
+    const C = CLOTH[e.id];
+    return tx("Ropa","Clothing")+" · "+tx(CLOTH_SLOT_NAME[C.slot][0], CLOTH_SLOT_NAME[C.slot][1])+" · "+(e.worn ? tx("puesta","worn") : tx("en la mochila","in the pack"))+" · "+Math.max(1, Math.round(clothWearOf(e.id)*100))+"%";
+  }
   if(def.equip) return tx("Equipo · no ocupa hueco","Gear · takes no slot");
   return tx("Consumible","Consumable")+" · "+e.qty+"/"+stackMax(e.id);
 }
@@ -11006,7 +11492,7 @@ function bpDo(que){
   const k = bpKey(e);
   const antes = BP.list.findIndex(x=> bpKey(x) === k);       // antes de actuar: la acción vuelve a pintar la lista
   if(que === "main"){ const m = bpMain(e); if(m){ m.fn(); Audio_.click(); } }
-  else if(que === "drop") dropItem(e.id, e.hand, false);
+  else if(que === "drop") dropItem(e.id, e.hand || (e.worn ? "w:"+e.worn : undefined), false);
   else if(que === "trash"){
     // desechar se pierde para siempre: la primera pulsación sólo avisa
     if(BP.armed !== k || Date.now() - BP.armedT > 3000){
@@ -11014,7 +11500,7 @@ function bpDo(que){
       setTimeout(()=>{ if(bpOpen && BP.armed === k && Date.now() - BP.armedT > 3000){ BP.armed = ""; renderBackpack(); } }, 3100);
       return;
     }
-    dropItem(e.id, e.hand, true);
+    dropItem(e.id, e.hand || (e.worn ? "w:"+e.worn : undefined), true);
   }
   BP.armed = "";
   // si el objeto sigue ahí se queda elegido; un arma que cambia de mano o de
@@ -11065,15 +11551,16 @@ function bpCell(e, host, delay){
   const cv = document.createElement("canvas"); cv.width = ICON_PX; cv.height = ICON_PX;
   const cx = cv.getContext("2d"); cx.imageSmoothingEnabled = false; cx.drawImage(ICON_TEX[def.icon], 0, 0, ICON_PX, ICON_PX);
   c.appendChild(cv);
-  if(e.hand){
+  if(e.hand || e.worn){
     const n = document.createElement("div"); n.className = "bp-hn";
-    const lado = document.createElement("span"); lado.textContent = e.hand === "L" ? tx("IZQUIERDA","LEFT") : tx("DERECHA","RIGHT");
+    const lado = document.createElement("span");
+    lado.textContent = e.hand ? (e.hand === "L" ? tx("IZQUIERDA","LEFT") : tx("DERECHA","RIGHT")) : tx(CLOTH_SLOT_NAME[e.worn][0], CLOTH_SLOT_NAME[e.worn][1]).toUpperCase();
     const nom = document.createElement("b"); nom.textContent = txf(def,"name");
     n.appendChild(lado); n.appendChild(nom);
     c.appendChild(n);
   }
   if(e.n !== undefined && e.n < 10){ const kk = document.createElement("span"); kk.className = "bp-k"; kk.textContent = (e.n+1) % 10; c.appendChild(kk); }
-  if(def.weapon){
+  if(def.weapon || def.cloth){
     const w = G.wear[e.id] !== undefined ? G.wear[e.id] : 1;
     const bar = document.createElement("div"); bar.className = "bp-w";
     bar.innerHTML = "<i class=\""+(w < 0.2 ? "low" : "")+"\" style=\"width:"+Math.max(2, Math.round(w*100))+"%\"></i>";
@@ -11123,6 +11610,12 @@ function bpInfo(){
   const d = document.createElement("div"); d.className = "bpi-d";
   d.innerHTML = keyify(txf(def,"blurb"));
   host.appendChild(d);
+  if(def.cloth){                                                      // lo que protege AHORA, con su desgaste
+    const q = document.createElement("div"); q.className = "bpi-d";
+    const C = CLOTH[e.id];
+    q.innerHTML = tx("Ahora absorbe el <b>","Right now it soaks up <b>")+Math.round(clothAbsorb(e.id)*100)+tx(" %</b> de los golpes a: "," %</b> of hits to: ")+C.parts.map(partName).join(", ")+".";
+    host.appendChild(q);
+  }
   const acts = document.createElement("div"); acts.className = "bpi-a";
   const pad = INPUT === "pad";
   const mk = (clase, txt, tecla, fn, off)=>{
@@ -11146,6 +11639,11 @@ function bpInfo(){
 function takeOut(id, hand, all){
   const def = ITEMS[id];
   if(!def) return 0;
+  if(typeof hand === "string" && hand.indexOf("w:") === 0){            // una prenda que llevas puesta
+    const sl = hand.slice(2);
+    if(wornRaw()[sl] !== id) return 0;
+    wornRaw()[sl] = null; return 1;
+  }
   if(hand){ if(G.weapons[hand] !== id) return 0; G.weapons[hand] = null; return 1; }
   if(def.weapon && !invFind(id)){
     const h = G.weapons.L === id ? "L" : (G.weapons.R === id ? "R" : null);
@@ -11170,7 +11668,7 @@ function dropItem(id, hand, destroy){
   const wear = G.wear[id];
   const n = takeOut(id, hand, !destroy);
   if(!n) return;
-  if(ITEMS[id].weapon && !hasItem(id)) delete G.wear[id];
+  if((ITEMS[id].weapon || ITEMS[id].cloth) && !hasItem(id)) delete G.wear[id];
   if(G.held === id && !hasItem(id)) G.held = null;
   if(destroy){
     Audio_.noise(0.25, 500, 1.2, 0.06);
@@ -11196,11 +11694,11 @@ function spawnDrop(id, qty, x, z, wear, uid){
   return d;
 }
 function pickDrop(d){
-  if(d.wear !== undefined && ITEMS[d.id].weapon && !hasItem(d.id)) G.wear[d.id] = d.wear;
+  if(d.wear !== undefined && (ITEMS[d.id].weapon || ITEMS[d.id].cloth) && !hasItem(d.id)) G.wear[d.id] = d.wear;
   let got = 0;
   while(got < d.qty && addItem(d.id, 1)) got++;
   d.qty -= got;
-  if(got) logLine(tx("Recoges: ","Picked up: ")+"<b>"+txf(ITEMS[d.id],"name")+"</b>"+(got>1?" ×"+got:"")+".");
+  if(got){ logLine(tx("Recoges: ","Picked up: ")+"<b>"+txf(ITEMS[d.id],"name")+"</b>"+(got>1?" ×"+got:"")+"."); playAct("pick"); }
   if(d.qty > 0) toast(tx("No te cabe más: ","No room for more: ")+txf(ITEMS[d.id],"name"));
   if(d.qty <= 0){ d.mesh.visible = false; G.drops.splice(G.drops.indexOf(d), 1); }
   if(got) mpAvisarRecoger(d);
@@ -11249,6 +11747,13 @@ function renderBackpack(){
     const e = BP.list.find(x=> x.hand === h);
     if(e) bpCell(e, hands, d++);
     else bpEmpty(hands, h === "L" ? tx("IZQUIERDA · vacía","LEFT · empty") : tx("DERECHA · vacía","RIGHT · empty"));
+  });
+  // lo que llevas puesto: cuatro ranuras, con su desgaste
+  const ropa = bpSection(tx("Puesto","Wearing"), tx("protege y se desgasta","protects and wears down"), "hands");
+  CLOTH_SLOTS.forEach(sl=>{
+    const e = BP.list.find(x=> x.worn === sl);
+    if(e) bpCell(e, ropa, d++);
+    else bpEmpty(ropa, tx(CLOTH_SLOT_NAME[sl][0], CLOTH_SLOT_NAME[sl][1]).toUpperCase()+" · "+tx("libre","free"));
   });
   // los huecos: los libres también, para ver cuánto cabe
   const cells = bpSection(G.cap > 4 ? tx("Mochila","Backpack") : tx("Bolsillos","Pockets"), invCount()+" / "+G.cap);
@@ -12274,7 +12779,8 @@ const MEG_PREMIOS = ["megbeacon","megbeacon","megradio","megradio","megcamera","
 const MEG_TIENDA = [
   {id:"megradio", precio:40}, {id:"megbeacon", precio:25}, {id:"megcamera", precio:70},
   {id:"almond", precio:12}, {id:"bandage", precio:12}, {id:"battery", precio:12},
-  {id:"ducttape", precio:20}, {id:"medkit", precio:30}, {id:"flashlight", precio:45}
+  {id:"ducttape", precio:20}, {id:"medkit", precio:30}, {id:"flashlight", precio:45},
+  {id:"hardhat", precio:30}, {id:"vest", precio:35}, {id:"gloves", precio:25}, {id:"boots", precio:30}, {id:"gasmask", precio:55}
 ];
 const MEG_BASES = CAT.filter(c=> c.settlement).map(c=> c.id);
 
@@ -12652,11 +13158,49 @@ const MP_RITMO = 0.08;                     // cada cuánto se manda la posición
 
 const MP = {
   activo:false, anfitrion:false, peer:null, conexiones:[],
-  sala:"", nombre:"", otros:{}, reloj:0, libreria:false, modo:"normal"
+  sala:"", nombre:"", otros:{}, reloj:0, libreria:false, modo:"normal",
+  grande:false, tam:"cuadrilla"
 };
+/* ── salas grandes ──
+   No hay un servidor por jugador ni uno por sala: la sala vive en el navegador del que
+   la crea (el anfitrión) y los demás se conectan a él. El servidor gratuito de PeerJS sólo
+   sirve para que se encuentren, así que cuántos caben lo limita la conexión y el equipo
+   del anfitrión. En una estrella, cada posición que llega al anfitrión se reenvía a todos
+   los demás, y eso crece con el cuadrado de los jugadores: con 10 son ~90 reenvíos por
+   cada ronda. Por eso la sala grande: (1) el anfitrión sólo reenvía la posición a quien
+   está en su mismo nivel y cerca (a los lejanos, una de cada tres; a otro nivel, una de
+   cada seis), (2) los datos fijos (arma, ropa) se mandan una vez por segundo y no cada
+   vez, (3) la voz sólo con los 3 más cercanos (la voz es malla: 9 llamadas por persona
+   serían demasiadas) y (4) a los jugadores lejanos no se les dibuja. */
+const MP_CAP = {cuadrilla:4, grande:10};
+const MP_RITMO_GRANDE = 0.12;               // la posición, algo más espaciada
+const MP_FULL_CADA = 1;                     // s entre mensajes completos (arma, ropa) en sala grande
+const MP_LEJOS = 30, MP_VISTA_GRANDE = 34;  // m: a partir de aquí se reenvía menos / no se dibuja
+const VOZ_MAX_GRANDE = 3;
+function mpCap(){ return MP.grande ? MP_CAP.grande : MP_CAP.cuadrilla; }
+function mpLlena(){ return MP.conexiones.length + 1 >= mpCap(); }
+// ¿Reenvía el anfitrión esta posición a ese jugador? Sólo se adelgaza en salas grandes.
+function mpPosDebe(m, dest, n){
+  if(!MP.grande || m.gk !== undefined) return true;           // los mensajes completos siempre
+  if(!dest || dest.lv === undefined || dest.x === undefined) return true;
+  if(m.lv !== dest.lv) return n % 6 === 0;                    // otro nivel: sólo para que siga en la lista
+  return Math.hypot(m.x - dest.x, m.z - dest.z) > MP_LEJOS ? n % 3 === 0 : true;
+}
+// A quién se oye por voz: los más cercanos de su mismo nivel. Con «mantener» no se corta una
+// llamada que sigue siendo el siguiente en la lista (evita que bailen dos que están igual de lejos).
+function vozElegir(cands, calls, max){
+  const orden = cands.slice().sort((a,b)=> a.d - b.d).map(c=> c.id);
+  const dentro = {}, llamar = [], cerrar = [];
+  orden.forEach((id, i)=>{ if(i < max || (i === max && calls[id])) dentro[id] = 1; });
+  let n = Object.keys(dentro).length;
+  while(n > max + 1){ const ult = orden.filter(id=> dentro[id]).pop(); delete dentro[ult]; n--; }
+  orden.forEach(id=>{ if(dentro[id] && !calls[id] && llamar.length + Object.keys(calls).length < max + 1) llamar.push(id); });
+  Object.keys(calls).forEach(id=>{ if(!dentro[id]) cerrar.push(id); });
+  return {llamar, cerrar};
+}
 // Qué reenvía el anfitrión: la red es una estrella (cada invitado sólo está
 // conectado al anfitrión), así que sin esto los invitados no se veían entre sí.
-const MP_REENVIA = {hola:1, pos:1, chat:1, caido:1, muerto:1, revivir:1, gesto:1, voz:1, suelo:1, recoge:1};
+const MP_REENVIA = {hola:1, pos:1, chat:1, caido:1, muerto:1, revivir:1, gesto:1, voz:1, suelo:1, recoge:1, accion:1};
 function mpEsc(t){ return String(t).replace(/[&<>"]/g, c=> ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function mpYo(){ return MP.peer && MP.peer.id; }
 
@@ -12738,6 +13282,8 @@ function mpPintarGente(){
   // dentro de una sala ya no se crea ni se entra en otra: sólo se sale
   $("mpCreate").hidden = MP.activo; $("mpJoin").hidden = MP.activo; $("mpLeave").hidden = !MP.activo;
   $("mpMode").hidden = !MP.activo;
+  $("mpSize").hidden = MP.activo;
+  document.querySelectorAll(".mp-tam").forEach(b=> b.classList.toggle("on", b.getAttribute("data-tam") === MP.tam));
   $("mpLobbyChat").hidden = !MP.activo;
   mpPintarModo();
   if(!MP.activo) return;
@@ -12745,7 +13291,7 @@ function mpPintarGente(){
   const lista = [[MP.nombre, (MP.anfitrion ? tx("anfitrión","host") : tx("tú","you")), true]]
     .concat(Object.keys(MP.otros).map(k=> [MP.otros[k].nombre, nombreCh(MP.otros[k].ch) || tx("conectado","connected"), false]));
   const cab = document.createElement("div"); cab.className = "mpp";
-  cab.innerHTML = "<b>"+tx("En la sala","In the room")+"</b><span>"+lista.length+tx(" jugadores"," players")+"</span>";
+  cab.innerHTML = "<b>"+tx("En la sala","In the room")+(MP.grande ? tx(" (sala grande)"," (big room)") : "")+"</b><span>"+lista.length+"/"+mpCap()+tx(" jugadores"," players")+"</span>";
   host.appendChild(cab);
   lista.forEach(([n, e, yo])=>{
     const d = document.createElement("div");
@@ -12766,7 +13312,7 @@ function mpPintarModo(){
 function mpElegirModo(modo){
   if(!MP.anfitrion) return;
   MP.modo = modo === "random" ? "random" : "normal";
-  mpEnviar({t:"sala", modo:MP.modo});
+  mpEnviar({t:"sala", modo:MP.modo, grande:MP.grande ? 1 : 0});
   mpPintarModo();
 }
 
@@ -12839,12 +13385,13 @@ function goDown(why){
   G.entities.forEach(e=>{ e.state = "wander"; e.alert = 0; e.hunt = 0; if(e.spWind > 0) cancelSpecial(e); });
   Audio_.scream();
   $("downed").hidden = false;
-  if(player.mesh){ player.mesh.position.y = actorY(player.mesh, true); actorDown(player.mesh, true); setFrame(player.mesh, 0, 0); }
+  if(player.mesh){ player.mesh.position.y = actorY(player.mesh, true); actorDown(player.mesh, true); setFrame(player.mesh, 0, FALLEN_ROW); }
   mpEnviar({t:"caido", on:1});
   addChat("", MP.nombre+tx(" ha caído."," is down."), true, true);
 }
 function updateDowned(dt){
   if(!G.downed) return;
+  if(player.mesh && !isRig(player.mesh)) setFrame(player.mesh, Math.floor(G.t*1.1) % 2, FALLEN_ROW);
   G.downT -= dt;
   $("downedT").textContent = Math.max(0, Math.ceil(G.downT))+" s";
   if(G.downT <= 0 || !mpAlguienVivo()){
@@ -12911,6 +13458,7 @@ function mpEmpezar(anfitrion){
   // conectaba a su propia sala una y otra vez y salían «clones» tuyos
   if(MP.peer || MP.activo) mpSalir();
   MP.nombre = nombre; MP.sala = sala; MP.anfitrion = anfitrion; MP.vacia = 0;
+  MP.grande = anfitrion && MP.tam === "grande";                  // el que entra lo sabrá por el anfitrión
   try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
 
   mpEstado(tx("Conectando…","Connecting…"));
@@ -13013,11 +13561,17 @@ document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) mpRecon
 function mpAtarConexion(c){
   if(c.peer === mpYo()){ try{ c.close(); }catch(e){} return; }       // nunca con uno mismo
   c.on("open", ()=>{
+    // sala llena: se avisa y se cierra (el que ya estaba y se reconecta sí entra: ocupa su sitio)
+    if(MP.anfitrion && mpLlena() && !MP.conexiones.some(x=> x.peer === c.peer)){
+      try{ c.send({t:"lleno", cap:mpCap()}); }catch(e){}
+      setTimeout(()=>{ try{ c.close(); }catch(e){} }, 500);
+      return;
+    }
     c.visto = Date.now();
     MP.conexiones.push(c);
-    c.send({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base"});
+    c.send({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base", v:VERSION});
     if(MP.anfitrion){
-      c.send({t:"sala", modo:MP.modo});
+      c.send({t:"sala", modo:MP.modo, grande:MP.grande ? 1 : 0});
       // presenta a los que ya estaban
       Object.keys(MP.otros).forEach(k=>{ const o = MP.otros[k]; c.send({t:"hola", from:k, nombre:o.nombre, ch:o.ch, sk:o.sk}); });
     }
@@ -13075,6 +13629,18 @@ function mpSoltar(c){
   mpPintarGente(); mpRoster();
 }
 
+// Si el compañero juega otra versión puede que no os veáis bien: se avisa una vez por persona
+function mpAvisarVersion(o){
+  if(!o || o.avisadoVer) return;
+  if(!o.ver){ if(!(o.id && /^\d/.test(String(o.id)))) o.avisadoVer = 1; return; }   // «hola» sin versión: otra anterior a la 4.0
+  if(o.ver === VERSION){ o.avisadoVer = 1; return; }
+  o.avisadoVer = 1;
+  const mas = cmpVersion(o.ver, VERSION) > 0;
+  const aviso = tx(o.nombre+" juega la v"+o.ver+" y tú la v"+VERSION+": "+(mas ? "recarga la página" : "puede que le falten cosas")+" para que os veáis bien.",
+                   o.nombre+" is on v"+o.ver+" and you are on v"+VERSION+": "+(mas ? "reload the page" : "they may be missing things")+" so you see each other properly.");
+  addChat("", aviso, false, true);
+  toast(aviso, 6);
+}
 function mpEnviar(m){
   for(let i=0;i<MP.conexiones.length;i++){
     try { MP.conexiones[i].send(m); } catch(e){}
@@ -13089,11 +13655,19 @@ function mpRecibir(c, m){
   // el anfitrión hace de centralita: lo que le llega de un invitado lo pasa a los demás
   if(MP.anfitrion && !m.from && MP_REENVIA[m.t]){
     const fw = Object.assign({}, m, {from:c.peer});
-    MP.conexiones.forEach(x=>{ if(x !== c){ try{ x.send(fw); }catch(e){} } });
+    const esPos = m.t === "pos";
+    if(esPos) c.nPos = (c.nPos || 0) + 1;
+    MP.conexiones.forEach(x=>{
+      if(x === c) return;
+      if(esPos && !mpPosDebe(m, MP.otros[x.peer], c.nPos)) return;
+      try{ x.send(fw); }catch(e){}
+    });
   }
   if(from === mpYo()) return;                     // un eco de uno mismo no es otro jugador
-  if(m.t === "sala" && !MP.anfitrion){ MP.modo = m.modo === "random" ? "random" : "normal"; mpPintarModo(); return; }
+  if(m.t === "lleno"){ mpFalloAlEntrar(tx("La sala está llena ("+(m.cap|0)+" jugadores como mucho).","The room is full ("+(m.cap|0)+" players at most).")); return; }
+  if(m.t === "sala" && !MP.anfitrion){ MP.modo = m.modo === "random" ? "random" : "normal"; MP.grande = !!m.grande; mpPintarModo(); mpPintarGente(); return; }
   if(m.t === "suelo"){ mpPonerSuelo(m, from); return; }
+  if(m.t === "accion"){ const o = MP.otros[from]; if(o && ACCIONES[m.a]) o.acto = {kind:m.a, t:ACCIONES[m.a].t, dur:ACCIONES[m.a].t}; return; }
   if(m.t === "recoge"){ mpQuitarSuelo(m, from); return; }
   if(m.t === "chat"){ addChat(String(m.n||"?").slice(0,14), String(m.txt||"").slice(0,120), false); return; }
   if(m.t === "gesto"){
@@ -13126,7 +13700,9 @@ function mpRecibir(c, m){
     o.ch = m.ch || "scout";
     o.sk = m.sk || "base";
     o.visto = 0;
+    if(typeof m.v === "string") o.ver = m.v.slice(0, 12);
     if(nuevo) addChat("", o.nombre+tx(" ha entrado en la sala."," joined the room."), false, true);
+    mpAvisarVersion(o);
     if(nuevo && VOZ.listo) mpEnviar({t:"voz", on:1});               // que el nuevo sepa que tenemos voz
     mpPintarGente(); mpRoster();
     // el anfitrión contesta diciendo en qué nivel está la expedición
@@ -13150,7 +13726,7 @@ function mpRecibir(c, m){
     o.id = from;
     o.x = m.x; o.z = m.z; o.yaw = m.yaw; o.frame = m.f|0; o.row = m.r|0; o.visto = 0;
     o.hp = m.hp; o.lv = m.lv; o.muerto = false;
-    o.gl = m.gl; o.gr = m.gr;
+    if(m.gk !== undefined){ o.gl = m.gl; o.gr = m.gr; o.gk = cleanKey(m.gk); }       // sólo viene en los completos
     if((m.dn ? 1 : 0) !== (o.dn ? 1 : 0)) o.dn = m.dn ? 1 : 0;
     if(m.n) o.nombre = String(m.n).slice(0,14);
     if(m.ch && m.ch !== o.ch){ o.ch = m.ch; o.cambio = true; }
@@ -13172,19 +13748,26 @@ function updateGhosts(dt){
 
   MP.reloj -= dt;
   if(MP.reloj <= 0){
-    MP.reloj = MP_RITMO;
-    mpEnviar({
+    MP.reloj = MP.grande ? MP_RITMO_GRANDE : MP_RITMO;
+    const msg = {
       t:"pos", x:+player.pos.x.toFixed(2), z:+player.pos.z.toFixed(2),
       yaw:+player.facing.toFixed(2), f:(player.animFrame|0), r:(player.animRow|0),
-      n:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base",
-      hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed,
-      gl:G.weapons.L || (G.torchOn ? "torch" : null), gr:G.weapons.R || null
-    });
+      hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed
+    };
+    MP.fullT = (MP.fullT || 0) - MP.reloj;
+    if(!MP.grande || MP.fullT <= 0){                          // lo que casi no cambia: nombre, personaje, manos y ropa
+      MP.fullT = MP_FULL_CADA;
+      msg.n = MP.nombre; msg.ch = (G.char && G.char.id) || "scout"; msg.sk = G.char ? skinOf(G.char.id) : "base";
+      msg.gl = G.weapons.L || (G.torchOn ? "torch" : null); msg.gr = G.weapons.R || null; msg.gk = wornKey();
+    }
+    mpEnviar(msg);
     MP.rosterT = (MP.rosterT||0) - MP_RITMO;
     if(MP.rosterT <= 0){ MP.rosterT = 0.5; mpRoster(); }
   }
   updateDowned(dt);
   updateRevive(dt);
+  MP.vozT = (MP.vozT || 0) - dt;
+  if(MP.vozT <= 0){ MP.vozT = 1.5; vozGestionar(); }
 
   for(const k in MP.otros){
     const o = MP.otros[k];
@@ -13195,12 +13778,13 @@ function updateGhosts(dt){
     }
     if(o.x === undefined) continue;
     // al cambiar de nivel se tira el mundo entero: hay que volver a crear el sprite
-    if(o.mesh && (o.mesh.parent !== world || o.cambio || figuraDesactualizada(o.mesh))){ if(o.mesh.parent) o.mesh.parent.remove(o.mesh); o.mesh = null; }
+    if(o.mesh && (o.mesh.parent !== world || o.cambio || figuraDesactualizada(o.mesh) || (o.mesh.userData.gk || "") !== (o.gk || ""))){ if(o.mesh.parent) o.mesh.parent.remove(o.mesh); o.mesh = null; }
     if(o.tag && o.tag.parent !== world){ o.tag = null; }
     o.cambio = false;
     const aqui = !o.muerto && (!o.lv || o.lv === G.levelId+"@"+G.levelSeed);
     if(!o.mesh){
-      o.mesh = makeActor(skinAtlas(o.ch, o.sk), 0.94, 1.42);
+      o.mesh = makeActor(skinAtlas(o.ch, o.sk, o.gk || ""), 0.94, 1.42);
+      o.mesh.userData.gk = o.gk || "";
       o.mesh.material.opacity = 0.92;
       o.mesh.material.transparent = true;
       o.vx = o.x; o.vz = o.z;
@@ -13211,7 +13795,8 @@ function updateGhosts(dt){
       o.tag = nameTag((o.habla ? "🔊 " : "")+(o.nombre || "?"), !!o.dn); o.tagDn = o.dn ? 1 : 0; o.tagHabla = !!o.habla;
       world.add(o.tag);
     }
-    o.mesh.visible = aqui; o.tag.visible = aqui;
+    const lejos = MP.grande && Math.hypot(o.vx - player.pos.x, o.vz - player.pos.z) > MP_VISTA_GRANDE;
+    o.mesh.visible = aqui && !lejos; o.tag.visible = aqui && !lejos;
     o.vx = lerp(o.vx, o.x, 1-Math.pow(0.002, dt));
     o.vz = lerp(o.vz, o.z, 1-Math.pow(0.002, dt));
     o.mesh.position.set(o.vx, actorY(o.mesh, !!o.dn), o.vz);
@@ -13221,6 +13806,12 @@ function updateGhosts(dt){
       o.mesh.userData.gearR = GEAR[o.gr] ? o.gr : null;
     }
     if(o.gesto && o.gesto.t > 0){ o.gesto.t -= dt; if(!o.dn && isRig(o.mesh)) o.mesh.userData.pose = o.gesto.pose; }
+    if(o.acto && o.acto.t > 0 && !o.dn){                     // lo que está haciendo: ponerse ropa, beber, vendarse…
+      o.acto.t -= dt;
+      const pa = clamp(1 - o.acto.t/o.acto.dur, 0, 1);
+      if(isRig(o.mesh)) o.mesh.userData.pose = ACCIONES[o.acto.kind].pose;
+      else { const sp = actSprite(o.acto.kind, pa); o.mesh.position.y += sp[0]; o.mesh.scale.y = sp[1]; }
+    }
     vozCompanero(o, aqui);
     // La fila del sprite (frente, perfil, espalda) sale de hacia dónde mira él
     // respecto a TU cámara. Antes se usaba la que calculaba su juego con su
@@ -13228,12 +13819,16 @@ function updateGhosts(dt){
     const camYaw = Math.atan2(o.vx - camera.position.x, o.vz - camera.position.z);
     const rel = wrapA((o.yaw || 0) - camYaw), a2 = Math.abs(rel);
     const fila = a2 < Math.PI/4 ? 2 : (a2 > Math.PI*0.75 ? 0 : 1);
-    setFrame(o.mesh, o.dn ? 0 : o.frame % 8, o.dn ? 0 : fila);       // caído: boca arriba, de frente y quieto
-    if(!isRig(o.mesh)) o.mesh.scale.x = (!o.dn && fila === 1 && rel < 0) ? -1 : 1;
+    if(o.dn) setFrame(o.mesh, Math.floor(G.t*1.1) % 2, FALLEN_ROW);   // caído: su propio dibujo, respirando
+    else setFrame(o.mesh, o.frame % 8, fila);
+    if(!isRig(o.mesh)){                       // de perfil, mirando a un lado u otro; caído, con la cabeza a un lado u otro
+      const flip = ((o.dn || fila === 1) && rel < 0) ? -1 : 1, k = o.dn ? FALLEN_SCALE : 1;
+      o.mesh.scale.x = flip*k;
+    }
     o.fila = fila;
     o.mesh.userData.yaw = o.yaw;
     billboard(o.mesh, camera.position);
-    o.tag.position.set(o.vx, o.dn ? (isRig(o.mesh) ? 0.95 : 0.6) : 1.62, o.vz);
+    o.tag.position.set(o.vx, o.dn ? (isRig(o.mesh) ? 0.95 : 0.78) : 1.62, o.vz);
     billboard(o.tag, camera.position);
   }
 }
@@ -13298,11 +13893,13 @@ function vozHablar(on){
 }
 function vozLlamar(id){
   if(!VOZ.listo || !MP.peer || typeof MP.peer.call !== "function" || VOZ.calls[id]) return;
+  if(MP.grande && Object.keys(VOZ.calls).length >= VOZ_MAX_GRANDE) return;     // en sala grande, sólo unos pocos a la vez
   if(String(mpYo()) > String(id)) return;                     // llama el de id menor
   try { vozAtar(MP.peer.call(id, VOZ.dest.stream)); } catch(e){}
 }
 function vozEntrante(call){
   if(!VOZ.listo && !vozPreparar()){ try{ call.close(); }catch(e){} return; }
+  if(MP.grande && !VOZ.calls[call.peer] && Object.keys(VOZ.calls).length >= VOZ_MAX_GRANDE + 1){ try{ call.close(); }catch(e){} return; }
   if(VOZ.calls[call.peer]){ try{ VOZ.calls[call.peer].close(); }catch(e){} }
   call.answer(VOZ.dest.stream);
   vozAtar(call);
@@ -13337,6 +13934,19 @@ function vozApagar(){
   if(VOZ.mic) VOZ.mic.getTracks().forEach(t=> t.stop());
   VOZ.calls = {}; VOZ.nodes = {}; VOZ.mic = null; VOZ.micSrc = null; VOZ.listo = false; VOZ.hablo = false;
   vozMicro();
+}
+// Sala grande: cada poco se reparten las llamadas entre los más cercanos de tu nivel
+function vozGestionar(){
+  if(!MP.grande || !VOZ.listo) return;
+  const cands = [];
+  for(const k in MP.otros){
+    const o = MP.otros[k];
+    if(!o.voz || o.muerto || o.x === undefined || (o.lv && o.lv !== G.levelId+"@"+G.levelSeed)) continue;
+    cands.push({id:k, d:Math.hypot(o.x - player.pos.x, o.z - player.pos.z)});
+  }
+  const r = vozElegir(cands, VOZ.calls, VOZ_MAX_GRANDE);
+  r.cerrar.forEach(k=>{ try{ VOZ.calls[k].close(); }catch(e){} vozQuitar(k); });
+  r.llamar.forEach(vozLlamar);
 }
 function vozAjuste(){                                           // al cambiar el ajuste
   if(vozModo() === 0){ vozApagar(); mpEnviar({t:"voz", on:0}); }
@@ -13492,7 +14102,7 @@ function mpSalir(){
     if(o.tag) world.remove(o.tag);
   });
   MP.otros = {};
-  MP.modo = "normal";
+  MP.modo = "normal"; MP.grande = false;
   // Se marca todo como cerrado ANTES de cerrar las conexiones: c.close() avisa
   // al momento, y con la sala aún «abierta» salía el falso «el anfitrión ha
   // cerrado la sala» cada vez que salías tú.
@@ -13585,7 +14195,7 @@ function beginPlay(){
   hideAll();
   if(MP.activo){
     if(MP.anfitrion) mpAnunciarNivel();
-    else mpEnviar({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout"});
+    else mpEnviar({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout", v:VERSION});
   }
   G.running = true; G.paused = false; G.dead = false;
   Audio_.init(); Audio_.resume();
@@ -13842,6 +14452,7 @@ function frame(){
     updateCamera(dt);
     updateLights(dt);
     updateDust(dt);
+    updateFx(dt);
     updateNearestExit();
     revealTimer -= dt;
     if(revealTimer <= 0){ revealTimer = 0.9; computeReveal(); }
@@ -13918,6 +14529,7 @@ $("mpLeave").addEventListener("click", ()=>{ mpSalir(); mpEstado(tx("Has salido 
 $("mpBack").addEventListener("click", ()=>{ mpSalir(); renderChars(); show("titleScreen"); });
 $("mpGo").addEventListener("click", ()=>{ wantRandom = MP.modo === "random"; wantMeg = false; openChars(); });
 document.querySelectorAll(".mp-mode").forEach(b=> b.addEventListener("click", ()=> mpElegirModo(b.getAttribute("data-modo"))));
+document.querySelectorAll(".mp-tam").forEach(b=> b.addEventListener("click", ()=>{ MP.tam = b.getAttribute("data-tam") === "grande" ? "grande" : "cuadrilla"; mpPintarGente(); }));
 $("mpChatIn").addEventListener("keydown", (e)=>{ if(e.key === "Enter"){ sendChat(e.target); } e.stopPropagation(); });
 $("chatIn").addEventListener("keydown", (e)=>{
   e.stopPropagation();
@@ -13943,6 +14555,8 @@ $("pauseCodexBtn").addEventListener("click", ()=>{ renderCodex("pauseScreen"); s
 $("codexBack").addEventListener("click", ()=> show(G.codexFrom || "titleScreen"));
 $("dmapBtn").addEventListener("click", ()=>{ renderDescentMap("titleScreen"); show("dmapScreen"); });
 $("healBtn").addEventListener("click", ()=> toggleHeal());
+$("verCheck").addEventListener("click", comprobarVersion);
+$("verReload").addEventListener("click", recargarNueva);
 $("bpClose").addEventListener("click", ev=>{ ev.stopPropagation(); closeBackpack(); });
 $("dmapBack").addEventListener("click", ()=> show(dmFrom));
 $("dmSvg").addEventListener("click", ev=>{

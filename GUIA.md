@@ -170,6 +170,9 @@ Está en la sección **MULTIJUGADOR** del archivo. Funciona así:
 si fuera fijo, el juego en solitario dejaría de arrancar sin internet. `pruebas/sintaxis.js` lo
 vigila.
 
+Desde 4.0 hay **salas grandes** (hasta 10) con el reenvío adelgazado y la voz limitada a los más
+cercanos; está explicado en la sección 6¹⁴.
+
 Lo que **no** hace: no sincroniza enemigos, ni botín, ni quién ha abierto qué casillero. Si algún
 día quieres eso, el anfitrión tendría que simular y mandar el estado, y hay que pensarse qué pasa
 cuando se va.
@@ -405,6 +408,59 @@ también está en la pausa junto a `TRUCO.god` (lo miran `hurtPlayer()` y `die()
 `trucoViajar(id)`, que sale como botón en `dmSelect()` si el mapa se abrió desde la pausa.
 Si añades algo que se desbloquea, que mire `TRUCO.on` en su comprobación en vez de escribirlo
 en el progreso.
+
+## 6¹⁴. La versión 4.0: ropa, animaciones, versión y salas grandes
+
+La versión es exactamente `"4.0"` (`VERSION`), no `4.0.0`. `cmpVersion()` compara número a número
+y trata lo que falta como cero, así que `4.0` = `4.0.0`.
+
+**Ropa y protecciones.** `CLOTH` (casco, mascarilla, chaleco, traje, guantes, botas) está en la
+sección ROPA Y PROTECCIONES: cuatro ranuras (`CLOTH_SLOTS`), `parts` = zonas del cuerpo que
+protege, `absorb` = fracción del golpe que se come y `dur` = daño que aguanta antes de romperse.
+`hurtPlayer()` pasa cada golpe por `clothProtect(partId, dmg)`, que lo reparte entre las prendas
+que cubren esa zona, las desgasta (`G.wear`, igual que las armas) y, a cero, las rompe
+(`clothBreak`). Protege menos según se gasta (`clothAbsorb`: 100 % nueva, 60 % casi rota). Lo
+puesto vive en `G.worn` (`wornRaw()`), se guarda en la partida (`saveGame`/`applySave` lo
+limpian si viene raro) y aparece como cuarta sección del cajón («Puesto»). Soltarlo usa la mano
+ficticia `"w:<ranura>"` en `takeOut()`.
+`hasItem(id)` cuenta también lo que llevas **puesto**; para saber si está en la mochila, usa
+`invFind(id)`. Y lo que se encuentra por ahí viene **ya usado** (`addItem` pone un desgaste al
+azar): en una prueba que mida números, fija `G.wear[id]` antes de ponértelo.
+
+**Aspecto.** `wornKey()` da una firma («bhVg»: mochila, casco, chaleco muy gastado, guantes;
+mayúscula = por debajo del 30 %). `skinAtlas(chId, skinId, gk)` con `gk` crea un atlas por
+combinación (`lookConRopa()` aplica cada prenda sobre el aspecto del personaje) y lo guarda en
+`SPRITES`; sin `gk` es el de siempre. La mochila se ve en **cualquier** personaje porque la «b»
+la dibuja `lookConRopa`, no el aspecto de cada uno. El jugador (`refrescarAspecto()`) y los
+compañeros (el `pos` lleva `gk`, que se limpia con `cleanKey()`) rehacen su figura cuando cambia.
+
+**Animaciones.** `ACCIONES` (ponerse ropa, beber, vendarse, agacharse, recibir golpe),
+`playAct(kind)` y `updateAct(dt)`: la figura 3D toma una postura de `RIG_POSE`, el sprite se
+estira/agacha/sacude (`actSprite`), y a los compañeros les llega `{t:"accion", a}`. El golpe
+tiñe un instante al jugador (`tinteJugador`). Hay chispas (`chispas`/`updateFx`) al absorber y al
+romperse una prenda.
+
+**El caído (sprite).** Fila 4 de `personAtlas()` (`FALLEN_ROW`): cuerpo tumbado de lado, con
+dos fotogramas respirando, dibujado como cartel a `FALLEN_SCALE` (×1,35). La versión «vista
+desde arriba» que hubo en 3.0.5 no se leía en el mundo; si la tocas, mírala dentro del juego.
+
+**Versión en Ajustes.** `#verBox`: «Buscar actualización» (`comprobarVersion`) vuelve a pedir esta
+misma página con `cache:"no-store"` y `?v=<hora>` y lee `const VERSION = "…"` con una expresión
+regular, así que **no cambies la forma de esa línea**. Desde `file://` no se puede y lo dice.
+En multijugador cada `hola` lleva `v`; si no coincide, `mpAvisarVersion()` avisa una vez.
+
+**Salas grandes.** El que crea la sala elige «Cuadrilla» (4) o «Sala grande» (10) (`MP.tam`, `MP.grande`,
+`MP_CAP`); el invitado lo sabe por el mensaje `sala` (`grande`). Si no cabe, el anfitrión manda
+`{t:"lleno", cap}` y cierra (`mpLlena()`); quien ya estaba y se reconecta ocupa su sitio. **No hay
+servidores por jugador ni por sala:** la sala vive en el navegador del anfitrión y el servidor
+gratuito de PeerJS sólo sirve para que se encuentren, así que el límite es la conexión y el equipo
+del anfitrión. En estrella, cada posición se reenvía a todos los demás (crece con el cuadrado de
+los jugadores), por eso en sala grande: `mpPosDebe()` adelgaza el reenvío (lejos de ti, una de
+cada tres; otro nivel, una de cada seis), el `pos` corto no lleva arma ni ropa salvo una vez por
+segundo (el receptor sólo actualiza `gl/gr/gk` si vienen), la posición sale cada 0,12 s, los
+jugadores a más de 34 m no se dibujan y la voz (que es malla: n−1 llamadas por persona) se
+limita a los 3 más cercanos de tu nivel (`vozElegir()`, con histéresis, cada 1,5 s). Si subes el
+tope de 10, mide primero lo que sube la subida del anfitrión (~9×8 mensajes por ronda).
 
 ## 7. Trampas que ya han mordido
 

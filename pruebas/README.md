@@ -142,6 +142,20 @@ documentar la entidad correcta, balizas separadas más de 25 m, el maletín y el
 lejos de donde apareces…). También cobrar, la intendencia, los cuatro trajes y que el encargo a
 medias se guarde con la partida.
 
+### `ropa.js` — unos segundos
+La ropa de la 4.0: la tabla de seis prendas (con inglés y su letra), que cada una se coma su parte del golpe sólo en las zonas
+que cubre, que se desgaste y se rompa, que protejan menos gastadas, ponerse y quitarse (cambiar una prenda
+devuelve la anterior, sin sitio no te la quitas, soltar y recoger conservan el desgaste), guardar y cargar
+(también un guardado raro o antiguo), la firma del aspecto y la limpieza de la que llega de otro jugador, la
+mochila en cualquier personaje, las animaciones (y que se avise a los compañeros), los logros nuevos y la versión: `4.0`
+exacto, comparar números y buscar la publicada (sin caché y sin romperse desde un archivo local) y el aviso de versión ajena.
+
+### `salagrande.js` — unos segundos
+La sala grande: el aforo (4 y 10, con el aviso de «llena» y la reconexión del que ya estaba), el tamaño que
+conoce el invitado, el reenvío adelgazado (lejos una de cada tres, otro nivel una de cada seis, lo cercano entero) con
+nueve invitados repartidos, que el mensaje corto pese menos y conserve lo que se sabía del jugador, que en sala normal todo
+siga igual, y la voz: sólo los más cercanos, sin cortar y volver a llamar al cuarto por nada, y rechazar llamadas de más.
+
 ### `figuras.js` — unos segundos
 Los sprites: el tamaño de cada atlas (8 fotogramas, andar y correr), que el ciclo sea neutro,
 zancada, neutro, zancada y que correr abra más la zancada, que `finishHD()` ponga el contorno y
