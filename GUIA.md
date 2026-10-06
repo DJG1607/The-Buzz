@@ -483,6 +483,15 @@ multijugador todos bajan con uno (`startRun`); también sale de casilleros y se 
 texto ya iba con [Enter] en cualquier sala; ahora hay una pista permanente (`#chatHint`,
 `mpChatHint()`) porque no se descubría.
 
+**Contador de visitas (4.0).** GoatCounter, sitio `buzzzumb` (panel: https://buzzzumb.goatcounter.com,
+sólo lo ve el autor con su cuenta). `contarInicio()` añade el script **a demanda** (no hay `<script>`
+fijo, como con PeerJS: sin internet el juego arranca igual) y `contar(ev)` apunta eventos
+(`juego/partida`, `partida-multijugador`, `partida-meg`, `partida-aleatoria`, `sala-publica`,
+`sala-creada`, `sala-entrar`). `contarOk()` decide si cuenta: sólo con http(s) y fuera de
+localhost, con la opción «Contar mi visita» activada (Ajustes → Partida, `G.opts.stats`) y sin el modo
+pruebas. Cualquier fallo de GoatCounter se traga. Si añades un evento nuevo, que sea con `contar()`
+y que no lleve nombres ni nada personal. El README avisa de que se cuentan visitas de forma anónima.
+
 ## 7. Trampas que ya han mordido
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.

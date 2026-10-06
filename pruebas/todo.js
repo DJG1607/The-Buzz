@@ -28,6 +28,7 @@ const PRUEBAS = [
   ["ropa", "ropa y protecciones (4.0): desgaste, ponerse/quitarse, guardado, aspecto, animaciones, versión"],
   ["salagrande", "sala grande (4.0): aforo de 4 y 10, reenvío adelgazado, mensajes cortos, voz con los más cercanos"],
   ["salapublica", "sala pública (4.0): emparejamiento sin servidor propio, personaje dentro del juego, si cae el anfitrión; walkie-talkie y pista del chat"],
+  ["estadisticas", "contador de visitas (GoatCounter): sólo cuenta en la página publicada, se apaga desde Ajustes, eventos de partida y sala"],
   ["agente", "modo Agente del M.E.G.: tablón, los 8 tipos de encargo, intendencia, trajes y guardado"]
 ];
 

@@ -219,6 +219,13 @@ el juego normal sigue funcionando igual:
 
 Los detalles y las trampas están en la [guía](GUIA.md).
 
+## Privacidad
+
+En la página publicada se cuentan las visitas y las partidas empezadas con
+[GoatCounter](https://www.goatcounter.com): sin cookies, sin nombres y sin guardar nada que te
+identifique, sólo cifras. Se apaga en **Ajustes → Partida → Contar mi visita**, y no cuenta nada
+desde un archivo local ni con el modo pruebas.
+
 ## Créditos
 
 Niveles, entidades y salidas basados en el lore público de la

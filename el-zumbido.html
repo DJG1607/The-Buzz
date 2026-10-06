@@ -11830,9 +11830,42 @@ function closeBackpack(sinRaton){
    Campo de visión, volumen y sensibilidad. Se guardan en el navegador
    y se aplican en vivo mientras mueves el control. */
 
+/* ── cuántos lo juegan (GoatCounter) ──
+   Un contador sin cookies y sin datos personales; el panel es sólo del autor (buzzzumb.goatcounter.com).
+   No va como <script src> fijo, igual que PeerJS: así el juego sigue arrancando sin internet y se puede
+   apagar desde Ajustes. Sólo cuenta en la página publicada: nunca desde un archivo local ni desde
+   localhost, ni con el modo pruebas encendido. contar() apunta eventos («juego/partida», «juego/sala-publica»…). */
+const CONTAR = {cargado:false, url:"https://buzzzumb.goatcounter.com/count", src:"https://gc.zgo.at/count.js"};
+function contarOk(){
+  const host = String(location.hostname || "");
+  if(!/^https?:$/.test(String(location.protocol || ""))) return false;
+  if(/^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(host) || /\.localhost$/.test(host) || !host) return false;
+  if(G.opts && G.opts.stats === 0) return false;
+  if(typeof TRUCO !== "undefined" && TRUCO.on) return false;
+  return true;
+}
+function contarInicio(){
+  if(CONTAR.cargado || !contarOk()) return;
+  CONTAR.cargado = true;
+  try{
+    const s = document.createElement("script");
+    s.async = true;
+    s.setAttribute("data-goatcounter", CONTAR.url);
+    s.src = CONTAR.src;
+    document.head.appendChild(s);                     // al cargar, GoatCounter apunta la visita
+  }catch(e){ CONTAR.cargado = false; }
+}
+function contar(ev, titulo){
+  if(!contarOk()) return;
+  try{
+    const gc = window.goatcounter;
+    if(gc && typeof gc.count === "function") gc.count({path:"juego/"+ev, title:titulo || ev, event:true});
+  }catch(e){}
+}
+
 const OPTS_KEY = "zumbido.opts.v1";
 const OPTS_DEF = { fov:78, vol:0.55, sens:1.0, bright:1.0, qte:3, diff:2, lang:"es",
-  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, voz:2, pad:1, padSens:1.0, padInvert:0, auto:1, keys:{} };
+  musicVol:0.7, ambVol:0.8, musicSrc:0, quality:3, view:1.0, fx:1, shake:1.0, fps:0, quickUse:1, figs:0, voz:2, pad:1, padSens:1.0, padInvert:0, auto:1, stats:1, keys:{} };
 
 function loadOpts(){
   G.opts = Object.assign({}, OPTS_DEF, {keys:{}});
@@ -11863,6 +11896,7 @@ function loadOpts(){
       if(typeof o.voz === "number" && o.vozElegida) G.opts.voz = clamp(Math.round(o.voz), 0, 2);
       if(typeof o.padSens === "number") G.opts.padSens = clamp(o.padSens, 0.4, 3);
       if(typeof o.padInvert === "number") G.opts.padInvert = o.padInvert ? 1 : 0;
+      if(typeof o.stats === "number") G.opts.stats = o.stats ? 1 : 0;
       if(o.keys && typeof o.keys === "object"){
         G.opts.keys = {};
         for(const id in o.keys) if(ACTION_BY[id] && typeof o.keys[id] === "string") G.opts.keys[id] = o.keys[id];
@@ -12067,6 +12101,12 @@ const OPT_ROWS = [
     fmt:(v)=> v >= 1 ? tx("visible","shown") : tx("oculto","hidden")
   },
   {
+    id:"stats", key:"stats", label:"Contar mi visita", min:0, max:1, step:1, note:"",
+    get:()=> G.opts.stats === 0 ? 0 : 1,
+    set:(v)=>{ G.opts.stats = v >= 1 ? 1 : 0; if(G.opts.stats) contarInicio(); },
+    fmt:(v)=> v >= 1 ? tx("sí, anónimo","yes, anonymous") : tx("no","no")
+  },
+  {
     id:"auto", key:"auto", label:"Ajuste automático", min:0, max:1, step:1, note:"",
     get:()=> G.opts.auto === 0 ? 0 : 1,
     set:(v)=>{ G.opts.auto = v >= 1 ? 1 : 0; GOB.mul = 1; GOB.ok = 0; renderer.setPixelRatio(qualityRatio()); },
@@ -12132,6 +12172,7 @@ const OPT_LABELS = {
   shake:  ["Temblor de cámara","Camera shake"],
   fps:    ["Contador de FPS","FPS counter"],
   auto:   ["Ajuste automático","Auto adjust"],
+  stats:  ["Contar mi visita","Count my visit"],
   quickUse:["Usar objetos","Using items"],
   figs:   ["Personajes","Characters"],
   pad:    ["Jugar con mando","Play with a controller"],
@@ -12157,8 +12198,8 @@ const OPT_NOTES = {
            "The game's generated music, songs you upload yourself (below) or nothing."],
   musicVol:["El acorde de fondo y la melodía, o tus canciones. Aparte del volumen general.",
            "The background chord and melody, or your songs. Separate from the master volume."],
-  voz:    ["Chat de voz por proximidad: oyes a cada compañero según lo cerca que esté, y nada si está en otro nivel. Pulsar para hablar o micro siempre abierto; el navegador pide permiso la primera vez.",
-           "Proximity voice chat: you hear each teammate by how close they are, and not at all if they are on another level. Push to talk or always-open mic; the browser asks for permission the first time."],
+  voz:    ["Chat de voz por proximidad: oyes a cada compañero según lo cerca que esté, y nada si está en otro nivel (salvo que los dos llevéis un walkie-talkie). Pulsar para hablar o micro siempre abierto; el navegador pide permiso la primera vez.",
+           "Proximity voice chat: you hear each teammate by how close they are, and not at all if they are on another level (unless you both carry a walkie-talkie). Push to talk or always-open mic; the browser asks for permission the first time."],
   ambVol: ["El zumbido de los fluorescentes, el goteo, el viento y los chispazos.",
            "The fluorescent hum, the dripping, the wind and the sparks."],
   quality:["Cuánto le pide el juego a tu gráfica. Baja: resolución al 60 %, 3 luces, sin polvo ni grano y materiales sencillos. Media: 5 luces y materiales sencillos. Alta: todo. Ultra: más resolución y relieve más marcado. Los materiales se cambian al entrar al siguiente nivel; lo demás, al momento.",
@@ -12171,6 +12212,8 @@ const OPT_NOTES = {
            "Lower this if the shaking when you take hits makes you dizzy."],
   fps:    ["Enseña los fotogramas por segundo en la esquina.",
            "Shows frames per second in the corner."],
+  stats:  ["Cuenta de forma anónima que alguien ha abierto el juego y que ha empezado una partida, para saber cuánta gente lo juega. Sin cookies, sin nombre y sin guardar nada que te identifique (lo hace GoatCounter). Si lo apagas no se cuenta nada. Desde un archivo local o en el modo pruebas nunca cuenta.",
+           "Anonymously counts that someone opened the game and started a run, so the author knows how many people play. No cookies, no name and nothing that identifies you (done by GoatCounter). Turn it off and nothing is counted. From a local file or in test mode it never counts."],
   auto:   ["Si el juego va a menos de 40 fotogramas por segundo, baja la resolución poco a poco hasta que vaya fluido, y la vuelve a subir si sobra. Nunca pasa de lo que elijas en Calidad.",
            "If the game runs below 40 frames per second, it lowers the resolution bit by bit until it is smooth, and raises it again if there is room. It never goes above what you pick in Quality."],
   quickUse:["Con las teclas 1-4 o un clic en la mochila: gastar el objeto al momento, o sacarlo primero y confirmar con otra pulsación.",
@@ -12186,7 +12229,7 @@ const OPT_NOTES = {
 // Los ajustes van en cuatro pestañas que se deslizan de lado.
 const OPT_TABS = [
   {id:"game",  icon:"◈", es:"Partida",   en:"Game",
-   intro:["Idioma, dificultad y cómo de duro es soltarse cuando algo te agarra.","Language, difficulty and how hard it is to break free when something grabs you."]},
+   intro:["Idioma, dificultad, cómo de duro es soltarse cuando algo te agarra y si cuentas tu visita.","Language, difficulty, how hard it is to break free when something grabs you, and whether your visit is counted."]},
   {id:"ctrl",  icon:"⌨", es:"Controles", en:"Controls",
    intro:["Teclas a tu gusto, mando, cámara y cómo se usan los objetos.","Keys your way, controller, camera and how items are used."]},
   {id:"sound", icon:"♪", es:"Sonido",    en:"Sound",
@@ -12196,7 +12239,7 @@ const OPT_TABS = [
 ];
 const OPT_TAB_OF = {figs:"gfx", lang:"game", diff:"game", qte:"game", fov:"ctrl", sens:"ctrl", quickUse:"ctrl", pad:"ctrl", padSens:"ctrl", padInvert:"ctrl",
   vol:"sound", musicSrc:"sound", musicVol:"sound", ambVol:"sound", voz:"sound",
-  bright:"gfx", quality:"gfx", view:"gfx", fx:"gfx", shake:"gfx", fps:"gfx", auto:"gfx"};
+  bright:"gfx", quality:"gfx", view:"gfx", fx:"gfx", shake:"gfx", fps:"gfx", auto:"gfx", stats:"game"};
 let optTab = 0;
 function optFit(){
   const vp = $("optViewport"), page = $("optRows").children[optTab];
@@ -13499,6 +13542,7 @@ function mpEmpezar(anfitrion, opc){
   if(MP.peer || MP.activo) mpSalir(PUB.on);
   MP.nombre = nombre; MP.sala = sala; MP.anfitrion = anfitrion; MP.vacia = 0;
   MP.publica = pub;
+  if(!pub) contar(anfitrion ? "sala-creada" : "sala-entrar", anfitrion ? "Sala creada" : "Entrar en sala");
   MP.grande = anfitrion && (pub || MP.tam === "grande");         // el que entra lo sabrá por el anfitrión
   try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
 
@@ -13705,6 +13749,7 @@ function mpPublica(){
   if(MP.peer || MP.activo) mpSalir();
   try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
   PUB.on = true; PUB.i = 1; PUB.nombre = nombre; PUB.entrar = false;
+  contar("sala-publica", "Sala pública");
   mpEstado(tx("Buscando una sala con sitio…","Looking for a room with space…"));
   mpPublicaIntento();
 }
@@ -14296,6 +14341,7 @@ function startRun(charId){
   refreshSlots();
   computeReveal(true);
   renderBrief();
+  contar(MP.activo ? "partida-multijugador" : (wantMeg ? "partida-meg" : (wantRandom ? "partida-aleatoria" : "partida")), "Partida nueva");
 }
 function continueRun(){
   const d = readSave();
@@ -14640,6 +14686,7 @@ buildSprites();
 buildIcons();
 loadMeta();
 loadOpts();
+contarInicio();
 applyBrightness();
 applyQuality();                     // resolución, luces, polvo y el atributo data-q de la calidad elegida
 applyFx(); applyFps();

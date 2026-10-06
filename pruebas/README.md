@@ -166,6 +166,12 @@ salas con nombre no cambien. Del walkie: que exista, salga de casilleros y tiend
 multijugador, que la posición diga si lo llevas, que se oiga en otro nivel sólo si los dos lo llevan, y que en sala grande entre en
 el reparto de voces. Y que la pista del chat de texto se vea con sala.
 
+### `estadisticas.js` — unos segundos
+El contador de visitas (GoatCounter): que sólo cuente en la página publicada (no desde un archivo local, localhost,
+127.0.0.1 ni `.localhost`), que se apague desde Ajustes y con el modo pruebas, que cargue el script con el código de
+sitio correcto y una sola vez, que apunte partida (solitario y multijugador) y sala pública, que un fallo de GoatCounter no
+rompa el juego, y que la opción esté con su explicación en los dos idiomas y el script no esté fijo en el HTML.
+
 ### `figuras.js` — unos segundos
 Los sprites: el tamaño de cada atlas (8 fotogramas, andar y correr), que el ciclo sea neutro,
 zancada, neutro, zancada y que correr abra más la zancada, que `finishHD()` ponga el contorno y
