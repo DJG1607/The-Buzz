@@ -74,7 +74,7 @@ const Ha = anfitrion(true, 0);
 const nuevo = cx("nuevo1"); Ha.mpAtarConexion(nuevo); nuevo.h.open();
 c.ok(nuevo.enviados.some(m => m.t === "sala" && m.grande === 1), "el anfitrión dice «sala grande» a cada uno que entra");
 c.ok(/data-tam="cuadrilla"/.test(fuente) && /data-tam="grande"/.test(fuente) && /id="mpSize"/.test(fuente), "la pantalla de la sala deja elegir «Cuadrilla» o «Sala grande» antes de crearla");
-c.ok(/MP\.grande = anfitrion && MP\.tam === "grande"/.test(fuente), "sólo el que crea la sala decide el tamaño");
+c.ok(/MP\.grande = anfitrion && \(pub \|\| MP\.tam === "grande"\)/.test(fuente), "sólo el que crea la sala decide el tamaño (la pública siempre es grande)");
 
 console.log("\n── REENVÍO DE POSICIONES ──");
 const R = anfitrion(false, 0);

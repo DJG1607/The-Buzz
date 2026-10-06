@@ -156,6 +156,16 @@ conoce el invitado, el reenvío adelgazado (lejos una de cada tres, otro nivel u
 nueve invitados repartidos, que el mensaje corto pese menos y conserve lo que se sabía del jugador, que en sala normal todo
 siga igual, y la voz: sólo los más cercanos, sin cortar y volver a llamar al cuarto por nada, y rechazar llamadas de más.
 
+### `salapublica.js` — unos segundos
+La sala pública y el walkie con un `Peer` de mentira: que sólo pida nombre, que reclame «publica-1» y la abra
+como anfitrión (sala grande, directo al juego y personaje pedido dentro, sin poder saltarlo con Escape), que el
+que llega entre como invitado cuando ya hay anfitrión y espere al nivel, que una sala llena o muda lleve a la
+siguiente (de la 1 a la 6, en orden) y que al acabarlas lo diga, que un fallo de red no pruebe las seis, que salir cancele la
+búsqueda, que si cae el anfitrión la partida siga y se vuelva a buscar sala sin pedir otra vez personaje, y que las
+salas con nombre no cambien. Del walkie: que exista, salga de casilleros y tienda, que todos bajen con uno en
+multijugador, que la posición diga si lo llevas, que se oiga en otro nivel sólo si los dos lo llevan, y que en sala grande entre en
+el reparto de voces. Y que la pista del chat de texto se vea con sala.
+
 ### `figuras.js` — unos segundos
 Los sprites: el tamaño de cada atlas (8 fotogramas, andar y correr), que el ciclo sea neutro,
 zancada, neutro, zancada y que correr abra más la zancada, que `finishHD()` ponga el contorno y

@@ -462,6 +462,27 @@ jugadores a más de 34 m no se dibujan y la voz (que es malla: n−1 llamadas po
 limita a los 3 más cercanos de tu nivel (`vozElegir()`, con histéresis, cada 1,5 s). Si subes el
 tope de 10, mide primero lo que sube la subida del anfitrión (~9×8 mensajes por ronda).
 
+**Sala pública y walkie (4.0, segunda tanda).** *Sala pública* = botón en la pantalla de multijugador:
+sólo se pone el nombre. Como el servidor gratuito de PeerJS no da lista de salas, se usan nombres
+fijos «publica-1»…«publica-6» (`MP_PUB_SALAS`): `mpPublica()` → `mpPublicaIntento()` reclama el
+nombre como anfitrión; si el servidor dice `unavailable-id` ya hay anfitrión y se entra como
+invitado; si dice `lleno` (o no responde, o `peer-unavailable`) se prueba la siguiente
+(`mpFalloAlEntrar(msg, true)`; los errores de red no, porque saldrían seis fallos seguidos).
+`PUB` guarda la búsqueda y `mpSalir(true)` la conserva (un `mpSalir()` normal la cancela). Se entra
+**directo al juego**: `mpEntrarPublica()` hace `startRun` + `beginPlay` sin ficha de nivel y
+`mpPedirPersonaje()` abre `#pickScreen` (con la partida en pausa; `resumeGame()` no deja saltarlo con
+Escape) para elegir el personaje **dentro** del juego. `mpElegirPersonaje()` rehace el inventario
+conservando nivel y semilla. El invitado espera a recibir el `nivel` del anfitrión para entrar. Si
+cae el anfitrión de una sala pública, `mpSoltar` no te saca a solitario: la partida sigue y se
+vuelve a buscar sala desde la 1 (el primero que reclame el nombre es el nuevo anfitrión) sin volver a
+pedir personaje. La sala pública es siempre «grande».
+*Walkie-talkie* (`walkie`, equipo, no ocupa hueco): quien lo lleva oye por voz a otro que también lo
+lleve **en cualquier nivel o distancia** (`vozRadio()`, volumen mínimo 0,7 en otro nivel y 0,55 en el
+mismo) y en sala grande entra en el reparto de voces (`vozGestionar`). El `pos` lleva `rd`. En
+multijugador todos bajan con uno (`startRun`); también sale de casilleros y se compra. El chat de
+texto ya iba con [Enter] en cualquier sala; ahora hay una pista permanente (`#chatHint`,
+`mpChatHint()`) porque no se descubría.
+
 ## 7. Trampas que ya han mordido
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.

@@ -70,6 +70,9 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
   Si mueres con amigos, **caes**: tienes 40 s para que alguien te **reanime con un botiquín**.
   Cada uno tiene sus enemigos y su botín. No hace falta instalar nada. Desde la 4.0, la sala puede
   ser una **sala grande** de hasta 10 jugadores (la voz sólo con los tres más cercanos).
+- **Sala pública (4.0)**: un botón, sólo tu nombre, y entras en una sala con sitio (hasta 10). El
+  personaje se elige ya dentro del juego. Con un **walkie-talkie** (todos bajan con uno) hablas por
+  voz con quien lleve otro aunque esté en otro nivel; el chat de texto va con [Enter].
 - **Ropa y protecciones (4.0)**: casco, mascarilla, chaleco, traje, guantes y botas en cuatro ranuras.
   Cada prenda se come parte de los golpes a las zonas que cubre, se desgasta y se rompe; se ve en el
   personaje (tuyo y de tus compañeros), y la mochila se ve en cualquiera. Ponerse algo, beber,

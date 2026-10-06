@@ -443,6 +443,16 @@
   .mp-mode.on, .mp-tam.on{border-color:var(--amber); background:rgba(200,134,58,.08);}
   .mp-mode:disabled{cursor:default;}
   .mp-modenote{font-size:10.5px; color:var(--ink-faint); margin-top:6px;}
+  #pickScreen{background:rgba(7,7,10,.62); z-index:30;}
+  #pickList{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-top:12px;}
+  .pickch{font:inherit; display:grid; justify-items:center; gap:3px; padding:10px 6px; cursor:pointer; color:var(--ink);
+    background:rgba(221,214,189,.03); border:1px solid var(--line2);}
+  .pickch:hover:not(:disabled), .pickch:focus-visible{border-color:var(--amber); background:rgba(200,134,58,.08); outline:none;}
+  .pickch:disabled{cursor:default; opacity:.45;}
+  .pickch b{font-family:"Special Elite",serif; font-weight:400; font-size:14px; color:var(--fluor);}
+  .pickch span{font-size:10px; color:var(--ink-faint); text-align:center;}
+  .pickch canvas{image-rendering:pixelated;}
+  #chatHint{font-size:10px; letter-spacing:.06em; color:var(--ink-faint); opacity:.7; margin-top:3px;}
   #mpLobbyChat{margin-top:12px; border:1px solid var(--line2); background:rgba(0,0,0,.2);}
   #mpChatLog{height:92px; overflow:auto; padding:6px 9px; font-size:11px; color:var(--ink-dim); line-height:1.5;}
   #mpChatIn, #chatIn{width:100%; box-sizing:border-box; font:inherit; font-size:12px; color:var(--ink); padding:7px 9px;
@@ -808,7 +818,7 @@
 
 <div id="hud">
   <div id="mpRoster"></div>
-  <div id="chat"><div id="chatLog"></div><input id="chatIn" maxlength="120" hidden placeholder="Enter para enviar · Esc para cerrar"></div>
+  <div id="chat"><div id="chatLog"></div><div id="chatHint" hidden></div><input id="chatIn" maxlength="120" hidden placeholder="Enter para enviar · Esc para cerrar"></div>
   <div id="downed" hidden><b data-en="DOWN">CA&#205;DO</b><span id="downedT"></span><em data-en="A teammate with a first-aid kit can revive you">Un compa&#241;ero con un botiqu&#237;n puede reanimarte</em></div>
   <div id="fpsc" hidden></div>
   <div id="hands">
@@ -962,6 +972,7 @@
         </div>
       </div>
     </div>
+    <div class="mp-modenote" id="mpPubNote" data-en="Public room: you only type your name. You are dropped into a room with space (up to 10 players) and pick your character already in the game.">Sala pública: sólo pones tu nombre. Te metemos en una sala con sitio (hasta 10 jugadores) y eliges el personaje ya dentro del juego.</div>
     <div id="mpMode" hidden>
       <label class="mpl" data-en="Room mode">Modo de la sala</label>
       <div class="mp-modes">
@@ -973,6 +984,7 @@
     <div class="btnrow">
       <button class="btn" id="mpCreate" data-en="Create room">Crear sala</button>
       <button class="btn" id="mpJoin" data-en="Join">Entrar</button>
+      <button class="btn" id="mpPublic" data-en="Public room (up to 10)">Sala pública (hasta 10)</button>
       <button class="btn" id="mpLeave" hidden data-en="Leave the room">Salir de la sala</button>
       <button class="btn ghost" id="mpBack" data-en="Back">Volver</button>
     </div>
@@ -985,6 +997,16 @@
     <div class="btnrow" id="mpGoRow" hidden>
       <button class="btn big" id="mpGo" data-en="Choose character">Elegir personaje</button>
     </div>
+  </div>
+</div>
+
+<div class="screen" id="pickScreen" hidden>
+  <div class="sheet">
+    <div class="eyebrow" id="pickEyebrow"></div>
+    <h2 data-en="Who are you?">¿Quién eres?</h2>
+    <div class="rule"></div>
+    <div id="pickList"></div>
+    <div class="mp-modenote" id="pickNote"></div>
   </div>
 </div>
 
@@ -2391,6 +2413,11 @@ const ICON_DRAW = {
   gloves(x){
     P(x,2,6,5,7,"#6a5a3a"); P(x,2,3,1,4,"#6a5a3a"); P(x,3,2,1,5,"#6a5a3a"); P(x,4,2,1,5,"#6a5a3a"); P(x,5,3,1,4,"#6a5a3a"); P(x,2,11,5,2,"#4a3e26");
     P(x,9,6,5,7,"#7a6a46"); P(x,9,3,1,4,"#7a6a46"); P(x,10,2,1,5,"#7a6a46"); P(x,11,2,1,5,"#7a6a46"); P(x,12,3,1,4,"#7a6a46"); P(x,9,11,5,2,"#4a3e26");
+  },
+  walkie(x){
+    P(x,5,4,6,11,"#3a3f46"); P(x,5,4,6,1,"#566069"); P(x,11,1,1,4,"#22262a"); P(x,10,0,3,1,"#22262a");
+    P(x,6,6,4,3,"#12161a"); P(x,6,6,4,1,"#2c343a"); P(x,7,7,2,1,"#5a8aa8");
+    P(x,6,10,4,1,"#6a737c"); P(x,6,12,4,1,"#6a737c"); P(x,9,3,2,1,"#c8503a"); P(x,5,14,6,1,"#23272c");
   },
   boots(x){
     P(x,3,2,5,9,"#4a3a2a"); P(x,3,9,11,4,"#4a3a2a"); P(x,3,13,11,1,"#1a1a1a"); P(x,4,4,3,1,"#c8c0a0"); P(x,4,6,3,1,"#c8c0a0");
@@ -4480,6 +4507,7 @@ const ITEMS = {
   firesalt:   {name:"Firesalt", icon:"firesalt", stack:true, blurb:"Cristales volátiles que crecen en las esquinas de los primeros niveles. Se lanzan hacia delante: estallan en calor y chispas y aturden 5 s a lo que pille cerca.", name_en:"Firesalt", blurb_en:"Volatile crystals that grow in the corners of the first levels. Thrown ahead of you, they burst into heat and sparks and stun whatever is close for 5 s."},
   repellent:  {name:"Smiler Repellent", icon:"repellent", stack:true, blurb:"Un líquido transparente rarísimo, parecido al Almond Water. Rociado, los Smilers a menos de 20 m desaparecen y no vuelven.", name_en:"Smiler Repellent", blurb_en:"A very rare clear liquid, a lot like Almond Water. Sprayed, it makes every Smiler within 20 m vanish for good."},
   rations:    {name:"Royal Rations", icon:"rations", stack:true, blurb:"Un bocado ceroso que alimenta como una comida entera: +20 en todas las zonas, el aliento al máximo y +10 de cordura. Sabe tan bien que da miedo.", name_en:"Royal Rations", blurb_en:"A waxy bite that feeds like a whole meal: +20 on every body part, full breath and +10 sanity. It tastes so good it is frightening."},
+  walkie:     {name:"Walkie-talkie", icon:"walkie", equip:true, blurb:"Con uno encima hablas por voz con quien lleve otro, esté donde esté, aunque sea en otro nivel. En multijugador todos bajan con uno. No ocupa hueco.", name_en:"Walkie-talkie", blurb_en:"With one on you, you talk by voice to anyone carrying another, wherever they are, even on a different level. In multiplayer everyone goes down with one. Takes no slot."},
   soles:      {name:"Suelas de goma silenciosa", icon:"soles", equip:true, blurb:"Goma hecha con Liquid Silence, que se traga el sonido. Mientras las lleves haces un 40% menos de ruido.", name_en:"Silent rubber soles", blurb_en:"Rubber made with Liquid Silence, which swallows sound. While you wear them you make 40% less noise."},
   luckymilk:  {name:"Lucky O' Milk de fresa", icon:"luckymilk", stack:true, blurb:"Leche de soja de las máquinas del Level 4. La de fresa espabila como el café: 25 s corriendo sin cansarte.", name_en:"Strawberry Lucky O' Milk", blurb_en:"Soy milk from the Level 4 machines. The strawberry one perks you up like coffee: 25 s of running without tiring."},
   marshmallow:{name:"Greasy Marshmallows", icon:"marshmallow", stack:true, blurb:"Derretidas dan fuerza: aliento al máximo y 12 s sin cansarte. Tres seguidas y el cuerpo te pesa un buen rato.", name_en:"Greasy Marshmallows", blurb_en:"Melted, they give you strength: full breath and 12 s without tiring. Three in a row and your body feels heavy for a good while."},
@@ -4500,8 +4528,8 @@ const EQUIP_IDS = Object.keys(ITEMS).filter(k=> ITEMS[k].equip);
 // Botín por calidad: la tirada del casillero decide de qué cajón sale
 const TIERS = {
   comun: ["almond","almond","almond","bandage","bandage","battery","bat","marshmallow","luckymilk","ducttape"],
-  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage","medkit","firesalt","ducttape","luckymilk","boots","gloves","vest","hardhat"],
-  raro:  ["compass","backpack","crowbar","rebar","map","flashlight","medkit","rations","repellent","soles","gasmask","hazsuit","vest","hardhat"]
+  bueno: ["flashlight","map","flare","crowbar","pipe","battery","almond","bandage","medkit","firesalt","ducttape","luckymilk","boots","gloves","vest","hardhat","walkie"],
+  raro:  ["compass","backpack","crowbar","rebar","map","flashlight","medkit","rations","repellent","soles","gasmask","hazsuit","vest","hardhat","walkie"]
 };
 
 // Un d6 por casillero: 1 no da nada y 6 es un hallazgo serio
@@ -12780,7 +12808,7 @@ const MEG_TIENDA = [
   {id:"megradio", precio:40}, {id:"megbeacon", precio:25}, {id:"megcamera", precio:70},
   {id:"almond", precio:12}, {id:"bandage", precio:12}, {id:"battery", precio:12},
   {id:"ducttape", precio:20}, {id:"medkit", precio:30}, {id:"flashlight", precio:45},
-  {id:"hardhat", precio:30}, {id:"vest", precio:35}, {id:"gloves", precio:25}, {id:"boots", precio:30}, {id:"gasmask", precio:55}
+  {id:"walkie", precio:30}, {id:"hardhat", precio:30}, {id:"vest", precio:35}, {id:"gloves", precio:25}, {id:"boots", precio:30}, {id:"gasmask", precio:55}
 ];
 const MEG_BASES = CAT.filter(c=> c.settlement).map(c=> c.id);
 
@@ -13173,6 +13201,14 @@ const MP = {
    vez, (3) la voz sólo con los 3 más cercanos (la voz es malla: 9 llamadas por persona
    serían demasiadas) y (4) a los jugadores lejanos no se les dibuja. */
 const MP_CAP = {cuadrilla:4, grande:10};
+/* ── sala pública ──
+   Sólo se pone el nombre. No hay lista de salas (el servidor gratuito de PeerJS no la da), así que
+   se usan nombres fijos: «publica-1», «publica-2»… Se intenta quedarse con el nombre de la 1; si
+   ya lo lleva otro anfitrión, se entra en ella; si está llena (o ya no responde), se prueba la 2, y
+   así hasta MP_PUB_SALAS. El primero que llega se queda con el nombre y es el anfitrión. Si el
+   anfitrión se va, los que quedan vuelven a buscar y uno de ellos pasa a serlo. */
+const MP_PUB_SALAS = 6, MP_PUB_PREFIJO = "publica-", MP_PUB_ESPERA = 15000;
+const PUB = {on:false, i:0, nombre:"", entrar:false, eligiendo:false};
 const MP_RITMO_GRANDE = 0.12;               // la posición, algo más espaciada
 const MP_FULL_CADA = 1;                     // s entre mensajes completos (arma, ropa) en sala grande
 const MP_LEJOS = 30, MP_VISTA_GRANDE = 34;  // m: a partir de aquí se reenvía menos / no se dibuja
@@ -13279,6 +13315,8 @@ function mpAbrir(){
 function mpPintarGente(){
   const host = $("mpPeople");
   host.textContent = "";
+  $("mpPublic").hidden = MP.activo; $("mpPubNote").hidden = MP.activo;
+  mpChatHint();
   // dentro de una sala ya no se crea ni se entra en otra: sólo se sale
   $("mpCreate").hidden = MP.activo; $("mpJoin").hidden = MP.activo; $("mpLeave").hidden = !MP.activo;
   $("mpMode").hidden = !MP.activo;
@@ -13330,7 +13368,7 @@ function mpRoster(){
     else if(o.dn){ st = tx("CAÍDO","DOWN"); cls += " dn"; }
     else if(o.lv && G.cfg && o.lv !== G.levelId+"@"+G.levelSeed) st = tx("otro nivel","other level");
     else st = (o.hp !== undefined ? Math.round(o.hp)+"%" : "…");
-    d.innerHTML = "<span>"+mpEsc(o.nombre||"?")+'</span><span class="'+cls+'">'+st+"</span>";
+    d.innerHTML = "<span>"+(o.rd ? "📻 " : "")+mpEsc(o.nombre||"?")+(o.habla ? " 🔊" : "")+'</span><span class="'+cls+'">'+st+"</span>";
     host.appendChild(d);
   });
 }
@@ -13449,16 +13487,19 @@ function nameTag(nombre, caido){
   return m;
 }
 
-function mpEmpezar(anfitrion){
-  const nombre = ($("mpName").value || "").trim().slice(0,14);
-  const sala = mpSlug($("mpRoom").value);
+function mpEmpezar(anfitrion, opc){
+  opc = opc || {};
+  const pub = !!opc.publica;
+  const nombre = (opc.nombre || $("mpName").value || "").trim().slice(0,14);
+  const sala = opc.sala || mpSlug($("mpRoom").value);
   if(!nombre){ mpEstado(tx("Ponte un nombre.","Put a name in.")); return; }
   if(!sala){ mpEstado(tx("Ponle nombre a la sala.","Give the room a name.")); return; }
   // si ya había una conexión abierta se cierra antes: si no, el juego se
   // conectaba a su propia sala una y otra vez y salían «clones» tuyos
-  if(MP.peer || MP.activo) mpSalir();
+  if(MP.peer || MP.activo) mpSalir(PUB.on);
   MP.nombre = nombre; MP.sala = sala; MP.anfitrion = anfitrion; MP.vacia = 0;
-  MP.grande = anfitrion && MP.tam === "grande";                  // el que entra lo sabrá por el anfitrión
+  MP.publica = pub;
+  MP.grande = anfitrion && (pub || MP.tam === "grande");         // el que entra lo sabrá por el anfitrión
   try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
 
   mpEstado(tx("Conectando…","Connecting…"));
@@ -13481,10 +13522,16 @@ function mpEmpezar(anfitrion){
         return;
       }
       MP.abierto = true;
+      if(anfitrion && pub){
+        mpEstado(tx("Sala pública abierta: ","Public room open: ")+sala+tx(". Los demás irán entrando.",". Others will join as they search."));
+        mpEntrarPublica();
+        return;
+      }
       if(anfitrion){
         mpEstado(tx("Sala abierta. Que tus amigos escriban «","Room open. Have your friends type \u201c")+sala+tx("» y le den a Entrar.","\u201d and hit Join."));
         $("mpGoRow").hidden = false;
       } else {
+        if(pub) PUB.entrar = true;
         const c = peer.connect(MP_PREFIJO + sala, {reliable:false});
         mpAtarConexion(c);
         mpEstado(tx("Entrando en la sala…","Joining the room…"));
@@ -13495,8 +13542,8 @@ function mpEmpezar(anfitrion){
         }, 8000);
         MP.esperaT = setTimeout(()=>{
           if(!mio() || MP.conexiones.length) return;
-          mpFalloAlEntrar(mpMsgNoConecta());
-        }, MP_ESPERA);
+          mpFalloAlEntrar(mpMsgNoConecta(), true);
+        }, pub ? MP_PUB_ESPERA : MP_ESPERA);
       }
       mpPintarGente();
     });
@@ -13510,6 +13557,13 @@ function mpEmpezar(anfitrion){
       if(!mio()) return;
       const t = String(err && err.type || err);
       const sinNadie = !MP.anfitrion && !MP.conexiones.length;           // el que entra, sin haber conseguido entrar
+      if(t === "unavailable-id" && PUB.on && !MP.abierto && MP.anfitrion){
+        // ya hay un anfitrión con ese nombre de sala pública: se entra en ella
+        const opc = {publica:true, sala:MP.sala, nombre:MP.nombre};
+        mpSalir(true);
+        mpEmpezar(false, opc);
+        return;
+      }
       if(t === "unavailable-id"){
         if(MP.abierto) { mpSalir(); mpEstado(tx("Otro ha ocupado el nombre de tu sala mientras estabas desconectado: crea la sala otra vez.","Someone took your room name while you were offline: create the room again.")); }
         else { mpSalir(); mpEstado(tx("Esa sala ya existe. Dale a Entrar en vez de Crear.","That room already exists. Hit Join instead of Create.")); }
@@ -13517,13 +13571,13 @@ function mpEmpezar(anfitrion){
       }
       else if(t === "peer-unavailable"){
         // también salta al llamar por voz a alguien que ya se fue: eso no es un fallo al entrar
-        if(sinNadie) mpFalloAlEntrar(tx("No hay ninguna sala con ese nombre. ¿La ha creado alguien? Si acaba de crearla, espera unos segundos.","No room with that name. Has anyone created it? If they just did, wait a few seconds."));
+        if(sinNadie) mpFalloAlEntrar(tx("No hay ninguna sala con ese nombre. ¿La ha creado alguien? Si acaba de crearla, espera unos segundos.","No room with that name. Has anyone created it? If they just did, wait a few seconds."), true);
       }
       else if(t === "network" || t === "server-error" || t === "socket-error" || t === "socket-closed"){
-        if(sinNadie && !MP.abierto) mpFalloAlEntrar(tx("No llego al servidor de salas. ¿Hay internet?","Cannot reach the room server. Is there internet?"));
+        if((sinNadie || PUB.on) && !MP.abierto) mpFalloAlEntrar(tx("No llego al servidor de salas. ¿Hay internet?","Cannot reach the room server. Is there internet?"));
         else mpReconectar();
       }
-      else if(sinNadie) mpFalloAlEntrar(tx("Fallo de conexión: ","Connection problem: ")+t);
+      else if(sinNadie || (PUB.on && !MP.abierto)) mpFalloAlEntrar(tx("Fallo de conexión: ","Connection problem: ")+t);
       else mpEstado(tx("Fallo de conexión: ","Connection problem: ")+t);
     });
   }).catch(()=>{
@@ -13536,9 +13590,16 @@ function mpMsgNoConecta(){
             "Could not connect to the room. It may be gone, or your routers may not allow a direct link (mobile data, another network…).");
 }
 // el que quería entrar y no ha podido: se cierra todo y vuelven los botones de Entrar y Crear
-function mpFalloAlEntrar(msg){
+function mpFalloAlEntrar(msg, sigue){
   clearTimeout(MP.esperaT); clearTimeout(MP.avisoT);
-  mpSalir();
+  const buscando = PUB.on && sigue;
+  mpSalir(buscando);
+  if(buscando){                                   // sala pública: sin sitio o sin respuesta, se prueba la siguiente
+    PUB.i++;
+    if(PUB.i <= MP_PUB_SALAS){ mpPublicaIntento(); return; }
+    PUB.on = false;
+    msg = tx("Todas las salas públicas están llenas ahora mismo. Prueba en un rato o crea una sala con nombre.","Every public room is full right now. Try again in a bit or create a named room.");
+  }
   mpEstado(msg);
   $("mpGoRow").hidden = true;
   mpPintarGente();
@@ -13610,7 +13671,15 @@ function mpTipoConexion(c){
 function mpSoltar(c){
   MP.conexiones = MP.conexiones.filter(x=> x !== c);
   if(!MP.anfitrion && MP.activo && !MP.conexiones.length){
-    if(!c.visto){ mpFalloAlEntrar(mpMsgNoConecta()); return; }
+    if(!c.visto){ mpFalloAlEntrar(mpMsgNoConecta(), true); return; }
+    if(MP.publica){                               // sala pública: la partida sigue y se busca otra sala (o se abre)
+      const nombre = MP.nombre;
+      mpSalir(true);
+      PUB.on = true; PUB.i = 1; PUB.nombre = nombre;
+      toast(tx("El anfitrión se ha ido: buscando otra sala pública…","The host left: looking for another public room…"), 4);
+      mpPublicaIntento();
+      return;
+    }
     // se ha ido el anfitrión: la sala ya no existe y sigues por tu cuenta
     mpSalir();
     toast(tx("El anfitrión ha cerrado la sala: sigues en solitario.","The host closed the room: you carry on alone."), 5);
@@ -13629,6 +13698,83 @@ function mpSoltar(c){
   mpPintarGente(); mpRoster();
 }
 
+/* ── sala pública: entrar y elegir personaje DENTRO del juego ── */
+function mpPublica(){
+  const nombre = ($("mpName").value || "").trim().slice(0,14);
+  if(!nombre){ mpEstado(tx("Ponte un nombre.","Put a name in.")); return; }
+  if(MP.peer || MP.activo) mpSalir();
+  try { localStorage.setItem("zumbido.nombre", nombre); } catch(e){}
+  PUB.on = true; PUB.i = 1; PUB.nombre = nombre; PUB.entrar = false;
+  mpEstado(tx("Buscando una sala con sitio…","Looking for a room with space…"));
+  mpPublicaIntento();
+}
+function mpPublicaIntento(){
+  if(!PUB.on) return;
+  mpEstado(tx("Buscando una sala con sitio… ("+PUB.i+"/"+MP_PUB_SALAS+")","Looking for a room with space… ("+PUB.i+"/"+MP_PUB_SALAS+")"));
+  mpEmpezar(true, {publica:true, sala:MP_PUB_PREFIJO + PUB.i, nombre:PUB.nombre});
+}
+function mpEntrarPublica(){
+  PUB.on = false; PUB.entrar = false;
+  mpPintarGente(); mpChatHint();
+  if(G.running && !G.dead){                       // el anfitrión se fue y se ha vuelto a montar la sala: la partida sigue
+    mpEnviar({t:"hola", nombre:MP.nombre, ch:(G.char && G.char.id) || "scout", sk:G.char ? skinOf(G.char.id) : "base", v:VERSION});
+    if(MP.anfitrion) mpAnunciarNivel();
+    toast(tx("Sala pública: ","Public room: ")+MP.sala, 3);
+    return;
+  }
+  const ch = CHARACTERS.find(charUnlocked) || CHARACTERS[0];
+  wantRandom = false; wantMeg = false;
+  startRun(ch.id);
+  beginPlay();                                    // directo al juego: sin ficha de nivel
+  mpPedirPersonaje();
+}
+function mpPedirPersonaje(){
+  PUB.eligiendo = true; G.paused = true;
+  if(document.pointerLockElement) document.exitPointerLock();
+  const host = $("pickList");
+  host.textContent = "";
+  $("pickEyebrow").textContent = tx("Sala pública · ","Public room · ")+MP.sala+" · "+(Object.keys(MP.otros).length+1)+"/"+mpCap();
+  $("pickNote").textContent = tx("Se elige una vez, al entrar. Tus compañeros te verán con este personaje.","You pick once, on the way in. Your teammates will see you as this character.");
+  CHARACTERS.forEach(ch=>{
+    const open = charUnlocked(ch);
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "pickch"; b.disabled = !open;
+    b.appendChild(charPortrait(ch, 2, 0, 0, skinOf(ch.id)));
+    const n = document.createElement("b"); n.textContent = txf(ch, "name");
+    const r = document.createElement("span"); r.textContent = open ? txf(ch, "role") : tx("Bloqueado","Locked");
+    b.appendChild(n); b.appendChild(r);
+    b.addEventListener("click", ()=> mpElegirPersonaje(ch.id));
+    host.appendChild(b);
+  });
+  $("pickScreen").hidden = false;
+}
+function mpElegirPersonaje(id){
+  const ch = CHARACTERS.find(c=> c.id === id);
+  if(!ch || !charUnlocked(ch) || !PUB.eligiendo) return;
+  PUB.eligiendo = false;
+  $("pickScreen").hidden = true;
+  if(!G.char || G.char.id !== ch.id){
+    const keep = {id:G.levelId, seed:G.levelSeed};  // el nivel es el de la sala
+    resetRun(ch.id);
+    addItem("medkit", 1); addItem("walkie", 1);
+    G.levelId = keep.id; G.levelSeed = keep.seed;
+    buildLevel(keep.id, keep.seed);
+    refreshSlots();
+    computeReveal(true);
+  }
+  G.paused = false; G.running = true; G.dead = false;
+  Audio_.resume(); applyLevelAudio(); grabPointer();
+  mpEnviar({t:"hola", nombre:MP.nombre, ch:ch.id, sk:skinOf(ch.id), v:VERSION});
+  if(MP.anfitrion) mpAnunciarNivel();
+  toast(tx("Entras como ","You enter as ")+txf(ch, "name")+"  ·  "+tx("chat: ","chat: ")+tag("chat"), 4);
+}
+// la pista del chat de texto, siempre a la vista mientras haya sala
+function mpChatHint(){
+  const h = $("chatHint");
+  if(!h) return;
+  h.hidden = !MP.activo;
+  h.textContent = MP.activo ? "💬 "+tx("chat de texto: ","text chat: ")+tag("chat") : "";
+}
 // Si el compañero juega otra versión puede que no os veáis bien: se avisa una vez por persona
 function mpAvisarVersion(o){
   if(!o || o.avisadoVer) return;
@@ -13664,7 +13810,7 @@ function mpRecibir(c, m){
     });
   }
   if(from === mpYo()) return;                     // un eco de uno mismo no es otro jugador
-  if(m.t === "lleno"){ mpFalloAlEntrar(tx("La sala está llena ("+(m.cap|0)+" jugadores como mucho).","The room is full ("+(m.cap|0)+" players at most).")); return; }
+  if(m.t === "lleno"){ mpFalloAlEntrar(tx("La sala está llena ("+(m.cap|0)+" jugadores como mucho).","The room is full ("+(m.cap|0)+" players at most)."), true); return; }
   if(m.t === "sala" && !MP.anfitrion){ MP.modo = m.modo === "random" ? "random" : "normal"; MP.grande = !!m.grande; mpPintarModo(); mpPintarGente(); return; }
   if(m.t === "suelo"){ mpPonerSuelo(m, from); return; }
   if(m.t === "accion"){ const o = MP.otros[from]; if(o && ACCIONES[m.a]) o.acto = {kind:m.a, t:ACCIONES[m.a].t, dur:ACCIONES[m.a].t}; return; }
@@ -13719,13 +13865,14 @@ function mpRecibir(c, m){
       G.levelId = m.id; G.levelSeed = m.seed;
       if(G.cfg) buildLevel(m.id, m.seed);
     }
+    if(PUB.entrar) mpEntrarPublica();                // sala pública: ya sabemos dónde está la expedición
     return;
   }
   if(m.t === "pos"){
     const o = MP.otros[from] = MP.otros[from] || {nombre:"?", ch:"scout"};
     o.id = from;
     o.x = m.x; o.z = m.z; o.yaw = m.yaw; o.frame = m.f|0; o.row = m.r|0; o.visto = 0;
-    o.hp = m.hp; o.lv = m.lv; o.muerto = false;
+    o.hp = m.hp; o.lv = m.lv; o.muerto = false; o.rd = m.rd ? 1 : 0;
     if(m.gk !== undefined){ o.gl = m.gl; o.gr = m.gr; o.gk = cleanKey(m.gk); }       // sólo viene en los completos
     if((m.dn ? 1 : 0) !== (o.dn ? 1 : 0)) o.dn = m.dn ? 1 : 0;
     if(m.n) o.nombre = String(m.n).slice(0,14);
@@ -13752,7 +13899,7 @@ function updateGhosts(dt){
     const msg = {
       t:"pos", x:+player.pos.x.toFixed(2), z:+player.pos.z.toFixed(2),
       yaw:+player.facing.toFixed(2), f:(player.animFrame|0), r:(player.animRow|0),
-      hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed
+      hp:Math.round(bodyAvg()), dn:G.downed ? 1 : 0, lv:G.levelId+"@"+G.levelSeed, rd:hasItem("walkie") ? 1 : 0
     };
     MP.fullT = (MP.fullT || 0) - MP.reloj;
     if(!MP.grande || MP.fullT <= 0){                          // lo que casi no cambia: nombre, personaje, manos y ropa
@@ -13941,8 +14088,9 @@ function vozGestionar(){
   const cands = [];
   for(const k in MP.otros){
     const o = MP.otros[k];
-    if(!o.voz || o.muerto || o.x === undefined || (o.lv && o.lv !== G.levelId+"@"+G.levelSeed)) continue;
-    cands.push({id:k, d:Math.hypot(o.x - player.pos.x, o.z - player.pos.z)});
+    const otroNivel = o.lv && o.lv !== G.levelId+"@"+G.levelSeed;
+    if(!o.voz || o.muerto || o.x === undefined || (otroNivel && !vozRadio(o))) continue;
+    cands.push({id:k, d:otroNivel ? 20 : Math.hypot(o.x - player.pos.x, o.z - player.pos.z)});     // por radio: como a 20 m
   }
   const r = vozElegir(cands, VOZ.calls, VOZ_MAX_GRANDE);
   r.cerrar.forEach(k=>{ try{ VOZ.calls[k].close(); }catch(e){} vozQuitar(k); });
@@ -13958,18 +14106,22 @@ function vozDistancia(d, veo){
   const g = clamp(1 - (d - VOZ_CERCA)/(VOZ_LEJOS - VOZ_CERCA), 0, 1);
   return Math.pow(g, 1.4) * (veo ? 1 : 0.45);
 }
+// con un walkie encima, a quien lleve otro se le oye en cualquier parte y en cualquier nivel
+function vozRadio(o){ return !!(o && o.rd && hasItem("walkie")); }
 function vozCompanero(o, aqui){
   const n = VOZ.nodes[o.id];
   if(!n) { o.habla = false; return; }
   const dx = o.vx - player.pos.x, dz = o.vz - player.pos.z, d = Math.hypot(dx, dz);
-  const v = aqui ? vozDistancia(d, canSee(player.pos.x, player.pos.z, o.vx, o.vz)) : 0;
+  const radio = vozRadio(o);
+  let v = aqui ? vozDistancia(d, canSee(player.pos.x, player.pos.z, o.vx, o.vz)) : 0;
+  if(radio) v = Math.max(v, aqui ? 0.55 : 0.7);
   const general = (G.opts && typeof G.opts.vol === "number") ? clamp(G.opts.vol*1.6, 0.25, 1) : 1;
   n.vol = lerp(n.vol, v*general, 0.3);
   n.el.volume = clamp(n.vol, 0, 1);
   n.an.getByteTimeDomainData(n.buf);
   let pico = 0; for(let i=0;i<n.buf.length;i+=4) pico = Math.max(pico, Math.abs(n.buf[i] - 128));
   n.nivel = lerp(n.nivel, pico, 0.3);
-  o.habla = aqui && n.nivel > 6;
+  o.habla = (aqui || radio) && n.nivel > 6;
 }
 
 /* ── gestos ──
@@ -14094,7 +14246,10 @@ function mpVigilar(dtForzado){
 setInterval(mpVigilar, 1000);
 window.addEventListener("pagehide", ()=>{ if(MP.peer){ try{ MP.peer.destroy(); }catch(e){} } });
 
-function mpSalir(){
+function mpSalir(seguir){
+  if(!seguir) PUB.on = false;
+  MP.gen = (MP.gen || 0) + 1;                     // lo que estuviera abriéndose ya no vale
+  MP.publica = false; PUB.entrar = false;
   vozApagar();
   Object.keys(MP.otros).forEach(k=>{
     const o = MP.otros[k];
@@ -14113,6 +14268,7 @@ function mpSalir(){
   cs.forEach(c=>{ try{ c.close(); }catch(e){} });
   if(peer){ try{ peer.destroy(); }catch(e){} }
   mpRoster();
+  mpChatHint();
 }
 
 function startRun(charId){
@@ -14121,7 +14277,7 @@ function startRun(charId){
   // suya y hasta el primer «hola» construía (y enseñaba en la ficha) otro laberinto
   const heredado = (MP.activo && !MP.anfitrion) ? {id:G.levelId, seed:G.levelSeed} : null;
   resetRun(charId);
-  if(MP.activo) addItem("medkit", 1);          // con amigos, cada uno baja con un botiquín
+  if(MP.activo){ addItem("medkit", 1); addItem("walkie", 1); }          // con amigos, cada uno baja con un botiquín y un walkie
   if(wantMeg && !MP.activo){
     // agente del M.E.G.: sale de la Base Beta con una radio y una baliza
     G.megMode = true;
@@ -14223,6 +14379,7 @@ function pauseGame(){
   show("pauseScreen");
 }
 function resumeGame(){
+  if(PUB.eligiendo) return;                         // antes hay que elegir personaje
   G.paused = false;
   hideAll();
   Audio_.resume();
@@ -14525,6 +14682,7 @@ $("megBtn").addEventListener("click", ()=>{ mpSalir(); wantRandom = false; wantM
 $("mpBtn").addEventListener("click", mpAbrir);
 $("mpCreate").addEventListener("click", ()=> mpEmpezar(true));
 $("mpJoin").addEventListener("click", ()=> mpEmpezar(false));
+$("mpPublic").addEventListener("click", mpPublica);
 $("mpLeave").addEventListener("click", ()=>{ mpSalir(); mpEstado(tx("Has salido de la sala.","You left the room.")); $("mpGoRow").hidden = true; mpPintarGente(); });
 $("mpBack").addEventListener("click", ()=>{ mpSalir(); renderChars(); show("titleScreen"); });
 $("mpGo").addEventListener("click", ()=>{ wantRandom = MP.modo === "random"; wantMeg = false; openChars(); });
