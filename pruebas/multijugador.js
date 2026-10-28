@@ -158,7 +158,16 @@ const anaEnBea = B.MP.otros[ids.get(A)];
 c.ok(anaEnBea && anaEnBea.gesto && anaEnBea.gesto.pose === "wave", "Ana saluda y Bea lo ve (pasa por la centralita del anfitrión)");
 c.ok((B.G.burbujas || []).some(b => b.who === anaEnBea), "con un bocadillo encima de su cabeza");
 c.ok(A.G.gesto && A.G.gesto.pose === "wave" && (A.G.burbujas || []).some(b => b.who === null), "y Ana ve su propio bocadillo");
-c.ok(A.GESTOS.length === 8, "hay 8 gestos: saludar, aquí, sígueme, espera, peligro, salida, gracias y vale");
+c.ok(A.GESTOS.length === 12, "hay 12 gestos: los 8 de siempre y, desde la 5.0, bailar, sentarse, reírse y «ni idea»");
+c.ok(A.GESTOS.every(g => A.EMOTE_FR[g.pose]), "cada gesto tiene su animación en el sprite (no sólo en la figura 3D)");
+c.ok(A.GESTOS.every((g, i) => A.GESTO_TECLAS[i]), "cada gesto tiene su tecla con la barra abierta (1-9, 0, - y =)");
+{
+  const f0 = A.emoteFrame("dance", 0), f1 = A.emoteFrame("dance", 0.35);
+  c.ok(f0 && f1 && (f0.col !== f1.col) && f0.row >= A.EMOTE_ROW, "bailar alterna dos dibujos de la fila de emotes");
+  const s = A.emoteFrame("sit", 3);
+  c.ok(s && s.row === A.EMOTE_ROW && s.col === 6, "sentarse es un dibujo fijo");
+  c.ok(A.emoteFrame("nada", 0) === null, "un gesto que no existe no rompe nada");
+}
 const vd = A.vozDistancia;
 c.ok(vd(1, true) === 1 && vd(18, true) === 0 && vd(5, true) > vd(10, true) && vd(5, false) < vd(5, true),
   "voz por proximidad: entera a 2 m, nada a 18 m, baja con la distancia y tras una pared");
@@ -273,7 +282,7 @@ c.ok(sprite.rotation.x === 0 && Math.abs(sprite.rotation.y) < 1e-9, "y mira a la
 A.actorDown(sprite, false);
 A.billboard(sprite, { x: 3, y: 1, z: 0 });
 c.ok(!sprite.userData.tumbado && sprite.scale.x === 1 && sprite.scale.y === 1 && Math.abs(sprite.rotation.y - Math.PI / 2) < 1e-9, "al levantarse vuelve a su tamaño");
-c.ok(A.SPRITES.char_scout.rows === 5 && A.FALLEN_ROW === 4, "cada personaje trae su cuerpo caído en una fila propia del atlas (la 4)");
+c.ok(A.SPRITES.char_scout.rows === 10 && A.FALLEN_ROW === 4, "cada personaje trae su cuerpo caído en una fila propia del atlas (la 4)");
 A.G.opts.figs = 0;
 c.ok(!A.figuraDesactualizada(sprite) && A.figuraDesactualizada(muneco), "con «pixel art», un muñeco 3D está desactualizado y un sprite no");
 A.G.opts.figs = 1;

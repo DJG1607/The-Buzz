@@ -172,6 +172,52 @@ El contador de visitas (GoatCounter): que sólo cuente en la página publicada (
 sitio correcto y una sola vez, que apunte partida (solitario y multijugador) y sala pública, que un fallo de GoatCounter no
 rompa el juego, y que la opción esté con su explicación en los dos idiomas y el script no esté fijo en el HTML.
 
+### `historia.js` — medio minuto (un par en la completa)
+El modo historia: que el capítulo 1 tenga sus tramos con título en los dos idiomas, que los personajes sean
+exclusivos (ni Owen ni Danny en la selección; ningún nombre repetido con los otros modos) y que Danny sólo se juegue
+en el interludio; que cada mapa se monte y se llegue a todo (menos lo que está detrás de una puerta que nunca se
+abre); que ninguna frase del guion se quede sin traducir y que el recuento de notas cuadre. Y lo más útil: **un bot
+juega el capítulo entero** sin navegador (pasa textos, elige, usa lo que hay, va adonde le esperan, se esconde) y
+tiene que llegar a la pantalla final pasando por todos los tramos en orden; en la completa lo hace tres veces,
+con la primera, la segunda y la tercera respuesta en cada pregunta. También mira lo de la segunda tanda: que la
+casa vaya a escala con puertas de dos celdas, que haya ajuste de primera persona (y que deje mirar más
+arriba), que quedarse sin aliento corriendo tumbe a Owen y lo levante por fases (y que perseguido sólo tropiece),
+que cada personaje tenga su voz, y la música: que todas las piezas generen notas, que todos los niveles de los
+otros modos tengan pieza y no todos la misma, y que cada mapa de la historia tenga la suya.
+Y la tercera tanda: hacer fuerza (postura y que se acabe sola), contener la respiración escondido (jadeando
+al lado del Acomodador te oye; conteniéndote no), que una botella rota atraiga a los enemigos, las teclas de
+agacharse y lanzar, el sonido de las cintas, los espejos y la tele, que cada nivel tenga al menos dos piezas
+posibles y que Owen se desbloquee en los demás modos al acabar el capítulo, con su NightShot. Y el barrio:
+que de casa al Commons no se vaya en línea recta, que haya casas a los dos lados con la de los Navarro en mitad
+de la calle, que el parque sea grande, que estén las tiendas y la gasolinera, y que agacharse tenga sus dibujos.
+Y la sexta tanda: el móvil (chats con su contacto y en los dos idiomas, el borrador de Danny, las fotos, que se
+abra, se navegue con Enter/Esc y se cierre, y que la tecla de primera persona ahora sea la del móvil), los
+tutoriales (abren una tarjeta, se apuntan, no se repiten y están todos en su sitio del guion), las ocho pruebas
+para grabar (cada una registrada en el capítulo, más su logro), la casa de dos plantas (escaleras, hueco,
+precinto en la puerta de Danny y que andando hacia la escalera se cambie de piso; la prueba de los mapas cuenta
+como alcanzable lo que se llega subiendo o bajando) y las filas de Accesibilidad con los cuatro filtros de
+daltonismo. Y la séptima: que ninguna cámara de escena esté metida en una pared, que Elm Court sea un fondo de
+saco (no un atajo al Commons) y la pasarela no se cruce, que haya Halloween por todo el barrio, la gente nueva
+con su aspecto y su voz, los seis recuerdos y Pickles con sus logros, los postes al borde de la acera, que la
+escalera tenga sus huecos y Owen la suba de verdad, que las baterías se gasten (y la cámara aguante si el
+guion la necesita), que los mensajes tarden según lo largos que son y que las voces tengan formantes y la
+música se aparte. Y la octava, los gráficos de noche: que la calle tenga cientos de halos, luna, hojas, bruma,
+murciélagos, asfalto y humo en las chimeneas, que en los demás modos las lámparas también brillen, que
+todos los interiores tengan sombra en las esquinas y charcos de luz, y que las Tuberías tengan sus luces
+rojas y su vapor. En `figuras.js`, que el atlas de cada persona tenga 16 columnas (8 de andar, 8 de
+correr) y que el paso tenga 8 fases. Y la novena: que la cámara de la casa vaya siempre a la misma distancia
+y por encima del techo, el telón entre plantas, que cada sitio tenga sus ruidos (y existan), que salgan de un
+sitio con panorámica, y los pasos, la radio, la cara de estática, el jadeo y los ojos de los enemigos. Y la
+décima, música y menús: que el leitmotiv quepa en sus compases y se oiga en el menú, la casa y la calle, que
+existan los instrumentos nuevos y todos los que usan las piezas, el estéreo y la sala, que la tensión suba
+con un perro a 4 m (y no con el Acomodador invisible), que en el menú suene música y que la cámara del
+título recorra el Lobby sin pegarse a las paredes. Y lo de la actualización de Halloween y otoño: en
+`historia.js`, que los Backrooms de la historia sean más grandes y que la casa tenga sus molduras, enchufes y
+cuadros (y que se escondan con su muro); en `mundo.js`, que todos los niveles crezcan, que no tengan borde
+(la costura cosida, nada incomunicado, el jugador y la fauna al pasar), que lo lejano se reordene, que salgan
+más zonas especiales, las calabazas, las hojas, los caramelos, los logros y el disfraz, la lista de versiones y
+que `herramientas/publicar.js` saque la copia sin el modo historia.
+
 ### `figuras.js` — unos segundos
 Los sprites: el tamaño de cada atlas (8 fotogramas, andar y correr), que el ciclo sea neutro,
 zancada, neutro, zancada y que correr abra más la zancada, que `finishHD()` ponga el contorno y

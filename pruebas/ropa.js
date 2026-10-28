@@ -29,11 +29,11 @@ function limpio() {
 }
 
 console.log("── LA TABLA DE ROPA ──");
-c.ok(Object.keys(CLOTH).length === 6, "seis prendas: casco, mascarilla, chaleco, traje, guantes y botas");
+c.ok(Object.keys(CLOTH).length === 10, "diez prendas: casco, mascarilla, chaleco, traje, guantes, botas y, desde la 5.0, frontal, cazadora, rodilleras y casco de moto");
 c.ok(Object.keys(CLOTH).every(id => ITEMS[id] && ITEMS[id].cloth && ITEMS[id].slot === CLOTH[id].slot && CLOTH_SLOTS.includes(CLOTH[id].slot)),
   "cada una existe como objeto y su ranura coincide");
 c.ok(Object.keys(CLOTH).every(id => ITEMS[id].name_en && ITEMS[id].blurb_en), "y está traducida al inglés");
-c.ok(new Set(Object.keys(CLOTH).map(id => CLOTH[id].key)).size === 6, "cada prenda tiene su letra para la firma del aspecto");
+c.ok(new Set(Object.keys(CLOTH).map(id => CLOTH[id].key)).size === 10, "cada prenda tiene su letra para la firma del aspecto");
 
 console.log("\n── PROTECCIÓN Y DESGASTE ──");
 limpio();
@@ -152,8 +152,30 @@ limpio();
 ["hardhat", "vest", "gloves", "boots"].forEach(id => poner(id));
 c.ok(G.ach.fullkit && G.ach.dressed, "con una prenda en cada ranura sale «De pies a cabeza»");
 
+console.log("\n── LAS PRENDAS DE LA 5.0 ──");
+limpio();
+poner("motohelmet");
+c.ok(Math.abs(clothProtect("head", 10) - 3) < 1e-9, "el casco de moto se come el 70 % de los golpes a la cabeza");
+c.ok(clothSanityMul() > 1, "pero con la visera la cordura baja más rápido");
+limpio(); poner("leather");
+c.ok(clothProtect("armL", 10) < 10 && clothProtect("torso", 10) < 10 && clothProtect("legL", 10) === 10, "la cazadora cubre torso y brazos, no piernas");
+limpio(); poner("kneepads");
+c.ok(clothStaminaMul() > 1, "las rodilleras dan un poco más de aliento");
+limpio();
+G.equip = {}; G.torchFuel = 50; G.torchOn = false;
+j.toggleTorch();
+c.ok(!G.torchOn, "sin linterna ni frontal no hay luz");
+poner("headlamp"); G.torchFuel = 50;
+j.toggleTorch();
+c.ok(G.torchOn, "con la linterna frontal puesta se enciende la luz sin llevar linterna");
+c.ok(cleanKey("bljkyBLJKY") === "bljkyBLJ", "la firma del aspecto acepta las letras nuevas (y se corta a 8)");
+{
+  const lk = lookConRopa({ pal: { shirt: "#123456", pants: "#222" }, opts: {} }, "lky");
+  c.ok(lk.opts.lamp && lk.opts.knee && lk.opts.visor, "se ven puestas: frontal, rodilleras y casco con visera");
+}
+
 console.log("\n── LA VERSIÓN ──");
-c.ok(VERSION === "4.0", "la versión es exactamente «4.0» (no 4.0.0)");
+c.ok(VERSION === "5.0", "la versión es exactamente «5.0» (no 5.0.0)");
 c.ok(cmpVersion("3.0.5", "4.0") < 0 && cmpVersion("4.0", "4.0.0") === 0 && cmpVersion("4.0.1", "4.0") > 0 && cmpVersion("4.1", "4.0.9") > 0 && cmpVersion("10.0", "9.9") > 0,
   "comparar versiones número a número (3.0.5 < 4.0 = 4.0.0 < 4.0.1 < 4.1; 10.0 > 9.9)");
 c.ok(/id="verCheck"/.test(fuente) && /id="verReload"/.test(fuente) && /id="verBox"/.test(fuente), "Ajustes tiene la caja de versión con «Buscar actualización»");
@@ -175,7 +197,7 @@ c.ok(/cache:"no-store"/.test(fuente) && /const VERSION = "\(\[\^"\]\+\)"/.test(f
   console.log("\n── AVISO DE VERSIÓN AJENA EN MULTIJUGADOR ──");
   const avisos = [];
   const oldToast = j.__ctx.toast;
-  const o1 = { id: "elzumbido-x", nombre: "Ana", ver: "4.0" };
+  const o1 = { id: "elzumbido-x", nombre: "Ana", ver: VERSION };
   j.mpAvisarVersion(o1);
   c.ok(o1.avisadoVer === 1, "misma versión: no avisa");
   const o2 = { id: "elzumbido-y", nombre: "Bea", ver: "3.0.4" };

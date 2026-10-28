@@ -16,7 +16,7 @@ const path = require("path");
 
 const PRUEBAS = [
   ["sintaxis", "que el archivo no tenga errores de JavaScript ni definiciones repetidas"],
-  ["niveles", "que los 66 niveles se puedan jugar y el grafo de saltos esté sano"],
+  ["niveles", "que los 80 niveles se puedan jugar y el grafo de saltos esté sano"],
   ["combate", "velocidades, aliento y los ataques especiales de las entidades"],
   ["objetos", "botín, dado, plano y cinta, bengalas y traducciones"],
   ["armas", "armas de mano y su desgaste, habilidades por personaje, Sin retorno sin guardar, paredes atravesables"],
@@ -29,6 +29,7 @@ const PRUEBAS = [
   ["salagrande", "sala grande (4.0): aforo de 4 y 10, reenvío adelgazado, mensajes cortos, voz con los más cercanos"],
   ["salapublica", "sala pública (4.0): emparejamiento sin servidor propio, personaje dentro del juego, si cae el anfitrión; walkie-talkie y pista del chat"],
   ["estadisticas", "contador de visitas (GoatCounter): sólo cuenta en la página publicada, se apaga desde Ajustes, eventos de partida y sala"],
+  ["historia", "modo historia (5.0): capítulo 1 «Estática», personajes propios, mapas conectados, textos en dos idiomas y un bot que lo juega entero"],
   ["agente", "modo Agente del M.E.G.: tablón, los 8 tipos de encargo, intendencia, trajes y guardado"]
 ];
 

@@ -27,6 +27,15 @@ const JUEGO = path.join(__dirname, "..", "el-zumbido.html");
 
 // Lo que se saca de dentro de la IIFE para poder probarlo
 const EXPORTA = [
+  "solidAt", "updateEntities", "updateLights", "toroPaso", "temporadaUpdate", "toroRenovar", "updateDrops", "updateShift", "updateGrab", "updateSanity", "renderMundo", "toroD", "bfsToro", "genMazeToro", "temporada", "temporadaDecorar", "VERSIONES", "renderVersiones", "abrirVersiones", "historiaOcultar", "HIST_PUBLICO", "histInteriorDetalle", "nivelSinBorde", "ampliarNivel", "ESCALA_NIVEL", "CORTE_U", "toroCoser", "cellBusy", "useItem", "lootForRoll", "ACHIEVEMENTS", "SKIN_BY", "skinNeedText", "OPT_ROWS",
+  "MUS_MOTIVO", "MUS_RESPUESTA", "MUS_ACORDES_D", "musNota", "musPan", "musNodos", "musAmenaza", "musMenuPieza", "musUpdate", "TITULO", "tituloDeriva", "tituloLibre", "uiSonido", "menuSonidos", "frame",
+  "camaraCasa",
+  "HIST_AMBIENTE", "HIST_RUIDO", "histDest", "histEnemigoVida",
+  "gaitPose8",
+  "luzInterior", "histDecoBackrooms",
+  "MAT", "halosNivel",
+  "histBaterias", "histTelRetardo", "vozSilaba", "HIST_VOZ", "histEscalaPaso", "camCorte",
+  "HIST_PRUEBAS", "HIST_CHATS", "HIST_CONTACTOS", "HIST_FOTOS", "histMovilAbrir", "histMovilCerrar", "histMovilTecla", "movilEstado", "movilFlags", "histTutorial", "histPrueba", "histEscaleras", "applyAccesibilidad", "DALT_MATRICES", "HIST_PROPS", "renderPauseKeys", "histTecla",
   "CAT", "G", "buildLevel", "bfs", "player", "w2c", "c2w",
   "ENT_DEF", "entitySpecial", "updateSpecial", "PARTS", "bodyAvg",
   "ITEMS", "TIERS", "DICE", "lootForRoll", "txf", "tx", "DIFFS",
@@ -44,7 +53,7 @@ const EXPORTA = [
   "mpPonerSuelo", "mpQuitarSuelo", "mpNivelKey", "FALLEN_SCALE", "FALLEN_ROW", "drawFallen", "personAtlas", "CALIDAD", "calidad", "calidadNivel", "distanciaDibujo", "paramsLambert", "gobernar", "GOB", "granoActivo", "LIGHT_POOL", "stdMat", "actorY", "figuraDesactualizada", "refrescarFiguras", "GEAR", "BP", "bpEntries", "bpDo", "bpNav", "bpMain", "bpKey", "bpKeyAction", "renderBackpack", "toggleBackpack", "closeBackpack", "takeOut",
   "TRUCO", "TRUCO_PIEZAS", "TRUCO_HUELLA", "trucoHuella", "trucoProbar", "trucoPedir", "trucoCerrarCaja", "trucoTecla", "trucoCambiar", "trucoDarTodo", "trucoViajar", "charUnlocked", "unlockAch", "megFichas", "megComprar",
   "CLOTH", "CLOTH_SLOTS", "wornKey", "lookConRopa", "clothProtect", "clothAbsorb", "putOn", "takeOff", "wornRaw", "wornIds", "cleanKey", "clothWearOf", "clothSanityMul", "clothStaminaMul", "playAct", "ACCIONES", "actSprite", "updateAct", "refrescarAspecto", "applySave", "saveGame",
-  "CONTAR", "contarOk", "contarInicio", "contar", "mpPublica", "mpPublicaIntento", "mpEntrarPublica", "mpPedirPersonaje", "mpElegirPersonaje", "mpChatHint", "vozRadio", "vozCompanero", "PUB", "MP_PUB_SALAS", "resumeGame", "hasItem", "charUnlocked", "cmpVersion", "buscarVersion", "comprobarVersion", "mpAvisarVersion", "paintVersion", "MP_CAP", "MP_LEJOS", "MP_VISTA_GRANDE", "VOZ_MAX_GRANDE", "mpCap", "mpLlena", "mpPosDebe", "vozElegir", "vozGestionar", "vozLlamar", "vozEntrante",
+  "toggleTorch", "HIST", "HIST_CAPS", "HIST_MAPAS", "HIST_PJ", "HIST_LOOK", "HIST_QUIEN", "histEmpezar", "histUpdate", "histAvanzar", "histEscoger", "histTelSiguiente", "histCerrarNota", "histUsar", "histCamara", "histEsconder", "histLeer", "histSalir", "histMapa", "histCfg", "histFallo", "histAbrir", "openNeighbours", "MUS", "MUS_PIEZAS", "musElegir", "histFatiga", "histFatigaReset", "FATIGA_ROW", "FATIGA_POSE", "ESFUERZO_ROW", "ESFUERZO_POSE", "AGACHADO_POSE", "AGACHADO_ROW", "musOpciones", "histEsfuerzo", "histRespiracion", "histCebo", "histCintaSonido", "histEnemigo", "lanzarBotella", "romperBotella", "updateParticulas", "PART", "gotasSudor", "nightshotAplicar", "checkUnlocks", "histFinCapitulo", "keys", "kb", "useAbility", "ITEMS", "FALLEN_ROW", "primeraPersona", "pitchMin", "pitchMax", "vistaCambiada", "ACTIONS", "HIST_VOZ", "staminaMax", "WALK", "RUN", "OPT_ROWS", "updatePlayer", "updateCamera", "camera", "doKeyAction", "AMB_FLAVOR", "ambientFlavorFor", "EMOTE_FR", "EMOTE_ROW", "emoteFrame", "GESTO_TECLAS", "CONTAR", "contarOk", "contarInicio", "contar", "mpPublica", "mpPublicaIntento", "mpEntrarPublica", "mpPedirPersonaje", "mpElegirPersonaje", "mpChatHint", "vozRadio", "vozCompanero", "PUB", "MP_PUB_SALAS", "resumeGame", "hasItem", "charUnlocked", "cmpVersion", "buscarVersion", "comprobarVersion", "mpAvisarVersion", "paintVersion", "MP_CAP", "MP_LEJOS", "MP_VISTA_GRANDE", "VOZ_MAX_GRANDE", "mpCap", "mpLlena", "mpPosDebe", "vozElegir", "vozGestionar", "vozLlamar", "vozEntrante",
   "get bpOpen(){ return bpOpen; }"
 ].join(", ");
 
@@ -121,7 +130,11 @@ class V3 {
   length() { return Math.hypot(this.x, this.y, this.z); }
   distanceTo(v) { return Math.hypot(this.x - v.x, this.y - v.y, this.z - v.z); }
   normalize() { const l = this.length() || 1; return this.multiplyScalar(1 / l); }
-  lerp() { return this; }
+  lerp(v, t) { this.x += (v.x - this.x) * t; this.y += (v.y - this.y) * t; this.z += (v.z - this.z) * t; return this; }
+  subVectors(a, b) { this.x = a.x - b.x; this.y = a.y - b.y; this.z = a.z - b.z; return this; }
+  addVectors(a, b) { this.x = a.x + b.x; this.y = a.y + b.y; this.z = a.z + b.z; return this; }
+  addScaledVector(v, k) { this.x += v.x * k; this.y += v.y * k; this.z += v.z * k; return this; }
+  dot(v) { return this.x * v.x + this.y * v.y + this.z * v.z; }
   applyQuaternion() { return this; }
   setFromMatrixPosition() { return this; }
 }
@@ -150,7 +163,9 @@ function cargar(ruta) {
     .map(m => m[1]).sort((a, b) => b.length - a.length)[0];
   if (!src) throw new Error("no encuentro el <script> del juego en " + archivo);
 
-  const guardado = {};
+  // la temporada (Halloween y otoño) depende de la fecha: las pruebas arrancan con ella apagada
+  // para dar lo mismo cualquier día; las suyas la encienden a mano (G.opts.temporada = 1)
+  const guardado = { "zumbido.opts.v1": JSON.stringify({ temporada: 2 }) };
   const entorno = {
     THREE: new Proxy(stub("THREE"), {
       get(t, k) { return k === "Vector3" ? V3 : (k === "PointLight" ? Luz : Reflect.get(t, k)); },

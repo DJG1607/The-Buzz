@@ -16,7 +16,7 @@ externos ni compilación. Las texturas, los sprites y el audio se generan por c�
 | **`GUIA.md`** | **Cómo está montado y dónde tocar para cambiar cada cosa.** Empieza aquí si vas a meter mano. |
 | `mapa-descenso.html` | Anexo: el grafo completo de saltos entre niveles, la fauna de cada uno y los tipos de salida. |
 | `pruebas/` | Comprobaciones automáticas: `node pruebas/todo.js` |
-| `herramientas/` | `anexo.js` regenera el anexo desde el catálogo del juego. |
+| `herramientas/` | `anexo.js` regenera el anexo desde el catálogo del juego; `publicar.js` saca la copia que se publica (sin el modo historia, que aún no sale). |
 
 ---
 
@@ -28,7 +28,168 @@ final: sólo profundidad. Cada nivel tiene varias salidas, cada una baja a un si
 
 ## Lo que hay dentro
 
-- **64 niveles del catálogo de la wiki** (más los asentamientos **Base Beta**, **Camp Amber** y **Base
+- **Actualización de Halloween y otoño (5.0)**:
+  - **Niveles mucho más grandes**: 1,7 veces de lado, casi el triple de superficie (los asentamientos,
+    1,3), con más casilleros, algo más de fauna, una salida más en los grandes y más zonas especiales, y
+    más grandes. Los Backrooms del modo historia también crecen.
+  - **Sin bordes**: en todos los modos el laberinto sigue hacia donde andes, en cualquier dirección. Lo
+    que hay al otro lado del borde es el principio del nivel, sin costuras a la vista, y cada vez que lo
+    cruzas la parte del nivel que queda lejos y no se ve se reordena, así que nunca vuelves exactamente
+    al mismo sitio. La fauna te sigue por encima de la costura y el plano también.
+  - **Halloween y otoño** (de finales de septiembre a noviembre, o siempre o nunca desde Ajustes →
+    Gráficos): calabazas talladas con una vela dentro por los niveles, a veces con **caramelos** al lado
+    (+8 de cordura); telarañas en las esquinas del techo; y al aire libre, en calles y campos, hojas secas
+    por el suelo y cayendo. Los casilleros dan caramelos en vez de parte del Almond Water. Dos logros,
+    **Truco o trato** (trece caramelos) y **Noche de calabazas** (veinte calabazas), y el **disfraz de
+    calabaza**. En el título caen hojas y un aviso cuenta la actualización.
+  - **Las versiones**: la versión del título (y un botón en Ajustes) abre la lista de todas las versiones,
+    de la 5.0 a la primera, con lo que trajo cada una.
+  - **Interiores de la casa**: moldura en lo alto de las paredes, enchufes, interruptores junto a las
+    puertas y cuadros; y ya no se ven flotando la sombra del techo ni lo que va pegado a un muro que la
+    cámara quita.
+- **Modo historia (5.0) · Capítulo 1: «Estática»** (botón propio en el título). Una historia aparte,
+  en español e inglés, con personajes que no salen en ningún otro modo. Wrenfield, Michigan, octubre
+  de 2025: hace trece meses Danny Navarro entró en el centro comercial abandonado del pueblo y no
+  volvió. Su hermano Owen, de dieciséis años, coge su videocámara y cruza la misma pared. Casa,
+  centro comercial, Level 0, Level 1 y las Tuberías; diálogos con decisiones, notas, una videocámara
+  con visión nocturna que enseña lo que no se ve (flechas de tinta invisible, y algo con uniforme de
+  vigilante que no quiere que lo graben), escondites, persecuciones y un interludio en el que juegas
+  con **Danny**, el personaje secreto. Puntos de control en cada tramo. Pensado para adolescentes y
+  adultos. Dura alrededor de hora y media, con calma: el paseo nocturno por Maple Street hasta el
+  centro comercial (con Earl, el de la gasolinera), una cena con June en su nido, recuerdos de Danny y
+  momentos para pararse a mirar. La casa está hecha a escala real, con sus puertas y sus muebles.
+  Se juega en **tercera o primera persona** (se elige en Ajustes → Controles). Si te quedas sin
+  aliento corriendo, Owen tropieza y se cae, y tarda en levantarse.
+- **Música y sonido nuevos (5.0), en todos los modos**: además del acorde de fondo, cada nivel tiene una
+  pieza que suena un par de minutos y deja silencios (caja de música, piano de madrugada, sintetizador de
+  VHS, pulso grave, abismo, hilo musical, la cinta de June, el final, nana, consola de 8 bits, órgano, lluvia,
+  olas, máquinas y jazz roto; cada nivel elige entre varias y cada vuelta cambia de tono y de aire),
+  y si algo te persigue entra una capa de percusión. Reverberación según el tamaño del sitio, pasos que
+  suenan distinto en moqueta, madera, baldosa, metal, agua o hierba, ruidos lejanos de vez en cuando y,
+  en la historia, una voz distinta para cada personaje cuando habla y jadeos cuando te cansas.
+- **80 niveles del catálogo de la wiki**: en la 5.0 entraron catorce más, enlazados desde donde la
+  wiki dice que se llega: 16 *Altered Topography*, 17 *The Carrier*, 18 *Memories*, 20 *Fun Zone
+  Boreas Structure*, 38 *Fold Point*, 39 *Enchanted Forest*, 46 *Arabian Desert*, 48 *The Sunset
+  Beach*, 54 *Stairwell of Spirals*, 55 *Pit Stop*, 63 *Tranquility*, 66 *Exhibit*, 70 *Froidetown* y
+  75 *Liminality*.
+- **Quinto personaje (5.0): Inés**, sanitaria del M.E.G.: empieza con botiquín y vendas, sus vendajes
+  curan el doble, las hemorragias le duran la mitad y su habilidad, **Triaje**, cura todo el cuerpo
+  de golpe. Se desbloquea al llegar al descenso 4.
+- **Armas y equipo nuevos (5.0)**: hacha de bombero, llave inglesa, palo de hockey y táser; y cuatro
+  prendas más: linterna frontal (luz sin ocupar una mano), cazadora de cuero, rodilleras y casco de
+  moto.
+- **Emotes animados (5.0)**: doce gestos (bailar, sentarse, reírse, «ni idea», saludar…) que se ven
+  animados en el sprite y en la figura 3D, también los de tus compañeros.
+- **Owen, jugable (5.0)**: al acabar el capítulo 1 del modo historia, su protagonista pasa a los demás
+  modos. Su habilidad es el **NightShot** de la cámara de Danny (10 s viendo a las entidades a través de
+  las paredes) y empieza con dos botellas.
+- **Mecánicas nuevas (5.0)**: **agacharse** en sigilo (Z, en todos los modos: más lento y casi sin
+  ruido), **botellas vacías** que se lanzan (T) y al romperse atraen a lo que te busca, y en la historia
+  **contener la respiración** escondido (mantener Mayús) si llegas jadeando y algo pasa al lado. Owen
+  hace fuerza al levantar persianas o girar válvulas, suda cuando va sin aliento y en los niveles húmedos
+  gotea el techo. Las cintas VHS suenan a cinta (siseo, zumbido, chasquidos, voces gastadas), los
+  espejos de la casa te reflejan y la tele echa dibujos animados.
+- **El barrio de Wrenfield (5.0)**: el paseo hasta el Commons es un barrio de verdad. Maple Street tiene
+  casas de madera a los dos lados, con porche, frontón y garaje, y la de los Navarro en mitad de la
+  calle. Le siguen un parque grande con estanque, templete y columpios (cualquier camino lleva a la
+  puerta del norte), una calle de tiendas y el Gas-N-Go. No se va en línea recta: los carteles y el
+  objetivo te guían. Los personajes hablan con «voces falsas» de sílabas, cada uno con su tono, y en
+  sitios estrechos la cámara pasa sola a primera persona en vez de volverse loca. Farolas en las aceras,
+  rayas en la calzada, bordillos, cables de la luz, arbustos, sombras bajo los muebles, el muelle de carga
+  con su persiana y más calles de decorado alrededor para que el barrio no se acabe en el vacío.
+- **El móvil de Owen (5.0)**: en la historia, la **M** saca un móvil de verdad: chats con foto de cada
+  contacto (Maya, mamá, Danny con el «lo siento» que Owen nunca envió, el equipo de cross, papá), en
+  los que a veces eliges qué contestar; llamadas entrantes que puedes coger o colgar (y con Maya hablas
+  mientras andas); fotos dibujadas con los personajes; las notas que has leído; un mapa con GPS (que en
+  los Backrooms se vuelve loco) y la linterna. Mientras lo miras, el juego espera.
+- **Grabar pruebas (5.0)**: con la videocámara encendida, clic para grabar. Hay **ocho pruebas** en el
+  capítulo (cosas que sólo se ven por el NightShot, el vigilante bajo la farola, las pintadas de Danny…);
+  se guardan en las fotos del móvil y grabarlas todas da un logro.
+- **La casa de dos plantas (5.0)**: arriba los cuartos y el pasillo; abajo el salón y la cocina, con una
+  escalera de verdad (los escalones crujen si bajas de pie cuando mamá está en casa). La puerta de Danny
+  está precintada por la policía, con cinta americana y una nota de mamá: hay que arrancarlo. Las fotos
+  de los marcos son de la familia.
+- **Tutoriales (5.0)**: las mecánicas de la historia se aprenden según aparecen (el móvil, la cámara,
+  agacharse, la linterna, correr, esconderse, las botellas y contener el aliento), cada una con una
+  tarjeta que para el juego; sólo andar va en un aviso al principio. En la pausa salen los controles de
+  la historia (los que ya conoces). Los rótulos de arriba a la izquierda se esconden solos.
+- **Accesibilidad (5.0)**: pestaña propia en Ajustes con filtros de **daltonismo** (protanopia,
+  deuteranopia, tritanopia y monocromo), tamaño y velocidad del texto, fondo detrás de los subtítulos,
+  **sin destellos** (quita parpadeos, fogonazos y temblores), agacharse y correr sin mantener la tecla,
+  rótulos de la historia (se esconden, siempre o nunca) y contraste alto.
+- **La Noche del Diablo (5.0)**: el paseo hasta el Commons ya no va al grano. Wrenfield está decorado para
+  Halloween (calabazas talladas que parpadean, telarañas, fantasmas de sábana colgados de los árboles,
+  lápidas de broma, esqueletos, guirnaldas de colores, espantapájaros, hinchables) y se puede explorar:
+  **Elm Court**, una calle sin salida con la fiesta de Tyler Brandt (música amortiguada y ventanas de
+  colores), la casa encantada de los Henderson (cuidado con el esqueleto), dos chavales empapelando un
+  arce que salen corriendo, el cuenco de caramelos de la señora Alvarez y la pasarela rota del arroyo.
+  En el parque, el festival de mañana a medio montar y **Pickles**, el gato perdido de los carteles
+  (maúlla si estás cerca). Hay **seis recuerdos de Danny** repartidos por el barrio, cada uno con su logro
+  y sus consecuencias (Maya recibe el caramelo, Tyler le manda recuerdos…). Si te entretienes, Maya
+  escribe. Al llegar, una escena en el muelle de carga en vez de un fundido. Árboles nuevos (con ramas de
+  verdad, abedules y otoño) y los postes de la luz en el borde de la acera.
+- **Avisos de mensaje (5.0)**: cada mensaje entra con un aviso arriba («Maya · escribiendo…») y, dentro del
+  chat, los tres puntitos mientras te escriben; con la tecla del móvil abres ese chat.
+- **Baterías (5.0)**: el móvil se gasta poco a poco (más con la pantalla encendida y la linterna) y la
+  cámara al usarla; avisan al 20 % y al 5 %, y el móvil se apaga a cero. Las baterías externas recargan.
+  Nunca te quedas atascado: si la historia necesita la cámara, aguanta un poco más.
+- **La casa, otra vez (5.0)**: la escalera sube por un hueco de verdad en el techo y arriba se ve el hueco
+  del suelo con los escalones bajando; Owen sube y baja andando. La cámara en tercera persona ya no salta
+  a primera: se queda detrás y los tabiques que estorban desaparecen mientras estorban (como en los
+  juegos de vista recortada); los muebles altos no se le meten delante. Agacharse se dibuja de nuevo (en
+  cuclillas, con las manos en las rodillas) y las voces se oyen de verdad (y la música baja cuando alguien
+  habla).
+- **Luz de noche (5.0)**: las lámparas brillan (un halo suave en farolas, porches, fluorescentes, guirnaldas
+  y calabazas, en todos los modos). En el barrio, la luna proyecta sombras de casas, árboles y buzones (en
+  calidad Alta y Ultra), caen hojas, hay bruma baja en el parque, en Elm Court y en el arroyo, sale humo de
+  las chimeneas y de vez en cuando cruzan murciélagos. El cielo tiene nubes que se mueven y una luna con
+  halo. Asfalto con grietas, parches y manchas de aceite; césped con briznas y hojas; casas con arbustos,
+  cortinas y una lámpara en las ventanas encendidas, cuya luz cae sobre el jardín. En la historia, una
+  viñeta suave en los bordes de la pantalla.
+- **Interiores y Backrooms (5.0)**: en todos los interiores (la casa, el Commons, los Backrooms y los
+  niveles de los demás modos) hay sombra suave donde se juntan paredes, suelo y techo, y cada lámpara deja
+  un charco de luz en el suelo y un brillo en el techo, que se apagan con ella. En la historia, el Level 0
+  tiene enchufes en las paredes, placas del falso techo caídas (con el agujero negro arriba) y manchas de
+  humedad; el Level 1, charcos que brillan, cables colgando y palés; las Tuberías, luces rojas de
+  emergencia que laten y vapor saliendo de rejillas del suelo.
+- **Animaciones más suaves (5.0)**: andar y correr tienen ahora 8 fotogramas por paso en vez de 4 (el
+  jugador, los personajes de la historia, los compañeros y el Acomodador). El paso pesa: el cuerpo sube a
+  mitad de zancada y se hunde un poco al pisar, y corriendo levanta polvo (u hojas). Parado un rato, el
+  personaje mira a los lados de vez en cuando, y los de la historia también.
+- **La cámara de la casa, ahora sí (5.0)**: en la casa la cámara va siempre a la misma distancia detrás de
+  Owen y por encima de la altura del techo, mirándole desde arriba como en una casa de muñecas. Nunca se
+  acerca ni se aleja sola; las paredes, los marcos y las puertas que se meten en medio desaparecen mientras
+  estorban, y lo que cuelga del techo (lámparas, el ventilador) se esconde cuando tapa. Un telón negro
+  impide ver el otro piso.
+- **De espaldas y de frente (5.0)**: al andar visto desde atrás o de frente, el pie que avanza se levanta
+  (desde atrás se le ve la suela), los brazos se balancean y el cuerpo carga el peso en la pierna que apoya.
+- **Enemigos (5.0)**: el Acomodador tiene la cara hecha de estática que hierve, da tirones cuando lo miras
+  por la cámara, camina con pasos pesados y murmura por una radio vieja; los perros jadean cuando te
+  persiguen, se les oyen las patas y les brillan los ojos en la oscuridad.
+- **Sonido en el espacio (5.0)**: cada sitio tiene sus ruidos, que llegan de un lugar concreto (bajan con la
+  distancia y suenan a la izquierda o a la derecha): en el barrio, perros, búhos, coches y un tren a lo
+  lejos, carillones, ráfagas de viento, petardos de la Noche del Diablo y risas; en casa, la madera que cruje,
+  las tuberías, el tic-tac del reloj de la cocina y la nevera; en el Commons, goteras, palomas, cristales y
+  golpes metálicos; en los Backrooms, fluorescentes que chasquean, pasos lejanos, maquinaria, cadenas,
+  vapor y tuberías que golpean. Los pasos sobre el asfalto suenan a asfalto.
+- **Cielo (5.0)**: los niveles al aire libre tienen cielo de verdad, con estrellas y luna de noche.
+- **Música (5.0)**: la historia tiene su propio tema, un leitmotiv en re menor que suena en el menú (caja de
+  música y luego piano sobre cuerdas), en la casa (el tema de Danny, en piano) y en Maple Street (un vals de
+  caja de música desafinada). Instrumentos nuevos (cuerdas que vibran, trémolo, coro lejano, trozos de radio
+  mal sintonizada, latido y pizzicato), el piano con su martillo, pads que respiran, la música en estéreo y
+  con su propia sala. Cuando algo anda cerca y todavía no te persigue entra una capa de tensión (un trémolo
+  grave y un latido) que crece cuanto más cerca está; si te persigue, manda la percusión de siempre.
+- **Menús (5.0)**: detrás de la pantalla de título la cámara recorre el Lobby a la altura de los ojos, como
+  una cinta encontrada (REC, contador, líneas de vídeo y una franja que pasa); el título parpadea como un
+  fluorescente; los botones hacen un tic al pasar por encima y el clac de un interruptor al pulsar; las
+  pantallas entran con un destello de cinta; el texto largo del principio está plegado en «Cómo funciona», y
+  el modo historia se presenta como una cinta de vídeo con su etiqueta. En el menú suena el tema del juego
+  (desde el primer clic o tecla). «Sin destellos» y «reducir movimiento» quitan los parpadeos.
+- **Sprites retocados (5.0)**: sombra y pliegues en la ropa, raya en el pantalón, brillo en los zapatos,
+  volumen en la cara y mechones en el pelo, y una fila nueva de posturas (sin aliento, tropiezo, de
+  rodillas, hablar con las manos, brazos cruzados, la mano en la nuca) que usan los personajes de la
+  historia cuando hablan o esperan.
+- **El resto del catálogo de la wiki** (más los asentamientos **Base Beta**, **Camp Amber** y **Base
   Omicron**, y
   niveles sin catalogar generados por semilla cuando te sales del mapa conocido). El catálogo entero
   está listado en [mapa-descenso.html](mapa-descenso.html). En la 3.0 entraron quince, leídos de sus
@@ -227,6 +388,10 @@ identifique, sólo cifras. Se apaga en **Ajustes → Partida → Contar mi visit
 desde un archivo local ni con el modo pruebas.
 
 ## Créditos
+
+Los personajes, el pueblo de Wrenfield y la historia del modo historia son inventados para este
+juego.
+
 
 Niveles, entidades y salidas basados en el lore público de la
 [Backrooms Wiki](https://backrooms-wiki.wikidot.com/), publicada bajo

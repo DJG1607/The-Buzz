@@ -12,3 +12,6 @@ desktop.ini
 # configuración local del editor
 .claude/
 .vscode/
+
+# la copia que se publica (herramientas/publicar.js)
+publicar/

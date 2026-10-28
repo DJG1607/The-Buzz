@@ -15,7 +15,9 @@ const c = crearContador();
 /* ── 0. sprites de pixel art ── */
 console.log("── SPRITES DE PIXEL ART ──");
 const at = SPRITES.char_scout;
-c.ok(at.cols === 8 && at.rows === 5 && at.cw === 48 && at.ch === 72, "cada persona: 8 fotogramas (4 de andar, 4 de correr) × 4 direcciones y una fila para el cuerpo caído, en celdas de 48×72");
+c.ok(at.cols === 16 && at.rows === 10 && at.cw === 48 && at.ch === 72, "cada persona: 16 fotogramas (8 de andar, 8 de correr) × 4 direcciones, una fila para el cuerpo caído, dos de emotes, una de cansancio y gestos, una de esfuerzo y una de agachado, en celdas de 48×72");
+const g8 = j.gaitPose8;
+c.ok(g8 && g8(2).thL > g8(1).thL && g8(1).thL > g8(0).thL && g8(10).run && !g8(7).run, "el paso tiene 8 fases (las intermedias entre las de antes): anda y corre más suave");
 c.ok(["hound", "crawler", "clump"].every(k => SPRITES[k].cols === 8 && SPRITES[k].cw === 64 && SPRITES[k].ch === 48), "Hound, Crawler y Clump: de perfil, 64×48, también con fotogramas de correr");
 c.ok(["smiler", "deathmoth"].every(k => SPRITES[k].cw === 48 && SPRITES[k].ch === 48), "Smiler y Deathmoth: de frente, 48×48");
 c.ok(G.opts.figs === 0 && !j.voxOn(), "por defecto se juega con los sprites");
@@ -34,7 +36,7 @@ c.ok(a(2, 4) === 235 && a(7, 4) === 235 && a(4, 1) === 235 && a(4, 8) === 235 &&
 c.ok(v(4, 2) > v(4, 7) + 30, "luz desde arriba: la cabeza más clara que los pies (" + v(4, 2) + " → " + v(4, 7) + ")");
 const src = require("fs").readFileSync(require("path").join(__dirname, "..", "el-zumbido.html"), "utf8");
 c.ok(/if\(atlas\.cw\) w = h\*atlas\.cw\/atlas\.ch/.test(src), "el sprite se ve con píxeles cuadrados: el ancho sale de su celda, sin estirarlo");
-c.ok(/\+ \(running \? 4 : 0\)/.test(src) && /e\.state === "chase" && e\.mesh\.userData\.atlas\.cols >= 8 \? 4 : 0/.test(src), "el jugador y las entidades que persiguen usan los fotogramas de correr");
+c.ok(/\+ \(running \? ciclo : 0\)/.test(src) && /e\.state === "chase" && e\.mesh\.userData\.atlas\.cols >= 8 \? 4 : 0/.test(src), "el jugador y las entidades que persiguen usan los fotogramas de correr");
 
 /* ── 1. ropa ── */
 console.log("\n── CADA UNO CON SU ROPA ──");

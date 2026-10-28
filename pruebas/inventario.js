@@ -38,17 +38,18 @@ for (const modo of (RAPIDO ? [4] : [1, 2, 3, 4])) {
     for (const l of CAT) {
       if (l.settlement) continue;
       limpio(l.id, 3);
-      const max = DIFFS[modo].maxEnts;
+      const esc = l.escala ? 1 + (l.escala - 1)*0.55 : 1;      // (5.0) los niveles grandes llevan algo más de fauna
+      const max = Math.round(DIFFS[modo].maxEnts*esc);
       if (G.entities.length > max) { peor = Math.max(peor, G.entities.length); dondePeor = l.id + " modo " + modo; }
       const porTipo = {};
       G.entities.forEach(e => porTipo[e.type] = (porTipo[e.type] || 0) + 1);
-      peorTipo = Math.max(peorTipo, ...Object.values(porTipo), 0);
+      peorTipo = Math.max(peorTipo, ...Object.values(porTipo).map(v => v/Math.round(4*esc)*4), 0);
     }
   }
 }
 G.depth = 0; G.opts = Object.assign({}, G.opts, { diff: 2 });
-c.ok(peor === 0, "ningún nivel pasa del techo de su dificultad (7/10/12/14), ni a descenso 21" + (dondePeor ? ": " + dondePeor : ""));
-c.ok(peorTipo <= 4, "nunca más de 4 de la misma especie (máximo visto: " + peorTipo + ")");
+c.ok(peor === 0, "ningún nivel pasa del techo de su dificultad (7/10/12/14, por 1,4 en los niveles grandes), ni a descenso 21" + (dondePeor ? ": " + dondePeor : ""));
+c.ok(peorTipo <= 4, "nunca más de 4 de la misma especie por cada tamaño de nivel (6 en los grandes de la 5.0)");
 
 limpio("1", 2);
 player.pos.set(G.cell * 4, 0, G.cell * 4);
@@ -115,7 +116,7 @@ G.opts = Object.assign({}, G.opts, { quickUse: 1 });
 
 /* ── 4. ajustes, salidas, clipping, pausa ── */
 console.log("\n── AJUSTES, SALIDAS Y DETALLES ──");
-c.ok(OPT_TABS.length === 4 && OPT_ROWS.every(r => OPT_TAB_OF[r.id]), "los " + OPT_ROWS.length + " ajustes están repartidos en " + OPT_TABS.length + " pestañas");
+c.ok(OPT_TABS.length === 5 && OPT_ROWS.every(r => OPT_TAB_OF[r.id]), "los " + OPT_ROWS.length + " ajustes están repartidos en " + OPT_TABS.length + " pestañas");
 const glow = fuente.match(/const glowMat = [^\n]*/)[0];
 c.ok(/depthWrite:false/.test(glow), "el brillo de las salidas no escribe profundidad (era lo que tapaba al jugador)");
 c.ok(!/const beacon/.test(fuente), "sin baliza: la salida no se ve desde la otra punta del nivel");

@@ -132,7 +132,7 @@ for (const l of CAT) {
   for (let sem = 1; sem <= (RAPIDO ? 1 : 6); sem++) {
     limpio(l.id, sem);
     niveles++;
-    const maxEsperado = Math.min(l.exitsTo.length, 3);
+    const maxEsperado = Math.min(l.exitsTo.length, G.n >= 45 ? 4 : 3);     // (5.0) en los niveles grandes, una más
     if (G.exits.length > maxEsperado || G.exits.length < Math.min(1, l.exitsTo.length)) pocas = false;
     const sp = [w2c(player.pos.x), w2c(player.pos.z)];
     const { dist } = bfs(G.grid, G.n, sp[0], sp[1]);
@@ -140,7 +140,7 @@ for (const l of CAT) {
     for (const e of G.exits) if (dist[e.cell[1] * G.n + e.cell[0]] < far * 0.28) lejos = false;
   }
 }
-c.ok(pocas, "entre 1 y 3 salidas por partida en los " + niveles + " niveles generados (antes hasta 4)");
+c.ok(pocas, "entre 1 y 3 salidas por partida en los " + niveles + " niveles generados (4 en los niveles grandes de la 5.0)");
 c.ok(lejos, "ninguna salida en el primer cuarto del recorrido");
 c.ok(Object.values(CROSS_TIME).every(t => t >= 1.5), "cruzar cualquier salida lleva 1,5 s o más");
 
@@ -335,5 +335,103 @@ while (G.crossing && t < 20) { updateCrossing(0.1); t += 0.1; }
 startCrossing(sal);
 c.ok(G.crossing === null && t >= need - 0.11, "aguantando " + need.toFixed(1) + " s se cruza (y ya no se puede volver a empezar: está en transición)");
 keys["e"] = false;
+
+console.log("\n── NIVELES GRANDES Y SIN BORDES (5.0, Halloween y otoño) ──");
+{
+  // más grandes: 1,7 veces de lado (los asentamientos, 1,3)
+  const crecen = CAT.filter(l => !l.settlement).every(l => l.gridBase && l.grid >= Math.round(l.gridBase*1.6) && l.grid % 2 === 1);
+  const bases = CAT.filter(l => l.settlement).every(l => l.grid > l.gridBase && l.grid % 2 === 1);
+  c.ok(crecen && bases, "todos los niveles crecen 1,7 veces de lado (casi el triple de superficie) y los asentamientos 1,3; siempre con un número impar de celdas");
+  // sin bordes: la fila y la columna de la costura son la misma, y lo de más allá es lo de enfrente
+  let cosidos = true, sinBorde = true, conectados = true;
+  for (const l of CAT.slice(0, RAPIDO ? 12 : CAT.length)) {
+    limpio(l.id, 7);
+    const n = G.n, S = G.toroS;
+    if (!S || Math.abs(S - (n - 1)*G.cell) > 1e-6) sinBorde = false;
+    for (let i = 0; i < n; i++) if (G.grid[i*n] !== G.grid[i*n + n - 1] || G.grid[i] !== G.grid[(n - 1)*n + i]) cosidos = false;
+    for (const [x, z] of [[c2w(3), c2w(5)], [c2w(n - 4), c2w(2)], [c2w(9), c2w(n - 6)]]) if (j.solidAt(x, z) !== j.solidAt(x + S, z) || j.solidAt(x, z) !== j.solidAt(x - S, z - S)) sinBorde = false;
+    // todo lo abierto se alcanza (pasando por la costura si hace falta)
+    const d = j.bfsToro(G.grid, n, w2c(player.pos.x), w2c(player.pos.z));
+    for (let k = 0; k < d.length; k++) if (G.grid[k] === 0 && d[k] < 0) { conectados = false; break; }
+  }
+  c.ok(sinBorde, "en todos los niveles se sigue andando más allá del borde: el laberinto se repite al otro lado (sin pared exterior)");
+  c.ok(cosidos, "la costura está cosida: la última fila y la última columna son la primera");
+  c.ok(conectados, "y no queda nada incomunicado, contando los pasos que cruzan la costura");
+  // el jugador cruza la costura: pasa a la otra copia; lo que se mueve se coloca en la copia más cercana a él
+  limpio("1", 11);
+  const S = G.toroS;
+  player.pos.set(S/2 + 0.4, 0, 0);
+  const e = G.entities[0];
+  if (e) { e.x = -S/2 + 1; e.z = 0; }
+  const antes = G.toroCruces || 0;
+  j.toroPaso();
+  c.ok(Math.abs(player.pos.x - (-S/2 + 0.4)) < 1e-6 && G.toroCruces === antes + 1, "al pasar la costura el jugador sigue en el mismo sitio del laberinto, en la otra copia");
+  c.ok(!e || Math.abs(j.toroD(e.x - player.pos.x)) <= S/2 && Math.abs(e.x - player.pos.x) < S/2 + 0.01, "la fauna que está al otro lado de la costura se ve y persigue desde la copia más cercana (no a " + Math.round(S) + " m)");
+  // al cruzar, lo lejano se reordena sin dejar nada incomunicado
+  limpio("0", 21);
+  const r = j.toroRenovar(() => 0.37);
+  const d = j.bfsToro(G.grid, G.n, w2c(player.pos.x), w2c(player.pos.z));
+  let todo = true; for (let k = 0; k < d.length; k++) if (G.grid[k] === 0 && d[k] < 0) { todo = false; break; }
+  c.ok(r.abiertos > 0 && r.cerrados > 0 && todo, "lo que queda lejos y no se ve se reordena (" + r.abiertos + " muros abiertos, " + r.cerrados + " pasillos cerrados) y todo sigue conectado: nunca vuelves exactamente al mismo sitio");
+  c.ok(/renderMundo/.test(j.frame.toString()) && /intersectsBox/.test(j.renderMundo.toString()), "lo de más allá de la costura se pinta (sólo las copias que caen delante de la cámara)");
+  // más y más grandes zonas especiales
+  let esp = 0, gr = 0;
+  for (let s2 = 1; s2 <= 6; s2++) { limpio("0", s2); esp += G.specials.length; gr += G.specials.filter(sp => sp.r > sp.def.radius).length; }
+  c.ok(esp >= 12 && gr > 0, "zonas especiales: más (" + (esp/6).toFixed(1) + " por nivel en el Level 0) y más grandes");
+  // empieza cerca del centro, no en una esquina pegada a la costura
+  limpio("0", 3);
+  const n = G.n, cx = w2c(player.pos.x), cy = w2c(player.pos.z);
+  c.ok(Math.abs(cx - n/2) < n*0.2 && Math.abs(cy - n/2) < n*0.2, "se aparece cerca del centro del nivel");
+}
+
+console.log("\n── HALLOWEEN Y OTOÑO (5.0) ──");
+{
+  G.opts.temporada = 1;
+  limpio("0", 5);
+  const T = G.temporada;
+  c.ok(T && T.calabazas.length >= 6, "en temporada hay calabazas talladas por los niveles (" + (T ? T.calabazas.length : 0) + " en el Level 0)");
+  c.ok(T && T.calabazas.every(k => !j.solidAt(k.x, k.z)), "ninguna calabaza dentro de un muro");
+  const conCaramelos = G.drops.filter(o => o.id === "caramelo").length;
+  c.ok(conCaramelos > 0, "y a veces caramelos al lado (" + conCaramelos + ")");
+  limpio("9", 5);
+  c.ok(G.temporada && G.temporada.hojas && G.temporada.alfombra, "al aire libre, en las calles y los campos, hojas secas en el suelo y cayendo");
+  limpio("41", 5);
+  c.ok(G.temporada && !G.temporada.hojas, "en la playa y el agua, no");
+  // el caramelo
+  G.prog = G.prog || {}; G.prog.caramelos = 12; G.ach.truco = false; G.sanity = 50;
+  addItem("caramelo", 1);
+  j.useItem("caramelo");
+  c.ok(G.sanity === 58 && G.prog.caramelos === 13 && G.ach.truco, "un caramelo da +8 de cordura; el decimotercero da el logro «Truco o trato»");
+  c.ok(j.skinUnlocked(j.SKIN_BY.calabaza) && /Truco o trato/.test(j.skinNeedText(j.SKIN_BY.calabaza)), "y con él, el disfraz de calabaza");
+  let caramelosEnBotin = 0;
+  for (let i = 0; i < 400; i++) caramelosEnBotin += j.lootForRoll(3, Math.random).filter(x => x === "caramelo").length;
+  c.ok(caramelosEnBotin > 0, "los casilleros dan caramelos en temporada (" + caramelosEnBotin + " en 400 tiradas)");
+  G.opts.temporada = 2;
+  limpio("0", 5);
+  let fuera = 0; for (let i = 0; i < 400; i++) fuera += j.lootForRoll(3, Math.random).filter(x => x === "caramelo").length;
+  c.ok(!G.temporada && fuera === 0, "fuera de temporada (o con la opción en «Nunca»), ni calabazas ni caramelos");
+  c.ok(["truco", "calabazas"].every(id => j.ACHIEVEMENTS.some(a => a.id === id && a.name_en && a.desc_en)) && ITEMS.caramelo.name_en && ITEMS.caramelo.blurb_en, "los logros y el caramelo, en los dos idiomas");
+  c.ok(j.OPT_ROWS.some(o => o.key === "temporada"), "se puede elegir en Ajustes: automático, siempre o nunca");
+}
+
+console.log("\n── LAS VERSIONES Y LA COPIA SIN EL CAPÍTULO 1 (5.0) ──");
+{
+  const V = j.VERSIONES;
+  c.ok(V[0].v === "5.0" && V.length >= 10 && V.every(r => r.es && r.en && r.puntos.length && r.puntos.every(p => p[0] && p[1])), "la lista de versiones va de la 5.0 a la primera (" + V.length + "), cada una con lo que trajo en español y en inglés");
+  c.ok(V.every((r, i) => !i || r.fecha <= V[i-1].fecha), "de la más nueva a la más vieja");
+  c.ok(!V.some(r => r.puntos.some(p => /historia|cap[ií]tulo|chapter|story/i.test(p[0] + p[1]))), "y no cuenta nada del modo historia (el capítulo 1 todavía no se publica)");
+  const fs = require("fs"), path = require("path");
+  const raiz = path.join(__dirname, "..");
+  require("child_process").execSync("node " + JSON.stringify(path.join(raiz, "herramientas", "publicar.js")), { stdio: "pipe" });
+  const pub = cargar(path.join(raiz, "publicar", "el-zumbido.html"));
+  c.ok(pub.HIST_PUBLICO === false && j.HIST_PUBLICO === true, "herramientas/publicar.js saca la copia con el modo historia apagado (en la tuya sigue encendido)");
+  // en GitHub Pages (o cualquier web) el archivo del repositorio también lo esconde; sólo se ve en local
+  const linea = (fs.readFileSync(path.join(raiz, "el-zumbido.html"), "utf8").match(/const HIST_PUBLICO = ([^\n]*);/) || [])[1];
+  const vale = loc => Function("location", "return " + linea)(loc);
+  c.ok(linea && !vale({protocol:"https:", hostname:"djg1607.github.io"}) && !vale({protocol:"https:", hostname:"claude.ai"}) && vale({protocol:"http:", hostname:"localhost"}) && vale({protocol:"file:", hostname:""}),
+    "el modo historia sólo aparece jugando en local: en GitHub Pages sigue escondido aunque subas el repositorio");
+  c.ok(!pub.ACHIEVEMENTS.some(a => /^hist_|^owen$/.test(a.id)) && !pub.CHARACTERS.some(ch => ch.id === "owen") && !pub.OPT_ROWS.some(o => o.key === "vista" || o.key === "histHud"),
+    "en la copia publicada no hay logros de la historia, ni Owen, ni ajustes de la historia");
+}
 
 process.exit(c.resumen("el mundo") ? 1 : 0);

@@ -157,4 +157,15 @@ nuevos3.forEach(id => {
 });
 c.ok(porId["11.2"].settlement, "el Level 11.2 es la Base Omicron del M.E.G.: un asentamiento seguro");
 
+console.log("\n── LOS NIVELES DE LA 5.0 ──");
+const nuevos5 = ["16","17","18","20","38","39","46","48","54","55","63","66","70","75"];
+c.ok(nuevos5.every(id => porId[id]), "están los 14 niveles nuevos: " + nuevos5.join(", "));
+nuevos5.forEach(id => {
+  const l = porId[id];
+  const entra = CAT.filter(a => a.id !== id && (a.exitsTo || []).some(r => r.to === id)).map(a => a.num);
+  c.ok(l.lore && l.lore_en && l.tip && l.tip_en && entra.length > 0 && (l.exitsTo || []).length >= 2,
+    ("Level " + l.num).padEnd(10) + l.title.slice(0, 34).padEnd(35) + "se entra desde " + entra.join(", "));
+});
+c.ok(CAT.filter(l => !l.settlement).length + CAT.filter(l => l.settlement).length === 80, "80 niveles en total (77 + 3 asentamientos)");
+
 process.exit(c.resumen("los niveles") ? 1 : 0);

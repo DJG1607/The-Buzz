@@ -492,7 +492,386 @@ localhost, con la opción «Contar mi visita» activada (Ajustes → Partida, `G
 pruebas. Cualquier fallo de GoatCounter se traga. Si añades un evento nuevo, que sea con `contar()`
 y que no lleve nombres ni nada personal. El README avisa de que se cuentan visitas de forma anónima.
 
+## 6¹⁵. La versión 5.0: modo historia, Inés, 14 niveles, armas, equipo y emotes
+
+**Modo historia.** Sección «MODO HISTORIA» del archivo (antes del BUCLE), con su CSS y su HTML entre
+marcas propias. Reutiliza el motor de los niveles normales:
+
+- *Mapas*: `HIST_MAPAS[id]` (los crea `histNivel()`) es como una entrada de `CAT` con `hist:true`.
+  `instantiate("h:id")` lo devuelve y `buildLevel()` monta la rejilla con `histMapa()`: salas como
+  rectángulos (`salas`), filas de texto o un **laberinto con semilla fija** con salas estampadas
+  encima (`sellos`). `histConectar()` abre camino a lo que un sello deje aislado sin tocar muros de sala
+  ni puertas. En un mapa de historia no salen salidas, casilleros, cintas, paredes falsas ni fauna al azar;
+  después `histPoblar()` pone puertas (`puertas`: un muro sin bloque y con hoja que gira; abrir = la celda
+  pasa a 0), muebles (`props`, `HIST_PROPS`), luces (`lamparas` o `lamparasMod`) y lo que pida el tramo.
+- *Guion*: `HIST_CAPS.c1.tramos` es una lista de tramos `{id, titulo, mapa, pj, montar, run}`. `run` es
+  una función `async` que recibe `E` (`histAPI()`): `E.dice(quien, es, en)`, `E.piensa`, `E.elige([[es,en]…])`,
+  `E.sub` (frase sin parar el juego), `E.cine`/`E.linea` (pantalla negra, cintas VHS), `E.tel` (el móvil),
+  `E.nota`, `E.objetivo`, `E.zona`/`E.cerca`/`E.usar`/`E.cuando` (esperas), `E.actor`/`E.ir`/`E.sigue`
+  (personajes que andan por la rejilla), `E.enemigo` (el Acomodador o un Hound con ronda), `E.camara` (plano
+  fijo)… Cada espera es una promesa que resuelve `histUpdate()` en el bucle; al cancelar (te pillan, sales)
+  se rechazan todas con `HIST_CANCEL`.
+- *Puntos de control*: cada tramo superado se guarda en `localStorage["zumbido.historia.v1"]`. Si te pillan,
+  `histFallo()` vuelve a montar el tramo con las banderas de cuando empezó (salvo lo hecho que no se
+  deshace: válvulas, fusibles, objetos cogidos).
+- *Enganches en el motor*: `updatePlayer` (`histControl()`: bloqueado o andando solo), `updateCamera`
+  (`histCamaraUpdate()`), `nearestFocus`/`interact`/aviso de [E] (cosas usables `kind:"hist"`), `doKeyAction`
+  (`histTecla()`), el clic del ratón (`histClic()`), la pausa por soltar el ratón (`histAbierto()`), `skinAtlas`
+  (los jugables de `HIST_PJ`), y en la historia no hay cordura, sustos al azar ni reordenar el nivel.
+- *Videocámara* ([K], la tecla del gadget): `histCamara()` pone el filtro verde en el lienzo, cierra el
+  campo de visión, enciende un foco infrarrojo que pesa más cuanto más oscuro está (`updateLights`) y hace
+  visibles las mallas de `HIST.ocultos` (flechas de tinta invisible) y al Acomodador cuando va con
+  `soloCamara`. La linterna del móvil es la de siempre, con `G.torchFuel` como batería del móvil.
+- *Personajes*: `HIST_LOOK` (Owen, Danny, Maya, Rosa, June y el Acomodador) y `HIST_PJ` (los jugables). No
+  están en `CHARACTERS`: no salen en la selección ni en la sala pública. Danny sólo se juega en los tramos
+  con `pj:"danny"` (el interludio).
+- *Probarlo*: `pruebas/historia.js` tiene un bot que juega el capítulo entero con las tres respuestas.
+  Si añades un tramo nuevo con una espera rara (`E.cuando(fn)`), prefiere `E.cerca`/`E.zona`/`E.usar`: el bot
+  sabe resolverlas. `HIST.inmune` (sólo para las pruebas) hace que los enemigos no te pillen.
+
+**Segunda tanda de la 5.0** (después de probarla):
+
+- *La casa a escala real*: el mapa `casa` va en celdas de **0,55 m** (`grid:31`, `wallH:2.4`), así los muros
+  son tabiques. Las puertas ocupan **varias celdas** (`puertas.X.celdas:[[x,y],…]`; `histGruposPuerta()`
+  junta las que se tocan y `histPuerta(celdas, ch, def)` hace una sola hoja con marco por las dos caras;
+  `def.hacia:-1` la abre hacia el otro lado). `vanos` son huecos de paso sin puerta con dintel
+  (`histVano`). Los muebles se arriman a su pared con coordenadas de celda **con decimales a lo largo de la
+  pared**; `libre:true` lo deja en el punto (un sofá en medio del salón) y `rot` lo gira. Los bultos van con
+  `histBulto(g, ancho, fondo)` (varios círculos a lo largo del mueble) y `obstacleAt` mira dos celdas
+  alrededor cuando la celda es menor de 1 m. Muebles nuevos: inodoro, alfombra, lámpara de pie, cuadros,
+  planta, mesilla, armario, cómoda, cocina, perchero y suelos de baldosa (`suelo`). Los muros de los marcos y
+  dinteles usan `histMuroMat(ancho, y0, alto)`: la textura a escala de mundo, empezando a la altura buena
+  para que el zócalo no salga en un dintel. Ojo: con `wallH` distinto de 2,4 la textura del muro se repite
+  y el zócalo sale también arriba; por eso la casa mide 2,4 m de alto. Lámparas nuevas: `lampStyle:"plafon"`.
+- *Maple Street*: mapa `calle` al aire libre (`ceil:null`, `lampStyle:"street"`), con coches, buzones,
+  porches, calabazas, el parque y la gasolinera. **Rendimiento**: `HM()` comparte el material cuando no
+  lleva extras (si algo tiene que cambiar de color él solo, pásale un extra, aunque sea `{}`: el volante de
+  las válvulas lo hace) y `histFusionar()` funde, al acabar `montar`, las piezas iluminadas de los muebles
+  quietos (`HIST_FIJOS`, sin `id`) en una malla por material. La calle pasó de unas 2.300 llamadas de
+  dibujo a menos de 400. Las hojas y los charcos de `decorate("suburb")` eran una malla con su propio
+  material cada una (miles): ahora son mallas instanciadas, también en los niveles normales.
+- *Primera persona*: `G.opts.vista` (Ajustes → Controles, «Cámara en el modo historia») y la acción `view`
+  (P). `primeraPersona()` sólo vale en la historia y sin agarre; `camaraPrimera()` pone la cámara a 1,58 m con
+  balanceo al andar, oculta el sprite y usa `player.cansancio`, `player.ojoY` (bajar la cabeza al caer) y
+  `player.inclina` (alabeo). `pitchMin()/pitchMax()` dejan mirar más arriba y abajo. Las escenas con
+  `E.camara` siguen con su plano.
+- *Cansancio*: `histFatiga(dt)` (desde `updatePlayer`, sólo en la historia y fuera de escenas). Sin
+  aliento corriendo: tropieza y, si nada le persigue (`HIST.cazando`), se cae (`FALLEN_ROW`), se pone de
+  rodillas y jadea con las manos en las rodillas; hasta el 40 % (15 % perseguido) no corre. La fila 7 del
+  atlas (`FATIGA_ROW`, `FATIGA_POSE`) tiene esas posturas y gestos de conversación; `drawPerson` acepta en
+  la postura `baja` (el tronco se dobla hacia la cámara) y `cabeza`. Los actores las usan con `E.gesto(id,
+  "cansado"|"tropieza"|"arrodilla"|"habla"|"cruzado"|"nuca"|"suelo"|"sentado")`, gesticulan solos al hablar
+  y cambian de postura de vez en cuando (`HIST_OCIO`). En 3D: poses `tired`, `stumble`, `kneel`, `talk`,
+  `crossed`, `headrub`.
+- *Música*: `MUS_PIEZAS` (9 piezas escritas como acordes + reglas por compás) y `musUpdate()` (desde
+  `updateMusic`): programa los compases con antelación en el reloj de audio, alterna pieza y silencio, y
+  añade la capa `persec` cuando `G.chasing`. Todo pasa por `melIn`/`melGain`, así que la pausa, el menú y
+  «Música: ninguna» la callan sin código aparte. `musElegir(cfg)` decide por riesgo y decorado; en la
+  historia manda `cfg.musica` del mapa, `T.musica` del tramo o `E.musica(id)`.
+- *Sonido*: `Audio_.revIn` (reverberación con respuesta generada, `setReverb(cfg)` por nivel), `step()` según
+  `cfg.floor[0]`, `ambienteLejano()` (golpes, pasos que se alejan, tuberías, una puerta) y `tone()` acepta un
+  destino. En la historia: `HIST_VOZ` (cada uno suena distinto al escribir), puertas que crujen, jadeos,
+  tropiezos y caídas.
+- *Guion*: tramos nuevos `calle` (Maple Street: el coche de Danny, la llamada de Maya andando con
+  `hLlamada()`, el cartel, el parque, Earl, el primer vistazo al Acomodador) y `nido` (la cena con June, con
+  temas a elegir); además, comentarios de Maya por el Commons (`hComenta()`), la escena de la fuente, el
+  campamento de Danny y la voz de Maya en el Level 0, la despedida grabada de Danny y June al empezar el
+  interludio y el rincón de Danny en las Tuberías. Doce notas. Personaje nuevo, sólo de la historia: **Earl**.
+
+**Tercera tanda de la 5.0**:
+
+- *Choque con tabiques*: con celdas más estrechas que el cuerpo (`RADIUS` 0,36 frente a celdas de 0,55 m)
+  las cuatro esquinas de `blockedCircle` caían a los dos lados de un tabique y se podía andar por dentro
+  de él. Ahora, si `2r > 0,9·cell`, mira también puntos intermedios.
+- *Música*: 20 piezas. `musOpciones(cfg)` da las que pegan con el nivel y `musElegir` escoge una (y otra al
+  acabar cada vuelta); cada vuelta cambia de tono (`MUS.trans`) y de tempo (`MUS.vel`).
+- *Cintas*: `histCintaSonido(on)` (lo llama `histCine` con `vhs:true`) y `histCintaUpdate()`: siseo, red,
+  cabezal con «wow», chasquidos y un murmullo con la voz de quien habla filtrado.
+- *Esfuerzo*: fila 8 del atlas (`ESFUERZO_POSE`), `E.esfuerzo(tipo, s)` (empujar, levantar, girar, coger,
+  secarse) y gestos de actor `empuja/levanta/gira/recoge/seca`. `histFatiga(dt, enEscena)` maneja el esfuerzo
+  incluso en escenas bloqueadas. Partículas (`PART`, `particula`, `gotasSudor`, `gotera`, `anilloAgua`) en el
+  motor; `cfg.goteras` hace gotear el techo.
+- *Mecánicas*: acción `crouch` (Z; `player.agachado`, velocidad `G.char.agachado || 0.45`, ruido ×0,25, la
+  cámara baja; los crujidos no saltan agachado). `ITEMS.botella` + acción `throw` (T): `lanzarBotella()` →
+  `romperBotella()` pone `G.cebo` y manda a las entidades caminantes a mirar (`lastSeenX/Z`, `hunt`) y en la
+  historia `histCebo()` pone a los enemigos en «busca». `histRespiracion()`: escondido, jadeando y con un
+  enemigo a menos de 5,5 m, si no mantienes correr sube `HIST.oidoRiesgo` y a 2,2 pierdes («te ha oído»).
+- *Owen jugable*: entrada en `CHARACTERS` con `unlockHist:"c1"` (lo mira `checkUnlocks`, que también se llama al
+  acabar el capítulo) y habilidad `nightshot` (`nightshotAplicar`: filtro verde, más luz ambiente y entidades
+  con `depthTest:false`). Danny sigue siendo sólo de la historia.
+- *Detalles de la casa*: `histEspejo(malla)` cambia el material del cristal por un `ShaderMaterial` con el
+  reflejo (técnica del `Reflector` de three.js, con plano de corte oblicuo); `histEspejosRender()` lo pinta
+  justo antes del render principal, sólo el más cercano a menos de 5 m, y pone tu sprite de cara al reflejo.
+  `histPantalla(malla, "dibujos"|"dvd")`: lienzos animados a 12 fps (la tele y el portátil). `HIST.giran`
+  (ventilador, segundero) y `HIST.parpadean` (el reloj del horno). Lo que lleva `userData.noFundir` no lo
+  funde `histFusionar`.
+- *Cielo*: `cieloCrear(cfg)` en los niveles con `ceil:null`: esfera que sigue a la cámara, degradado desde
+  `fogColor`, estrellas y luna si es de noche.
+
+**Cuarta tanda de la 5.0**:
+
+- *Cámara en sitios pequeños*: con `G.cell < 1`, tres rayos (centro y ±0,25 rad) con paso de 5 cm; acercarse
+  es rápido pero no instantáneo y, si no cabe a 0,95 m durante 0,2 s, pasa a primera persona
+  (`player.camAuto`) hasta que vuelva a caber a 1,4 m durante 0,6 s. El sprite se oculta con margen.
+- *Agachado*: fila 9 del atlas (`AGACHADO_POSE`). De perfil es una postura normal; de frente y de espaldas
+  `drawAgachado()` pinta de pie en un lienzo aparte y lo pega con las piernas encogidas y el cuerpo bajado
+  (doblar las rodillas de frente casi no se ve).
+- *Voces falsas*: `vozSilaba(quien, destino, volumen, final)` es una sílaba de voz con dos formantes de una
+  vocal al azar y una consonante de ruido; `HIST_VOZ` guarda el tono (`f0`), los formantes (`form`) y la
+  velocidad de cada personaje. Suenan al escribir el diálogo, en los subtítulos (`E.sub`) y, filtradas, en
+  las cintas.
+- *El barrio*: el mapa `calle` tiene `grid:61` y `murosOcultos:true` (las celdas sólidas chocan pero no se
+  dibujan: lo que se ve son las casas). Props nuevos: `casa` (cuerpo con tablas, desván en prisma, faldones
+  con tejas, frontón con `histPrismaTri`, porche, ventanas con contraventanas, garaje, chimenea), `seto`,
+  `pino`, `estanque`, `glorieta`, `tobogan`, `local` (tienda con toldo y rótulo), `gasolinera`, `marquesina2`,
+  `surtidor2`, `pilon`, `senal`, `cesped` y `rayas`. Las texturas se pintan en gris y el color del material las
+  tiñe (`histMatTex`, a escala de mundo). Obstáculos girados con `histObstaculoLocal`. El recorrido: Maple
+  Street → camino del parque (`k`) → Birch Park → puerta norte (`g`) → Commerce Avenue → aparcamiento (`a`) →
+  muelle (`d`).
+
+**Quinta tanda de la 5.0** (pulido del barrio):
+
+- *Farolas*: con `murosOcultos` no hay paredes donde arrimar las lámparas del motor (salían en mitad de la
+  calzada). El barrio usa `lampStyle:"none"` y el prop `farola`, que mete su bombilla en `G.lamps` para que
+  la reparta el `LIGHT_POOL` como cualquier lámpara.
+- *Sin bordes vacíos*: un `cesped` enorme por debajo del suelo (`alto:-0.03`), casas y árboles de decorado
+  fuera de la rejilla (no se pisan) y más niebla.
+- *Carteles*: `histCartelDoble()` (dos planos espalda con espalda); los `DoubleSide` se leían al revés.
+- *Sombras de contacto*: `histSombraContacto(g)` (caja del mueble → mancha radial) para los tipos de
+  `HIST_SOMBRA`. Escaparates con estanterías (`histEscaparateTex`).
+- *Primera persona*: los ojos van a 1,30 m (el sprite mide 1,42). Antes, a 1,58, parecías un gigante.
+- *Pausa*: `body.pausa` esconde el diálogo, los subtítulos, el móvil y las notas detrás del menú.
+- *El objeto de la mano* (`player.handMesh`) no se enseña en la historia ni en primera persona: flotaba.
+
+**Sexta tanda de la 5.0** (móvil, tutoriales, casa de dos plantas, accesibilidad):
+
+- *El móvil* (`hist/movil.js` dentro del motor): `HIST_CONTACTOS`, `HIST_CHATS` (historial fijo),
+  `HIST_LLAMADAS`, `HIST_FOTOS` y `HIST_PRUEBAS`. Lo que pasa en la partida va en las banderas
+  (`movilFlags()`: `chats`, `noLeidos`, `llamadasNuevas`, `notasTxt`, `pruebas`), así se guarda solo.
+  Pantallas en `movilEstado().pantalla`: `inicio`, `chats`, `chat`, `llamadas`, `fotos`, `foto`, `mapa`,
+  `notas`, `llamada`. `histMovilTecla()` va antes que todo en `histTecla()`; con el móvil abierto los
+  enemigos esperan (`histMoverEnemigo`) y no te mueves (`histControl`). El avatar es la cabeza del sprite
+  recortada del atlas (`movilAvatar`) y las fotos se pintan con sprites (`histFotoCanvas`), también las
+  de los marcos de la casa (`histCuadroTex`, motivos 1 y 2).
+- *API del guion*: `E.tel({chat, msgs})` escribe en un chat; `E.tel({llamada, estado, auto})` enseña una
+  llamada; `E.responder(chat, ops, {sinSenal})` deja elegir qué contestar (con `sinSenal` sale «No
+  entregado»); `E.llamada(c, {ops})` es una llamada entrante (devuelve 0 contestar / 1 colgar);
+  `E.enLlamada(c)` pone el recuadro de «en llamada» mientras andas (`null` lo quita); `E.mensaje(chat,
+  de, es, en)` mete un mensaje con aviso; `E.tutorial(id, titulo, texto, icono)`; `E.prueba(id, x, y, z)`.
+  Tras un `E.responder` que no va seguido de un `E.tel`, el guion cierra con `histMovilCerrar()`.
+- *Grabar*: `histClic()` → `histGrabar()` con la cámara encendida. Vale la prueba registrada (en
+  `HIST.pruebas`, que se vacía en cada tramo) más centrada en horizontal (unos 25°), a menos de 16 m y a la
+  vista (`canSee`). Guarda una miniatura en `HIST.capturas` y al llegar a 8 da `hist_grabar`.
+- *Tutoriales*: `histTutorial(id, …)` abre una nota de tipo `tuto` y apunta `tut_<id>`; si ya está, no hace
+  nada. Agacharse en la historia necesita `tut_agachar` (llega en «Sin hacer ruido»; `histTramo` la pone
+  sola en los tramos de después, para partidas guardadas de antes). La pausa pinta los controles de la
+  historia con `renderPauseKeys()` (se llama en `pauseGame()`).
+- *Dos plantas*: las dos plantas comparten rejilla, separadas por el muro de la fila 11. `cfg.escaleras`
+  ({a, b, yaw, dir}, en celdas): al llegar andando a `a` mirando hacia `dir`, fundido y apareces en `b`
+  (`histEscaleras`). `cfg.sinBloque` son macizos que no se dibujan (la escalera y el hueco se chocan,
+  pero se ve el mueble). Props `escalera`, `hueco` y `precinto` (`id:"precinto"`, sus trozos en
+  `userData.piezas`; con `flags.precinto` ya no se monta).
+- *Accesibilidad* (pestaña `acc`): `dalt` (filtros SVG `feColorMatrix` de `DALT_MATRICES` sobre `#stage`,
+  no sobre el body: así el menú no cambia), `textoTam` (variable CSS `--texto-esc`), `textoVel` (≥4 sale
+  entero), `subFondo`, `sinDestellos` (sin temblor, sin ruido en las cintas, el apagón fijo), `agacharModo`
+  y `correrModo` (pulsar en vez de mantener: `player.agToggle` / `runToggle`), `histHud` (0 siempre, 1 se
+  esconden, 2 nunca) y `contraste`. Todo en `applyAccesibilidad()`.
+- *Primera persona*: ya no tiene tecla (la acción `view` pasa a ser `phone`, M); sólo Ajustes → Controles.
+  En la historia, Ajustes → Controles enseña sólo sus teclas, con sus nombres (`renderKeyBox`, que ahora se
+  repinta en `openOpts`); agacharse, la cámara y la botella aparecen cuando ya se han aprendido.
+
+**Séptima tanda de la 5.0** (pulido: barrio de Halloween, escaleras, cámara, voces, baterías):
+
+- *El barrio*: `calle` tiene Elm Court (salas nuevas al oeste de Maple: calle, jardines, glorieta y el
+  mirador del arroyo; fondo de saco a propósito, la pasarela está rota). En los props, **`lado` es la pared
+  contra la que va la espalda**: una casa del lado oeste que mira al este es `lado:"o"`, y su centro tiene
+  que quedar ~2,8 celdas detrás del borde de lo que se pisa (cuerpo de 8 m más porche).
+- *Props de Halloween*: `calabaza` (gajos y cara que parpadea: `HIST.velas`), `calabazaRota`, `telarana`,
+  `fantasma` (se mece: `HIST.ondean`), `lapida`, `esqueleto` (con `id`, `userData.esq` para el susto),
+  `espantapajaros`, `paja`, `maiz`, `hinchable` (respira: `HIST.hinchables`), `luces` (guirnalda entre `a` y
+  `b`; las bombillas son una sola malla con colores por vértice), `pancarta` (ajusta la letra al texto),
+  `cuenco`, `vasos`, `gato` (Pickles: `HIST.gatos`), `canasta`, `arroyo`, `puente`, `arana`, `bruja`,
+  `murcielagos`, `cartelVenta`, `foco`. `arbol` tiene ramas que salen del tronco (`histRama`), copa de
+  bultos, `abedul`, `verde`, `papel` (papel higiénico) y hojarasca; `pino`, capas irregulares.
+- *La fiesta*: `HIST.fiesta = {x, z, radio, ventanas}` hace sonar bombo y bajo amortiguados según la
+  distancia (`histFiesta`) y cambia el color de las ventanas.
+- *Guion*: `hRecuerdo(E, id)` (seis recuerdos, logro `hist_recuerdos`), `hMaullido`, el chat `pickles`
+  (contacto nuevo; `movilOrden()` pone delante los chats que salen en la partida), gestos nuevos de los
+  actores con las poses de los emotes (`saluda`, `celebra`, `baila`, `senala`, `rie`, `encoge`, `pulgar`).
+- *Voces*: `vozSilaba` lleva diente de sierra + triángulo con filtros de formante «peaking» (antes eran
+  pasa-banda estrechos y apenas se oían) y `histDuck` baja la música (un nodo entre `musicBus` y `master`)
+  mientras alguien habla.
+- *Mensajes*: `histAviso(c, m)` es el globo de arriba; `E.tel` lo enseña con «escribiendo…» antes de abrir
+  el chat, y cada mensaje tarda `histTelRetardo(m)`.
+- *Baterías*: `histBaterias(dt)` gasta el móvil (0,005 %/s, +0,05 con la pantalla) y avisa al 20, 5 y 0;
+  la cámara gasta 0,3 %/s y 1,5 por grabación. `HIST.camNecesaria` (en las esperas que necesitan la cámara)
+  impide quedarse atascado. Sin batería, la M enseña la pantalla negra.
+- *Escaleras*: `cfg.huecosSuelo` / `cfg.huecosTecho` (en celdas) cortan el plano del suelo o del techo
+  (`planoConHuecos`, con las UV recalculadas). `cfg.escaleras[i].ruta` es el camino por los escalones con
+  su altura; `histEscaleras` lo recorre (`HIST.escala`, `player.yOff`, que suben el dibujo, la sombra y la
+  cámara) y al final hace el fundido. Los props `escalera` (con `pozo`: lo que se ve por el hueco del techo)
+  y `hueco` (los escalones que bajan) los dibujan.
+- *Cámara*: con celdas finas (la casa), `camCorte` esconde los tabiques entre la cámara y Owen (guarda la
+  matriz de cada instancia y la devuelve); `cfg.sinCorte` son los que nunca se esconden (el muro entre las
+  dos plantas y la fachada). En toda la historia, un rayo contra los muebles acerca la cámara (mínimo 0,8 m).
+  Al rayo hay que darle `raycaster.camera` o los `Sprite` revientan.
+- *Agacharse*: `drawAgachado` dibuja de frente y de espaldas unas cuclillas (rodillas fuera, manos en las
+  rodillas, el cuerpo 13 px más bajo); de perfil, `AGACHADO_POSE` con el torso inclinado y brazos sueltos.
+
+**Octava tanda de la 5.0** (gráficos de noche; el módulo «ATMÓSFERA» del motor de la historia):
+
+- *Halos*: `histHalo(x, y, z, color, tam, {parp, ref})` apunta un brillo; `histHalosConstruir()` los mete
+  todos en un solo `THREE.Points` con mezcla aditiva (atributos `hcol`, `htam`, `hfase`, `hparp`, `hon`) que
+  respeta la niebla y se apaga con el apagón o si su lámpara (`ref`) está muerta. Los ponen las farolas (vía
+  `G.lamps`), los porches, las ventanas encendidas (`histHaloLocal`, en coordenadas del grupo), las
+  guirnaldas, las calabazas talladas, el muelle y el foco de los Henderson. Fuera de la historia,
+  `halosNivel(cfg)` (desde `buildLevel`) hace lo mismo con las lámparas de cada nivel.
+- *Luna*: `cfg.luna` (en `calle`) crea una luz direccional con sombras PCF suaves que sigue al jugador,
+  ajustada al texel (`histLunaUpdate`); sólo en calidad Alta y Ultra. Proyecta sombra todo lo que no es
+  `MeshBasic`, transparente o un plano; la reciben también el suelo y el césped.
+- *Más ambiente*: `cfg.hojas` (hojas que caen alrededor del jugador), `cfg.bruma` (rectángulos en celdas con
+  dos capas de bruma que se desplazan), `cfg.murcielagos`, humo de las chimeneas (`HIST.chimeneas`, lo
+  rellena la casa con `chimenea`), nubes en el cielo (`cieloCrear` tiene `tiempo` y `nubes`), viñeta CSS
+  en `body.hist #stage::after`.
+- *Texturas*: `MAT.asfalto` (se define en el motor de la historia y lo usa `floor:["asfalto", …]`),
+  `histCespedTex` a 256 px con briznas, matas y hojas. Las casas llevan arbustos al pie (`arbustos:false`
+  para quitarlos), cortinas y lámpara en las ventanas encendidas y el reflejo de su luz en el suelo.
+- *Interiores*: `luzInterior(cfg)` (para mapas con techo) hace dos mallas por nivel: la sombra de contacto
+  (una tira con degradado en el suelo, al pie de la pared, en el techo y en lo alto de la pared, por cada
+  borde entre una celda libre y una sólida; no la llevan las puertas ni los `sinBloque`; `cfg.ao` cambia la
+  opacidad) y los charcos de luz (un cuadrado en el suelo y otro más pequeño en el techo por lámpara, con un
+  shader aditivo que se apaga con la lámpara y con el apagón: `luzInteriorUpdate`). La textura del degradado
+  va con `flipY = false` (si no, la parte oscura queda lejos de la esquina y parece un escalón).
+- *Backrooms*: `histDecoBackrooms(cfg)` (antes de `histFusionar`, para que se fundan) pone enchufes,
+  placas caídas y humedad en `l0`, charcos, cables y palés en `l1`, y luces rojas y vapor en `l2`. El `id`
+  de los mapas de la historia es `h:l0`, no `l0`.
+- *Animación*: `personAtlas` tiene ahora **16 columnas** (`PERSONA_COLS`): en las filas 0-3, las 0-7 son
+  andar y las 8-15 correr, dibujadas con `gaitPose8(col)` (8 fases por ciclo); las demás filas siguen
+  usando las columnas 0-7. Quien elige fotograma lo calcula con `atlas.cols` (el jugador, los actores, el
+  Acomodador, el espejo); las entidades siguen con sus atlas de 8. El paso pesa (`fase = animT·π/4`: sube a
+  mitad de zancada, se hunde al pisar), corriendo hay polvo en las pisadas 0 y 4 (`particula`, tipo
+  `sudor`, que se desvanece) y parado más de 3,5 s mira a los lados (`player.quietoT`; los actores,
+  `A.quietoT`).
+- *Cámara de la casa* (sustituye a la de corte con distancia variable): con celdas finas, `want = 2.3` fijo y
+  `camaraCasa(px, pz, yaw, pitch, yOff, wallH, dist)` la pone detrás y por encima del techo (el techo es de
+  una cara: desde arriba no se ve). `camCorte` esconde tabiques en una franja de ±0,9 m; `cfg.telon` pone un
+  bloque negro sobre el muro entre plantas; en `histAtmosferaUpdate`, con la cámara alta se esconden lo
+  que cuelga del techo (`HIST.techo`: ventilador y dinteles de `histVano`), las lámparas y las puertas
+  (`piv` y `g`) cercanas a la línea cámara-Owen. Ya no hay rayo contra muebles en la casa.
+- *De frente y de espaldas*: `drawPerson` desplaza el cuerpo (`vaiven`) hacia la pierna que apoya, levanta
+  el pie que avanza (`alza`, con la suela de espaldas) y acorta los brazos según el balanceo (escorzo).
+- *Enemigos y sonido*: `histEnemigoVida` (después de `histPintarEnemigo`) da al Acomodador su cara de
+  estática (`E.cara`, una textura de 16×16 que se repinta), tirones, pasos y la radio (sílabas de `vozSilaba`
+  por un filtro paso banda), y al perro ojos (`E.ojos`), pasos y jadeo. `histDest(x, z, vol, alcance)` da un
+  nodo de ganancia + panorámica estéreo para cualquier ruido; `HIST_RUIDO` son los ruidos y `HIST_AMBIENTE`
+  qué se oye en cada mapa y cada cuánto (`histAmbienteUpdate`). En casa, tic-tac (`HIST.relojPos`) y nevera
+  (`HIST.neveraPos`).
+- *Música (décima tanda)*: `MUS_MOTIVO` y `MUS_RESPUESTA` son el leitmotiv (compases de `[pulso, semitono
+  sobre re, duración]`) sobre `MUS_ACORDES_D`; lo usan las piezas `titulo` (menú), `danny` (casa y la
+  pantalla del capítulo) y `calle` (vals en 3/4: los pulsos del motivo ×0,75). `musNota` tiene `cuerdas`,
+  `trem`, `coro`, `estatica`, `latido` y `pizz`, y cada nota pasa por un `StereoPanner` (`musPan(inst, f)`).
+  `musNodos` añade una sala (convolución de 3,4 s, envío desde `tono` y desde la capa de persecución) y el
+  bus `tens`. `musAmenaza()` da 0-1 según lo cerca que esté lo peligroso (en la historia `HIST.enemigos`,
+  sin contar al Acomodador que sólo se ve por la cámara; si no, `G.cercaD`, que deja `updateEntities`), y
+  `musUpdate` programa la pieza `tension` en ese bus, apartando un poco la pieza. Con el juego parado,
+  `frame()` llama a `musUpdate` y `musMenuPieza()` elige `titulo`, `danny` (pantalla del capítulo) o
+  `final` (fin del capítulo); en los menús la pieza no se acaba ni cambia de tono.
+- *Menús*: `tituloDeriva(dt)` (desde `frame()`, con el juego parado) pone a `player` en un pasillo largo al
+  azar y lo pasea (`tituloLibre` mide cuánto sitio hay en una dirección; gira en los cruces y al final del
+  pasillo), con la cámara a 1,58 m y el vaivén de una cámara en mano; también pinta el contador `#osdTc`.
+  Sustituye a `titleOrbit`, que no volvía a arrancar al salir al título. `uiSonido("pasa"|"pulsa"|"vuelve")`
+  y `menuSonidos()` (delegado en `document`, también despierta el audio con el primer clic o tecla); el
+  mando hace tic al mover el foco. El CSS nuevo: `#tituloOSD`, `@keyframes tubo`, `hojaEntra`, `velo`,
+  `.intro-mas` y la cinta de `#histScreen .hs-card`.
+
+**Inés** (`id:"ines"`): campos nuevos `healMul` (lo usa `bandagePart`) y `bleedMul` (`updateBleeding`), y la
+habilidad `triage` en `useAbility()`.
+
+**Niveles**: 14 más (16, 17, 18, 20, 38, 39, 46, 48, 54, 55, 63, 66, 70, 75), con lore resumido de sus páginas
+y enlazados desde niveles que ya existían donde la wiki dice que se llega. `node herramientas/anexo.js`
+regenera el mapa del descenso (80 niveles).
+
+**Armas y prendas**: hacha (`fireaxe`, la que más aturde), llave (`wrench`, la más rápida y duradera), palo de
+hockey (`hockey`, más alcance) y táser (`taser`, 4,6 m y 8 cargas). Prendas `headlamp` (letra «l»: con ella
+puesta `toggleTorch` funciona sin linterna y la luz no ocupa la mano), `leather` («j»), `kneepads` («k»,
+`o.knee`) y `motohelmet` («y», capucha con visera). `cleanKey()` acepta las letras nuevas.
+
+**Emotes**: `GESTOS` pasa a 12 (teclas en `GESTO_TECLAS`: 1-9, 0, - y =). `personAtlas()` tiene ahora
+**10 filas**: 0-3 andar/correr, 4 caído, 5-6 emotes de frente, 7 cansancio y gestos, 8 esfuerzo y 9 agachado (`EMOTE_POSE`: `drawPerson` acepta una postura
+como objeto en vez de un número de fotograma). `emoteFrame(pose, t)` dice qué dibujo toca; lo usan el
+jugador y los compañeros. La figura 3D hace la postura con el mismo nombre en `RIG_POSE.human`.
+
+### La actualización de Halloween y otoño (5.0)
+
+- *Niveles grandes*: `ampliarNivel(cfg)` (sobre `CAT` al cargar y sobre cada `makeDeepLevel`) multiplica
+  `grid` por `ESCALA_NIVEL` (1,7; asentamientos 1,3; siempre impar) y `boxes`, y guarda `gridBase` y
+  `escala`. En `buildLevel` la fauna se multiplica por `1 + (escala-1)*0,55` (también el techo `maxEnts` y el
+  máximo por especie) y los niveles de 45 celdas o más llevan una salida más. `carveSpecials` saca más zonas
+  y con más radio según `G.n/31`.
+- *Sin bordes* (sección «EL MUNDO SIN BORDES»): `nivelSinBorde(cfg)` (todo lo que no es de la historia) hace
+  `G.toroS = (n-1)·cell`. `genMazeToro` genera el laberinto sobre un toro de periodo `P = n-1` (la fila y
+  la columna `n-1` son copia de la 0; `toroCoser` las vuelve a igualar después de tallar salas) y cierra los
+  pilares que el trenzado deja abiertos sin salida. `toroD(d)` es la diferencia más corta en el toro.
+  `solidAt`, `obstacleAt`, `bfs` (sólo si le pasas `G.grid`), `bfsToro`, `flowStep`, `cellBusy`, las luces
+  (`updateLights`), la salida más cercana y el plano envuelven. `toroPaso()` (después de `updatePlayer`)
+  lleva al jugador y a la cámara a la otra copia al pasar la costura, coloca la fauna, las bengalas, los
+  objetos del suelo, las balizas y los compañeros en la copia más cercana a él y llama a `toroRenovar`
+  (no en multijugador: cada uno lo haría a su manera), que abre muros y cierra pasillos lejos y fuera de la
+  vista sin tocar las celdas con algo pegado (`G.toroDeco`, de `toroMarcarDeco`) ni dejar nada
+  incomunicado. `renderMundo()` sustituye a `renderer.render`: cerca de la costura vuelve a pintar el
+  mundo moviendo la cámara y las luces al revés (sin tocar las matrices del mundo), sólo para las copias
+  cuya franja cae en el frustum. Se aparece cerca del centro (`G.toroInicio`).
+- *Temporada*: `temporada()` mira `G.opts.temporada` (0 automático: 22 de septiembre a noviembre; 1
+  siempre; 2 nunca) y `temporadaAplicar()` pone la clase `temporada` en el body, el aviso `#temporadaBox` y
+  las hojas del título (`#tituloHojas`). `temporadaDecorar(cfg, open, rand)` (con su propia semilla, para
+  no cambiar el resto del nivel) pone calabazas (`InstancedMesh`: cuerpo con color por vértice **en lineal**,
+  rabo, cara y brillo en el suelo), caramelos (`spawnDrop` con uid fijo), telarañas en esquinas de techo y,
+  en exteriores de calle o campo, una alfombra de hojas que sigue al jugador (`temporadaAlfombra`) y
+  hojas que caen (`THREE.Points`). `temporadaUpdate` hace temblar las velas y cuenta las calabazas vistas
+  (`G.prog.calabazas`). Objeto `caramelo` (`season:true`), logros `truco` y `calabazas`, aspecto `calabaza`
+  con `need:{ach:"truco"}` (nuevo tipo de requisito en `skinUnlocked`/`skinNeedText`).
+- *Versiones*: `VERSIONES` (versión, fecha, título y puntos en los dos idiomas) y `renderVersiones()` en
+  `#versionesScreen`; se abre desde `#verTagBtn` (la versión del título), `#novedadesBtn` y `#verTodas`
+  (Ajustes). **Al sacar una versión nueva, añádela arriba.**
+- *Copia publicada*: `HIST_PUBLICO` (true en el archivo del repositorio). `node herramientas/publicar.js`
+  escribe `publicar/el-zumbido.html` con `false`: `historiaOcultar()` quita el botón, los logros `hist_*` y
+  `owen`, a Owen y los ajustes `vista`/`histHud`. Esa es la que se sube mientras el capítulo 1 no salga.
+- *Interiores de la historia*: `histInteriorDetalle(cfg)` (desde `histAtmosferaCrear`, sólo la casa) pone
+  moldura, enchufes, interruptores y cuadros, y apunta cada instancia en `G.cortePegados[celda del muro]`
+  para que `camCorte` la esconda con su muro. La sombra (`luzInterior`, `onBeforeCompile`) y los charcos
+  de luz descartan lo que está por encima de la cámara y la franja que corta `camCorte` (`CORTE_U`).
+
 ## 7. Trampas que ya han mordido
+
+**Colores por vértice o por instancia (5.0).** Van en espacio lineal: un `0.88, 0.42, 0.08` sale color
+melocotón. Para un naranja de verdad, `0.62, 0.12, 0.008`, o `color.setHex(...).convertSRGBToLinear()`.
+
+**Las pruebas y la fecha (5.0).** La temporada depende del día: `banco.js` arranca el juego con
+`temporada: 2` en las opciones guardadas para que las pruebas den lo mismo en octubre que en marzo; las que
+la prueban la encienden a mano.
+
+**Finales de línea (5.0).** El archivo va con saltos LF. Si un script de Python lo abre sin `newline=""` y lo
+escribe en Windows, lo pasa entero a CRLF sin avisar, y entonces fallan pruebas que buscan `"</div>\n</div>"`
+(la de los controles de la pausa en los dos idiomas) y los cambios multilínea dejan de encajar. Lee y escribe
+siempre con `newline=""`.
+
+**Cámaras de escena dentro de una pared (5.0).** En el nido de June la escena salía negra: la cámara fija
+estaba en una celda sólida. La prueba de la historia comprueba ahora cada `E.camara([c2w(x), h, c2w(z)], …)`
+contra la rejilla de su mapa. Ojo: la celda 14.6 ya es la 15.
+
+**El THREE de las pruebas es de mentira (5.0).** `pruebas/banco.js` sólo tiene de verdad `Vector3` (con los
+métodos que se le han ido añadiendo) y `PointLight`; lo demás devuelve objetos vacíos. Un
+`raycaster.intersectObjects(...)` no devuelve un array: comprobar con `Array.isArray` antes de recorrerlo.
+
+**CSS fuera de las marcas (5.0).** `hist/inyectar.py` sustituye lo que hay entre `MODO HISTORIA (5.0)` y
+`FIN MODO HISTORIA`: lo que se añada a `estilos.css` *después* de la marca final se queda fuera y se duplica en
+cada inyección. La marca final tiene que ser la última línea. Y al borrar una regla de varias líneas, borrarla
+entera: una línea huérfana con `}` se comía la regla siguiente (las notas salían sin estilo).
+
+**Muros negros con algunas alturas (arreglado en la 5.0).** `buildLevel` oscurece el pie de los muros con
+`Math.pow(t, 0.55)`; con alturas como 2,7, 3,4 o 4,8 m el redondeo del flotante dejaba `t` en -0,00000001,
+la potencia daba NaN y caras enteras salían negras (también en niveles normales). Ahora va con
+`Math.max(0, …)`. Si tocas colores por vértice, cuidado con las potencias de números que pueden ser -0.
 
 Cosas que no se ven mirando el código y cuestan una tarde cada una.
 
@@ -732,5 +1111,6 @@ Y abrir `http://localhost:8777/el-zumbido.html`.
 | `el-zumbido.html` | El juego entero |
 | `mapa-descenso.html` | Anexo con el grafo de saltos, la fauna y los tipos de salida |
 | `herramientas/anexo.js` | Regenera el anexo desde el catálogo del juego |
+| `herramientas/publicar.js` | Saca `publicar/el-zumbido.html`, la copia sin el modo historia que se sube |
 | `pruebas/` | Las comprobaciones automáticas |
 | `GUIA.md` | Esto |

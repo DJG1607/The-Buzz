@@ -157,6 +157,16 @@ if (blanco) {
   j.pickDrop(suelo);
   c.ok(Math.abs(G.wear.pipe - 0.8) < 1e-9, "y al recogerla vuelve igual de gastada (no sale nueva)");
 } else c.fallar("no hay ninguna entidad en el Level 1 para probar los golpes");
-c.ok(Object.values(ITEMS).filter(it => it.weapon).every(it => it.uses >= 20), "las tres armas tienen su aguante (tubería 40, varilla 30, bate 24)");
+c.ok(Object.values(ITEMS).filter(it => it.weapon).every(it => it.uses >= (it === ITEMS.taser ? 8 : 20)), "cada arma tiene su aguante (tubería 40, varilla 30, bate 24…; el táser, 8 cargas)");
+// 5.0: cuatro armas más, cada una con su papel
+{
+  const W = ITEMS;
+  c.ok(["fireaxe","wrench","hockey","taser"].every(id => W[id] && W[id].weapon && W[id].name_en && W[id].blurb_en), "hay hacha de bombero, llave inglesa, palo de hockey y táser, en los dos idiomas");
+  const armas = Object.keys(W).filter(id => W[id].weapon);
+  c.ok(W.fireaxe.stun === Math.max(...armas.filter(id => id !== "taser").map(id => W[id].stun)), "el hacha es la que más aturde cuerpo a cuerpo");
+  c.ok(W.wrench.cd === Math.min(...armas.map(id => W[id].cd)) && W.wrench.uses === Math.max(...armas.map(id => W[id].uses)), "la llave es la más rápida y la que más aguanta");
+  c.ok(W.hockey.reach === Math.max(...armas.filter(id => id !== "taser").map(id => W[id].reach)), "el palo de hockey es el de más alcance cuerpo a cuerpo");
+  c.ok(W.taser.reach > 4 && W.taser.uses <= 10, "el táser llega lejos pero tiene pocas cargas");
+}
 
 process.exit(c.resumen("las armas y habilidades") ? 1 : 0);
